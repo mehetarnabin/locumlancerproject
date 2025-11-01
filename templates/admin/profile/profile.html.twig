@@ -1,0 +1,83 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block admin_body %}
+
+    <div class="container-xl">
+        <h1 class="app-page-title">Profile</h1>
+
+        <hr class="mb-4">
+
+        <div class="col-12 col-lg-6">
+            <div class="app-card app-card-account shadow-sm d-flex flex-column align-items-start">
+                <div class="app-card-body px-4 w-100">
+                    <a class="btn btn-primary btn-sm mt-5" href="{{ path('app_employer_profile_update') }}" style="float: right;" title="Update Profile"><i class="fa fa-pencil"></i></a>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label mb-2"><strong>Photo</strong></div>
+                                <div class="item-data">
+                                    {% if app.user.profilePictureFilename %}
+                                        <img class="profile-image" src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="user profile">
+                                    {% elseif app.user.profilePicture %}
+                                        <img class="profile-image" src="{{ app.user.profilePicture }}" alt="user profile">
+                                    {% else %}
+                                        <img class="profile-image" src="{{ asset('assets/admin/images/user.png') }}" alt="user profile">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label"><strong>Name</strong></div>
+                                <div class="item-data">{{ app.user.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label"><strong>Email</strong></div>
+                                <div class="item-data">{{ app.user.email }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label"><strong>Phone 1</strong></div>
+                                <div class="item-data">
+                                    {{ app.user.phone1 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label"><strong>Phone 2</strong></div>
+                                <div class="item-data">
+                                    {{ app.user.phone2 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item border-bottom py-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <div class="item-label"><strong>Gender</strong></div>
+                                <div class="item-data">
+                                    {{ app.user.gender }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

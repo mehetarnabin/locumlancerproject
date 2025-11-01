@@ -1,0 +1,135 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Summary{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Basic Information</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Name:</strong> {{ provider.name }}</li>
+                            <li><strong>Suffix:</strong> {{ provider.suffix }}</li>
+                            <li><strong>Title:</strong> {{ provider.title }}</li>
+                            <li><strong>NPI Number:</strong> {{ provider.npiNumber }}</li>
+                            <li><strong>Date of Birth:</strong> {{ provider.dob ? provider.dob|date("m/d/Y") : '' }}</li>
+                            <li><strong>SSN:</strong> {{ provider.ssn }}</li>
+                            <li><strong>Country of Birth:</strong> {{ provider.countryOfBirth }}</li>
+                            <li><strong>State of Birth:</strong> {{ provider.stateOfBirth }}</li>
+                            <li><strong>City of Birth:</strong> {{ provider.cityOfBirth }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Contact Information</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Phone (Home):</strong> {{ provider.phoneHome }}</li>
+                            <li><strong>Phone (Work):</strong> {{ provider.phoneWork }}</li>
+                            <li><strong>Phone (Mobile):</strong> {{ provider.phoneMobile }}</li>
+                            <li><strong>Street Address:</strong> {{ provider.streetAddress }}</li>
+                            <li><strong>City:</strong> {{ provider.city }}</li>
+                            <li><strong>State:</strong> {{ provider.state }}</li>
+                            <li><strong>Country:</strong> {{ provider.country }}</li>
+                            <li><strong>Zip Code:</strong> {{ provider.zipCode }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Work Preferences</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Desired Pay Rate:</strong> {{ provider.desiredPayRate }}</li>
+                            <li><strong>Hourly Rate:</strong> {{ provider.payRateHourly }}</li>
+                            <li><strong>Daily Rate:</strong> {{ provider.payRateDaily }}</li>
+                            <li><strong>Desired Hours:</strong> {{ provider.desiredHour }}</li>
+                            <li><strong>Preferred Patient Volume:</strong> {{ provider.preferredPatientVolume }}</li>
+                            <li><strong>Willing to Travel:</strong> {{ provider.willingToTravel ? 'Yes' : 'No' }}</li>
+                            <li><strong>Availability to
+                                    Start:</strong> {{ provider.availabilityToStart ? provider.availabilityToStart|date("m/d/Y") : '' }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <h5 class="mb-3 summary-title">Education & Training</h5>
+            {% for education in educations %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="card summary-card shadow-sm border-light mb-3">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>School:</strong> {{ education.school }}</li>
+                                <li><strong>Degree:</strong> {{ education.degree }}</li>
+                                <li><strong>Field of Study:</strong> {{ education.fieldOfStudy }}</li>
+                                <li><strong>Start Date:</strong> {{ education.startDate | date("m/d/Y") }}</li>
+                                <li><strong>End Date:</strong> {{ education.endDate | date("m/d/Y") }}</li>
+                                <li><strong>Grade:</strong> {{ education.grade }}</li>
+                                <li><strong>Description:</strong> {{ education.description }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <!-- Work History -->
+            <h5 class="mb-3 summary-title">Work History</h5>
+            {% for experience in experiences %}
+                <div class="col-md-4 col-sm-6">
+                    <div class="card summary-card shadow-sm border-light mb-3">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>Title:</strong> {{ experience.title }}</li>
+                                <li><strong>Company:</strong> {{ experience.company }}</li>
+                                <li><strong>Employment Type:</strong> {{ experience.employmentType }}</li>
+                                <li><strong>Start Date:</strong> {{ experience.startDate | date("m/d/Y") }}</li>
+                                <li><strong>End Date:</strong> {{ experience.endDate | date("m/d/Y") }}</li>
+                                <li><strong>Location:</strong> {{ experience.location }}</li>
+                                <li><strong>Location Type:</strong> {{ experience.locationType }}</li>
+                                <li><strong>Description:</strong> {{ experience.description }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+                <!-- Insurances -->
+                <h5 class="mb-3 summary-title">Insurances</h5>
+                {% for insurance in insurances %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card summary-card shadow-sm border-light mb-3">
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><strong>Carrier:</strong> {{ insurance.carrier }}</li>
+                                    <li><strong>Policy Number:</strong> {{ insurance.policyNumber }}</li>
+                                    <li><strong>Amount:</strong> {{ insurance.amount }}</li>
+                                    <li><strong>State:</strong> {{ insurance.state }}</li>
+                                    <li><strong>City:</strong> {{ insurance.city }}</li>
+                                    <li><strong>Effective Date:</strong> {{ insurance.effectiveDate | date("m/d/Y") }}
+                                    </li>
+                                    <li><strong>Expiration Date:</strong> {{ insurance.expirationDate | date("m/d/Y") }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+    </div>
+{% endblock %}

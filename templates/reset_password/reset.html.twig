@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reset your password{% endblock %}
+
+{% block body %}
+    <section class="section">
+        <div class="lm-container ">
+            <div class="form-container">
+                <div class="section-title-wrap">
+                    <h2 class="section-title m-0 pb-3 section-title-small">
+                        Reset your password
+                    </h2>
+                </div>
+
+                {# Show flash messages (success, errors) #}
+                {% for flashError in app.flashes('reset_password_error') %}
+                    <div class="alert alert-danger">
+                        {{ flashError }}
+                    </div>
+                {% endfor %}
+                {% for flash_success in app.flashes('verify_email_success') %}
+                    <div class="alert alert-success" role="alert">{{ flash_success }}</div>
+                {% endfor %}
+
+                {# Start the form #}
+                {{ form_start(resetForm) }}
+
+                {# Password Field (RepeatedType usually named plainPassword) #}
+                {{ form_row(resetForm.plainPassword.first, {'attr': {'class': 'form-control mb-2'}}) }}
+                {{ form_row(resetForm.plainPassword.second, {'attr': {'class': 'form-control mb-2'}}) }}
+
+                <button class="th-btn th-btn-full mb-2">Reset password</button>
+
+                {{ form_end(resetForm) }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

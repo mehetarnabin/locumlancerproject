@@ -1,0 +1,81 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Job Detail{% endblock %}
+
+{% block provider_body %}
+
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Job Detail</h1>
+
+        <hr class="mb-4">
+
+        {% if job.id|striptags not in appliedJobsIds %}
+            <div class="mb-4">
+                <a href="{{ path('app_provider_jobs_apply', {'id': job.id, 'redirect_route':'app_provider_jobs_matching'}) }}"
+                   title="Apply" onclick="return confirm('Are you sure? Do you want to apply to this job?')">
+                    <img src="{{ asset('assets/icons/click.png') }}" alt="apply" class="icon-image"/>
+                </a>
+            </div>
+        {% else %}
+            <img src="{{ asset('assets/icons/check.png') }}" class="icon-image mb-4"  title="Applied" />
+        {% endif %}
+
+        <div class="job-details">
+            <div class="job-row">
+                <div class="job-label">ID</div>
+                <div class="job-value">{{ job.jobId }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Job Title</div>
+                <div class="job-value">{{ job.title }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Employer</div>
+                <div class="job-value">{{ job.employer }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Location</div>
+                <div class="job-value">{{ job.state }}, {{ job.city }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Schedule</div>
+                <div class="job-value">{{ job.schedule }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Start Date</div>
+                <div class="job-value">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Pay Rate</div>
+                <div class="job-value">{{ job.payRate }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Pay Rate Daily</div>
+                <div class="job-value">{{ job.payRateDaily }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Pay Rate Hourly</div>
+                <div class="job-value">{{ job.payRateHourly }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Work Type</div>
+                <div class="job-value">{{ job.workType }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Need</div>
+                <div class="job-value">{{ job.need }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Years of Experience</div>
+                <div class="job-value">{{ job.yearOfExperience }}</div>
+            </div>
+            <div class="job-row">
+                <div class="job-label">Description</div>
+                <div class="job-value">
+                    {{ job.description|raw }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

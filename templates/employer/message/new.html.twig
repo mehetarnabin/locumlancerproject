@@ -1,0 +1,93 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Inbox</h1>
+        <div class="message-wrapper">
+            <div class="row">
+                <!-- BEGIN INBOX -->
+                <div class="col-md-12">
+                    <div class="grid email">
+                        <div class="grid-body">
+                            <div class="row">
+                                <!-- BEGIN INBOX MENU -->
+                                <div class="col-md-3">
+                                    <div class="sticky">
+                                        <h5>New Message</h5>
+                                        <div class="card">
+{#                                            <div class="card-header">#}
+{#                                                <strong>Folders</strong>#}
+{#                                            </div>#}
+                                            <div class="list-group">
+                                                <a href="{{ path('app_employer_messages', {'type': 'inbox'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
+                                                    <i class="fa fa-inbox"></i>
+                                                    Inbox
+                                                </a>
+                                                <a href="{{ path('app_employer_messages', {'type': 'sent'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == 'sent' %}active{% endif %}">
+                                                    <i class="fa fa-mail-forward"></i>
+                                                    Sent
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END INBOX MENU -->
+
+
+                                <div class="col-md-9">
+                                    <form action="" method="post" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <div class="form-group mb-3">
+                                                <select name="receiver" class="form-control select2" required>
+                                                    {% for provider in providers %}
+                                                        <option value="{{ provider.id }}">{{ provider.name }} [{{ provider.email }}]</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                    <textarea name="message" id="email_message" required
+                                                              class="form-control" placeholder="Message"
+                                                              style="height: 120px;"></textarea>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <input type="file" name="attachment">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit"
+                                                    class="btn btn-primary pull-right">
+                                                <i class="fa fa-envelope"></i>
+                                                Send Message
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>
+    <script src="https://cdn.ckeditor.com/4.22.1/basic/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace('message');
+    </script>
+    <style>
+        .cke_notifications_area{
+            display: none;
+        }
+    </style>
+{% endblock %}

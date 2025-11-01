@@ -1,0 +1,63 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Applications for {{ job.title }}{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Applications</h1>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card application-header">
+                    <div class="card-body">
+                        <div>
+                            <h3><a href="{{ path('app_employer_job_show', {'id': job.id}) }}">{{ job.title }}</a></h3>
+                            <p>{{ job.workType }}</p>
+                            <p>{{ job.need }}</p>
+                            <p>{{ job.schedule }}</p>
+                            <p>{{ job.state ~' '~ job.city }}</p>
+                            <p>Expires in {{ job.expirationDate ? job.expirationDate|date('m/d/Y')|ago }}</p>
+                        </div>
+                        <div class="status">
+                            <span class="badge badge-pill is-applied">{{ job.status|capitalize }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <div class="card application-filter mb-4">
+                    <div class="card-body">
+                        <form>
+                            <div class="col">
+                                <select name="status" class="form-control form-select">
+                                    <option value="">All</option>
+                                    <option value="applied" {% if app.request.get('status') == 'applied' %}selected{% endif %}>Applied</option>
+                                    <option value="in_review" {% if app.request.get('status') == 'in_review' %}selected{% endif %}>In Review</option>
+                                    <option value="interview" {% if app.request.get('status') == 'interview' %}selected{% endif %}>Interview</option>
+                                    <option value="offered" {% if app.request.get('status') == 'offered' %}selected{% endif %}>Offered</option>
+                                    <option value="rejected" {% if app.request.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    <option value="hired" {% if app.request.get('status') == 'hired' %}selected{% endif %}>Hired</option>
+                                    <option value="completed" {% if app.request.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <input type="submit" value="Filter" class="btn btn-sm" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        Applications not found.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

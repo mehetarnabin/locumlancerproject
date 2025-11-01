@@ -1,0 +1,152 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Applications{% endblock %}
+
+{% block admin_body %}
+    {% set statusColors = {
+        'applied': 'applied',
+        'in_review': 'review',
+        'interview': 'interview',
+        'offered': 'offered',
+        'rejected': 'rejected',
+        'hired': 'hired',
+        'completed': 'completed'
+    } %}
+
+    {% set allStatuses = ['applied', 'in_review', 'interview', 'offered', 'rejected', 'hired', 'completed'] %}
+
+    <div class="container-xl">
+
+        <div class="application-sticky">
+            <div class="row g-2 mb-3">
+                <div class="col">
+                    <a href="{{ path('app_admin_applications') }}">
+                        <div class="card is-card mb-3 is-applied {% if app.request.get('status') == '' %}active{% endif %}">
+                            <div class="card-body">
+                                <h6 class="card-title">All</h6>
+                                <p class="card-text">{{ totalApplications|number_format }}</p>
+                                <img src="{{ asset('assets/icons/list-search.png') }}" class="icon-image" alt="">
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                {% for status in allStatuses %}
+                {% set count = 0 %}
+                {% for item in statusCounts %}
+                    {% if item.status == status %}
+                        {% set count = item.count %}
+                    {% endif %}
+                {% endfor %}
+                <div class="col">
+                    <a href="{{ path('app_admin_applications', {'status': status}) }}">
+                        <div class="card is-card mb-3 is-{{ statusColors[status] }} {% if app.request.get('status') == status %}active{% endif %}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ status | replace({'_': ' '}) | title }}</h6>
+                                <p class="card-text">{{ count }}</p>
+                                {% if status == 'applied' %}
+                                    <img src="{{ asset('assets/icons/monitor.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'in_review' %}
+                                    <img src="{{ asset('assets/icons/candidate-selection.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'interview' %}
+                                    <img src="{{ asset('assets/icons/online-discussion.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'offered' %}
+                                    <img src="{{ asset('assets/icons/follow.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'rejected' %}
+                                    <img src="{{ asset('assets/icons/delete-friend.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'hired' %}
+                                    <img src="{{ asset('assets/icons/no-internet.png') }}" class="icon-image" alt="">
+                                {% elseif status == 'completed' %}
+                                    <img src="{{ asset('assets/icons/check.png') }}" class="icon-image" alt="">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 table-responsive">
+                {% if applications|length > 0 %}
+                    <table class="table">
+                        <tr>
+                            <th>Job</th>
+                            <th>Employer</th>
+                            <th>Provider</th>
+                            <th>Location</th>
+                            <th>Schedule</th>
+                            <th>Applied At</th>
+                            <th>Status</th>
+                        </tr>
+                        {% for application in applications %}
+                            {% set job = application.job %}
+                            <tr>
+                                <td><a href="{{ path('app_admin_job_applications', {'id': job.id, 'applicationId': application.id}) }}#{{ application.id }}" title="Details">{{ job.title }}</a></td>
+                                <td>{{ application.Employer }}</td>
+                                <td>{{ application.provider }}</td>
+                                <td>{{ job.state }}, {{ job.city }}</td>
+                                <td>{{ job.schedule }}</td>
+                                <td>{{ application.createdAt|date('m/d/Y') }}</td>
+                                <td>
+                                    <span class="badge badge-pill is-{{ statusColors[application.status] }}">
+                                        {{ application.status | replace({'_': ' '}) | title }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p>Applications not found.</p>
+                {% endif %}
+            </div>
+
+            {% if applications.nbPages > 1 and applications|length > 0 %}
+                <div class="col-12">
+                    {{ pagerfanta(applications, 'twitter_bootstrap5') }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Send Contract Modal -->
+    <div class="modal fade" id="contractModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractModalLabel">Send Contract</h5>
+                </div>
+                <form method="post" action="" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="file" name="contractFile" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        {#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>#}
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#contractModal').on('show.bs.modal', function(event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var applicationId = button.data('application_id'); // Get application ID
+                var form = $(this).find('form'); // Find the form inside the modal
+                var actionUrl = "{{ path('app_provider_application_sendcontract', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                form.attr('action', actionUrl); // Set the form action
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Inbox</h1>
+        <div class="message-wrapper">
+            <div class="row">
+                <!-- BEGIN INBOX -->
+                <div class="col-md-12">
+                    <div class="grid email">
+                        <div class="grid-body">
+                            <div class="row">
+                                <!-- BEGIN INBOX MENU -->
+                                <div class="col-md-3">
+                                    <div class="sticky">
+                                        <a class="btn btn-primary d-block w-100" href="{{ path('app_employer_messages_new') }}">
+                                            <i class="fa fa-pencil"></i> New Message
+                                        </a>
+
+                                        <div class="card">
+{#                                            <div class="card-header">#}
+{#                                                <strong>Folders</strong>#}
+{#                                            </div>#}
+                                            <div class="list-group">
+                                                <a href="{{ path('app_employer_messages', {'type': 'inbox'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
+                                                    <i class="fa fa-inbox"></i>
+                                                    Inbox
+                                                </a>
+                                                <a href="{{ path('app_employer_messages', {'type': 'sent'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == 'sent' %}active{% endif %}">
+                                                    <i class="fa fa-mail-forward"></i>
+                                                    Sent
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END INBOX MENU -->
+
+                                <!-- BEGIN INBOX CONTENT -->
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6 search-form">
+                                            <form action="" class="text-right">
+                                                <div class="input-group">
+                                                    <input type="text" name="keyword" class="form-control input-sm"
+                                                           placeholder="Search">
+                                                    <span class="input-group-btn">
+                                                        <button type="submit" class="btn btn-primary btn-sm search"><i class="fa fa-search"></i></button>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <strong>Sender: {{ message.sender }}</strong>
+                                        <p>{{ message.createdAt|date('m/d/Y') }}</p>
+                                        {{ message.text|raw }}
+
+                                        {% if message.attachment %}
+                                            <p><i class="fa fa-file-alt"></i> <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank">{{ message.attachment }}</a></p>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- BEGIN REPLY SECTION -->
+                                    <hr>
+                                    <h5>Replies</h5>
+                                    <div id="replies-list" class="mb-4">
+                                        {% for reply in replies %}
+                                            <div class="reply-item border rounded p-2 mb-2">
+                                                <strong>{{ reply.sender }}</strong> replied:<br>
+                                                <p>{{ reply.text|nl2br }}</p>
+                                                {% if reply.attachment %}
+                                                    <a href="/uploads/{{ reply.sender.id }}/{{ reply.attachment }}" target="_blank">
+                                                        <i class="fa fa-paperclip"></i> {{ reply.attachment }}
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <h5>Write a Reply</h5>
+                                    <form id="reply-form" enctype="multipart/form-data">
+                                        <div class="mb-3">
+                                            <textarea name="message" class="form-control" placeholder="Your reply..." required></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="file" name="attachment" class="form-control">
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Send Reply</button>
+                                    </form>
+                                    <div id="reply-status" class="mt-2"></div>
+                                    <!-- END REPLY SECTION -->
+
+                                </div>
+                                <!-- END INBOX CONTENT -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END INBOX -->
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script>
+        document.getElementById('reply-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            const messageId = '{{ message.id }}';
+
+            const response = await fetch(`/employer/messages/${messageId}/reply`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            const statusDiv = document.getElementById('reply-status');
+
+            if (result.success) {
+                document.getElementById('replies-list').insertAdjacentHTML('beforeend', result.replyHtml);
+                form.reset();
+                // statusDiv.innerHTML = '<div class="alert alert-success mt-2">Reply sent successfully!</div>';
+                showToast('success', 'Reply sent successfully')
+            } else {
+                statusDiv.innerHTML = `<!--<div class="alert alert-danger mt-2">${result.error || 'An error occurred.'}</div>-->`;
+                showToast('error', 'An error occurred.')
+            }
+        });
+    </script>
+{% endblock %}

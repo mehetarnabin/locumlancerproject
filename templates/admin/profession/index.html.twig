@@ -1,0 +1,73 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Professions{% endblock %}
+
+{% block admin_body %}
+<div class="container-xl">
+    <h1 class="app-page-title">Professions</h1>
+
+    <a href="{{ path('app_admin_profession_new') }}" class="btn btn-sm btn-primary mb-4">Create new</a>
+
+    <div class="table-responsive">
+    <table class="table" id="sortable-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Specialities</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="sortable">
+        {% for profession in professions|sort((a, b) => a.position <=> b.position) %}
+            <tr data-id="{{ profession.id }}">
+                <td class="handle" style="cursor: move;"><img src="{{ asset('assets/icons/shopping.png') }}" class="icon-image" /></td>
+                <td>{{ profession.name }}</td>
+                <td>{{ profession.specialities|length }}</td>
+                <td class="text-nowrap">
+                    <a href="{{ path('app_admin_profession_edit', {'id': profession.id}) }}" title="Edit"><img src="{{ asset('assets/icons/file.png') }}" class="icon-image" /></a>
+                    &nbsp;&nbsp;
+                    <a href="{{ path('app_admin_profession_delete', {'id': profession.id}) }}" title="Delete" onclick="return confirm('Are you sure? Do you want to delete this item?');"><img src="{{ asset('assets/icons/trash.png') }}" class="icon-image" /></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script>
+        const el = document.getElementById('sortable');
+        Sortable.create(el, {
+            handle: '.handle',
+            animation: 150,
+            onEnd: function () {
+                let order = [];
+                document.querySelectorAll('#sortable tr').forEach((row, index) => {
+                    order.push({
+                        id: row.dataset.id,
+                        position: index + 1
+                    });
+                });
+
+                fetch('{{ path("app_admin_profession_reorder") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(order)
+                }).then(response => {
+                    if (!response.ok) alert("Error saving order");
+                });
+            }
+        });
+    </script>
+{% endblock %}

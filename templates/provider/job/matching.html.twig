@@ -1,0 +1,596 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Matching Jobs{% endblock %}
+
+{% block provider_body %}
+<style>
+.job-header, .job-row {
+    display: flex;
+    align-items: center;
+}
+
+.col-job,
+.col-location,
+.col-schedule,
+.col-expiry,
+.col-start,
+.col-action {
+    flex: 1;
+    min-width: 130px;
+}
+.col-job {
+    flex: 2;
+}
+.job-header {
+    padding-left: 14px;
+    padding-right: 14px;
+    color: #121C0C;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    border: 1px solid #e6eef6;
+    height: 48px;
+    margin-bottom: 2px;
+}
+.job-row {
+    border: none;
+    padding: 3px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 2px 0;
+    font-size: 14px;
+    border-radius: 10px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+.truncate-text {
+    display: inline-block;
+    max-width: 180px; /* Adjust as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.job-section {
+    background-color: #fff;
+}
+.job-check {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+#toggleActions {
+    padding: 6px 16px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    color: #fff;
+}
+.job-meta {
+    margin-top: 1px;
+}
+.ml-15-px {
+    margin-left: 15px;
+}
+.mr-15-px {
+    margin-right: 15px;
+}
+.action-btn {
+    background: transparent;
+    border: none;
+    padding: 0 4px;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  padding: 10px;
+  min-width: 150px;
+  z-index: 1000;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.columns-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-weight: 400;
+  color: #121C0C;
+}
+
+.menu-panel .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  color: #121C0C;
+}
+
+.menu-panel svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dropdown-cstm {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+}
+
+.menu-panel {
+    min-width: 160px;
+}
+
+.columns-panel input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #e6eef6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.columns-panel input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+.columns-panel input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.col-check input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #e6eef6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.col-check input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+.col-check input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.job-title {
+    color: #121C0C;
+}
+
+.action-btn {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.action-btn, ..dropdown-cstm {
+    transition: all 0.2s ease;
+}
+.action-btn:hover, .dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+.action-btn:hover svg {
+    color: #85BB65;
+}
+#delete-btn:hover {
+    color: #BA1824;
+    border: 1px solid #BA1824;
+    transition: all 0.2s ease; 
+}
+#delete-btn:hover svg {
+    color: #BA1824;
+}
+.col-center {
+    text-align: center;
+}
+.col-rank {
+    min-width: 50px;
+    max-width: 50px;
+}
+</style>
+<div class="container-xl">
+    <div class="job-section shadow-lg p-3 rounded-3">
+        <div class="d-flex justify-content-between align-items-center ml-15-px" style="margin-bottom:30px;">
+            <h6 class="app-card-title mb-0">Matching Jobs</h6>
+        </div>
+
+        <div class="actions-container d-flex justify-content-between align-items-center ml-15-px mr-15-px">
+            <div class="job-actions" style="display: flex; gap: 8px; align-items: center;">
+              <button id="apply-btn" class="action-btn" disabled title="Apply">
+                <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <g data-name="Layer 2">
+                <g data-name="checkmark-circle">
+                <rect width="24" height="24" opacity="0"/>
+                <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
+                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
+                </g>
+                </g>
+                <use xlink:href="#icon-apply"/>
+                </svg> Apply
+              </button>
+              <div class="hidden-buttons d-flex" style="gap:8px; align-items:cneter; visibility: hidden;">
+                <button id="save-btn" class="action-btn" title="Save">
+                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 8C6 5.18536 8 4 12 4C16 4 18 5.18537 18 8V19.0858C18 19.9767 16.9229 20.4229 16.2929 19.7929L12.7071 16.2071C12.3166 15.8166 11.6834 15.8166 11.2929 16.2071L7.70711 19.7929C7.07714 20.4229 6 19.9767 6 19.0858V8Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <use xlink:href="#icon-save"/>
+                    </svg> Save
+                  </button>
+                  <button id="email-btn" class="action-btn" title="Email">
+                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="style=stroke">
+                    <g id="email">
+                    <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
+                    <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
+                    </g>
+                    </g>
+                    <use xlink:href="#icon-email"/>
+                    </svg> Email
+                  </button>
+                  <button id="delete-btn" class="action-btn" title="Delete">
+                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                    <use xlink:href="#icon-delete"/>
+                    </svg> Delete
+                  </button>
+              </div>
+              {#<a href="{{ path('app_provider_profile_work_preferences') }}" class="action-btn">
+                    <svg class="icon-image" fill="currentcolor" height="25" width="25" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                         viewBox="0 0 423.469 423.469" xml:space="preserve">
+                    <path d="M422.197,211.735l-38.408-66.526c-1.697-2.939-4.833-4.75-8.228-4.75c-3.394,0-6.53,1.811-8.228,4.75l-38.409,66.526
+                        c-1.696,2.939-1.696,6.561,0,9.5c1.697,2.939,4.833,4.75,8.228,4.75h9.465c-3.315,34.18-18.505,65.846-43.376,90.024
+                        c-7.246,7.044-15.11,13.238-23.459,18.55v-11.706c0-29.462-16.446-55.151-40.638-68.38c24.193-13.228,40.641-38.919,40.641-68.381
+                        c0-42.943-34.937-77.88-77.88-77.88s-77.88,34.937-77.88,77.88c0,29.445,16.428,55.121,40.597,68.356
+                        c-6.454,3.529-12.445,7.99-17.787,13.337c-14.711,14.711-22.813,34.268-22.813,55.068v11.619
+                        c-40.56-25.828-67.523-71.192-67.523-122.738c0-80.177,65.229-145.406,145.407-145.406c38.84,0,75.354,15.125,102.818,42.589
+                        c3.711,3.71,9.725,3.71,13.436,0c3.71-3.71,3.71-9.725,0-13.435c-31.053-31.052-72.34-48.154-116.254-48.154
+                        c-90.654,0-164.407,73.752-164.407,164.406s73.752,164.407,164.407,164.407c43.036,0,83.729-16.517,114.58-46.509
+                        c30.786-29.928,48.452-70.009,49.744-112.861c0.077-2.568-0.889-5.058-2.678-6.902c-1.789-1.844-4.249-2.885-6.818-2.885h-3.126
+                        l21.954-38.026l21.954,38.026h-3.266c-5.157,0-9.372,4.114-9.497,9.27c-1.161,47.899-20.697,92.75-55.009,126.289
+                        c-34.369,33.594-79.77,52.095-127.839,52.095C101.051,394.639,19,312.589,19,211.734S101.051,28.83,201.905,28.83
+                        c48.855,0,94.787,19.025,129.333,53.572c3.71,3.709,9.724,3.71,13.436,0c3.71-3.71,3.71-9.725,0-13.435
+                        C306.539,30.832,255.835,9.83,201.905,9.83C90.574,9.83,0,100.404,0,211.734s90.574,201.905,201.905,201.905
+                        c53.063,0,103.18-20.424,141.12-57.508c35.653-34.851,56.854-80.768,60.288-130.146h10.656c3.394,0,6.53-1.811,8.228-4.75
+                        C423.893,218.296,423.893,214.675,422.197,211.735z M143.025,186.092c0-32.467,26.414-58.88,58.88-58.88
+                        c32.467,0,58.88,26.413,58.88,58.88s-26.413,58.88-58.88,58.88C169.438,244.972,143.025,218.559,143.025,186.092z M143.021,344.672
+                        v-21.818c0-15.725,6.125-30.51,17.25-41.635c11.112-11.121,25.896-17.245,41.63-17.245c32.467,0,58.88,26.414,58.88,58.88v21.89
+                        c-18.322,8.118-38.294,12.398-58.877,12.398C180.956,357.141,161.032,352.681,143.021,344.672z"/>
+                    </svg>
+                </a>#}
+            </div>
+            <div class="col-dropdowns d-flex gap-2">
+              <!-- Columns Dropdown -->
+              <div class="columns-dropdown position-relative">
+                <button type="button" class="columns-dropdown-btn dropdown-cstm"><span>Columns</span></button>
+                <div class="dropdown-panel columns-panel custom-dropdown hidden">
+                  <label><input type="checkbox" value="salary"> Salary</label>
+                  <label><input type="checkbox" value="location"> Location</label>
+                  <label><input type="checkbox" value="date-posted"> Date Posted</label>
+                  <label><input type="checkbox" value="deadline"> Deadline</label>
+                  <label><input type="checkbox" value="date-applied"> Date Applied</label>
+                  <label><input type="checkbox" value="excitement"> Rank</label>
+                </div>
+              </div>
+
+              <!-- Menu Dropdown -->
+              <div class="menu-dropdown position-relative">
+                <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
+                <div class="dropdown-panel menu-panel custom-dropdown hidden">
+                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="Warning / Info">
+                    <path id="Vector" d="M12 11V16M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12.0498 8V8.1L11.9502 8.1002V8H12.0498Z" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    </svg> Quick Tour</div>
+                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
+                    <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> Archived Jobs</div>
+                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> Export Report</div>
+                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> Download Data</div>
+                </div>
+              </div>
+            </div>
+        </div>
+        {#<div class="d-flex justify-content-between align-items-center mb-3" ml-15-px>
+            <div class="section-intro">Matching jobs are shown based on your work preferences. <a href="{{ path('app_provider_profile_work_preferences') }}"><u>Update your preferences</u></a> to improve job matching.</div>
+            <button id="toggleActions" class="btn btn-light d-flex align-items-center gap-1">
+                Actions
+            </button>
+        </div>
+
+        <hr class="mb-4">#}
+
+        {% if jobs|length > 0 %}
+        <div class="job-list-container bg-light p-3 rounded-3">
+            <div class="d-flex align-items-center job-lists">
+                <div class="d-flex align-items-center flex-grow-1">
+                    <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
+                        <div class="col-check" style="width: 25px;">
+                            <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
+                        </div>
+                        <div class="col-job flex-grow-2">Job</div>
+                        <div class="col-start col-center flex-grow-1">Location</div>
+                        <div class="col-start col-center flex-grow-1">Posted on</div>
+                        <div class="col-expiry col-center flex-grow-1">Expires on</div>
+                        <div class="col-start col-center flex-grow-1">Salary(Hourly)</div>
+                        <div class="col-start col-center flex-grow-1">% Matched</div>
+                        <div class="col-start col-center col-rank flex-grow-1">Rank</div>
+                    </div>
+                </div>
+            </div>
+
+            {% for job in jobs %}
+            <div class="d-flex align-items-center job-lists">
+            <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
+                <div class="col-check" style="width: 25px;">
+                    <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
+                </div>
+                <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
+                    <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
+                         alt="Logo"
+                         style="width: 40px; height: 40px; border-radius: 8px;" />
+                    <div class="flex-grow-2">
+                        <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
+                           href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}">
+                            {{ job.title }}
+                        </a>
+                        {#<div class="job-meta text-muted small">
+                            {{ job.schedule }}
+                        </div>#}
+                    </div>
+                </div>
+                <div class="col-start col-center flex-grow-1">{{ job.state }}</div>
+                <div class="col-start col-center flex-grow-1">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
+                <div class="col-expiry col-center flex-grow-1">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
+                <div class="col-start col-center flex-grow-1">{{ job.payRateHourly }}</div>
+                <div class="col-start col-center flex-grow-1">50%</div>
+                <div class="col-start col-center col-rank flex-grow-1">1</div>
+                {#<div class="col-action d-flex gap-2 justify-content-end" style="width: 150px; visibility: hidden;">
+                    {% if job.id|striptags not in appliedJobsIds %}
+                        <a href="{{ path('app_provider_jobs_apply', {'id': job.id, 'redirect_route':'app_provider_jobs_matching'}) }}"
+                           title="Apply"
+                           onclick="return confirm('Are you sure? Do you want to apply this matching job?')">
+                            <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12L10 17L20 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    {% else %}
+                        <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" title="Applied">
+                            <path d="M5 12L10 17L20 7" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    {% endif %}
+
+                    <a href="#" title="Delete">
+                        <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+
+                    <a href="{{ path('app_provider_jobs_saved', {'id': job.id}) }}" title="Save">
+                        <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 4H18V20L12 16L6 20V4Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                </div>#}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="mb-0">Matching jobs not found.</p>
+        {% endif %}
+        <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
+          <button id="apply-btn" class="action-btn" disabled title="Apply">
+            <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <g data-name="Layer 2">
+            <g data-name="checkmark-circle">
+            <rect width="24" height="24" opacity="0"/>
+            <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
+            <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
+            </g>
+            </g>
+            <use xlink:href="#icon-apply"/>
+            </svg>
+          </button>
+          <button id="save-btn" class="action-btn" title="Save">
+            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 8C6 5.18536 8 4 12 4C16 4 18 5.18537 18 8V19.0858C18 19.9767 16.9229 20.4229 16.2929 19.7929L12.7071 16.2071C12.3166 15.8166 11.6834 15.8166 11.2929 16.2071L7.70711 19.7929C7.07714 20.4229 6 19.9767 6 19.0858V8Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <use xlink:href="#icon-save"/>
+            </svg>
+          </button>
+          <button id="email-btn" class="action-btn" title="Email">
+            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="style=stroke">
+            <g id="email">
+            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
+            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
+            </g>
+            </g>
+            <use xlink:href="#icon-email"/>
+            </svg>
+          </button>
+          <button id="delete-btn" class="action-btn" title="Delete">
+            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+            <use xlink:href="#icon-delete"/>
+            </svg>
+          </button>
+        </div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const checkboxes = document.querySelectorAll('.job-checkbox');
+    const applyBtn = document.getElementById('apply-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const deleteBtn = document.getElementById('delete-btn');
+    const actionsDivs = document.querySelectorAll('.hidden-buttons');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const columnsBtn = document.querySelector('.columns-dropdown-btn');
+    const menuBtn = document.querySelector('.menu-dropdown-btn');
+    const columnsPanel = document.querySelector('.columns-panel');
+    const menuPanel = document.querySelector('.menu-panel');
+
+    function toggleDropdown(panel, btn) {
+        const isOpen = !panel.classList.contains('hidden');
+        closeAllDropdowns();
+        if (!isOpen) panel.classList.remove('hidden');
+    }
+
+    function closeAllDropdowns() {
+        columnsPanel.classList.add('hidden');
+        menuPanel.classList.add('hidden');
+    }
+
+    columnsBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleDropdown(columnsPanel, columnsBtn);
+    });
+
+    menuBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleDropdown(menuPanel, menuBtn);
+    });
+
+    document.addEventListener('click', e => {
+        // Only close if click is outside both dropdowns and buttons
+        if (
+          !columnsPanel.contains(e.target) &&
+          !columnsBtn.contains(e.target) &&
+          !menuPanel.contains(e.target) &&
+          !menuBtn.contains(e.target)
+        ) {
+          closeAllDropdowns();
+        }
+    });
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function () {
+        checkboxes.forEach(cb => {
+          cb.checked = selectAllCheckbox.checked;
+        });
+        toggleActionsVisibility();
+        updateActions();
+      });
+
+      // Sync master checkbox if user manually toggles individual ones
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', function () {
+          const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+          selectAllCheckbox.checked = allChecked;
+        });
+      });
+    }
+
+    function toggleActionsVisibility() {
+      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+      actionsDivs.forEach(div => {
+        div.style.visibility = anyChecked ? 'visible' : 'hidden';
+      });
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', toggleActionsVisibility);
+    });
+
+    // Initial check in case some boxes are pre-checked
+    toggleActionsVisibility();
+
+    function updateActions() {
+      const checked = Array.from(checkboxes).filter(cb => cb.checked);
+      applyBtn.disabled = checked.length !== 1;
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', updateActions);
+    });
+
+    applyBtn.addEventListener('click', () => {
+      const selected = Array.from(checkboxes).filter(cb => cb.checked);
+      if (selected.length === 1) {
+        const jobId = selected[0].dataset.jobId;
+        // Trigger apply logic here
+        console.log('Applying to job:', jobId);
+      }
+    });
+
+    saveBtn.addEventListener('click', () => {
+      const selectedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.dataset.jobId);
+      // Trigger batch save logic here
+      console.log('Saving jobs:', selectedIds);
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      const selectedIds = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.dataset.jobId);
+      // Trigger batch delete logic here
+      console.log('Deleting jobs:', selectedIds);
+    });
+  });
+</script>
+{% endblock %}

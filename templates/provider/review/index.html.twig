@@ -1,0 +1,140 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Reviews{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block provider_body %}
+<style>
+    .card.review-card-full {
+        border: none;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+        padding: 16px;
+    }
+    .card.review-card {
+        border: none;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+        padding: 16px;
+    }
+    .card.review-card .card-body {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .list-group .list-group-item {
+        border-radius: 8px;
+        padding: 2px 14px;
+        background: #F4F9F1;
+        border: 1px solid #e6eef6;
+        box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+        margin-bottom: 4px;
+    }
+    .review-card-full .text-success {
+        color: #8DC072!important;
+    }
+    .review-card .badge {
+        background: #8DC072 !important;
+    }
+</style>
+    <div class="container-xl">
+
+        <!-- Average Rating Display -->
+        {% if provider.averagePoint %}
+        <div class="text-center my-4">
+            <div class="card review-card-full">
+                <div class="card-body">
+                    <h4 class="text-primary review-card-title mb-0">Your Average Rating</h4>
+                    <h1 class="display-4 fw-semibold text-success">{{ provider.averagePoint }}/5</h1>
+{#                    <div class="text-warning fs-4">#}
+{#                        {% for i in 1..5 %}#}
+{#                            {% if i <= provider.averagePoint %}#}
+{#                                ★#}
+{#                            {% else %}#}
+{#                                ☆#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Filters -->
+{#        <form method="get" class="row g-3 mb-4">#}
+{#            <div class="col-md-3">#}
+{#                <select name="rating" class="form-select">#}
+{#                    <option value="">All Ratings</option>#}
+{#                    {% for i in 5..1 %}#}
+{#                        <option value="{{ i }}" {{ app.request.get('rating') == i ? 'selected' : '' }}>{{ i }} stars</option>#}
+{#                    {% endfor %}#}
+{#                </select>#}
+{#            </div>#}
+{#            <div class="col-md-3">#}
+{#                <input type="date" name="date" class="form-control" value="{{ app.request.get('date') }}">#}
+{#            </div>#}
+{#            <div class="col-md-2">#}
+{#                <button class="btn btn-primary w-100"><i class="bi bi-filter"></i> Filter</button>#}
+{#            </div>#}
+{#        </form>#}
+
+        <!-- Review Cards -->
+        {% if pager|length > 0 %}
+            <div class="row" id="review-list">
+                {% for review in pager %}
+                    {% set bgClass = review.point >= 4 ? 'border-success' : (review.point >= 3 ? 'border-warning' : 'border-danger') %}
+                    <div class="col-12 col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 review-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    {{ review.employer }}
+                                    <span class="badge bg-primary float-end">{{ review.point }}/5</span>
+                                </h5>
+                                <h6 class="text-muted">{{ review.application.job }}</h6>
+                                <p class="mt-2">{{ review.message|default('No message provided.') }}</p>
+
+                                <ul class="list-group list-group-flush small">
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Professionalism</span>
+                                        <strong>{{ review.professionalism }}</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Quality of Care</span>
+                                        <strong>{{ review.quality }}</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Communication</span>
+                                        <strong>{{ review.communication }}</strong>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>Emotional Intelligence</span>
+                                        <strong>{{ review.emotionalIntelligence }}</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card-footer text-muted text-end small">
+                                {{ review.createdAt|date('M d, Y') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if pager.nbPages > 1 %}
+                <div class="mt-4 d-flex justify-content-center">
+                    {{ pagerfanta(pager, 'twitter_bootstrap5') }}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info text-center mt-5">
+                No reviews found.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

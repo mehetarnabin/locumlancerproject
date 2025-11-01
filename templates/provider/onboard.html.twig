@@ -1,0 +1,76 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block header_scripts %}
+    <link href="{{ asset('assets/admin/css/timeline.css') }}" rel="stylesheet"/>
+{% endblock %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Onboarding</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <p>Welcome to Locumlancer! We're excited to have you on board. Getting started is quick and easy—just
+                    follow these simple steps:</p>
+                <div class="timeline">
+                    <div>
+                        {% if app.user.provider.cvFilename is not null %}
+                            <i class="fas fa-check bg-success"></i>
+                        {% else %}
+                            <i class="fas fa-plus bg-danger"></i> 
+                        {% endif %}
+                        <div class="timeline-item">
+                            {% if app.user.provider.cvFilename %}
+                                <h3 class="timeline-header">
+                                    CV Upload
+                                </h3>
+                                <div class="timeline-body">Great! you have uploaded your CV.</div>
+                            {% else %}
+                                <h3 class="timeline-header">
+                                    CV Upload
+                                </h3>
+                                <div class="timeline-body">
+                                    <p>Upload your CV.</p>
+                                    <p>
+                                    <a href="{{ path('app_provider_profile_cv') }}"
+                                       class="btn btn-sm btn-primary">Upload CV</a>
+                                    </p></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        {% if app.user.provider.name is not null and app.user.provider.npiNumber is not null and app.user.provider.phoneMobile is not null %}
+                            <i class="fas fa-check bg-success"></i>
+                        {% else %}
+                            <i class="fas fa-plus bg-danger"></i>
+                        {% endif %}
+                        <div class="timeline-item">
+                            {% if app.user.provider.name is not null and app.user.provider.npiNumber is not null and app.user.provider.phoneMobile is not null %}
+                                <h3 class="timeline-header">
+                                    Profile
+                                </h3>
+                                <div class="timeline-body">Great! you have updated your profile.</div>
+                            {% else %}
+                                <h3 class="timeline-header">
+                                    Update Profile
+                                </h3>
+                                <div class="timeline-body">
+                                    <p>Update your profile information.</p>
+                                    <p>
+                                    <a href="{{ path('app_provider_profile_basic_information') }}"
+                                       class="btn btn-sm btn-primary">Update Profile</a></p></div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ path('app_provider_skip_onboarding') }}" class="btn btn-primary btn-sm">Skip & Continue to Dashboard >></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

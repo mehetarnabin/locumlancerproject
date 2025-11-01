@@ -1,0 +1,119 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Health Assessment{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Health Assessment</h1>
+        <hr class="mb-4">
+        <div class="row">
+            <div class="col-12">
+                <form method="post" action="">
+                    <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
+
+                        {# --- Substance Abuse Question --- #}
+                        <div class="form-group">
+                            <label for="substance-abuse">Do you currently have any chemical substance abuse dependency?</label>
+                            <div class="radio-group mt-2">
+                                <label>
+                                    <input type="radio" name="healthAssessment[substance_abuse]" value="yes"
+                                           {% if (healthAssessment and healthAssessment.substance_abuse is defined and healthAssessment.substance_abuse == 'yes') or (healthAssessment is not defined or healthAssessment.substance_abuse is not defined) %}checked{% endif %}
+                                           onchange="toggleTextarea('substance-abuse-explanation', this.value)">
+                                    Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="healthAssessment[substance_abuse]" value="no"
+                                           {% if healthAssessment and healthAssessment.substance_abuse is defined and healthAssessment.substance_abuse == 'no' %}checked{% endif %}
+                                           onchange="toggleTextarea('substance-abuse-explanation', this.value)">
+                                    No
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                            <textarea id="substance-abuse-explanation" name="healthAssessment[substance_abuse_explanation]"
+                                      class="form-control" placeholder="If yes, please explain...">{% if healthAssessment and healthAssessment.substance_abuse_explanation is defined %}{{ healthAssessment.substance_abuse_explanation }}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                        {# --- Job Related Question --- #}
+                        <div class="form-group mt-4">
+                            <label for="job-related">Are there any reasons that would prevent you from being able to perform competently the job-related functions of a locum tenens physician?</label>
+                            <div class="radio-group mt-2">
+                                <label>
+                                    <input type="radio" name="healthAssessment[job_related]" value="yes"
+                                           {% if (healthAssessment and healthAssessment.job_related is defined and healthAssessment.job_related == 'yes') or (healthAssessment is not defined or healthAssessment.job_related is not defined) %}checked{% endif %}
+                                           onchange="toggleTextarea('job-related-explanation', this.value)">
+                                    Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="healthAssessment[job_related]" value="no"
+                                           {% if healthAssessment and healthAssessment.job_related is defined and healthAssessment.job_related == 'no' %}checked{% endif %}
+                                           onchange="toggleTextarea('job-related-explanation', this.value)">
+                                    No
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                            <textarea id="job-related-explanation" name="healthAssessment[job_related_explanation]"
+                                      class="form-control" placeholder="If yes, please explain...">{% if healthAssessment and healthAssessment.job_related_explanation is defined %}{{ healthAssessment.job_related_explanation }}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                        {# --- Travel Question --- #}
+                        <div class="form-group mt-4">
+                            <label for="travel">Are there any reasons that would prevent you from being able to travel and promptly assume locum tenens physician responsibilities in unfamiliar facilities?</label>
+                            <div class="radio-group mt-2">
+                                <label>
+                                    <input type="radio" name="healthAssessment[travel]" value="yes"
+                                           {% if (healthAssessment and healthAssessment.travel is defined and healthAssessment.travel == 'yes') or (healthAssessment is not defined or healthAssessment.travel is not defined) %}checked{% endif %}
+                                           onchange="toggleTextarea('travel-explanation', this.value)">
+                                    Yes
+                                </label>
+                                <label>
+                                    <input type="radio" name="healthAssessment[travel]" value="no"
+                                           {% if healthAssessment and healthAssessment.travel is defined and healthAssessment.travel == 'no' %}checked{% endif %}
+                                           onchange="toggleTextarea('travel-explanation', this.value)">
+                                    No
+                                </label>
+                            </div>
+                            <div class="mt-2">
+                            <textarea id="travel-explanation" name="healthAssessment[travel_explanation]"
+                                      class="form-control" placeholder="If yes, please explain...">{% if healthAssessment and healthAssessment.travel_explanation is defined %}{{ healthAssessment.travel_explanation }}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" name="save_continue" value="1" class="btn btn-primary">Save and Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# --- JavaScript Section to handle Textarea Enable/Disable --- #}
+    <script>
+        function toggleTextarea(id, value) {
+            const textarea = document.getElementById(id);
+            if (textarea) {
+                textarea.disabled = (value === 'no');
+                if (value === 'no') {
+                    textarea.value = '';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const fields = [
+                { radioName: 'healthAssessment[substance_abuse]', textareaId: 'substance-abuse-explanation' },
+                { radioName: 'healthAssessment[job_related]', textareaId: 'job-related-explanation' },
+                { radioName: 'healthAssessment[travel]', textareaId: 'travel-explanation' },
+            ];
+
+            fields.forEach(field => {
+                const selected = document.querySelector(`input[name="${field.radioName}"]:checked`);
+                if (selected) {
+                    toggleTextarea(field.textareaId, selected.value);
+                }
+            });
+        });
+    </script>
+{% endblock %}

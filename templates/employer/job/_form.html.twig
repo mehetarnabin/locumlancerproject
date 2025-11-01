@@ -1,0 +1,171 @@
+{{ form_start(form, {'attr': {'class': 'job-posting-form needs-validation', 'novalidate': 'novalidate'}}) }}
+<div class="app-card app-card-settings shadow-sm p-4">
+    <div class="app-card-body">
+
+        {{ form_errors(form) }}
+
+        <div class="mb-3">
+            {{ form_label(form.title, 'Job Title', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter job title'}}) }}
+            {{ form_errors(form.title) }}
+            <div class="invalid-feedback">
+                Please provide a valid job title.
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="mb-3">
+                    {{ form_label(form.profession, 'Profession', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.profession, {'attr': {'class': 'form-control', 'placeholder': 'Enter profession'}}) }}
+                    {{ form_errors(form.profession) }}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="mb-3">
+                    {{ form_label(form.speciality, 'Speciality', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.speciality, {'attr': {'class': 'form-control', 'placeholder': 'Enter speciality'}}) }}
+                    {{ form_errors(form.speciality) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.workType, 'Work Type', {'label_attr': {'class': 'form-label'}}) }}
+                <div class="radio-group">
+                    {% for child in form.workType %}
+                        <div class="form-check form-check-inline">
+                            {{ form_widget(child, {'attr': {'class': 'form-check-input', 'required': 'required'}}) }}
+                            {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if not form.workType.vars.valid %}
+                    <div class="invalid-feedback d-block">
+                        {{ form_errors(form.workType) }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.need, 'Need', {'label_attr': {'class': 'form-label'}}) }}
+                <div class="radio-group">
+                    {% for child in form.need %}
+                        <div class="form-check form-check-inline">
+                            {{ form_widget(child, {'attr': {'class': 'form-check-input', 'required': 'required'}}) }}
+                            {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if not form.need.vars.valid %}
+                    <div class="invalid-feedback d-block">
+                        {{ form_errors(form.need) }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.schedule, 'Schedule', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.schedule, {'attr': {'class': 'form-control', 'placeholder': 'e.g., 4x12-Hour 19:00 - 07:30'}}) }}
+                {{ form_errors(form.schedule) }}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.yearOfExperience, 'Years of Experience', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.yearOfExperience, {'attr': {'class': 'form-control', 'placeholder': 'e.g., 5'}}) }}
+                {{ form_errors(form.yearOfExperience) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.payRate, 'Pay Rate', {'label_attr': {'class': 'form-label'}}) }}
+                <div class="radio-group">
+                    {% for child in form.payRate %}
+                        <div class="form-check form-check-inline">
+                            {{ form_widget(child, {'attr': {'class': 'form-check-input', 'required': 'required'}}) }}
+                            {{ form_label(child, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if not form.payRate.vars.valid %}
+                    <div class="invalid-feedback d-block">
+                        {{ form_errors(form.payRate) }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.payRateHourly, 'Hourly Rate', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.payRateHourly, {'attr': {'class': 'form-control', 'placeholder': 'e.g., 20'}}) }}
+                {{ form_errors(form.payRateHourly) }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.payRateDaily, 'Daily Rate', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.payRateDaily, {'attr': {'class': 'form-control', 'placeholder': 'e.g., 150'}}) }}
+                {{ form_errors(form.payRateDaily) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.state, 'State', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.state, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.state) }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.city, 'City', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.city) }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                {{ form_label(form.streetAddress, 'Street Address', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.streetAddress, {'attr': {'class': 'form-control', 'placeholder': 'Enter street address'}}) }}
+                {{ form_errors(form.streetAddress) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.startDate, 'Start Date', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.startDate, {'attr': {'class': 'form-control js-datepicker', 'type': 'date'}}) }}
+                {{ form_errors(form.startDate) }}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                {{ form_label(form.expirationDate, 'Expiration Date', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'type': 'date'}}) }}
+                {{ form_errors(form.expirationDate) }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.description, 'Job Description', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the job responsibilities and requirements'}}) }}
+            {% if not form.description.vars.valid %}
+                <div class="invalid-feedback d-block">
+                    {{ form_errors(form.description) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.highlight, 'Job Highlights', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.highlight, {'attr': {'class': 'form-control', 'placeholder': 'Enter job highlights'}}) }}
+            {{ form_errors(form.highlight) }}
+        </div>
+
+    </div>
+</div>
+
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary px-4">{{ button_label|default('Save') }}</button>
+</div>
+
+{{ form_end(form) }}

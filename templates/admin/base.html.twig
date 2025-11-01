@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %} | Locumlancer</title>
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="{{ getConfig('brand_logo') }}">
+
+    <!-- FontAwesome JS-->
+    <script defer src="{{ asset('assets/admin/plugins/fontawesome/js/all.min.js') }}"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+          integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <!-- App CSS -->
+    <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/css/portal.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
+
+    {% block header_scripts %}{% endblock %}
+</head>
+
+<body class="app">
+
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div id="flash-toast-wrapper"
+         class="toast-container position-fixed top-0 end-0 me-3"
+         style="margin-top: 70px; z-index: 1080;">
+        {% include 'partials/_flashes.html.twig' %}
+    </div>
+</div>
+
+<header class="app-header fixed-top">
+    <div class="app-header-inner">
+        <div class="container-fluid py-2">
+            <div class="app-header-content">
+                <div class="row justify-content-between align-items-center">
+
+                    <div class="col-auto">
+                        <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-block d-xl-none" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"
+                                 role="img"><title>Menu</title>
+                                <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10"
+                                      stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
+                            </svg>
+                        </a>
+                    </div><!--//col-->
+{#                    <div class="search-mobile-trigger d-sm-none col">#}
+{#                        <i class="search-mobile-trigger-icon fa-solid fa-magnifying-glass"></i>#}
+{#                    </div><!--//col-->#}
+{#                    <div class="app-search-box col">#}
+                        {#                        <form class="app-search-form"> #}
+                        {#                            <input type="text" placeholder="Search..." name="search" class="form-control search-input"> #}
+                        {#                            <button type="submit" class="btn search-btn btn-primary" value="Search"><i class="fa-solid fa-magnifying-glass"></i></button> #}
+                        {#                        </form> #}
+{#                    </div><!--//app-search-box-->#}
+
+                    <div class="app-utilities col-auto">
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_admin_applications') }}" title="Dashboard">
+                                <img src="{{ asset('assets/icons/dashboardx.png') }}" class="icon-image" alt="dashboard" />
+                                Dashboard
+                            </a>
+                        </div>
+
+                        {% if is_granted('ROLE_JOB_LIST') %}
+                            <div class="app-utility-item">
+                                <a href="{{ path('app_admin_jobs') }}" title="Jobs">
+                                    <img src="{{ asset('assets/icons/suitcase.png') }}" class="icon-image" alt="jobs" />
+                                    Jobs
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_PROVIDER_LIST') %}
+                            <div class="app-utility-item">
+                                <a href="{{ path('app_admin_providers') }}" title="Providers">
+                                    <img src="{{ asset('assets/icons/nurse.png') }}" class="icon-image" alt="providers" />
+                                    Providers
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_EMPLOYER_LIST') %}
+                            <div class="app-utility-item">
+                                <a href="{{ path('app_admin_employers') }}" title="Employers">
+                                    <img src="{{ asset('assets/icons/hospital.png') }}" class="icon-image" alt="employers" />
+                                    Employers
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_MESSAGE_LIST') %}
+                            <div class="app-utility-item">
+                                <a href="#" title="Inbox">
+                                    <img src="{{ asset('assets/icons/mail.png') }}" class="icon-image" alt="inbox" />
+                                    Inbox
+                                </a>
+                            </div>
+                        {% endif %}
+
+                    {% set headerNotifications = getHeaderNotifications('ADMIN') %}
+                    <div class="app-utility-item app-notifications-dropdown dropdown">
+                        <a class="dropdown-toggle no-toggle-arrow" id="notifications-dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" title="Notifications">
+                            <img src="{{ asset('assets/icons/notificationx.png') }}" class="icon-image" alt="notification" />
+                            <span class="icon-badge">{{  getUnseenNotificationCount(app.user)  }}</span>
+                            Notifications
+                        </a><!--//dropdown-toggle-->
+
+                        <div class="dropdown-menu p-0" aria-labelledby="notifications-dropdown-toggle">
+                            <div class="dropdown-menu-header p-3">
+                                <h5 class="dropdown-menu-title mb-0">Notifications</h5>
+                            </div><!--//dropdown-menu-title-->
+                            <div class="dropdown-menu-content">
+                                {% for notification in headerNotifications %}
+                                <div class="item p-3">
+                                    <div class="row gx-2 justify-content-between align-items-center">
+                                        <div class="col-auto">
+                                            <div class="app-icon-holder">
+                                                {% include 'admin/partials/_notification_icon.html.twig' with {'notificationType': notification.notificationType} %}
+                                            </div>
+                                        </div><!--//col-->
+                                        <div class="col">
+                                            <div class="info">
+                                                <div class="desc">{{ notification.message }}</div>
+                                                <div class="meta">{{ notification.createdAt|time_diff }}</div>
+                                            </div>
+                                        </div><!--//col-->
+                                    </div><!--//row-->
+                                    <a class="link-mask" href="#"></a>
+                                </div>
+                                {% else %}
+                                    <div class="item p-3">New notifications not available at the moment.</div>
+                                {% endfor %}
+                            </div><!--//dropdown-menu-content-->
+
+                            <div class="dropdown-menu-footer p-2 text-center">
+                                <a href="{{ path('app_admin_notifications') }}">View all</a>
+                            </div>
+
+                        </div><!--//dropdown-menu-->
+                    </div><!--//app-utility-item-->
+
+{#                                                <div class="app-utility-item">#}
+{#                                                    <a href="#" title="Settings">#}
+{#                                                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear icon" fill="currentColor" xmlns="http://www.w3.org/2000/svg">#}
+{#                                                            <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>#}
+{#                                                            <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>#}
+{#                                                        </svg>#}
+{#                                                    </a>#}
+{#                                                </div><!--//app-utility-item-->#}
+
+                        <div class="app-utility-item app-user-dropdown dropdown">
+                            <a class="dropdown-toggle" id="user-dropdown-toggle" data-bs-toggle="dropdown" href="#"
+                               role="button" aria-expanded="false"><img
+                                        src="{{ asset('assets/icons/bee.png') }}" alt="user profile"></a>
+                            <ul class="dropdown-menu" aria-labelledby="user-dropdown-toggle">
+{#                                <li><a class="dropdown-item" href="{{ path('app_admin_dashboard') }}">Profile</a></li>#}
+                                <li><a class="dropdown-item" href="{{ path('app_admin_change_password') }}">Change
+                                        Password</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                            </ul>
+                        </div><!--//app-user-dropdown-->
+                    </div><!--//app-utilities-->
+                </div><!--//row-->
+            </div><!--//app-header-content-->
+        </div><!--//container-fluid-->
+    </div><!--//app-header-inner-->
+    <div id="app-sidepanel" class="app-sidepanel">
+        <div id="sidepanel-drop" class="sidepanel-drop"></div>
+        <div class="sidepanel-inner d-flex flex-column">
+            <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
+            <div class="app-branding">
+                <a class="app-logo" href="{{ path('app_admin_dashboard') }}">
+                    <img class="logo-icon" src="{{ asset('assets/admin/images/logo-stethoscope.png') }}" alt="Locumlancer">
+                    <img class="text-logo" src="{{ asset('assets/frontend/img/logo_v14.png') }}" alt="Locumlancer">
+                </a>
+            </div><!--//app-branding-->
+
+            <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
+                <ul class="app-menu list-unstyled accordion" id="menu-accordion">
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_dashboard' %}active{% endif %}"
+                           href="{{ path('app_admin_dashboard') }}">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/dashboardx.png') }}" class="icon-image" alt="dashboard" />
+						         </span>
+                            <span class="nav-link-text">Dashboard</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+
+                    {% if is_granted('ROLE_JOB_LIST') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_jobs' %}active{% endif %}"
+                           href="{{ path('app_admin_jobs') }}">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/briefcasex.png') }}" class="icon-image" alt="jobs" />
+						         </span>
+                            <span class="nav-link-text">Jobs</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_APPLICATION_LIST') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_applications' %}active{% endif %}" href="{{ path('app_admin_applications') }}">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/submit.png') }}" class="icon-image" alt="applications" />
+						         </span>
+                            <span class="nav-link-text">Applications</span>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_PROVIDER_LIST') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_providers' %}active{% endif %}"
+                           href="{{ path('app_admin_providers') }}">
+                            <span class="nav-icon">
+                            <img src="{{ asset('assets/icons/new-employee.png') }}" class="icon-image" alt="providers" />
+                             </span>
+                            <span class="nav-link-text">Providers</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_EMPLOYER_LIST') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_employers' %}active{% endif %}"
+                           href="{{ path('app_admin_employers') }}">
+                            <span class="nav-icon">
+                            <img src="{{ asset('assets/icons/hospitalx.png') }}" class="icon-image" alt="employers" />
+                             </span>
+                            <span class="nav-link-text">Employers</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_INVOICE_LIST') %}
+                    <li class="nav-item has-submenu">
+                        <a class="nav-link {% if '/invoices/' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-4" aria-expanded="{% if '/invoices/' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-4">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/calculator.png') }}" class="icon-image" alt="invoice" />
+						         </span>
+                            <span class="nav-link-text">Invoices</span>
+                            <span class="submenu-arrow">
+		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+	</svg>
+	                             </span>
+                        </a>
+                        <div id="submenu-4" class="collapse submenu submenu-4 {% if '/invoices/' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_admin_invoices' %}active{% endif %}" href="{{ path('app_admin_invoices') }}">All</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_admin_invoices_paid' %}active{% endif %}" href="{{ path('app_admin_invoices_paid') }}">Paid</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_admin_invoices_pending' %}active{% endif %}" href="{{ path('app_admin_invoices_pending') }}">Pending</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_CASHBACK_LIST') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_cashback' %}active{% endif %}"
+                           href="{{ path('app_admin_cashback') }}">
+                            <span class="nav-icon">
+                            <img src="{{ asset('assets/icons/cashback.png') }}" class="icon-image" alt="cashback" />
+                             </span>
+                            <span class="nav-link-text">Cashback</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_USER_LIST') %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if app.request.get('_route') == 'admin_user_index' %}active{% endif %}"
+                               href="{{ path('admin_user_index') }}">
+                            <span class="nav-icon">
+                            <img src="{{ asset('assets/icons/users.png') }}" class="icon-image" alt="users" />
+                             </span>
+                                <span class="nav-link-text">Users</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if is_granted('ROLE_PROFESSION_LIST') or is_granted('ROLE_SPECIALITY_LIST') or is_granted('ROLE_INVOICE_SETTING') %}
+                    <li class="nav-item has-submenu">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if '/config/' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse"
+                           data-bs-target="#submenu-1" aria-expanded="{% if '/config/' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-1">
+                    						        <span class="nav-icon">
+                    						        <img src="{{ asset('assets/icons/sort.png') }}" class="icon-image" alt="config" />
+                    						         </span>
+                            <span class="nav-link-text">Config</span>
+                            <span class="submenu-arrow">
+                    		                             <svg width="1em" height="1em" viewBox="0 0 16 16"
+                                                              class="bi bi-chevron-down" fill="currentColor"
+                                                              xmlns="http://www.w3.org/2000/svg">
+                    	  <path fill-rule="evenodd"
+                                d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                    	</svg>
+                    	                             </span><!--//submenu-arrow-->
+                        </a><!--//nav-link-->
+                        <div id="submenu-1" class="collapse submenu submenu-1 {% if '/config/' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                {% if is_granted('ROLE_PROFESSION_LIST') %}
+                                <li class="submenu-item"><a class="submenu-link {% if '/profession' in app.request.uri %}active{% endif %}" href="{{ path('app_admin_profession_index') }}">Professions</a></li>
+                                {% endif %}
+
+                                {% if is_granted('ROLE_SPECIALITY_LIST') %}
+                                <li class="submenu-item"><a class="submenu-link {% if '/speciality' in app.request.uri %}active{% endif %}" href="{{ path('app_admin_speciality_index') }}">Specialities</a></li>
+                                {% endif %}
+
+                                {% if is_granted('ROLE_INVOICE_SETTING') %}
+                                <li class="submenu-item"><a class="submenu-link {% if '/invoice' in app.request.uri %}active{% endif %}" href="{{ path('app_admin_config_invoice') }}">Invoice</a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_SUPER_ADMIN') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_config' %}active{% endif %}"
+                           href="{{ path('app_admin_config') }}">
+							        <span class="nav-icon">
+							            <img src="{{ asset('assets/icons/setting.png') }}" class="icon-image" alt="settings" />
+							        </span>
+                            <span class="nav-link-text">Settings</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+                </ul><!--//app-menu-->
+            </nav><!--//app-nav-->
+            <div class="app-sidepanel-footer">
+                <nav class="app-nav app-nav-footer">
+{#                    <ul class="app-menu footer-menu list-unstyled">#}
+{#                        <li class="nav-item">#}
+{#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                            <a class="nav-link {% if app.request.get('_route') == 'app_admin_config' %}active{% endif %}"#}
+{#                               href="{{ path('app_admin_config') }}">#}
+{#							        <span class="nav-icon">#}
+{#							            <img src="{{ asset('assets/icons/engineering.png') }}" class="icon-image" alt="settings" />#}
+{#							        </span>#}
+{#                                <span class="nav-link-text">Settings</span>#}
+{#                            </a><!--//nav-link-->#}
+{#                        </li><!--//nav-item-->#}
+                        {#                        <li class="nav-item"> #}
+                        {#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ --> #}
+                        {#                            <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/"> #}
+                        {#                                    <span class="nav-icon"> #}
+                        {#                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg"> #}
+                        {#      <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/> #}
+                        {#      <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/> #}
+                        {#    </svg> #}
+                        {#                                    </span> #}
+                        {#                                <span class="nav-link-text">Download</span> #}
+                        {#                            </a><!--//nav-link--> #}
+                        {#                        </li><!--//nav-item--> #}
+                        {#                        <li class="nav-item"> #}
+                        {#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ --> #}
+                        {#                            <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/"> #}
+                        {#                                    <span class="nav-icon"> #}
+                        {#                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-file-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg"> #}
+                        {#      <path fill-rule="evenodd" d="M12 1H4a1 1 0 0 0-1 1v10.755S4 11 8 11s5 1.755 5 1.755V2a1 1 0 0 0-1-1zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/> #}
+                        {#      <path fill-rule="evenodd" d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/> #}
+                        {#    </svg> #}
+                        {#                                    </span> #}
+                        {#                                <span class="nav-link-text">License</span> #}
+                        {#                            </a><!--//nav-link--> #}
+                        {#                        </li><!--//nav-item--> #}
+{#                    </ul><!--//footer-menu-->#}
+                </nav>
+            </div><!--//app-sidepanel-footer-->
+
+        </div><!--//sidepanel-inner-->
+    </div><!--//app-sidepanel-->
+</header><!--//app-header-->
+
+<div class="app-wrapper">
+
+    <div class="app-content pt-3 p-md-3 p-lg-4">
+        {% block admin_body %}{% endblock %}
+    </div><!--//app-content-->
+
+    <footer class="app-footer">
+        <div class="container text-center py-3">
+            {#            <small class="copyright">&copy; Locumlancer {{ date('Y')|date('Y') }}</small> #}
+        </div>
+    </footer><!--//app-footer-->
+
+</div><!--//app-wrapper-->
+
+<!-- CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+<!-- Javascript -->
+<script src="{{ asset('assets/admin/plugins/popper.min.js') }}"></script>
+<script src="{{ asset('assets/admin/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Page Specific JS -->
+<script src="{{ asset('assets/admin/js/app.js') }}"></script>
+
+{% block footer_scripts %}{% endblock %}
+</body>
+</html>

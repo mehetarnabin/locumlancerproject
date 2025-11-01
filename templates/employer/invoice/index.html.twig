@@ -1,0 +1,59 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Invoices{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Invoices</h1>
+
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Job</th>
+                    <th>Provider</th>
+                    <th>Particular</th>
+                    <th>Amount($)</th>
+                    <th>CreatedAt</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for invoice in invoices %}
+                    <tr>
+                        <td>
+                            {% if invoice.status == 'paid' %}
+                                <a href="{{ path('app_employer_invoice_show', {'id': invoice.id}) }}">{{ invoice.invoiceNumber }}</a>
+                            {% elseif invoice.status == 'pending' %}
+                                <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}">{{ invoice.invoiceNumber }}</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ invoice.job }}</td>
+                        <td>{{ invoice.provider }}</td>
+                        <td>{{ invoice.particular }}</td>
+                        <td>{{ invoice.amount|number_format }}</td>
+                        <td>{{ invoice.createdAt ? invoice.createdAt|date('m/d/Y') : '' }}</td>
+                        <td>
+                            <span class="badge badge-pill {% if invoice.status == 'pending' %}is-review{% elseif invoice.status == 'paid' %}is-hired{% endif %}">
+                                {{ invoice.status }}
+                            </span>
+                        </td>
+                        <td class="text-nowrap">
+                            {% if invoice.status == 'pending' %}
+                                <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}" title="Pay Now"><img src="{{ asset('assets/icons/cheque.png') }}" class="icon-image" /></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="12">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

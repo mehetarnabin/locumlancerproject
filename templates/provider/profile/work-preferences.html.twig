@@ -1,0 +1,142 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Work Preferences{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Work Preferences</h1>
+        <div class="section-intro">Set your work preferences to help us connect you with the right locum
+            opportunities.
+        </div>
+
+        <hr class="mb-4">
+
+        {{ form_start(form, {'attr': {'class': 'work-preferences-form needs-validation', 'novalidate': 'novalidate'}}) }}
+
+        {{ form_errors(form) }}
+
+        <div class="app-card app-card-settings shadow-sm p-4">
+            <div class="app-card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.profession, 'Profession', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.profession, {'attr': {'class': 'form-control', 'placeholder': 'Enter profession'}}) }}
+                            {{ form_errors(form.profession) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.specialities, '', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.specialities, {'attr': {'class': 'form-control select2', 'placeholder': 'Enter speciality'}}) }}
+                            {{ form_errors(form.specialities) }}
+                            <div class="invalid-feedback">Select your specialities</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.desiredPayRate, null, {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="radio-group">
+                                {{ form_widget(form.desiredPayRate, {'attr':{'class': 'checkbox'}}) }}
+                            </div>
+                            {{ form_errors(form.desiredPayRate) }}
+                            <div class="invalid-feedback">
+                                Desired pay rate is required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.desiredHour, null, {'label_attr': {'class': 'form-label'}}) }}
+                            <div class="radio-group">
+                                {{ form_widget(form.desiredHour, {'attr':{'class': 'checkbox'}}) }}
+                            </div>
+                            {{ form_errors(form.desiredHour) }}
+                            <div class="invalid-feedback">
+                                Desired hour is required.
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.payRateDaily, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.payRateDaily, {'attr':{'class': 'form-control'}}) }}
+                            {{ form_errors(form.payRateDaily) }}
+                        </div>
+                        </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.payRateHourly, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.payRateHourly, {'attr':{'class': 'form-control'}}) }}
+                            {{ form_errors(form.payRateHourly) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.availabilityToStart, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.availabilityToStart, {'attr':{'class': 'form-control js-datepicker'}}) }}
+                            {{ form_errors(form.availabilityToStart) }}
+                        </div>
+                        </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.preferredPatientVolume, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.preferredPatientVolume, {'attr':{'class': 'form-control'}}) }}
+                            {{ form_errors(form.preferredPatientVolume) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.desiredStates, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.desiredStates, {'attr':{'class': 'form-control select2'}}) }}
+                            {{ form_errors(form.desiredStates) }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-3">
+                            {{ form_label(form.willingToTravel, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.willingToTravel, {'attr':{'class': 'checkbox'}}) }}
+                            {{ form_errors(form.willingToTravel) }}
+                        </div>
+                    </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+        <button class="btn btn-primary mt-2">{{ button_label|default('Save') }}</button>
+        <button class="btn btn-primary mt-2" name="save_continue" value="1">{{ button_label|default('Save and Continue') }}</button>
+        {{ form_end(form) }}
+    </div>
+
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(".js-datepicker").flatpickr();
+    </script>
+{% endblock %}

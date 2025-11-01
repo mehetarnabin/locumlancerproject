@@ -1,0 +1,86 @@
+{% if app.user is not null and app.user.userType == 'ADMIN' %}
+    {% set template = 'admin/base.html.twig' %}
+{% elseif app.user is not null and app.user.userType == 'EMPLOYER' %}
+    {% set template = 'employer/base.html.twig' %}
+{% elseif app.user is not null and app.user.userType == 'PROVIDER' %}
+    {% set template = 'provider/base.html.twig' %}
+{% else %}
+    {% set template = 'base.html.twig' %}
+{% endif %}
+
+{% extends template %}
+
+{% block title %}403 - Forbidden{% endblock %}
+
+{% block admin_body %}
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-12 col-md-11 col-lg-7 col-xl-6 mx-auto">
+                <div class="app-card p-5 text-center shadow-sm">
+                    <h1 class="page-title mb-4">403<br><span class="font-weight-light">Access Denied</span></h1>
+                    <div class="mb-4">
+                        You do not have permission to access this page.
+                    </div>
+                    <a class="btn btn-primary" href="{{ path('app_admin_dashboard') }}">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block employer_body %}
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-12 col-md-11 col-lg-7 col-xl-6 mx-auto">
+                <div class="app-card p-5 text-center shadow-sm">
+                    <h1 class="page-title mb-4">403<br><span class="font-weight-light">Access Denied</span></h1>
+                    <div class="mb-4">
+                        You do not have permission to access this page.
+                    </div>
+                    <a class="btn btn-primary" href="{{ path('app_employer_dashboard') }}">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block provider_body %}
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-12 col-md-11 col-lg-7 col-xl-6 mx-auto">
+                <div class="app-card p-5 text-center shadow-sm">
+                    <h1 class="page-title mb-4">403<br><span class="font-weight-light">Access Denied</span></h1>
+                    <div class="mb-4">
+                        You do not have permission to access this page.
+                    </div>
+                    <a class="btn btn-primary" href="{{ path('app_provider_dashboard') }}">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    <style>
+        .error-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .error-text {
+            font-size: 1.5rem;
+            color: #6c757d;
+        }
+    </style>
+
+    <div class="container error-container">
+        <div class="error-code">403</div>
+        <h2 class="error-text">Access Denied</h2>
+        <p class="mb-4">You do not have permission to access this page.</p>
+        <a href="{{ path('app_home') }}" class="btn  th-btn ">Go to Homepage</a>
+    </div>
+{% endblock %}

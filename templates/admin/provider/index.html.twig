@@ -1,0 +1,30 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Providers{% endblock %}
+
+{% block header_scripts %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.css"/>
+{% endblock %}
+
+{% block admin_body %}
+<div class="container-xl">
+
+    <h1 class="app-page-title">Providers</h1>
+
+    <div id="providers">Loading...</div>
+
+</div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+    <script>
+        $(function() {
+            $('#providers').initDataTables({{ datatable_settings(datatable) }}, {
+                searching: true,
+                dom:'Bfrtip',
+            })
+        });
+    </script>
+{% endblock %}

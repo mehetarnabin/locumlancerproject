@@ -1,0 +1,111 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Invoice Detail{% endblock %}
+
+{% block admin_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Invoice Detail</h1>
+
+        <a href="javascript:void(0);" onclick="printInvoice()" title="Print">
+            <img src="{{ asset('assets/icons/printer.png') }}" class="icon-image" />
+        </a>
+
+        <div id="invoice-content" class="container my-5 p-4 border rounded shadow-sm bg-white" style="max-width: 800px;">
+            <!-- Company Header -->
+            <div class="row mb-4">
+                <div class="col">
+                    <h2 class="mb-0">{{ getConfig('legal_name') }}</h2>
+                    <small>{{ getConfig('office_address') }}<br>Phone: {{ getConfig('office_phone1') }}<br>Email: {{ getConfig('office_email') }}</small>
+                </div>
+                <div class="col text-end">
+                    <h4>INVOICE</h4>
+                    <div><strong>Invoice #:</strong> {{ invoice.invoiceNumber }}</div>
+                    <div><strong>Date:</strong> {{ invoice.createdAt ? invoice.createdAt|date('m/d/Y') : '' }}</div>
+                    <div><strong>Status:</strong>
+                        {% if invoice.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% elseif invoice.status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ invoice.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bill To -->
+            <div class="row mb-4">
+                <div class="col">
+                    <h6>Bill To:</h6>
+                    <p class="mb-0">{{ invoice.employer.name }}</p>
+                    <small>{{ invoice.employer.address }}<br>{{ invoice.employer.phone1 }}</small>
+                </div>
+            </div>
+
+            <!-- Invoice Table -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-sm align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Particular</th>
+                        <th class="text-end">Amount ($)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ invoice.particular }} ({{ invoice.provider }}) for job {{ invoice.job }}</td>
+                        <td class="text-end">{{ invoice.amount|number_format(2, '.', ',') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals -->
+            <div class="row justify-content-end">
+                <div class="col-6">
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Subtotal:</th>
+                            <td class="text-end">${{ invoice.amount|number_format(2, '.', ',') }}</td>
+                        </tr>
+{#                        <tr>#}
+{#                            <th>Tax ({{ invoice.taxRate }}%):</th>#}
+{#                            <td class="text-end">${{ invoice.taxAmount|number_format(2, '.', ',') }}</td>#}
+{#                        </tr>#}
+                        <tr class="table-light">
+                            <th>Total:</th>
+                            <td class="text-end fw-bold">${{ invoice.amount|number_format(2, '.', ',') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="row mt-4">
+                <div class="col">
+                    <p class="text-muted">
+                        <small>Thank you for your business!</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script>
+        function printInvoice() {
+            var printContents = document.getElementById('invoice-content').innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload(); // Reload to restore any JS bindings or styles
+        }
+    </script>
+{% endblock %}
+
+

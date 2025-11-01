@@ -1,0 +1,68 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Employers{% endblock %}
+
+{#{% block header_scripts %}#}
+{#    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.css"/>#}
+{#{% endblock %}#}
+
+{% block admin_body %}
+<div class="container-xl">
+
+    <h1 class="app-page-title">Employers</h1>
+
+{#    <div id="employers">Loading...</div>#}
+
+    <div class="table-responsive">
+        <table class="table table-sm">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>CreatedAt</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.name}}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.createdAt|date('m/d/Y') }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_employer_detail', {'id': user.id}) }}" title="Details">
+                            <img src="{{ asset('assets/icons/binoculars.png') }}" class="icon-image" />
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="12">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% if users.nbPages > 1 %}
+            <div class="col-12">
+                {{ pagerfanta(users, 'twitter_bootstrap5') }}
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}
+
+{#{% block footer_scripts %}#}
+{#    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>#}
+{#    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>#}
+{#    <script>#}
+{#        $(function() {#}
+{#            $('#employers').initDataTables({{ datatable_settings(datatable) }}, {#}
+{#                searching: true,#}
+{#                dom:'Bfrtip',#}
+{#            })#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

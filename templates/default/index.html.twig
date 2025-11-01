@@ -1,0 +1,772 @@
+{% extends 'base.html.twig' %}
+
+{% set professions = getProfessions() %}
+{% set states = getUSStates() %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    {% set uri = app.request.uri %}
+<section class="block-hero ">
+    <div class="lm-container">
+        <div class="block-caption">
+            <h1  class=" banner-title m-0 ">
+            Your Own Platform to Freelance
+            </h1>
+
+            <form action="{{ path('app_jobs') }}" method="get" class="row-group-search">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3">
+                            <div class="opt-field ">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-briefcase"></i>
+                                </span>
+                                <select name="profession" id="profession" class="form-select select2">
+                                    <option style="color: #0a0a0a;"></option>
+                                    {% for profession in getProfessions() %}
+                                        <option value="{{ profession.id }}" {% if profession.id == app.request.get('profession') %}selected{% endif %}>
+                                            {{ profession.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3 ">
+                            <div class="opt-field multiple-select" id="speciality-dropdown">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </span>
+                                <label class="opt-field-label" for="1">
+                                    <span>My speciality is</span>
+                                    <div class="icon-container icon-arrow-down">
+                                        <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="white"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <div class="opt-field-dropdown" id="specialities-container">
+                                    {% for speciality in getSpecialities() %}
+                                        <label for="spec_{{ speciality.id }}">
+                                            <input type="checkbox" value="{{ speciality.id }}" name="speciality[]" id="spec_{{ speciality.id }}"
+                                                        {% if speciality.id in app.request.get('speciality') %}checked{% endif %}>
+                                            {{ speciality.name }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3 ">
+                            <div class="opt-field multiple-select">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+                                </span>
+                                <label class="opt-field-label" for="1">
+                                    <span>I want to go to</span>
+                                    <div class="icon-container icon-arrow-down">
+                                        <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="white"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <div class="opt-field-dropdown">
+                                    {% for key, value in getUSStates() %}
+                                        <label for="{{ value }}">
+                                            <input type="checkbox" value="{{ value }}" name="state[]" id="{{ value }}" {% if value in app.request.get('state') %}checked{% endif %}>
+                                            {{ key }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <button class="th-btn th-btn-white" id="letsLanceBtn" disabled>Let's Lance
+                        </button>
+                    </div>
+                </div>
+
+                <div class="advanced-filter-row {% if 'workType' in uri or 'need' in uri or 'timeRange' in uri %}active{% endif %}">
+                    <a href="javascript:void(0);" class="advanced-filter-link">
+                        <svg width="32px" height="32px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <title>filter-horizontal-solid</title>
+                        <g id="Layer_2" data-name="Layer 2">
+                            <g id="invisible_box" data-name="invisible box">
+                            <rect width="48" height="48" fill="none"/>
+                            </g>
+                            <g id="icons_Q2" data-name="icons Q2">
+                            <path d="M41.8,8H21.7A6.2,6.2,0,0,0,16,4a6,6,0,0,0-5.6,4H6.2A2.1,2.1,0,0,0,4,10a2.1,2.1,0,0,0,2.2,2h4.2A6,6,0,0,0,16,16a6.2,6.2,0,0,0,5.7-4H41.8A2.1,2.1,0,0,0,44,10,2.1,2.1,0,0,0,41.8,8Z"/>
+                            <path d="M41.8,22H37.7A6.2,6.2,0,0,0,32,18a6,6,0,0,0-5.6,4H6.2a2,2,0,1,0,0,4H26.4A6,6,0,0,0,32,30a6.2,6.2,0,0,0,5.7-4h4.1a2,2,0,1,0,0-4Z"/>
+                            <path d="M41.8,36H24.7A6.2,6.2,0,0,0,19,32a6,6,0,0,0-5.6,4H6.2a2,2,0,1,0,0,4h7.2A6,6,0,0,0,19,44a6.2,6.2,0,0,0,5.7-4H41.8a2,2,0,1,0,0-4Z"/>
+                            </g>
+                        </g>
+                        </svg>
+                    </a>
+
+                    <div class="advanced-filter-field">
+                        <div class="opt-field multiple-select">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Work Type
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="24" height="24" fill="none"/>
+                                    <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="locum">
+                                    <input type="checkbox" name="workType[]" value="Locums" {% if 'Locums' in app.request.get('workType') %}checked{% endif %} id="locum">
+                                    Locums
+                                </label>
+                                <label for="part-time">
+                                    <input type="checkbox" name="workType[]" value="Part time" {% if 'Part time' in app.request.get('workType') %}checked{% endif %} id="part-time">
+                                    Part time
+                                </label>
+                                <label for="full-time">
+                                    <input type="checkbox" name="workType[]" value="Full time" {% if 'Full time' in app.request.get('workType') %}checked{% endif %} id="full-time">
+                                    Full time
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Need
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="24" height="24" fill="none"/>
+                                    <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="urgent">
+                                    <input type="checkbox" name="need[]" value="Urgent" {% if 'Urgent' in app.request.get('need') %}checked{% endif %} id="urgent">
+                                    Urgent
+                                </label>
+                                <label for="routine">
+                                    <input type="checkbox" name="need[]" value="Routine" {% if 'Routine'in app.request.get('need') %}checked{% endif %} id="routine">
+                                    Routine
+                                </label>
+                                <label for="long-term">
+                                    <input type="checkbox" name="need[]" value="Long term" {% if 'Long term' in app.request.get('need') %}checked{% endif %} id="long-term">
+                                    Long term
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select {% if app.request.get('timeRange') %}select-field{% endif %}">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Listing
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="24" height="24" fill="none"/>
+                                    <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="anytime">
+                                    <input type="radio" name="timeRange" value="anytime" {% if 'anytime' in app.request.get('timeRange') %}checked{% endif %} id="anytime">
+                                    Anytime
+                                </label>
+                                <label for="less_than_a_week">
+                                    <input type="radio" name="timeRange" value="less_than_a_week" {% if 'less_than_a_week' in app.request.get('timeRange') %}checked{% endif %} id="less_than_a_week">
+                                    < 1 week
+                                </label>
+                                <label for="less_than_a_month">
+                                    <input type="radio" name="timeRange" value="less_than_a_month" {% if 'less_than_a_month' in app.request.get('timeRange') %}checked{% endif %} id="less_than_a_month">
+                                    < 1 month
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select {% if app.request.get('timeRange') %}select-field{% endif %}">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Mode
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="24" height="24" fill="none"/>
+                                    <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="direct">
+                                    <input type="radio" name="mode[]" value="direct" {% if 'direct' in app.request.get('mode') %}checked{% endif %} id="direct">
+                                    Direct
+                                </label>
+                                <label for="recruiter">
+                                    <input type="radio" name="mode[]" value="recruiter" {% if 'recruiter' in app.request.get('mode') %}checked{% endif %} id="recruiter">
+                                    Recruiter
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>
+
+    <section class="section-cards section-cards-home text-center py-5">
+        <div class="lm-container">
+            <div class="row justify-content-center g-4 cs-gap">
+                <div class="col-12 col-md-3 col-lg-3">
+                    <div class="card card-hover-scroll h-100" onclick="document.getElementById('providers-section').scrollIntoView({behavior: 'smooth'});">
+                        <div class="card-body d-flex flex-column align-items-center items-center" style="padding:0;">
+                            <div class="icon-box">
+                                <svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                    viewBox="0 0 32 32" xml:space="preserve">
+                                <style type="text/css">
+                                    .st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+                                </style>
+                                <path d="M26,12.8l-1.8-7.3c-0.1-0.3-0.3-0.5-0.5-0.7c-4.8-2.3-10.4-2.3-15.3,0C8.1,4.9,7.9,5.1,7.8,5.4L6,12.8C6,13,6,13.3,6.2,13.5
+                                    c0.1,0.2,0.4,0.4,0.6,0.4c3.1,0.7,6.1,1,9.2,1s6.2-0.3,9.2-1c0.3-0.1,0.5-0.2,0.6-0.4C26,13.3,26,13,26,12.8z M18,10h-1v1
+                                    c0,0.6-0.4,1-1,1s-1-0.4-1-1v-1h-1c-0.6,0-1-0.4-1-1s0.4-1,1-1h1V7c0-0.6,0.4-1,1-1s1,0.4,1,1v1h1c0.6,0,1,0.4,1,1S18.6,10,18,10z"
+                                    />
+                                <path d="M26.3,15.7c-0.2,0.1-0.4,0.2-0.6,0.2C22.5,16.6,19.2,17,16,17s-6.5-0.4-9.7-1.1c-0.2,0-0.4-0.1-0.6-0.2
+                                    c-0.8,0.9-1,2.5-0.4,4.2c0.4,1.3,1.2,2.4,2.2,2.9C7.7,22.9,8,23,8.2,23c1.2,3.6,4.2,6,7.8,6s6.6-2.4,7.8-6c0.3,0,0.5-0.1,0.8-0.2
+                                    c0.9-0.4,1.8-1.5,2.2-2.9C27.2,18.2,27,16.6,26.3,15.7z"/>
+                                </svg>
+                            </div>
+                            <div class="p-4 card-text-info">
+                                <h3 class="card-title">Providers</h3>
+                                <p class="card-click-info">Click to learn more</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-lg-3">
+                    <div class="card card-hover-scroll h-100" onclick="document.getElementById('employers-section').scrollIntoView({behavior: 'smooth'});">
+                        <div class="card-body d-flex flex-column align-items-center items-center" style="padding:0;">
+                            <div class="icon-box">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M21.5 8.5C21.5 7.09554 21.5 6.39331 21.1629 5.88886C21.017 5.67048 20.8295 5.48298 20.6111 5.33706C20.1699 5.04224 19.5774 5.00529 18.496 5.00066C18.5001 5.29206 18.5 5.59655 18.5 5.91051L18.5 6V7.25H19.5C19.9142 7.25 20.25 7.58579 20.25 8C20.25 8.41421 19.9142 8.75 19.5 8.75H18.5V10.25H19.5C19.9142 10.25 20.25 10.5858 20.25 11C20.25 11.4142 19.9142 11.75 19.5 11.75H18.5V13.25H19.5C19.9142 13.25 20.25 13.5858 20.25 14C20.25 14.4142 19.9142 14.75 19.5 14.75H18.5V21.25H17V6C17 4.11438 17 3.17157 16.4142 2.58579C15.8284 2 14.8856 2 13 2H11C9.11438 2 8.17157 2 7.58579 2.58579C7 3.17157 7 4.11438 7 6V21.25H5.5V14.75H4.5C4.08579 14.75 3.75 14.4142 3.75 14C3.75 13.5858 4.08579 13.25 4.5 13.25H5.5V11.75H4.5C4.08579 11.75 3.75 11.4142 3.75 11C3.75 10.5858 4.08579 10.25 4.5 10.25H5.5V8.75H4.5C4.08579 8.75 3.75 8.41421 3.75 8C3.75 7.58579 4.08579 7.25 4.5 7.25H5.5V6L5.49999 5.9105C5.49996 5.59655 5.49992 5.29206 5.50403 5.00066C4.42262 5.00529 3.83008 5.04224 3.38886 5.33706C3.17048 5.48298 2.98298 5.67048 2.83706 5.88886C2.5 6.39331 2.5 7.09554 2.5 8.5V21.25H2C1.58579 21.25 1.25 21.5858 1.25 22C1.25 22.4142 1.58579 22.75 2 22.75H22C22.4142 22.75 22.75 22.4142 22.75 22C22.75 21.5858 22.4142 21.25 22 21.25H21.5V8.5ZM12 4.25C12.4142 4.25 12.75 4.58579 12.75 5V6.25H14C14.4142 6.25 14.75 6.58579 14.75 7C14.75 7.41421 14.4142 7.75 14 7.75H12.75V9C12.75 9.41421 12.4142 9.75 12 9.75C11.5858 9.75 11.25 9.41421 11.25 9V7.75H10C9.58579 7.75 9.25 7.41421 9.25 7C9.25 6.58579 9.58579 6.25 10 6.25H11.25V5C11.25 4.58579 11.5858 4.25 12 4.25ZM9.25 12C9.25 11.5858 9.58579 11.25 10 11.25H14C14.4142 11.25 14.75 11.5858 14.75 12C14.75 12.4142 14.4142 12.75 14 12.75H10C9.58579 12.75 9.25 12.4142 9.25 12ZM9.25 15C9.25 14.5858 9.58579 14.25 10 14.25H14C14.4142 14.25 14.75 14.5858 14.75 15C14.75 15.4142 14.4142 15.75 14 15.75H10C9.58579 15.75 9.25 15.4142 9.25 15ZM12 18.25C12.4142 18.25 12.75 18.5858 12.75 19V21.25H11.25V19C11.25 18.5858 11.5858 18.25 12 18.25Z" fill="currentcolor"/>
+                                </svg>
+                            </div>
+                            <div class="p-4 card-text-info">
+                                <h3 class="card-title">Employers</h3>
+                                <p class="card-click-info">Click to learn more</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class=" section-practitioners position-relative section">
+        <div class="lm-container">
+            <!-- <small class="title">What We Offer</small> -->
+            <div class="row">
+                <!-- <div class="col-lg-6 mt-3">
+                    <div class="img-box position-relative">
+                        <img src="assets/img/illustration-practitioners.svg" alt="">
+                    </div>
+                </div> -->
+
+                <section class=" section-practitioners position-relative section" id="providers-section">
+                    <div class="flip-card-content">
+                        <div>
+                            <div class="section-title-wrap">
+                                <h2 class="section-title ">
+                                    Providers
+                                </h2>
+                                <!-- <ul>
+                                    <li data-aos="fade-up" data-aos-delay="128">
+                                    No hidden fees
+
+                                    </li>
+                                    <li data-aos="fade-up" data-aos-delay="128">
+                                    No obligatory contracts
+
+                                    </li>
+                                    <li data-aos="fade-up" data-aos-delay="128">
+                                    You get cashbacks
+                                    </li>
+                                    <li data-aos="fade-up" data-aos-delay="128">
+
+                                    We store for you
+                                    </li>
+                                    <li data-aos="fade-up" data-aos-delay="128">
+                                    Till the end
+                                    </li>
+
+                                </ul> -->
+                                <div class="flip-card-grid">
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Have A Transparent Pay</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            Pay is direct from the employer to the provider with nominal service fee.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Say No To Obligations</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            There is no binding with each assignment and you are free to contract from one employer to another.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Get Cashback</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            For direct jobs, you can earn cash back up to half earned by the platform. 
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Enjoy The Process</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            Platform supports all the job search needs including alerts for document expiry, interfaces for interview scheduling purposes, ratings and much more.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                {#  <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Your Own Site</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            This site is designed to help health care professionals maximize their potential not only in terms of income but also mental health with our lounge section that helps providers connect.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>   #}
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+                <section class="flip-card-content employer-section" id="employers-section" style="padding-top:0;">
+                    <div class="flip-card-content employer-section">
+                        <div>
+                            <div class="section-title-wrap">
+                                <h2 class="section-title ">
+                                    Employers
+                                </h2>
+                                <div class="flip-card-grid">
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Save Time and Money</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            This site is dedicated to providing the best services by saving time and money for you.
+                                            The features built into the website allow you to be efficient and productive.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Select from Wider Pool</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            Recruiters can freelance on our website, and you can choose one as needed for your job listing for your right hire.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Choose Different Modes</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            Listings range from free packages to featured package to recruiter package.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">Utilize Great Tools</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            We strive to maximize the search engine and implement the best marketing strategies to deliver excellent results for you.
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                                {#  <div class="flip-card">
+                                        <div class="flip-card-inner">
+                                        <div class="flip-card-front">
+                                            <div class="flip-content">On Maximized Savings on Provider Page</div>
+                                        </div>
+                                        <div class="flip-card-back">
+                                            <div class="flip-content">
+                                            You receive maximum earnings from the employer since the service fee is nominal. (deleted for the platform)
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>  #}
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-user section pt-0">
+        <div class="lm-container">
+            <div class="button-container">
+                <div class="button-container-wrap">
+                    <a class="th-btn" href="{{ path('app_register', {'u': 'EMPLOYER'}) }}&_next=/employer/jobs/new">
+                        Post Jobs For Free
+                    </a>
+{#                    <span class="opt">or</span>#}
+
+{#                    <a class="btn-text" href="{{ path('app_register', {'u': 'EMPLOYER'}) }}">#}
+{#                        Post a job for free#}
+{#                    </a>#}
+                </div>
+                <span class="text">
+                    Signup free of cost and with ease and no hassle.
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <section class="quick-search-section" style="padding:50px 0 100px 0;">
+        <div class="container">
+            <h2 class="mb-4">Quick Search</h2>
+
+            <!-- Profession Block -->
+            <div class="quick-search-block mb-3">
+                <div class="d-flex flex-wrap align-items-start mb-2">
+                    <h3 class="h5 me-3 mb-2">Profession:</h3>
+                    <div id="professionList" class="d-flex flex-wrap align-items-center">
+                        {% for profession in professions|slice(0, 6) %}
+                            <a href="#" class="quick-link me-3 mb-2">{{ profession.name }}</a>
+                        {% endfor %}
+                        <a href="javascript:void(0);" id="viewAllProfessions" class="quick-link me-3 mb-2">View All</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- States Block -->
+            <div class="quick-search-block">
+                <div class="d-flex flex-wrap align-items-start mb-2">
+                    <h3 class="h5 me-3 mb-2">States:</h3>
+                    <div id="stateList" class="d-flex flex-wrap align-items-center">
+                        {% for stateName, stateCode in states|slice(0, 6) %}
+                            <a href="#" class="quick-link me-3 mb-2">{{ stateName }}</a>
+                        {% endfor %}
+                        <a href="javascript:void(0);" id="viewAllStates" class="quick-link me-3 mb-2">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block footer_scripts %}
+{#    <script>#}
+{#        document.getElementById('profession').addEventListener('change', function () {#}
+{#            let professionId = this.value;#}
+{#            let specialitySelect = document.getElementById('speciality');#}
+
+{#            if (professionId) {#}
+{#                fetch(`/get-specialties/${professionId}`)#}
+{#                    .then(response => response.json())#}
+{#                    .then(data => {#}
+{#                        specialitySelect.innerHTML = '<option value="">Speciality</option>';#}
+{#                        data.forEach(specialty => {#}
+{#                            specialitySelect.innerHTML += `<option value="${specialty.id}">${specialty.name}</option>`;#}
+{#                        });#}
+{#                    })#}
+{#                    .catch(error => console.error('Error fetching specialties:', error));#}
+{#            } else {#}
+{#                specialitySelect.innerHTML = '<option value="">Speciality</option>';#}
+{#            }#}
+{#        });#}
+{#    </script>#}
+
+        <script>
+            $(document).ready(function () {
+                $('#profession').on('change', function () {
+                    // Uncheck only specialties checkboxes
+                    $('#specialities-container input[type="checkbox"]').prop('checked', false);
+
+                    // Reset only the specialties label text
+                    $('.opt-field-label').each(function () {
+                        // Check if this label contains any of the specialty checkboxes
+                        if ($(this).next('.opt-field-dropdown').attr('id') === 'specialities-container') {
+                            $(this).find('span').text('Speciality');
+                        }
+                    });
+
+                    let professionId = $(this).val();
+                    if (!professionId) {
+                        $('#specialities-container').empty();
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '/get-specialities/' + professionId,
+                        type: 'GET',
+                        success: function (response) {
+                            let html = '';
+                            response.forEach(function (speciality) {
+                                html += `
+                            <label for="spec_${speciality.id}">
+                                <input type="checkbox" value="${speciality.id}" name="speciality[]" id="spec_${speciality.id}">
+                                ${speciality.name}
+                            </label>`;
+                            });
+
+                            $('#specialities-container').html(html);
+                        },
+                        error: function () {
+                            console.error('Could not load specialities.');
+                        }
+                    });
+                });
+            });
+        </script>
+
+    <script>
+        document.getElementById("viewAllProfessions").addEventListener("click", function () {
+            const list = document.getElementById("professionList");
+            const moreItems = `
+                {% for profession in professions|slice(6) %}
+                    <a href="#" class="quick-link me-3 mb-2">{{ profession.name }}</a>
+                {% endfor %}
+            `;
+            list.insertAdjacentHTML("beforeend", moreItems);
+            this.remove();
+        });
+
+        document.getElementById("viewAllStates").addEventListener("click", function () {
+            const list = document.getElementById("stateList");
+            const moreItems = `
+                {% for stateName, stateCode in states|slice(6) %}
+                    <a href="#" class="quick-link me-3 mb-2">{{ stateName }}</a>
+                {% endfor %}
+            `;
+            list.insertAdjacentHTML("beforeend", moreItems);
+            this.remove();
+        });
+    </script>
+
+    <script>
+        $(document).on('change', '.opt-field-dropdown input[type="checkbox"]', function (event) {
+            event.stopPropagation();
+
+            const checkbox = $(this);
+            const optField = checkbox.closest('.opt-field');
+            const mainLabel = optField.find('.opt-field-label span');
+            const isMultiple = optField.hasClass('multiple-select');
+
+            const defaultText = mainLabel.data('default') || mainLabel.text().trim();
+            mainLabel.data('default', defaultText);
+
+            if (isMultiple) {
+                const selectedValues = optField.find('input[type="checkbox"]:checked')
+                    .map(function () {
+                        return $(this).closest('label').text().trim();
+                    }).get();
+
+                mainLabel.html(selectedValues.length > 0 ? selectedValues.join(', ') : defaultText);
+            } else {
+                if (checkbox.is(':checked')) {
+                    mainLabel.html(checkbox.closest('label').text().trim());
+                    optField.find('input[type="checkbox"]').not(checkbox).prop('checked', false);
+                } else {
+                    mainLabel.html(defaultText);
+                }
+                optField.removeClass('active');
+            }
+        });
+
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: 'I am a'
+            });
+        });
+    </script>
+    <style>
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #000;
+        }
+    </style>
+
+    <script>
+        $(function () {
+            let lastChecked = null;
+
+            $('input[type="radio"][name="timeRange"]').on('click', function () {
+                if (lastChecked && lastChecked.is(this)) {
+                    $(this).prop('checked', false);
+                    lastChecked = null;
+                } else {
+                    lastChecked = $(this);
+                }
+            });
+
+            // Set initial checked if any
+            $('input[type="radio"][name="timeRange"]').each(function () {
+                if ($(this).is(':checked')) {
+                    lastChecked = $(this);
+                }
+            });
+        });
+    </script>
+<script>
+    $(document).ready(function () {
+        // Initialize the 'I am a' dropdown with Select2
+        $('.select2').select2({
+            placeholder: 'I am a'
+        });
+
+        // Initially disable the "My speciality is" dropdown
+        $('#speciality-dropdown').addClass('disabled');
+
+        // Function to check if the "I am a" dropdown has a selected value
+        function checkProfessionDropdown() {
+            const professionId = $('#profession').val();
+            const letsLanceBtn = $('#letsLanceBtn');
+            const specialityDropdown = $('#speciality-dropdown');
+
+            if (professionId) {
+                letsLanceBtn.prop('disabled', false);
+                specialityDropdown.removeClass('disabled');
+            } else {
+                letsLanceBtn.prop('disabled', true);
+                specialityDropdown.addClass('disabled');
+            }
+        }
+
+        // Event listener for the 'I am a' dropdown
+        $('#profession').on('change', function () {
+            // Uncheck and reset the specialties dropdown
+            $('#specialities-container input[type="checkbox"]').prop('checked', false);
+            $('.opt-field-label').each(function () {
+                if ($(this).next('.opt-field-dropdown').attr('id') === 'specialities-container') {
+                    $(this).find('span').text('My speciality is');
+                }
+            });
+
+            const professionId = $(this).val();
+
+            if (!professionId) {
+                $('#specialities-container').empty();
+                checkProfessionDropdown();
+                return;
+            }
+
+            $.ajax({
+                url: '/get-specialities/' + professionId,
+                type: 'GET',
+                success: function (response) {
+                    let html = '';
+                    response.forEach(function (speciality) {
+                        html += `
+                        <label for="spec_${speciality.id}">
+                            <input type="checkbox" value="${speciality.id}" name="speciality[]" id="spec_${speciality.id}">
+                            ${speciality.name}
+                        </label>`;
+                    });
+                    $('#specialities-container').html(html);
+                    checkProfessionDropdown();
+                },
+                error: function () {
+                    console.error('Could not load specialities.');
+                    checkProfessionDropdown();
+                }
+            });
+        });
+
+        // New script to toggle custom dropdowns
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.opt-field-label[role="button"]').forEach(label => {
+                label.addEventListener('click', (event) => {
+                    const isExpanded = label.getAttribute('aria-expanded') === 'true';
+
+                    // Close all other dropdowns
+                    document.querySelectorAll('.opt-field-label[role="button"]').forEach(otherLabel => {
+                        if (otherLabel !== label) {
+                            otherLabel.setAttribute('aria-expanded', 'false');
+                            otherLabel.closest('.opt-field').classList.remove('active');
+                        }
+                    });
+
+                    // Toggle the clicked dropdown
+                    label.setAttribute('aria-expanded', !isExpanded);
+                    label.closest('.opt-field').classList.toggle('active');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.opt-field')) {
+                    document.querySelectorAll('.opt-field.active').forEach(activeDropdown => {
+                        activeDropdown.classList.remove('active');
+                        activeDropdown.querySelector('.opt-field-label').setAttribute('aria-expanded', 'false');
+                    });
+                }
+            });
+        });
+        
+        // This is a simplified function to check the button state.
+        checkProfessionDropdown();
+    });
+</script>
+{% endblock %}

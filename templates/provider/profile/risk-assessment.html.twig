@@ -1,0 +1,157 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Risk Assessment{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Risk Assessment</h1>
+
+        <hr class="mb-4">
+
+        <div class="row">
+            <div class="col-12">
+                <form method="post" action="">
+                <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
+
+                    <div class="form-group">
+                        <label>Can you submit verification of your legal right to work in the U.S.? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[work_verification]" value="yes" {% if riskAssessment and riskAssessment.work_verification is defined and riskAssessment.work_verification == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[work_verification]" value="no" {% if riskAssessment and riskAssessment.work_verification is defined and riskAssessment.work_verification == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label for="degree">Degree Group *</label>
+                        <select id="degree" name="riskAssessment[degree]">
+                            <option value="">Select Degree Group</option>
+                            <option value="MD/DO" {% if riskAssessment and riskAssessment.degree == 'MD/DO' %}selected{% endif %}>MD/DO</option>
+                            <option value="CRNA" {% if riskAssessment and riskAssessment.degree == 'CRNA' %}selected{% endif %}>CRNA</option>
+                            <option value="CNS" {% if riskAssessment and riskAssessment.degree == 'CNS' %}selected{% endif %}>CNS</option>
+                            <option value="DDS" {% if riskAssessment and riskAssessment.degree == 'DDS' %}selected{% endif %}>DDS</option>
+                            <option value="DMD" {% if riskAssessment and riskAssessment.degree == 'DMD' %}selected{% endif %}>DMD</option>
+                            <option value="PA" {% if riskAssessment and riskAssessment.degree == 'PA' %}selected{% endif %}>PA</option>
+                            <option value="NP" {% if riskAssessment and riskAssessment.degree == 'NP' %}selected{% endif %}>NP</option>
+                            <option value="PhD" {% if riskAssessment and riskAssessment.degree == 'PhD' %}selected{% endif %}>PhD</option>
+                            <option value="PsyD" {% if riskAssessment and riskAssessment.degree == 'PsyD' %}selected{% endif %}>PsyD</option>
+                            <option value="Other" {% if riskAssessment and riskAssessment.degree == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>In the past 24 months, have you had patient contact practicing in the specialty area for
+                            which you are applying? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[patient_contact]" value="yes" {% if riskAssessment and riskAssessment.patient_contact is defined and riskAssessment.patient_contact == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[patient_contact]" value="no" {% if riskAssessment and riskAssessment.patient_contact is defined and riskAssessment.patient_contact == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever been named in a malpractice claim? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[malpractice_claim]" value="yes" {% if riskAssessment and riskAssessment.malpractice_claim is defined and riskAssessment.malpractice_claim == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[malpractice_claim]" value="no" {% if riskAssessment and riskAssessment.malpractice_claim is defined and riskAssessment.malpractice_claim == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Has your license to practice in your profession ever been formally investigated,
+                            sanctioned, or revoked? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[license_investigation]" value="yes" {% if riskAssessment and riskAssessment.license_investigation is defined and riskAssessment.license_investigation == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[license_investigation]" value="no" {% if riskAssessment and riskAssessment.license_investigation is defined and riskAssessment.license_investigation == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever been denied provider participation in Medicare/Medicaid? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[medicare_denial]" value="yes" {% if riskAssessment and riskAssessment.medicare_denial is defined and riskAssessment.medicare_denial == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[medicare_denial]" value="no" {% if riskAssessment and riskAssessment.medicare_denial is defined and riskAssessment.medicare_denial == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever resigned from a position in lieu of an investigation, or have you ever been
+                            terminated from employment? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[resigned_or_terminated]" value="yes" {% if riskAssessment and riskAssessment.resigned_or_terminated is defined and riskAssessment.resigned_or_terminated == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[resigned_or_terminated]" value="no" {% if riskAssessment and riskAssessment.resigned_or_terminated is defined and riskAssessment.resigned_or_terminated == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have your hospital or clinic privileges ever been revoked, suspended, or restricted?
+                            *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[clinic_privileges]" value="yes" {% if riskAssessment and riskAssessment.clinic_privileges is defined and riskAssessment.clinic_privileges == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[clinic_privileges]" value="no" {% if riskAssessment and riskAssessment.clinic_privileges is defined and riskAssessment.clinic_privileges == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever been disciplined by a hospital staff or professional education program?
+                            *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[disciplinary_action]" value="yes" {% if riskAssessment and riskAssessment.disciplinary_action is defined and riskAssessment.disciplinary_action == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[disciplinary_action]" value="no" {% if riskAssessment and riskAssessment.disciplinary_action is defined and riskAssessment.disciplinary_action == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever been convicted of a felony or a misdemeanor other than a minor traffic
+                            violation? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[felony_conviction]" value="yes" {% if riskAssessment and riskAssessment.felony_conviction is defined and riskAssessment.felony_conviction == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[felony_conviction]" value="no" {% if riskAssessment and riskAssessment.felony_conviction is defined and riskAssessment.felony_conviction == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you ever abused alcohol, used illegal drugs, or failed to take legally prescribed
+                            drugs? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[substance_abuse]" value="yes" {% if riskAssessment and riskAssessment.substance_abuse is defined and riskAssessment.substance_abuse == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[substance_abuse]" value="no" {% if riskAssessment and riskAssessment.substance_abuse is defined and riskAssessment.substance_abuse == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="form-group">
+                        <label>Have you incurred or become aware of having a condition that impairs your ability to
+                            practice your medical specialty? *</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="riskAssessment[medical_condition]" value="yes" {% if riskAssessment and riskAssessment.medical_condition is defined and riskAssessment.medical_condition == 'yes' %}checked{% endif %}> Yes</label>
+                            <label><input type="radio" name="riskAssessment[medical_condition]" value="no" {% if riskAssessment and riskAssessment.medical_condition is defined and riskAssessment.medical_condition == 'no' %}checked{% endif %}> No</label>
+                        </div>
+                    </div>
+            </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" name="save_continue" value="1" class="btn btn-primary">Save and Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Notifications</h1>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                {% for notification in notifications %}
+                    {% if notification.notificationType in ['job_applied', 'bookmark_created'] %}
+                        <a href="{{ path('app_employer_job_show', {'id': notification.extraData.job}) }}">
+                    {% elseif notification.notificationType in ['provider_in_review', 'provider_shortlist', 'provider_hired', 'review_request', 'provider_offered', 'one_file_provided', 'document_provided'] %}
+                        <a href="{{ path('app_employer_job_applications', {'id': notification.extraData.job, 'applicationId': notification.extraData.application}) }}">
+                    {% elseif notification.notificationType in ['employer_reviewed'] %}
+                        <a href="{{ path('app_employer_reviews') }}">
+                    {% elseif notification.notificationType in ['message_received'] %}
+                        <a href="{{ path('app_employer_messages') }}">
+                    {% elseif notification.notificationType in ['invoice_created'] %}
+                        <a href="{{ path('app_employer_invoices') }}">
+                    {% elseif notification.notificationType in ['job_posted'] %}
+                            <a href="{{ path('app_employer_jobs') }}">
+                    {% else %}
+                        <a href="#">
+                    {% endif %}
+                    <div class="app-card app-card-notification shadow-sm mb-4">
+                        <div class="app-card-header px-4 py-3">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-12 col-lg-auto text-center text-lg-start">
+                                    <div class="app-icon-holder">
+                                        {% include 'employer/partials/_notification_icon.html.twig' with {'notificationType': notification.notificationType} %}
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-auto text-center text-lg-start">
+                                    <h4 class="notification-title mb-1">{{ notification.notificationType | replace({'_': ' '}) | title }}</h4>
+                                    {{ notification.createdAt|time_diff }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="notification-content">
+                                {{ notification.message }}
+                            </div>
+                        </div>
+                    </div>
+                    </a>
+                {% else %}
+                    <p>Notifications not available at the moment.</p>
+                {% endfor %}
+            </div>
+
+            {% if notifications|length > 0 %}
+                <div class="col-12">
+                    {{ pagerfanta(notifications, 'twitter_bootstrap5') }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

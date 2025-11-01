@@ -1,0 +1,45 @@
+{% macro input(label, name, value, type, placeholder, class) %}
+    <div class="form-group">
+        <label for="{{ name }}" class="form-label">{{ label }}</label>
+
+        {% set _type = type|default('text') %}
+        {% if _type == 'textarea' %}
+            <textarea name="{{ name }}" id="{{ name }}" rows="6" class="form-control {{ class }}"
+                      placeholder="{{ placeholder|default('') }}">{{ value }}</textarea>
+        {% elseif _type == 'checkbox' %}
+            <input type="checkbox" name="{{ name }}" id="{{ name }}"
+                   class="checkbox {{ class }}" {% if value == 1 %}checked{% endif %}
+                   placeholder="{{ placeholder|default('') }}"/>
+        {% else %}
+            <input type="{{ type|default('text') }}" name="{{ name }}" value="{{ value|default('') }}"
+                   id="{{ name }}" class="form-control {{ class }}" placeholder="{{ placeholder|default('') }}">
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro optionValue(value, actual) %}
+    {% set _attr = 'value=' ~ value %}
+    {% if value == actual %}
+        {% set _attr = _attr ~ ' selected' %}
+    {% endif %}
+    {{ _attr|e }}
+{% endmacro %}
+
+{% macro widget_prototype(widget, remove_text) %}
+    {% if widget.vars.prototype is defined %}
+        {% set form = widget.vars.prototype %}
+        {% set name = widget.vars.prototype.vars.name %}
+    {% else %}
+        {% set form = widget %}
+        {% set name = widget.vars.full_name %}
+    {% endif %}
+
+    <div data-content="{{ name }}" class="form-group">
+        <div class="input-group">
+            {{ form_widget(form, {'attr' : {'class' : 'form-control'}}) }}
+            <span class="input-group-btn">
+                <a class="btn-remove btn btn-danger" data-related="{{ name }}"><span class="fa fa-trash"></span></a>
+            </span>
+        </div>
+    </div>
+{% endmacro %}

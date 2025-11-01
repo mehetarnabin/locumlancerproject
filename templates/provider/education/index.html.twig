@@ -1,0 +1,169 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Education & Training{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Education & Training</h1>
+
+        <hr class="mb-4">
+
+        <section class="content">
+            <div class="row">
+                <div class="col-12">
+                    <a href="#" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#educationModal">
+                        Add New
+                    </a>
+
+                    <div class="row">
+                        {% for education in educations %}
+                            <div class="col-md-6">
+                                <div class="card ed-card mb-2">
+                                    <div class="card-body d-flex align-items-start">
+                                        <div class="me-4">
+                                            <h5 class="card-title">{{ education.school }}</h5>
+                                            <p><strong>Degree Name:</strong> {{ education.degree }}</p>
+                                            <p><strong><i class="fa fa-map-marker-alt"></i></strong> {{ education.country }}, {{ education.state }}, {{ education.city }}</p>
+
+                                            <div class="mt-3">
+                                                <a href="#" class="edit-education"
+                                                   data-id="{{ education.id }}"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#editEducationModal"
+                                                   title="Edit">
+                                                    <img src="{{ asset('assets/icons/compose.png') }}" class="icon-image" /> &nbsp; &nbsp;
+                                                </a>
+
+                                                <a href="{{ path('app_provider_education_delete', {'id': education.id}) }}"
+                                                   class=""
+                                                   onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                                                    <img src="{{ asset('assets/icons/trash-bin.png') }}" class="icon-image" />
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="ms-auto">
+                                            <p><strong>Start Date:</strong> {{ education.startDate ? education.startDate|date('m/d/Y') : '' }}</p>
+                                            <p><strong>End Date:</strong> {{ education.endDate ? education.endDate|date('m/d/Y') : '' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        {% else %}
+                            <p>No records found.</p>
+                        {% endfor %}
+                    </div>
+
+                    <a href="{{ path('app_provider_license_index') }}" class="btn btn-primary mt-4">
+                        Continue
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Education Modal -->
+    <div class="modal fade" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="educationModalLabel">Add Education & Training</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% include 'provider/education/_form.html.twig' %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal -->
+    <div class="modal fade" id="editEducationModal" tabindex="-1" aria-labelledby="editEducationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEducationModalLabel">Edit Education & Training</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="editEducationFormContainer">
+                        <!-- Form will be loaded here via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(".js-datepicker").flatpickr();
+    </script>
+
+    <script>
+        let clickedButton = null;
+        $(document).ready(function () {
+            // Track which submit button was clicked
+            $('#educationModal button[type=submit]').on('click', function () {
+                clickedButton = $(this);
+            });
+
+            $('#educationModal form').submit(function (e) {
+                var form = $(this)[0]; // Get the native form element
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.classList.add('was-validated'); // Apply Bootstrap validation styles
+                    return false;
+                }
+
+                e.preventDefault();
+
+                var form = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function () {
+                        $('#educationModal').modal('hide');
+
+                        // If save_continue button was clicked and has redirect URL, redirect
+                        if (clickedButton && clickedButton.attr('name') === 'save_continue' && clickedButton.data('redirect-url')) {
+                            window.location.href = clickedButton.data('redirect-url');
+                        } else {
+                            location.reload(); // Normal Save just reloads the page
+                        }
+                    },
+                    error: function () {
+                        alert("Error occurred while saving.");
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.edit-education').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                let educationId = this.dataset.id;
+
+                fetch(`/provider/application/education/${educationId}/edit`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('editEducationFormContainer').innerHTML = data.form;
+
+                        // Re-initialize flatpickr for dynamically added date fields
+                        $(".js-datepicker").flatpickr();
+                    })
+                    .catch(error => console.error('Error loading form:', error));
+            });
+        });
+    </script>
+{% endblock %}

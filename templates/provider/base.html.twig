@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %} | Locumlancer</title>
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="{{ getConfig('brand_logo') }}">
+
+    <!-- FontAwesome JS-->
+    <script defer src="{{ asset('assets/admin/plugins/fontawesome/js/all.min.js') }}"></script>
+
+    <!-- App CSS -->
+    <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/css/portal.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
+
+    {% block header_scripts %}{% endblock %}
+</head>
+
+<body class="app">
+
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div id="flash-toast-wrapper"
+         class="toast-container position-fixed top-0 end-0 me-3"
+         style="margin-top: 70px; z-index: 1080;">
+        {% include 'partials/_flashes.html.twig' %}
+    </div>
+</div>
+
+<header class="app-header fixed-top">
+    <div class="app-header-inner">
+        <div class="container-fluid py-2">
+            <div class="app-header-content">
+                <div class="row justify-content-between align-items-center">
+
+                    <div class="col-auto">
+                        <a id="sidepanel-toggler" class="sidepanel-toggler d-inline-block d-xl-none" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img"><title>Menu</title><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg>
+                        </a>
+                    </div><!--//col-->
+{#                    <div class="search-mobile-trigger d-sm-none col">#}
+{#                        <i class="search-mobile-trigger-icon fa-solid fa-magnifying-glass"></i>#}
+{#                    </div><!--//col-->#}
+{#                    <div class="app-search-box col">#}
+{#                        <form class="app-search-form">#}
+{#                            <input type="text" placeholder="Search..." name="search" class="form-control search-input">#}
+{#                            <button type="submit" class="btn search-btn btn-primary" value="Search"><i class="fa-solid fa-magnifying-glass"></i></button>#}
+{#                        </form>#}
+{#                    </div><!--//app-search-box-->#}
+
+                    <div class="app-utilities col-auto">
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_home') }}" title="Homepage">
+                                <svg fill="currentcolor" class="icon-image" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M31.772 16.043l-15.012-15.724c-0.189-0.197-0.449-0.307-0.721-0.307s-0.533 0.111-0.722 0.307l-15.089 15.724c-0.383 0.398-0.369 1.031 0.029 1.414 0.399 0.382 1.031 0.371 1.414-0.029l1.344-1.401v14.963c0 0.552 0.448 1 1 1h6.986c0.551 0 0.998-0.445 1-0.997l0.031-9.989h7.969v9.986c0 0.552 0.448 1 1 1h6.983c0.552 0 1-0.448 1-1v-14.968l1.343 1.407c0.197 0.204 0.459 0.308 0.722 0.308 0.249 0 0.499-0.092 0.692-0.279 0.398-0.382 0.411-1.015 0.029-1.413zM26.985 14.213v15.776h-4.983v-9.986c0-0.552-0.448-1-1-1h-9.965c-0.551 0-0.998 0.445-1 0.997l-0.031 9.989h-4.989v-15.777c0-0.082-0.013-0.162-0.032-0.239l11.055-11.52 10.982 11.507c-0.021 0.081-0.036 0.165-0.036 0.252z"></path>
+                                </svg>
+                                Home
+                            </a>
+                        </div>
+
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_provider_dashboard') }}" title="Dashboard">
+                                <svg fill="currentcolor" class="icon-image" viewBox="0 -1.1 16 16" xmlns="http://www.w3.org/2000/svg">
+
+                                <g id="Layer_2" data-name="Layer 2">
+
+                                <g id="Layer_1-2" data-name="Layer 1">
+
+                                <path d="M9.85,6.85l3.5-3.5a.49.49,0,0,0-.7-.7l-3.5,3.5A.53.53,0,0,0,9,6.3,2,2,0,0,0,8,6a2,2,0,1,0,2,2,2,2,0,0,0-.3-1A.53.53,0,0,0,9.85,6.85ZM8,9A1,1,0,1,1,9,8,1,1,0,0,1,8,9Zm8-1.31a8,8,0,0,1-2.3,6,.52.52,0,0,1-.71,0l-1.3-1.31a.49.49,0,0,1,.7-.7l.94.93A7,7,0,0,0,15,8H13.5a.5.5,0,0,1,0-1h1.42a7.23,7.23,0,0,0-.58-2,.5.5,0,1,1,.9-.42,7.83,7.83,0,0,1,.7,2.66.45.45,0,0,1,0,.41Zm-11.61,4a.48.48,0,0,1,0,.7l-1.3,1.31a.52.52,0,0,1-.71,0A8,8,0,0,1,0,8c0-.14,0-.27,0-.4a.44.44,0,0,1,0-.1.41.41,0,0,1,0-.16A7.95,7.95,0,0,1,7.91,0L8,0a.4.4,0,0,1,.15,0,7.84,7.84,0,0,1,3.23.73.49.49,0,0,1,.24.66.49.49,0,0,1-.66.24A7.12,7.12,0,0,0,8.5,1.05V2.5a.5.5,0,0,1-1,0V1a7,7,0,0,0-4.45,2,6.93,6.93,0,0,0-2,4H2.5a.5.5,0,0,1,0,1H1a6.92,6.92,0,0,0,1.71,4.58l.94-.93A.48.48,0,0,1,4.35,11.65Z"/>
+
+                                </g>
+
+                                </g>
+
+                                </svg>
+                                Dashboard
+                            </a>
+                        </div>
+
+                        {#<div class="app-utility-item">
+                            <a href="{{ path('app_provider_my_documents') }}" title="My Documents">
+                                <svg class="icon-image" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                    <title>dashboard_fill</title>
+                                    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                        <g id="Device" transform="translate(-192.000000, -240.000000)">
+                                            <g id="dashboard_fill" transform="translate(192.000000, 240.000000)">
+                                                <path d="M24,0 L24,24 L0,24 L0,0 L24,0 Z M12.5934901,23.257841 L12.5819402,23.2595131 L12.5108777,23.2950439 L12.4918791,23.2987469 L12.4918791,23.2987469 L12.4767152,23.2950439 L12.4056548,23.2595131 C12.3958229,23.2563662 12.3870493,23.2590235 12.3821421,23.2649074 L12.3780323,23.275831 L12.360941,23.7031097 L12.3658947,23.7234994 L12.3769048,23.7357139 L12.4804777,23.8096931 L12.4953491,23.8136134 L12.4953491,23.8136134 L12.5071152,23.8096931 L12.6106902,23.7357139 L12.6232938,23.7196733 L12.6232938,23.7196733 L12.6266527,23.7031097 L12.609561,23.275831 C12.6075724,23.2657013 12.6010112,23.2592993 12.5934901,23.257841 L12.5934901,23.257841 Z M12.8583906,23.1452862 L12.8445485,23.1473072 L12.6598443,23.2396597 L12.6498822,23.2499052 L12.6498822,23.2499052 L12.6471943,23.2611114 L12.6650943,23.6906389 L12.6699349,23.7034178 L12.6699349,23.7034178 L12.678386,23.7104931 L12.8793402,23.8032389 C12.8914285,23.8068999 12.9022333,23.8029875 12.9078286,23.7952264 L12.9118235,23.7811639 L12.8776777,23.1665331 C12.8752882,23.1545897 12.8674102,23.1470016 12.8583906,23.1452862 L12.8583906,23.1452862 Z M12.1430473,23.1473072 C12.1332178,23.1423925 12.1221763,23.1452606 12.1156365,23.1525954 L12.1099173,23.1665331 L12.0757714,23.7811639 C12.0751323,23.7926639 12.0828099,23.8018602 12.0926481,23.8045676 L12.108256,23.8032389 L12.3092106,23.7104931 L12.3186497,23.7024347 L12.3186497,23.7024347 L12.3225043,23.6906389 L12.340401,23.2611114 L12.337245,23.2485176 L12.337245,23.2485176 L12.3277531,23.2396597 L12.1430473,23.1473072 Z" id="MingCute" fill-rule="nonzero">
+
+                                </path>
+                                                <path d="M12.9999,2.04938 C17.7244,2.51845 21.4815,6.27559 21.9506,11 L19.9999,11 C19.4477,11 18.9999,11.4477 18.9999,12 C18.9999,12.5523 19.4477,13 19.9999,13 L21.9506,13 C21.4488,18.0533 17.1853,22 11.9999,22 C6.81459,22 2.55104,18.0533 2.04932,13 L3.99994,13 C4.55223,13 4.99994,12.5523 4.99994,12 C4.99994,11.4477 4.55223,11 3.99994,11 L2.04932,11 C2.51839,6.27559 6.27552,2.51845 10.9999,2.04938 L10.9999,4 C10.9999,4.55229 11.4477,5 11.9999,5 C12.5522,5 12.9999,4.55229 12.9999,4 L12.9999,2.04938 Z M17.78,6.22 L12.9372498,8.68549993 L12.5639368,8.88160297 L11.9538121,9.19234339 C11.2331508,9.5614361 10.500066,9.964354 9.94932,10.5151 C8.97764,11.4868 8.86,13.1027 9.87861,14.1213 C10.8972,15.1399 12.5132,15.0223 13.4849,14.0506 C13.95692,13.57858 14.320364,12.972532 14.6470088,12.3551656 L15.1183487,11.4359659 L15.4802061,10.7381492 L17.78,6.22 Z M13.1623,10.8376 L13.0496625,11.0476 L12.9368,11.2642 C12.7283,11.6663667 12.5106333,12.0860333 12.2392398,12.4363366 L12.0706,12.6364 C11.7926,12.9144 11.4458,12.8601 11.2928,12.7071 C11.15519,12.56949 11.097365,12.27474 11.2898381,12.0145041 L11.3625,11.9304 C11.6815833,11.63565 12.0874028,11.4036778 12.493037,11.1896917 L12.7357,11.0631 C12.8816,10.9875 13.0252,10.913 13.1623,10.8376 Z" id="形状" fill="currentcolor">
+
+                                </path>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+                                My Documents
+                            </a>
+                        </div>#}
+
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_jobs') }}" title="Jobs">
+                                <svg class="icon-image icon-jobsearch" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+
+                                <defs>
+
+                                </defs>
+
+                                <g data-name="35. Find" id="_35._Find">
+
+                                <path class="cls-1" d="M13,26a12.994,12.994,0,1,1,12.588-9.748,1,1,0,0,1-1.936-.5A10.894,10.894,0,0,0,24,13,11,11,0,1,0,13,24a10.869,10.869,0,0,0,6.275-1.969,10.652,10.652,0,0,0,2.749-2.747,1,1,0,0,1,1.651,1.131,12.681,12.681,0,0,1-3.256,3.257A12.861,12.861,0,0,1,13,26Z"/>
+
+                                <path class="cls-1" d="M28.879,32a3.142,3.142,0,0,1-2.207-.914l-7.529-7.529a1,1,0,0,1,1.414-1.414l7.529,7.529a1.121,1.121,0,0,0,1.586-1.586l-7.529-7.529a1,1,0,0,1,1.414-1.414l7.529,7.529A3.121,3.121,0,0,1,28.879,32Z"/>
+
+                                <path class="cls-2" d="M19,15H7a2,2,0,0,1-2-2V10A1,1,0,0,1,6,9H20a1,1,0,0,1,1,1v3A2,2,0,0,1,19,15ZM7,11v2H19V11Z"/>
+
+                                <path class="cls-2" d="M17,21H9a3,3,0,0,1-3-3V14a1,1,0,0,1,1-1H19a1,1,0,0,1,1,1v4A3,3,0,0,1,17,21ZM8,15v3a1,1,0,0,0,1,1h8a1,1,0,0,0,1-1V15Z"/>
+
+                                <path class="cls-2" d="M17,11H9a1,1,0,0,1-1-1V8a3,3,0,0,1,3-3h4a3,3,0,0,1,3,3v2A1,1,0,0,1,17,11ZM10,9h6V8a1,1,0,0,0-1-1H11a1,1,0,0,0-1,1Z"/>
+
+                                </g>
+
+                                </svg>
+                                Job Search
+                            </a>
+                        </div>
+
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_home') }}" title="Lounge">
+                                <svg fill="currentcolor" class="icon-image" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                    viewBox="0 0 512 512" xml:space="preserve">
+                                <g>
+                                    <g>
+                                        <path d="M397.952,80.16H114.416c-36,0-66.416,30.432-66.416,66.464v61.536c0,8.832,7.168,16,16,16c8.832,0,16-7.168,16-16v-61.536
+                                            c0-18.688,15.76-34.464,34.416-34.464h283.536c18.448,0,34.048,15.776,34.048,34.464v61.536c0,8.832,7.168,16,16,16
+                                            c8.832,0,16-7.168,16-16v-61.536C464,109.984,434.368,80.16,397.952,80.16z"/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M64.864,192.16H48.176C22.064,192.16,0,214.4,0,240.72v95.44c0,8.832,7.168,16,16,16c8.832,0,16-7.168,16-16v-95.44
+                                            c0-8.512,7.856-16.56,16.176-16.56h16.688c8.064,0,15.136,7.744,15.136,16.56v63.44c0,8.832,7.168,16,16,16
+                                            c8.832,0,16-7.168,16-16v-63.44C112,214.4,90.416,192.16,64.864,192.16z"/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M466,192.16h-20.72c-24.544,0-45.28,21.52-45.28,47.008v64.992c0,8.832,7.168,16,16,16c8.832,0,16-7.168,16-16v-64.992
+                                            c0-7.712,6.448-15.008,13.28-15.008H466c7.056,0,14,7.44,14,15.008v93.168c0,19.76-16.544,35.824-36.88,35.824H69.088
+                                            c-19.968,0-36.224-16.128-36.224-35.968c0-8.832-7.168-16-16-16c-8.832,0-16,7.168-16,16c0,37.472,30.608,67.968,68.224,67.968
+                                            H443.12c37.984,0,68.88-30.416,68.88-67.824v-93.168C512,213.68,490.944,192.16,466,192.16z"/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M416,288.16H96c-8.832,0-16,7.168-16,16c0,8.832,7.168,16,16,16h320c8.832,0,16-7.168,16-16
+                                            C432,295.328,424.832,288.16,416,288.16z"/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M95.552,368.64c-2.8,0-5.424,0.72-7.712,1.984c-2.288-1.264-4.912-1.984-7.712-1.984c-8.832,0-16,7.168-16,16v31.2
+                                            c0,8.832,7.168,16,16,16h15.44c8.832,0,16-7.152,15.984-16v-31.2C111.552,375.808,104.384,368.64,95.552,368.64z"/>
+                                    </g>
+                                </g>
+                                <g>
+                                    <g>
+                                        <path d="M432.096,368.64c-2.976,0-5.744,0.8-8.128,2.208c-2.384-1.408-5.152-2.208-8.128-2.208c-8.832,0-16,7.168-16,16v31.2
+                                            c0,8.832,7.168,16,16,16h16.256c8.832,0,16-7.152,16-16v-31.2C448.096,375.808,440.928,368.64,432.096,368.64z"/>
+                                    </g>
+                                </g>
+                                </svg>
+                                Lounge
+                            </a>
+                        </div>
+
+                        <div class="app-utility-item">
+                            <a href="{{ path('app_provider_messages') }}" title="Inbox">
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="style=stroke">
+                                <g id="email">
+                                <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"/>
+                                <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"/>
+                                </g>
+                                </g>
+                                </svg>
+                                Inbox
+                            </a>
+                        </div>
+
+                        {% set headerNotifications = getHeaderNotifications('PROVIDER') %}
+                        <div class="app-utility-item app-notifications-dropdown dropdown">
+                            <a class="dropdown-toggle no-toggle-arrow" id="notifications-dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" title="Notifications">
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18.7491 9.70957V9.00497C18.7491 5.13623 15.7274 2 12 2C8.27256 2 5.25087 5.13623 5.25087 9.00497V9.70957C5.25087 10.5552 5.00972 11.3818 4.5578 12.0854L3.45036 13.8095C2.43882 15.3843 3.21105 17.5249 4.97036 18.0229C9.57274 19.3257 14.4273 19.3257 19.0296 18.0229C20.789 17.5249 21.5612 15.3843 20.5496 13.8095L19.4422 12.0854C18.9903 11.3818 18.7491 10.5552 18.7491 9.70957Z" stroke="currentcolor" stroke-width="1.5"/>
+                                <path d="M7.5 19C8.15503 20.7478 9.92246 22 12 22C14.0775 22 15.845 20.7478 16.5 19" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span class="icon-badge">{{ getUnseenNotificationCount(app.user) }}</span>
+                                Notifications
+                            </a><!--//dropdown-toggle-->
+
+                            <div class="dropdown-menu p-0" aria-labelledby="notifications-dropdown-toggle">
+                                <div class="dropdown-menu-header p-3">
+                                    <h5 class="dropdown-menu-title mb-0">Notifications</h5>
+                                </div><!--//dropdown-menu-title-->
+                                <div class="dropdown-menu-content">
+                                    {% for notification in headerNotifications %}
+                                        <div class="item p-3">
+                                            <div class="row gx-2 justify-content-between align-items-center">
+                                                <div class="col-auto">
+                                                    <div class="app-icon-holder">
+                                                        {% include 'provider/partials/_notification_icon.html.twig' with {'notificationType': notification.notificationType} %}
+                                                    </div>
+                                                </div><!--//col-->
+                                                <div class="col">
+                                                    <div class="info">
+                                                        <div class="desc">{{ notification.message }}</div>
+                                                        <div class="meta">{{ notification.createdAt|time_diff }}</div>
+                                                    </div>
+                                                </div><!--//col-->
+                                            </div><!--//row-->
+                                            {% if notification.notificationType in ['job_applied', 'bookmark_created'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_jobs_detail', {'id': notification.extraData.job}) }}"></a>
+                                            {% elseif notification.notificationType in ['provider_in_review', 'provider_shortlist', 'provider_hired', 'review_request', 'provider_offered', 'one_file_requested'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_jobs_application_detail', {'id': notification.extraData.application}) }}"></a>
+                                            {% elseif notification.notificationType in ['provider_reviewed'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_reviews') }}"></a>
+                                            {% elseif notification.notificationType in ['message_received'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_message_show', {'id': notification.extraData.message}) }}"></a>
+                                            {% elseif notification.notificationType in ['document_requested'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_documents') }}"></a>
+                                            {% elseif notification.notificationType in ['interview_scheduled'] %}
+                                                <a class="link-mask" href="{{ path('app_provider_jobs_applications') }}?status=interview"></a>
+                                            {% else %}
+                                                <a class="link-mask" href="#"></a>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <div class="item p-3">New notifications not available at the moment.</div>
+                                    {% endfor %}
+                                </div><!--//dropdown-menu-content-->
+
+                                <div class="dropdown-menu-footer p-2 text-center">
+                                    <a href="{{ path('app_provider_notifications') }}">View all</a>
+                                </div>
+
+                            </div><!--//dropdown-menu-->
+                        </div>
+
+{#                        <div class="app-utility-item">#}
+{#                            <a href="#" title="Settings">#}
+{#                                <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear icon" fill="currentColor" xmlns="http://www.w3.org/2000/svg">#}
+{#                                    <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>#}
+{#                                    <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>#}
+{#                                </svg>#}
+{#                            </a>#}
+{#                        </div><!--//app-utility-item-->#}
+
+                        <div class="app-utility-item app-user-dropdown dropdown">
+                            <a class="dropdown-toggle" id="user-dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                                {% if app.user.profilePictureFilename %}
+                                    <div class="outer-ring">
+                                    <img class="profile-image" src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="user profile">
+                                    </div>
+                                {% elseif app.user.profilePicture %}
+                                    <div class="outer-ring">
+                                    <img src="{{ app.user.profilePicture }}" alt="user profile">
+                                    </div>
+                                {% else %}
+                                    <svg class="icon-image" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 25.1333C28.9725 25.1333 33 21.076 33 16.0667C33 11.0573 28.9725 7 24 7C19.0275 7 15 11.0573 15 16.0667C15 21.076 19.0275 25.1333 24 25.1333Z" fill="currentcolor"/>
+                                    <mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="6" y="28" width="36" height="13">
+                                    <path d="M16.8786 28.3569C17.3814 28.2333 17.8971 28.4861 18.1254 28.9539L22.1893 28.9542C24 28.9538 24 28.9543 25.8105 28.9539L29.8746 28.9539C30.1029 28.4861 30.6186 28.2333 31.1214 28.3569C36.5255 29.6849 42 32.3928 42 36.4664V40.9997H6V36.4664C6 32.3928 11.4745 29.6849 16.8786 28.3569Z" fill="currentcolor"/>
+                                    </mask>
+                                    <g mask="url(#mask0)">
+                                    </g>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M15.6354 29.9375C15.4505 30.5613 15.4381 31.3074 15.7149 32.1985C15.8088 32.1896 15.9039 32.1851 16 32.1851C17.6569 32.1851 19 33.5382 19 35.2073C19 36.8764 17.6569 38.2295 16 38.2295C14.3431 38.2295 13 36.8764 13 35.2073C13 34.3657 13.3415 33.6044 13.8925 33.0564C13.4321 31.7408 13.3829 30.4996 13.7178 29.3692C13.7252 29.3442 13.7328 29.3193 13.7406 29.2945C9.54212 30.7966 6 33.1897 6 36.4664V42.9997H42V36.4664C42 33.2191 38.5212 30.8396 34.3723 29.3352C34.5763 29.9155 34.6923 30.5333 34.7142 31.1851H34.9412C35.1715 31.1851 35.3947 31.2645 35.5732 31.4101L37.632 33.0891C37.8649 33.279 38 33.5636 38 33.8641V38.2295C38 38.7818 37.5523 39.2295 37 39.2295H34.9412V37.2295H36V34.3389L34.5851 33.1851H34.5045C34.4953 33.2244 34.4858 33.2639 34.476 33.3035L33.9986 33.1851H32.4149L31 34.3389V37.2295H32.0588V39.2295H30C29.4477 39.2295 29 38.7818 29 38.2295V33.8641C29 33.5636 29.1351 33.279 29.368 33.0891L31.4268 31.4101C31.6053 31.2645 31.8285 31.1851 32.0588 31.1851H32.7126C32.6878 30.6727 32.5803 30.2144 32.4114 29.8041C32.2091 29.3129 31.9073 28.8627 31.5142 28.4558C31.3833 28.422 31.2523 28.389 31.1214 28.3569C30.6186 28.2333 30.1029 28.4861 29.8746 28.9539L25.8105 28.9539C24.9218 28.9541 24.4694 28.9541 24.0249 28.954H24.0248H24.0248C23.5637 28.954 23.1112 28.954 22.1893 28.9542L18.1254 28.9539C17.8971 28.4861 17.3814 28.2333 16.8786 28.3569C16.7666 28.3844 16.6544 28.4125 16.5424 28.4413C16.0993 28.8976 15.7951 29.3987 15.6354 29.9375ZM17 35.2073C17 35.7858 16.5384 36.2295 16 36.2295C15.4616 36.2295 15 35.7858 15 35.2073C15 34.6288 15.4616 34.1851 16 34.1851C16.5384 34.1851 17 34.6288 17 35.2073Z" fill="currentcolor"/>
+                                    </svg>
+                                {% endif %}
+                                
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="user-dropdown-toggle">
+                                <li><a class="dropdown-item" href="{{ path('app_provider_profile') }}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_provider_change_password') }}">Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                            </ul>
+                        </div><!--//app-user-dropdown-->
+                    </div><!--//app-utilities-->
+                </div><!--//row-->
+            </div><!--//app-header-content-->
+        </div><!--//container-fluid-->
+    </div><!--//app-header-inner-->
+    <div id="app-sidepanel" class="app-sidepanel">
+        <div id="sidepanel-drop" class="sidepanel-drop"></div>
+        <div class="sidepanel-inner d-flex flex-column">
+            <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
+            <div class="app-branding">
+                <a class="app-logo logo" href="{{ path('app_provider_dashboard') }}">
+                    <span class="logo-icon">L<span style="color:#121C0C;padding: 4px;">L</span></span>
+                    <span class="text-logo">Locum<span style="color:#121C0C;padding: 4px;">lancer</span></span>
+                </a>
+            </div>
+
+            <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
+                <ul class="app-menu list-unstyled accordion" id="menu-accordion">
+                    <li class="nav-item">
+                        <a class="nav-link #">
+						        <span class="nav-icon">
+                                <svg fill="currentColor" class="icon-image" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:serif="http://www.serif.com/" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M9.733,14.107c-1.387,0.252 -2.676,0.921 -3.687,1.932c-1.309,1.309 -2.044,3.084 -2.044,4.935l0,4.039c0,1.657 1.343,3 3,3c4.184,-0 13.816,-0 18,-0c1.657,-0 3,-1.343 3,-3l0,-4.039c0,-1.851 -0.735,-3.626 -2.044,-4.935c-1.011,-1.011 -2.3,-1.68 -3.687,-1.932c0.468,-0.939 0.731,-1.997 0.731,-3.117c0,-3.863 -3.137,-7 -7,-7c-3.863,0 -7,3.137 -7,7c0,1.12 0.263,2.178 0.731,3.117Zm12.263,1.984l-0,2.079c1.164,0.412 2,1.524 2,2.83c0,1.101 0.004,1.995 0.004,1.995c0.003,0.552 -0.443,1.002 -0.995,1.005c-0.552,0.002 -1.002,-0.444 -1.005,-0.995c0,-0 -0.004,-0.899 -0.004,-2.005c0,-0.552 -0.446,-1 -0.997,-1c-0.551,-0 -0.997,0.448 -0.997,1l-0.002,2.001c-0.001,0.552 -0.449,1 -1.001,0.999c-0.552,-0.001 -1,-0.449 -0.999,-1.001c-0,-0 0.002,-2 0.002,-1.999c0,-1.304 0.833,-2.414 1.994,-2.828l-0,-1.433c-1.133,0.789 -2.51,1.251 -3.994,1.251c-1.489,0 -2.871,-0.466 -4.006,-1.26l-0,1.441c1.165,0.412 2,1.524 2,2.829c0,1.656 -1.344,3 -3,3c-1.656,-0 -3,-1.344 -3,-3c-0,-1.305 0.835,-2.417 2,-2.829l-0,-2.078c-0.954,0.193 -1.837,0.662 -2.535,1.36c-0.934,0.934 -1.459,2.201 -1.459,3.521c0,0 0,4.039 0,4.039c0,0.552 0.448,1 1,1l18,-0c0.552,-0 1,-0.448 1,-1c0,-0 0,-4.039 0,-4.039c0,-1.32 -0.525,-2.587 -1.458,-3.521c-0.701,-0.701 -1.59,-1.171 -2.548,-1.362Zm-11,3.909c0.552,-0 1,0.448 1,1c0,0.552 -0.448,1 -1,1c-0.552,-0 -1,-0.448 -1,-1c-0,-0.552 0.448,-1 1,-1Zm5.006,-14.01c2.76,0 5,2.241 5,5c0,2.76 -2.24,5 -5,5c-2.76,0 -5,-2.24 -5,-5c0,-2.759 2.24,-5 5,-5Z"/></svg>
+						         </span>
+                            <span class="nav-link-text">Profile View</span>
+                        </a>
+                    </li>
+                    {# <li class="nav-item">
+                        <a class="nav-link #">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/layout.png') }}" class="icon-image" alt="dashboard" />
+						         </span>
+                            <span class="nav-link-text">Dashboard</span>
+                        </a>
+                    </li> #}
+
+                    {# <li class="nav-item has-submenu">
+                        <a class="nav-link {% if '/jobs/' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-3" aria-expanded="{% if '/jobs/' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-3">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/briefcase-yellow.png') }}" class="icon-image" alt="jobs" />
+						         </span>
+                            <span class="nav-link-text">Jobs</span>
+                            <span class="submenu-arrow">
+		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+	</svg>
+	                             </span>
+                        </a>
+                        <div id="submenu-3" class="collapse submenu submenu-3 {% if '/jobs/' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_jobs_matching' %}active{% endif %}" href="{{ path('app_provider_jobs_matching') }}">Matching Jobs</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_jobs_saved' %}active{% endif %}" href="{{ path('app_provider_jobs_saved') }}">Saved Jobs</a></li>
+                            </ul>
+                        </div>
+                    </li> #}
+
+                    <li class="nav-item">
+                        <a class="nav-link #">
+						        <span class="nav-icon">
+                                <svg fill="currentcolor" class="icon-image" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title>analytics</title><path d="M4,2H2V28a2,2,0,0,0,2,2H30V28H4Z"/><path d="M30,9H23v2h3.59L19,18.59l-4.29-4.3a1,1,0,0,0-1.42,0L6,21.59,7.41,23,14,16.41l4.29,4.3a1,1,0,0,0,1.42,0L28,12.41V16h2Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" /></svg>
+						         </span>
+                            <span class="nav-link-text">Job Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link #">
+						        <span class="nav-icon">
+						        <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 9.75C1.59 9.75 1.25 9.41 1.25 9V6.5C1.25 3.6 3.61 1.25 6.5 1.25H9C9.41 1.25 9.75 1.59 9.75 2C9.75 2.41 9.41 2.75 9 2.75H6.5C4.43 2.75 2.75 4.43 2.75 6.5V9C2.75 9.41 2.41 9.75 2 9.75Z" fill="currentcolor"/>
+                                <path d="M22 9.75C21.59 9.75 21.25 9.41 21.25 9V6.5C21.25 4.43 19.57 2.75 17.5 2.75H15C14.59 2.75 14.25 2.41 14.25 2C14.25 1.59 14.59 1.25 15 1.25H17.5C20.39 1.25 22.75 3.6 22.75 6.5V9C22.75 9.41 22.41 9.75 22 9.75Z" fill="currentcolor"/>
+                                <path d="M17.5 22.75H16C15.59 22.75 15.25 22.41 15.25 22C15.25 21.59 15.59 21.25 16 21.25H17.5C19.57 21.25 21.25 19.57 21.25 17.5V16C21.25 15.59 21.59 15.25 22 15.25C22.41 15.25 22.75 15.59 22.75 16V17.5C22.75 20.4 20.39 22.75 17.5 22.75Z" fill="currentcolor"/>
+                                <path d="M9 22.75H6.5C3.61 22.75 1.25 20.4 1.25 17.5V15C1.25 14.59 1.59 14.25 2 14.25C2.41 14.25 2.75 14.59 2.75 15V17.5C2.75 19.57 4.43 21.25 6.5 21.25H9C9.41 21.25 9.75 21.59 9.75 22C9.75 22.41 9.41 22.75 9 22.75Z" fill="currentcolor"/>
+                                <path d="M9 5.25H7C5.86 5.25 5.25 5.85 5.25 7V9C5.25 10.15 5.86 10.75 7 10.75H9C10.14 10.75 10.75 10.15 10.75 9V7C10.75 5.85 10.14 5.25 9 5.25Z" fill="currentcolor"/>
+                                <path d="M17 5.25H15C13.86 5.25 13.25 5.85 13.25 7V9C13.25 10.15 13.86 10.75 15 10.75H17C18.14 10.75 18.75 10.15 18.75 9V7C18.75 5.85 18.14 5.25 17 5.25Z" fill="currentcolor"/>
+                                <path d="M9 13.25H7C5.86 13.25 5.25 13.85 5.25 15V17C5.25 18.15 5.86 18.75 7 18.75H9C10.14 18.75 10.75 18.15 10.75 17V15C10.75 13.85 10.14 13.25 9 13.25Z" fill="currentcolor"/>
+                                <path d="M17 13.25H15C13.86 13.25 13.25 13.85 13.25 15V17C13.25 18.15 13.86 18.75 15 18.75H17C18.14 18.75 18.75 18.15 18.75 17V15C18.75 13.85 18.14 13.25 17 13.25Z" fill="currentcolor"/>
+                                </svg>
+						         </span>
+                            <span class="nav-link-text">CV Scanner</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link #">
+						        <span class="nav-icon">
+                                <svg class="icon-image" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+
+                                <g id="layer1">
+
+                                <path d="M 10 0 C 4.4830748 0 0 4.4830748 0 10 C 0 15.516925 4.4830748 20 10 20 C 15.516925 20 20 15.516925 20 10 C 20 4.4830748 15.516925 0 10 0 z M 10 1 C 14.976485 1 19 5.0235149 19 10 C 19 12.349397 18.095422 14.478558 16.625 16.080078 L 15.998047 15.878906 L 15.15625 15.646484 L 14.306641 15.449219 L 13.447266 15.287109 L 13.322266 15.25 L 13.212891 15.181641 L 13.125 15.087891 L 13.0625 14.974609 L 13.033203 14.847656 L 13.035156 14.720703 L 13.070312 14.595703 L 13.136719 14.484375 L 13.347656 14.193359 L 13.529297 13.884766 L 13.833984 13.275391 L 14.103516 12.652344 L 14.339844 12.013672 L 14.541016 11.361328 L 14.705078 10.703125 L 14.833984 10.035156 L 14.925781 9.359375 L 14.982422 8.6816406 L 15 8.0019531 L 14.982422 7.5664062 L 14.923828 7.1328125 L 14.830078 6.7070312 L 14.697266 6.2910156 L 14.53125 5.8886719 L 14.330078 5.5 L 14.097656 5.1328125 L 13.830078 4.7871094 L 13.537109 4.4648438 L 13.212891 4.171875 L 12.869141 3.90625 L 12.5 3.6699219 L 12.113281 3.46875 L 11.710938 3.3027344 L 11.294922 3.1699219 L 10.867188 3.0761719 L 10.435547 3.0195312 L 10 3 L 9.5644531 3.0195312 L 9.1328125 3.0761719 L 8.7050781 3.1699219 L 8.2890625 3.3027344 L 7.8867188 3.46875 L 7.5 3.6699219 L 7.1328125 3.90625 L 6.7871094 4.171875 L 6.4628906 4.4648438 L 6.1699219 4.7871094 L 5.9042969 5.1328125 L 5.6699219 5.5 L 5.46875 5.8886719 L 5.3027344 6.2910156 L 5.1699219 6.7070312 L 5.0761719 7.1328125 L 5.0195312 7.5664062 L 5 8.0019531 L 5.0175781 8.6816406 L 5.0742188 9.359375 L 5.1660156 10.035156 L 5.2949219 10.703125 L 5.4589844 11.361328 L 5.6601562 12.013672 L 5.8984375 12.652344 L 6.1660156 13.275391 L 6.4707031 13.884766 L 6.6523438 14.193359 L 6.8632812 14.484375 L 6.9296875 14.595703 L 6.9648438 14.720703 L 6.96875 14.847656 L 6.9375 14.974609 L 6.875 15.087891 L 6.7871094 15.181641 L 6.6777344 15.25 L 6.5527344 15.287109 L 5.6953125 15.449219 L 4.84375 15.646484 L 4.0019531 15.878906 L 3.375 16.080078 C 1.9045777 14.478558 1 12.349397 1 10 C 1 5.0235149 5.0235149 1 10 1 z M 10 4 L 10.392578 4.0195312 L 10.78125 4.078125 L 11.160156 4.1738281 L 11.529297 4.3046875 L 11.886719 4.4746094 L 12.222656 4.6738281 L 12.537109 4.9082031 L 12.830078 5.171875 L 13.091797 5.4628906 L 13.326172 5.7792969 L 13.527344 6.1152344 L 13.695312 6.4707031 L 13.828125 6.8398438 L 13.923828 7.2207031 L 13.982422 7.609375 L 14 8.0019531 L 13.984375 8.6289062 L 13.931641 9.2519531 L 13.845703 9.8710938 L 13.728516 10.486328 L 13.576172 11.09375 L 13.390625 11.693359 L 13.173828 12.279297 L 12.925781 12.855469 L 12.646484 13.416016 L 12.509766 13.644531 L 12.351562 13.865234 L 12.220703 14.0625 L 12.121094 14.279297 L 12.056641 14.509766 L 12.029297 14.748047 L 12.042969 14.986328 L 12.091797 15.220703 L 12.177734 15.443359 L 12.298828 15.652344 L 12.451172 15.835938 L 12.628906 15.996094 L 12.830078 16.123047 L 13.052734 16.216797 L 13.283203 16.273438 L 14.099609 16.427734 L 14.912109 16.615234 L 15.712891 16.835938 L 15.8125 16.867188 C 14.244524 18.195439 12.219491 19 10 19 C 7.7805094 19 5.7554759 18.195439 4.1875 16.867188 L 4.2871094 16.835938 L 5.0878906 16.615234 L 5.9003906 16.427734 L 6.7167969 16.273438 L 6.9472656 16.216797 L 7.1699219 16.123047 L 7.3710938 15.996094 L 7.5507812 15.835938 L 7.7011719 15.652344 L 7.8222656 15.443359 L 7.9101562 15.220703 L 7.9570312 14.986328 L 7.9707031 14.748047 L 7.9433594 14.509766 L 7.8789062 14.279297 L 7.7792969 14.0625 L 7.6484375 13.865234 L 7.4902344 13.644531 L 7.3535156 13.416016 L 7.0742188 12.855469 L 6.8261719 12.279297 L 6.609375 11.693359 L 6.4238281 11.09375 L 6.2734375 10.486328 L 6.1542969 9.8710938 L 6.0683594 9.2519531 L 6.015625 8.6289062 L 6 8.0019531 L 6.0195312 7.609375 L 6.078125 7.2207031 L 6.171875 6.8398438 L 6.3046875 6.4707031 L 6.4726562 6.1152344 L 6.6738281 5.7792969 L 6.9082031 5.4628906 L 7.1699219 5.171875 L 7.4628906 4.9082031 L 7.7773438 4.6738281 L 8.1152344 4.4746094 L 8.4707031 4.3046875 L 8.8398438 4.1738281 L 9.21875 4.078125 L 9.6074219 4.0195312 L 10 4 z " style="fill:currentcolor; fill-opacity:1; stroke:none; stroke-width:0px;"/>
+
+                                </g>
+
+                                </svg>
+                                </span>
+                            <span class="nav-link-text">Membership</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_cashback' %}active{% endif %}" href="{{ path('app_provider_cashback') }}">
+						        <span class="nav-icon">
+                                <svg fill="currentcolor" class="icon-image" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <title>credit-card-front</title>
+                                <path d="M28 5.25h-24c-1.518 0.002-2.748 1.232-2.75 2.75v16c0.002 1.518 1.232 2.748 2.75 2.75h24c1.518-0.002 2.748-1.232 2.75-2.75v-16c-0.002-1.518-1.232-2.748-2.75-2.75h-0zM29.25 24c-0.001 0.69-0.56 1.249-1.25 1.25h-24c-0.69-0.001-1.249-0.56-1.25-1.25v-16c0.001-0.69 0.56-1.249 1.25-1.25h24c0.69 0.001 1.249 0.56 1.25 1.25v0zM10 21.25h-4c-0.414 0-0.75 0.336-0.75 0.75s0.336 0.75 0.75 0.75v0h4c0.414 0 0.75-0.336 0.75-0.75s-0.336-0.75-0.75-0.75v0zM20 21.25h-6c-0.414 0-0.75 0.336-0.75 0.75s0.336 0.75 0.75 0.75v0h6c0.414 0 0.75-0.336 0.75-0.75s-0.336-0.75-0.75-0.75v0zM24 17.25h-18c-0.414 0-0.75 0.336-0.75 0.75s0.336 0.75 0.75 0.75v0h18c0.414 0 0.75-0.336 0.75-0.75s-0.336-0.75-0.75-0.75v0zM26 9.25h-6c-0.414 0-0.75 0.336-0.75 0.75v0 4c0 0.414 0.336 0.75 0.75 0.75h6c0.414-0 0.75-0.336 0.75-0.75v0-4c-0-0.414-0.336-0.75-0.75-0.75v0zM25.25 13.25h-4.5v-2.5h4.5z"></path>
+                                </svg>
+                                </span>
+                            <span class="nav-link-text">Cash Back</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_reviews' %}active{% endif %}" href="{{ path('app_provider_reviews') }}">
+						        <span class="nav-icon review-icon">
+                                <svg class="icon-image" viewBox="0 0 24 24" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{}.cls-2{fill:none;stroke-miterlimit:10;stroke-width:1.91px;}</style></defs><polygon class="cls-1" points="12 6.25 13.18 8.76 15.82 9.17 13.91 11.12 14.36 13.89 12 12.58 9.64 13.89 10.09 11.12 8.18 9.17 10.82 8.76 12 6.25" fill="currentcolor" /><path class="cls-2" d="M18.68,1.48H5.32A3.82,3.82,0,0,0,1.5,5.3v9.54a3.82,3.82,0,0,0,3.82,3.82H9.14L12,21.52l2.86-2.86h3.82a3.82,3.82,0,0,0,3.82-3.82V5.3A3.82,3.82,0,0,0,18.68,1.48Z" stroke="currentColor"/></svg>
+						         </span>
+                            <span class="nav-link-text">Reviews</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_faq' %}active{% endif %}" href="{{ path('app_provider_faq') }}">
+						        <span class="nav-icon">
+                                <svg fill="currentColor" class="icon-image" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                    viewBox="0 0 512 512" xml:space="preserve">
+                                <g>
+                                    <g>
+                                        <path d="M400.716,274.634h41.717c19.101,0,34.641-15.54,34.641-34.641V171.74c0-16.355-11.397-30.09-26.665-33.703
+                                            c-13.248-37.843-37.764-71.676-69.849-96.092C344.5,14.505,301.427,0,256.001,0s-88.498,14.505-124.559,41.945
+                                            c-32.086,24.416-56.602,58.248-69.851,96.092c-15.267,3.614-26.665,17.348-26.665,33.703v68.252
+                                            c0,19.101,15.54,34.641,34.641,34.641h41.717c8.929,18.717,21.384,35.439,36.502,49.305
+                                            c-60.017,0.265-108.762,49.166-108.762,109.244V512h433.952v-78.817c0-60.078-48.746-108.98-108.762-109.244
+                                            C379.331,310.072,391.786,293.349,400.716,274.634z M446.658,171.739v68.253c0,2.329-1.895,4.224-4.224,4.224h-26.192v-38.349
+                                            c0-0.013,0-0.025,0-0.039c0-1.328-0.017-2.652-0.05-3.992c0-0.01-0.001-0.02-0.001-0.03c-0.004-0.152-0.011-0.304-0.015-0.456
+                                            c-0.006-0.156-0.01-0.312-0.016-0.468l-0.026-0.722c-0.025-0.766-0.053-1.53-0.089-2.276c0-0.005-0.001-0.01-0.001-0.014
+                                            c-0.018-0.37-0.044-0.739-0.065-1.109c-0.003-0.046-0.005-0.091-0.008-0.137l-0.053-0.85c-0.037-0.622-0.075-1.242-0.122-1.882
+                                            c0-0.003,0-0.005-0.001-0.008c-0.041-0.546-0.091-1.091-0.137-1.636l-0.042-0.48c-0.048-0.561-0.096-1.121-0.151-1.68
+                                            c-0.065-0.666-0.14-1.329-0.214-1.993l-0.041-0.362c-0.043-0.385-0.088-0.771-0.134-1.157c-0.102-0.849-0.213-1.694-0.328-2.538
+                                            l-0.042-0.306c-0.069-0.502-0.138-1.004-0.211-1.492c-0.109-0.73-0.225-1.456-0.344-2.183c-0.08-0.496-0.16-0.984-0.24-1.449
+                                            c-0.635-3.688-1.398-7.332-2.28-10.929c-0.013-0.054-0.026-0.109-0.04-0.163h30.842
+                                            C444.763,167.515,446.658,169.41,446.658,171.739z M100.362,167.71c-0.924,3.766-1.712,7.582-2.364,11.445
+                                            c-0.043,0.259-0.087,0.516-0.129,0.775l-0.027,0.167c-0.39,2.402-0.725,4.822-1.007,7.26c-0.019,0.17-0.041,0.341-0.059,0.512
+                                            l-0.014,0.124c-0.074,0.66-0.15,1.32-0.215,1.982c0,0.002,0,0.004-0.001,0.007c-0.059,0.593-0.109,1.189-0.16,1.786l-0.04,0.464
+                                            c-0.05,0.593-0.103,1.185-0.147,1.779c-0.043,0.585-0.078,1.172-0.115,1.759l-0.053,0.86c0,0.008-0.001,0.016-0.001,0.023
+                                            c-0.024,0.428-0.053,0.856-0.074,1.285c-0.039,0.788-0.066,1.579-0.092,2.37l-0.018,0.489c-0.003,0.085-0.005,0.164-0.008,0.248
+                                            c-0.047,1.605-0.078,3.209-0.078,4.821v38.349H69.568c-2.329,0-4.224-1.895-4.224-4.224v-68.252c0-2.329,1.895-4.224,4.224-4.224
+                                            h30.842C100.394,167.58,100.379,167.646,100.362,167.71z M94.562,137.1c11.91-27.801,31.076-52.516,55.299-70.949
+                                            c30.72-23.378,67.423-35.734,106.14-35.734s75.419,12.356,106.141,35.734c24.223,18.433,43.388,43.148,55.298,70.949h-16.723
+                                            c-25.783-54.041-80.957-91.475-144.716-91.475S137.068,83.059,111.285,137.1H94.562z M365.942,136.902
+                                            c-18.028,12.356-39.456,19.077-61.526,19.077c-29.098,0-56.45-11.335-77.018-31.919l-10.013-10.021l-10.706,9.278
+                                            c-15.003,13.002-34.214,20.164-54.096,20.164c-3.379,0-6.737-0.207-10.06-0.61c22.196-39.825,64.74-66.827,113.478-66.827
+                                            C302.264,76.043,342.945,100.372,365.942,136.902z M442.56,433.183v48.4H69.442v-48.4c0-43.469,35.364-78.833,78.833-78.833
+                                            h35.241v3.828c0,39.968,32.516,72.484,72.484,72.484c39.968,0,72.484-32.516,72.484-72.484v-3.828h35.241
+                                            C407.196,354.35,442.56,389.714,442.56,433.183z M214,360.547c0.038,0.01,0.075,0.018,0.113,0.028
+                                            c1.48,0.401,2.968,0.774,4.459,1.132c0.442,0.106,0.886,0.208,1.329,0.31c1.192,0.275,2.388,0.536,3.587,0.784
+                                            c0.388,0.08,0.775,0.164,1.163,0.241c1.54,0.306,3.084,0.591,4.635,0.851c0.293,0.05,0.587,0.091,0.881,0.139
+                                            c1.285,0.208,2.572,0.401,3.864,0.577c0.461,0.063,0.924,0.125,1.386,0.183c1.306,0.167,2.616,0.318,3.928,0.454
+                                            c0.282,0.029,0.563,0.064,0.845,0.091c1.086,0.105,2.175,0.196,3.264,0.28c0.1,0.008,0.2,0.017,0.3,0.025
+                                            c0.386,0.029,0.774,0.057,1.161,0.083c0.407,0.027,0.813,0.049,1.221,0.073c0.369,0.022,0.738,0.047,1.108,0.066
+                                            c0.208,0.011,0.414,0.026,0.622,0.038c0.654,0.032,1.31,0.054,1.966,0.078c0.453,0.017,0.907,0.035,1.362,0.049
+                                            c0.253,0.007,0.505,0.02,0.758,0.026c1.347,0.033,2.698,0.052,4.052,0.052c1.354,0,2.704-0.018,4.052-0.052
+                                            c0.253-0.006,0.505-0.019,0.758-0.026c0.454-0.013,0.907-0.031,1.362-0.049c0.655-0.024,1.312-0.046,1.966-0.078
+                                            c0.208-0.01,0.414-0.026,0.622-0.038c0.37-0.02,0.739-0.044,1.108-0.066c0.407-0.024,0.814-0.045,1.221-0.073
+                                            c0.387-0.026,0.775-0.054,1.161-0.083c0.1-0.008,0.2-0.017,0.3-0.025c1.09-0.084,2.178-0.174,3.264-0.28
+                                            c0.282-0.027,0.563-0.063,0.845-0.091c1.312-0.135,2.622-0.287,3.928-0.454c0.462-0.059,0.925-0.121,1.386-0.183
+                                            c1.291-0.176,2.579-0.369,3.864-0.577c0.293-0.048,0.588-0.089,0.881-0.139c1.55-0.261,3.094-0.545,4.635-0.851
+                                            c0.388-0.077,0.776-0.161,1.163-0.241c1.198-0.247,2.395-0.508,3.587-0.784c0.443-0.102,0.887-0.204,1.329-0.31
+                                            c1.491-0.358,2.979-0.73,4.459-1.132c0.034-0.01,0.073-0.018,0.111-0.028c-1.231,22.099-19.599,39.698-42.001,39.698
+                                            S215.231,382.646,214,360.547z M295.658,275.305c-5.582-10.919-16.937-18.416-30.018-18.416h-19.28
+                                            c-18.581,0-33.697,15.117-33.697,33.698c0,18.582,15.116,33.698,33.697,33.698h19.28c13.14,0,24.54-7.565,30.094-18.564
+                                            l43.462-0.277c-22.546,18.868-51.565,30.244-83.195,30.244c-71.586,0.001-129.823-58.238-129.823-129.823
+                                            c0-1.087,0.014-2.17,0.043-3.28l0.047-1.279c0.021-0.647,0.042-1.293,0.073-1.924c0.014-0.275,0.031-0.549,0.049-0.822
+                                            l0.032-0.528c0.037-0.614,0.072-1.23,0.118-1.842c0-0.006,0.001-0.012,0.001-0.017c0.025-0.35,0.057-0.698,0.087-1.046
+                                            l0.056-0.641c0.045-0.513,0.086-1.028,0.137-1.54c0.042-0.409,0.087-0.815,0.133-1.223l0.04-0.356
+                                            c0.039-0.348,0.078-0.696,0.12-1.042c0.019-0.169,0.036-0.335,0.059-0.507c0.06-0.481,0.125-0.959,0.191-1.438l0.028-0.207
+                                            c0.01-0.078,0.022-0.157,0.032-0.235c0.059-0.427,0.117-0.855,0.18-1.281c0.079-0.525,0.163-1.047,0.243-1.545
+                                            c0.084-0.518,0.168-1.036,0.259-1.553c0.095-0.554,0.198-1.106,0.303-1.665c0.086-0.458,0.173-0.916,0.264-1.372
+                                            c0.112-0.568,0.23-1.136,0.354-1.718c0.093-0.438,0.189-0.875,0.286-1.312c0.132-0.593,0.269-1.185,0.409-1.769
+                                            c0.104-0.438,0.212-0.875,0.32-1.311c0.142-0.569,0.287-1.135,0.432-1.687c0.085-0.322,0.174-0.643,0.262-0.964
+                                            c7.166,1.406,14.47,2.135,21.85,2.135c22.63,0,44.63-6.784,63.208-19.313c24.895,20.604,55.898,31.812,88.625,31.812
+                                            c26.607,0,52.499-7.617,74.701-21.727c0.127,0.38,0.253,0.767,0.384,1.172l0.109,0.336c0.057,0.176,0.117,0.352,0.172,0.529
+                                            c0.192,0.602,0.375,1.208,0.557,1.812c0.114,0.378,0.228,0.757,0.339,1.137c0.177,0.61,0.35,1.225,0.52,1.847
+                                            c0.108,0.393,0.216,0.788,0.321,1.183c0.154,0.581,0.303,1.166,0.453,1.769c0.108,0.434,0.215,0.868,0.319,1.304
+                                            c0.136,0.572,0.27,1.147,0.404,1.749c0.098,0.44,0.195,0.881,0.289,1.323c0.119,0.558,0.234,1.116,0.348,1.686
+                                            c0.097,0.489,0.191,0.978,0.282,1.468c0.099,0.532,0.199,1.067,0.297,1.643c0.008,0.048,0.016,0.096,0.024,0.144
+                                            c0.075,0.434,0.147,0.87,0.217,1.306c0.085,0.527,0.17,1.055,0.251,1.595c0.084,0.563,0.161,1.128,0.237,1.693l0.005,0.039
+                                            c0.064,0.47,0.128,0.94,0.186,1.408c0.065,0.523,0.122,1.049,0.18,1.575l0.049,0.439c0.044,0.38,0.086,0.76,0.124,1.144
+                                            c0.016,0.159,0.028,0.32,0.043,0.48c0.034,0.358,0.065,0.716,0.095,1.074l0.053,0.602c0.03,0.344,0.061,0.686,0.085,1.012
+                                            c0.049,0.657,0.086,1.317,0.126,1.976l0.028,0.455c0.016,0.258,0.034,0.515,0.047,0.791c0.042,0.843,0.071,1.688,0.096,2.536
+                                            l0.024,0.669c0.027,1.089,0.042,2.181,0.042,3.277c0,0.008,0,0.015,0,0.023c0,25.333-7.301,48.991-19.9,68.992L295.658,275.305z
+                                            M268.921,290.589c0,1.81-1.471,3.281-3.28,3.281h-19.28c-1.809,0-3.28-1.472-3.28-3.281c0-1.809,1.471-3.281,3.28-3.281h19.28
+                                            C267.45,287.308,268.921,288.78,268.921,290.589z"/>
+                                    </g>
+                                </g>
+                                </svg>
+						         </span>
+                            <span class="nav-link-text">Help and Support</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link #">
+                                <span class="nav-icon">
+                                <svg fill="currentColor" class="icon-image" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                  <title>information-circle</title>
+                                  <g id="Layer_2" data-name="Layer 2">
+                                    <g id="invisible_box" data-name="invisible box">
+                                      <rect width="48" height="48" fill="none"/>
+                                    </g>
+                                    <g id="icons_Q2" data-name="icons Q2">
+                                      <path d="M24,2A22,22,0,1,0,46,24,21.9,21.9,0,0,0,24,2Zm0,40A18,18,0,1,1,42,24,18.1,18.1,0,0,1,24,42Z"/>
+                                      <path d="M24,20a2,2,0,0,0-2,2V34a2,2,0,0,0,4,0V22A2,2,0,0,0,24,20Z"/>
+                                      <circle cx="24" cy="14" r="2"/>
+                                    </g>
+                                  </g>
+                                </svg>
+                                </span>
+                            <span class="nav-link-text">Quick Tour</span>
+                        </a>
+                    </li>
+
+                    {# <li class="nav-item has-submenu">
+                        <a class="nav-link {% if '/profile/' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-1" aria-expanded="{% if '/profile/' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-1">
+						        <span class="nav-icon">
+						       <img src="{{ asset('assets/icons/user-profile.png') }}" class="icon-image" alt="profile" />
+						         </span>
+                            <span class="nav-link-text">Profile</span>
+                            <span class="submenu-arrow">
+		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+	</svg>
+	                             </span>
+                        </a>
+                        <div id="submenu-1" class="collapse submenu submenu-1 {% if '/profile/' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_profile_cv' %}active{% endif %}" href="{{ path('app_provider_profile_cv') }}">CV Upload</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_profile_basic_information' %}active{% endif %}" href="{{ path('app_provider_profile_basic_information') }}">Basic Information</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_profile_work_preferences' %}active{% endif %}" href="{{ path('app_provider_profile_work_preferences') }}">Work Preferences</a></li>
+                            </ul>
+                        </div>
+                    </li> #}
+
+                    {# <li class="nav-item has-submenu">
+                        <a class="nav-link {% if '/application/' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-2" aria-expanded="{% if '/application/' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-2">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/add-document.png') }}" class="icon-image" alt="application" />
+						         </span>
+                            <span class="nav-link-text">Application</span>
+                            <span class="submenu-arrow">
+		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+	</svg>
+	                             </span>
+                        </a>
+                        <div id="submenu-2" class="collapse submenu submenu-2 {% if '/application/' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                <li class="submenu-item"><a class="submenu-link {% if '/education/' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_education_index') }}">Education & Training</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/license/' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_license_index') }}">License & Certifications</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/experience/' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_experience_index') }}">Work History</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/insurance/' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_insurance_index') }}">Professional Liability Insurance</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/health-assessment' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_health_assessment') }}">Health Assessment</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/risk-assessment' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_risk_assessment') }}">Risk Assessment</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/application-certification' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_application_certification') }}">Application Certification</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if '/release-authorization' in app.request.uri %}active{% endif %}" href="{{ path('app_provider_release_authorization') }}">Release & Authorization</a></li>
+                            </ul>
+                        </div>
+                    </li> #}
+
+                    {# <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_summary' %}active{% endif %}" href="{{ path('app_provider_summary') }}">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/folder-pink.png') }}" class="icon-image" alt="summary" />
+						         </span>
+                            <span class="nav-link-text">Summary / One File</span>
+                        </a>
+                    </li> #}
+
+                    {#<li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_documents' %}active{% endif %}" href="{{ path('app_provider_documents') }}">
+						        <span class="nav-icon">
+						         <img src="{{ asset('assets/icons/shared-folder.png') }}" class="icon-image" alt="documents" />
+						         </span>
+                            <span class="nav-link-text">Documents</span>
+                        </a>
+                    </li>#}
+
+{#                    <li class="nav-item">#}
+{#                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_cashback' %}active{% endif %}" href="{{ path('app_provider_cashback') }}">#}
+{#						        <span class="nav-icon">#}
+{#						        <img src="{{ asset('assets/icons/cashback.png') }}" class="icon-image" alt="cashback" />#}
+{#						         </span>#}
+{#                            <span class="nav-link-text">Cashback</span>#}
+{#                        </a>#}
+{#                    </li>#}
+
+                    {# <li class="nav-item has-submenu">
+                        <a class="nav-link {% if '/cashback' in app.request.uri %}active{% endif %} submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-5" aria-expanded="{% if '/cashback' in app.request.uri %}true{% else %}false{% endif %}" aria-controls="submenu-5">
+						        <span class="nav-icon">
+						       <img src="{{ asset('assets/icons/cashback.png') }}" class="icon-image" alt="cashback" />
+						         </span>
+                            <span class="nav-link-text">Cashback</span>
+                            <span class="submenu-arrow">
+		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+	</svg>
+	                             </span>
+                        </a>
+                        <div id="submenu-5" class="collapse submenu submenu-5 {% if '/cashback' in app.request.uri %}show{% endif %}" data-bs-parent="#menu-accordion">
+                            <ul class="submenu-list list-unstyled">
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_cashback' %}active{% endif %}" href="{{ path('app_provider_cashback') }}">History</a></li>
+                                <li class="submenu-item"><a class="submenu-link {% if app.request.get('_route') == 'app_provider_cashback_setup' %}active{% endif %}" href="{{ path('app_provider_cashback_setup') }}">Setup</a></li>
+                            </ul>
+                        </div>
+                    </li> #}
+
+                    {# <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_reviews' %}active{% endif %}" href="{{ path('app_provider_reviews') }}">
+						        <span class="nav-icon">
+						       <img src="{{ asset('assets/icons/satisfaction.png') }}" class="icon-image" alt="reviews" />
+						         </span>
+                            <span class="nav-link-text">Reviews</span>
+                        </a>
+                    </li> #}
+
+                    {# <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_faq' %}active{% endif %}" href="{{ path('app_provider_faq') }}">
+						        <span class="nav-icon">
+						        <img src="{{ asset('assets/icons/ask.png') }}" class="icon-image" alt="faq" />
+						         </span>
+                            <span class="nav-link-text">FAQ</span>
+                        </a>
+                    </li> #}
+
+                </ul><!--//app-menu-->
+            </nav><!--//app-nav-->
+            <div class="app-sidepanel-footer">
+                <nav class="app-nav app-nav-footer">
+                    <ul class="app-menu footer-menu list-unstyled">
+{#                        <li class="nav-item">#}
+{#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                            <a class="nav-link" href="#">#}
+{#							        <span class="nav-icon">#}
+{#							            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-gear" fill="currentColor" xmlns="http://www.w3.org/2000/svg">#}
+{#	  <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>#}
+{#	  <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>#}
+{#	</svg>#}
+{#							        </span>#}
+{#                                <span class="nav-link-text">Settings</span>#}
+{#                            </a><!--//nav-link-->#}
+{#                        </li><!--//nav-item-->#}
+{#                        <li class="nav-item">#}
+{#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                            <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/">#}
+{#							        <span class="nav-icon">#}
+{#							            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg">#}
+{#	  <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>#}
+{#	  <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>#}
+{#	</svg>#}
+{#							        </span>#}
+{#                                <span class="nav-link-text">Download</span>#}
+{#                            </a><!--//nav-link-->#}
+{#                        </li><!--//nav-item-->#}
+{#                        <li class="nav-item">#}
+{#                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->#}
+{#                            <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/">#}
+{#							        <span class="nav-icon">#}
+{#							            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-file-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg">#}
+{#	  <path fill-rule="evenodd" d="M12 1H4a1 1 0 0 0-1 1v10.755S4 11 8 11s5 1.755 5 1.755V2a1 1 0 0 0-1-1zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>#}
+{#	  <path fill-rule="evenodd" d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>#}
+{#	</svg>#}
+{#							        </span>#}
+{#                                <span class="nav-link-text">License</span>#}
+{#                            </a><!--//nav-link-->#}
+{#                        </li><!--//nav-item-->#}
+                    </ul><!--//footer-menu-->
+                </nav>
+            </div><!--//app-sidepanel-footer-->
+
+        </div><!--//sidepanel-inner-->
+    </div><!--//app-sidepanel-->
+</header><!--//app-header-->
+
+<div class="app-wrapper">
+
+    <div class="app-content pt-3 p-md-3 p-lg-4">
+        {% block provider_body %}{% endblock %}
+    </div><!--//app-content-->
+
+    <footer class="app-footer">
+        <div class="container text-center py-3">
+{#            <small class="copyright">&copy; Locumlancer {{ date('Y')|date('Y') }}</small>#}
+
+        </div>
+    </footer><!--//app-footer-->
+
+</div><!--//app-wrapper-->
+
+<!-- CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+<!-- Javascript -->
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+<script src="{{ asset('assets/admin/plugins/popper.min.js') }}"></script>
+<script src="{{ asset('assets/admin/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Page Specific JS -->
+<script src="{{ asset('assets/admin/js/app.js') }}"></script>
+
+<script>
+    function showToast(type, message) {
+        console.log(`${type.toUpperCase()}: ${message}`);
+        Toastify({
+            text: message,
+            duration: 3000,
+            close: true,
+            gravity: "top", // `top` or `bottom`
+            position: "right", // `left`, `center` or `right`
+            stopOnFocus: true, // Prevents dismissing of toast on hover
+            style: {
+                background: "linear-gradient(to right, #85BB65, #85BB65)",
+            },
+            onClick: function(){} // Callback after click
+        }).showToast();
+    }
+</script>
+
+{% block footer_scripts %}{% endblock %}
+
+</body>
+</html>

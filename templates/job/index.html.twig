@@ -1,0 +1,964 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ jobDetail ? jobDetail.title : 'Jobs' }}{% endblock %}
+
+{% block body %}
+    {% set uri = app.request.uri %}
+    <section class="filter-bar">
+        <div class="lm-container">
+            <div class="section-title-wrap text-center">
+                <h2 class="section-title section-title-small">
+                    Freelance Your Jobs Here
+                </h2>
+            </div>
+            <form action="{{ path('app_jobs') }}" method="get" class="row-group-search">
+                <div class="row">
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3">
+                            <div class="opt-field ">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-briefcase"></i>
+                                </span>
+                                <select name="profession" id="profession" class="form-select select2">
+                                    <option style="color: #0a0a0a;"></option>
+                                    {% for profession in getProfessions() %}
+                                        <option value="{{ profession.id }}" {% if profession.id == app.request.get('profession') %}selected{% endif %}>
+                                            {{ profession.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3 ">
+                            <div class="opt-field multiple-select">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </span>
+                                <label class="opt-field-label" for="1">
+                                    <span>My speciality is</span>
+                                    <div class="icon-container icon-arrow-down">
+                                        <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="white"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <div class="opt-field-dropdown" id="specialities-container">
+                                    {% set selectedSpecialities = app.request.query.all('speciality') %}
+                                    {% for speciality in getSpecialities(app.request.get('profession')) %}
+                                        <label for="{{ speciality.id }}">
+                                            <input type="checkbox"
+                                                   value="{{ speciality.id }}"
+                                                   name="speciality[]"
+                                                   id="{{ speciality.id }}"
+                                                   {% if speciality.id is defined and selectedSpecialities is defined and speciality.id|e in selectedSpecialities %}checked{% endif %}>
+
+                                            {{ speciality.name }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="form-group mb-3 ">
+                            <div class="opt-field multiple-select">
+                                <span class="seelect">
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+                                </span>
+                                <label class="opt-field-label" for="1">
+                                    <span>I want to go to</span>
+                                    <div class="icon-container icon-arrow-down">
+                                        <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="white"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </label>
+
+                                <div class="opt-field-dropdown">
+                                    {% for key, value in getUSStates() %}
+                                        <label for="{{ value }}">
+                                            <input type="checkbox" value="{{ value }}" name="state[]" id="{{ value }}" {% if value in app.request.get('state') %}checked{% endif %}>
+                                            {{ key }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <button class="th-btn "> Let's Lance
+                            {#<i class="fa fa-long-arrow-right"></i>#}
+                        </button>
+                    </div>
+                </div>
+                <div class="advanced-filter-row {% if 'workType' in uri or 'need' in uri or 'timeRange' in uri or 'mode' in uri %}active{% endif %}">
+                    <a href="javascript:void(0);" class="advanced-filter-link" id="advanced-filter-toggle">
+                        <svg width="32px" height="32px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <title>filter-horizontal-solid</title>
+                            <g id="Layer_2" data-name="Layer 2">
+                                <g id="invisible_box" data-name="invisible box">
+                                    <rect width="48" height="48" fill="none"/>
+                                </g>
+                                <g id="icons_Q2" data-name="icons Q2">
+                                    <path d="M41.8,8H21.7A6.2,6.2,0,0,0,16,4a6,6,0,0,0-5.6,4H6.2A2.1,2.1,0,0,0,4,10a2.1,2.1,0,0,0,2.2,2h4.2A6,6,0,0,0,16,16a6.2,6.2,0,0,0,5.7-4H41.8A2.1,2.1,0,0,0,44,10,2.1,2.1,0,0,0,41.8,8Z"/>
+                                    <path d="M41.8,22H37.7A6.2,6.2,0,0,0,32,18a6,6,0,0,0-5.6,4H6.2a2,2,0,1,0,0,4H26.4A6,6,0,0,0,32,30a6.2,6.2,0,0,0,5.7-4h4.1a2,2,0,1,0,0-4Z"/>
+                                    <path d="M41.8,36H24.7A6.2,6.2,0,0,0,19,32a6,6,0,0,0-5.6,4H6.2a2,2,0,1,0,0,4h7.2A6,6,0,0,0,19,44a6.2,6.2,0,0,0,5.7-4H41.8a2,2,0,1,0,0-4Z"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </a>
+
+                    <div class="advanced-filter-field">
+                        <div class="opt-field multiple-select">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Work Type
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="none"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="locum">
+                                    <input type="checkbox" name="workType[]" value="Locums" {% if 'Locums' in app.request.get('workType') %}checked{% endif %} id="locum">
+                                    Locums
+                                </label>
+                                <label for="part-time">
+                                    <input type="checkbox" name="workType[]" value="Part time" {% if 'Part time' in app.request.get('workType') %}checked{% endif %} id="part-time">
+                                    Part time
+                                </label>
+                                <label for="full-time">
+                                    <input type="checkbox" name="workType[]" value="Full time" {% if 'Full time' in app.request.get('workType') %}checked{% endif %} id="full-time">
+                                    Full time
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Need
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="none"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="urgent">
+                                    <input type="checkbox" name="need[]" value="Urgent" {% if 'Urgent' in app.request.get('need') %}checked{% endif %} id="urgent">
+                                    Urgent
+                                </label>
+                                <label for="routine">
+                                    <input type="checkbox" name="need[]" value="Routine" {% if 'Routine'in app.request.get('need') %}checked{% endif %} id="routine">
+                                    Routine
+                                </label>
+                                <label for="long-term">
+                                    <input type="checkbox" name="need[]" value="Long term" {% if 'Long term' in app.request.get('need') %}checked{% endif %} id="long-term">
+                                    Long term
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select {% if app.request.get('timeRange') %}select-field{% endif %}">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Listing
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="none"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="anytime">
+                                    <input type="radio" name="timeRange" value="anytime" {% if 'anytime' in app.request.get('timeRange') %}checked{% endif %} id="anytime">
+                                    Anytime
+                                </label>
+                                <label for="less_than_a_week">
+                                    <input type="radio" name="timeRange" value="less_than_a_week" {% if 'less_than_a_week' in app.request.get('timeRange') %}checked{% endif %} id="less_than_a_week">
+                                    < 1 week
+                                </label>
+                                <label for="less_than_a_month">
+                                    <input type="radio" name="timeRange" value="less_than_a_month" {% if 'less_than_a_month' in app.request.get('timeRange') %}checked{% endif %} id="less_than_a_month">
+                                    < 1 month
+                                </label>
+                            </div>
+                        </div>
+                        <div class="opt-field multiple-select {% if app.request.get('timeRange') %}select-field{% endif %}">
+                            <label class="opt-field-label" role="button" aria-expanded="false" style="min-width: 140px;">
+                                Mode
+                                <div class="icon-container icon-arrow-down">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="24" height="24" fill="none"/>
+                                        <path d="M17 9.5L12 14.5L7 9.5" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </label>
+                            <div class="opt-field-dropdown" style="min-width: 140px;">
+                                <label for="direct">
+                                    <input type="radio" name="mode[]" value="direct" {% if 'direct' in app.request.get('mode') %}checked{% endif %} id="direct">
+                                    Direct
+                                </label>
+                                <label for="recruiter">
+                                    <input type="radio" name="mode[]" value="recruiter" {% if 'recruiter' in app.request.get('mode') %}checked{% endif %} id="recruiter">
+                                    Recruiter
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    {% if jobs|length > 0 %}
+    <section class="search-result section">
+        <div class="lm-container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="results-container">
+                        <div class="btn-holder">
+                            <p id="results-count">{{ jobs|length }} Unique Openings</p>
+
+                            <div class="sort-options">
+                                <button class="sort-button" aria-expanded="false">
+                                    <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16 5.25C16.2029 5.25 16.3972 5.33222 16.5384 5.47789L20.5384 9.60289C20.8268 9.90025 20.8195 10.3751 20.5221 10.6634C20.2247 10.9518 19.7499 10.9445 19.4616 10.6471L16.75 7.8508L16.75 18C16.75 18.4142 16.4142 18.75 16 18.75C15.5858 18.75 15.25 18.4142 15.25 18L15.25 7.8508L12.5384 10.6471C12.2501 10.9445 11.7753 10.9518 11.4779 10.6634C11.1805 10.3751 11.1732 9.90025 11.4616 9.60289L15.4616 5.47789C15.6028 5.33222 15.7971 5.25 16 5.25ZM8 5.25C8.41421 5.25 8.75 5.58579 8.75 6L8.75 16.1492L11.4616 13.3529C11.7499 13.0555 12.2247 13.0482 12.5221 13.3366C12.8195 13.6249 12.8268 14.0997 12.5384 14.3971L8.53843 18.5221C8.39717 18.6678 8.20291 18.75 8 18.75C7.79709 18.75 7.60283 18.6678 7.46158 18.5221L3.46158 14.3971C3.17322 14.0997 3.18053 13.6249 3.47789 13.3366C3.77526 13.0482 4.25007 13.0555 4.53843 13.3529L7.25 16.1492L7.25 6C7.25 5.58579 7.58579 5.25 8 5.25Z" fill="currentcolor"/>
+                                    </svg>
+                                </button>
+                                <div class="sort-dropdown">
+                                    <a href="#" class="sort-link" data-sort-value="relevance">Relevance</a>
+                                    <a href="#" class="sort-link" data-sort-value="date">Date</a>
+                                </div>
+                            </div>
+
+                            <span class="sidebar-btn">Show All</span>
+                        </div>
+                        
+                        <div class="job-sidebar">
+                            {% for job in jobs %}
+                            <div class="job-info-card"
+                            data-job-id="{{ job.id }}"
+                            data-job-profession="{{ job.profession.id }}"
+                            data-job-speciality="{{ job.speciality.id }}"
+                            data-job-location="{{ job.state }}"
+                            data-job-worktype="{{ job.workType|e('html_attr') }}"
+                            data-job-need="{{ job.need|e('html_attr') }}"
+                            {#data-job-listing="{{ job.timeRange|e('html_attr') }}"
+                            data-job-mode="{{ job.mode|e('html_attr') }}"#}
+                            data-job-url="{{ path('app_jobs', {'id': job.id}) }}"
+                            style="cursor: pointer;">
+
+
+                                    <button class="btn-save" id="save-button_{{ job.id }}">
+                                        <div class="save-btn-container">
+                                            <svg width="28px" height="28px" viewBox="-4 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+        
+                                                <desc>Created with Sketch Beta.</desc>
+                                                <defs>
+
+                                            </defs>
+                                                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                                                    <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-419.000000, -153.000000)" fill="currentcolor">
+                                                        <path d="M437,153 L423,153 C420.791,153 419,154.791 419,157 L419,179 C419,181.209 420.791,183 423,183 L430,176 L437,183 C439.209,183 441,181.209 441,179 L441,157 C441,154.791 439.209,153 437,153" id="bookmark" sketch:type="MSShapeGroup">
+
+                                            </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                            <span class="save-msg">Sign in to save this job</span>
+                                            </dv>
+                                    </button>
+                                    <div>
+                                        <h3 class="job-title">
+                                            {{ job.title }}
+                                        </h3>
+                                    </div>
+                                    <p class="location">
+                                        <i class="fa fa-map-marker-alt"></i>
+                                        {{ job.state }}, {{ job.city }}
+                                    </p>
+                                    <div class="desc">
+                                        {{ job.highlight|raw }}
+                                    </div>
+                                    <ul>
+                                        <li>
+                                            <i class="fa-solid fa-user-doctor"></i>
+                                            <span style="color:#000;">{{ job.profession }}</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-money-bill"></i>
+                                            <span style="color:#000;">{% if job.payRate == 'Hourly' %}{{ job.payRateHourly }} Hourly{% endif %}</span>
+                                            <span style="color:#000;">{% if job.payRate == 'Daily' %}{{ job.payRateDaily }} Daily{% endif %}</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-clock"></i>
+                                            <span style="color:#000;">{{ job.schedule }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if jobs.nbPages > 1 %}
+                            <div class="mt-5">
+                                {{ pagerfanta(jobs, 'twitter_bootstrap5') }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div id="pagination-container" class="pagination-controls mt-4 text-center"></div>
+                </div>
+
+                <div class="col-md-8">
+                    <div id="job-detail-container">
+                        {% if jobDetail and app.request.get('id') %}
+                            <div class="job-detail" id="job-detail-content">
+                                <div class="job-title-wrap">
+                                    <div class="job-header">
+                                        <h1>
+                                            {{ jobDetail.title }}
+                                        </h1>
+                                        <h3>{{ jobDetail.state }}, {{ jobDetail.city }}, {{ jobDetail.streetAddress }}</h3>
+                                        <ul class="job">
+                                            <li><strong>Profession:</strong> {{ jobDetail.profession }}</li>
+                                            <li><strong>Speciality:</strong> {{ jobDetail.speciality }}</li>
+                                            <li><strong>Pay:</strong>
+                                                {% if jobDetail.payRate == 'Hourly' %}{{ jobDetail.payRateHourly }} Hourly{% endif %}
+                                                {% if jobDetail.payRate == 'Daily' %}{{ jobDetail.payRateDaily }} Daily{% endif %}
+                                            </li>
+                                            <li><strong>Schedule:</strong> {{ jobDetail.schedule }}</li>
+                                            <li><strong>Start Date:</strong> {{ jobDetail.startDate|date('m/d/Y') }}</li>
+                                        </ul>
+                                        <div class="block-buttons sticky-block-buttons">
+                                            <button class="th-btn" id="apply-button">
+                                                Apply
+                                            </button>
+                                            <button class="btn-save" id="save-button_{{ jobDetail.id }}">
+                                                <div class="save-btn-container">
+                                                    <svg width="32px" height="32px" viewBox="-4 0 30 30" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                                                        
+                                                        <title>Sign in to save this job</title>
+                                                        <desc>Created with Sketch Beta.</desc>
+                                                        <defs>
+
+                                                    </defs>
+                                                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                                                            <g id="Icon-Set-Filled" sketch:type="MSLayerGroup" transform="translate(-419.000000, -153.000000)" fill="currentcolor">
+                                                                <path d="M437,153 L423,153 C420.791,153 419,154.791 419,157 L419,179 C419,181.209 420.791,183 423,183 L430,176 L437,183 C439.209,183 441,181.209 441,179 L441,157 C441,154.791 439.209,153 437,153" id="bookmark" sketch:type="MSShapeGroup">
+
+                                                    </path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="save-msg">Sign in to save this job</span>
+                                                </div>
+                                            </button>
+                                            <div class="share-btn">
+                                                <i class="fa-solid fa-paper-plane"></i>
+                                                <div class="share-dropdown">
+                                                    <div class="sharethis-inline-share-buttons"></div>
+                                                    <button class="btn-report" data-bs-toggle="modal" data-bs-target="#reportModal" data-job-id="{{ jobDetail.id }}">
+                                                        <img src="{{ asset('assets/icons/danger-sign.png') }}" alt="Report Job" class="icon-image">
+                                                        <span>Report Job &nbsp;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="details content-area">
+                                        <h4>Job Descriptions</h4>
+                                        {{ jobDetail.description|raw }}
+                                    </div>
+                                    <div class="recruiter-contact">
+                                        <h3>Employer Contact Details</h3>
+                                        <div class="flex">
+                                            <div class="detail">
+                                                <p><strong>Company Name:</strong> {{ jobDetail.employer.companyName }}</p>
+                                                <p><strong>Contact Person:</strong> {{ jobDetail.employer.contactPersonName }}</p>
+                                                <p><strong>Phone:</strong> {{ jobDetail.employer.phone1 }} {% if jobDetail.employer.phone2 %} / {{ jobDetail.employer.phone2 }}{% endif %}</p>
+                                                <p><strong>Email:</strong> {{ jobDetail.employer.contactEmail }}</p>
+                                            </div>
+                                            <div class="chat">
+                                                <a href="{{ path('app_provider_messages_new', {'id': jobDetail.employer.id}) }}" class="btn-chat">
+                                                    <div class="msg-btn-container">
+                                                        <svg width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.272 6.365C2 6.9 2 7.6 2 9v6c0 1.4 0 2.1.272 2.635a2.5 2.5 0 0 0 1.093 1.092C3.9 19 4.6 19 6 19h12c1.4 0 2.1 0 2.635-.273a2.5 2.5 0 0 0 1.092-1.092C22 17.1 22 16.4 22 15V9c0-1.4 0-2.1-.273-2.635a2.5 2.5 0 0 0-1.092-1.093C20.1 5 19.4 5 18 5H6c-1.4 0-2.1 0-2.635.272a2.5 2.5 0 0 0-1.093 1.093zM4.647 7h14.706a.5.5 0 0 1 .278.916l-7.075 4.732a1 1 0 0 1-1.112 0L4.369 7.916A.5.5 0 0 1 4.647 7z" fill="currentcolor"/></svg>
+                                                        <span class="msg-text">Message Employer</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-5">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 16L12 12" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 8L12.01 8" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p style="font-size:20px;font-weight:400;">Please select a job from the list to view its details.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% else %}
+    <section class="section-user mt-5 mb-4 pb-0">
+        <div class="lm-container">
+            <div class="button-container">
+                <h3><i class="fa fa-exclamation-circle"></i> Jobs not found</h3>
+                <span class="text">
+                    Change search criteria and try again.
+                </span>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="reportJobForm" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Report Job</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="job_id" id="report-job-id">
+                    <div class="mb-3">
+                        <label for="report-text" class="form-label">Reason for Reporting</label>
+                        <textarea class="form-control" id="report-text" name="text" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        .sort-options {
+            position: relative;
+            display: inline-block;
+        }
+
+        .sort-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: #8F8F8F;
+            fill: #8F8F8F;
+        }
+
+        .sort-button:hover {
+            color: #85BB65;
+            fill: #85BB65;
+        }
+
+        .sort-dropdown {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 70px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 9999;
+            left: -55px;
+            top: 30px;
+        }
+
+        .sort-dropdown a {
+            color: black;
+            padding: 6px 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sort-dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .sort-dropdown.show {
+            display: block;
+        }
+
+        .sort-options {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+        #job-detail-container {
+            /* This height calculation is crucial for a full-screen, scrollable section */
+            height: calc(100vh - 200px);
+            /* Adjust 200px based on your header/footer height */
+            overflow-y: auto;
+            position: sticky;
+            top: 100px;
+            /* Adjust based on your header height */
+        }
+        /* New styles to fix the select2 dropdown background color */
+        .select2-container--open .select2-selection--single {
+            background-color: #fff !important;
+        }
+        .select2-container--open .select2-dropdown {
+            background-color: #fff !important;
+        }
+        .sticky-block-buttons {
+            position: sticky;
+            top: 0;
+            background-color: white; /* Add a background color to prevent content from showing through */
+            z-index: 100; /* Ensure it stays on top of other content */
+            padding-top: 10px; /* Optional: add some padding to the top */
+            padding-bottom: 10px; /* Optional: add some padding to the bottom */
+        }
+    </style>
+    {% if jobDetail is defined and jobDetail is not null %}
+    <script>
+        document.getElementById("apply-button").addEventListener("click", function () {
+            const jobId = '{{ jobDetail.id }}';
+            const userId = '{{ app.user ? app.user.id : 0 }}';
+            if(userId == 0){
+                showToast('error', 'Please login to apply this job. Redirecting to login page..');
+            }
+            applyForJob(userId, jobId);
+            window.setTimeout(function(){
+                window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
+            }, 1000);
+        });
+        document.getElementById("apply-button-below").addEventListener("click", function () {
+            const jobId = '{{ jobDetail.id }}';
+            const userId = '{{ app.user ? app.user.id : 0 }}';
+            if(userId == 0){
+                showToast('error', 'Please login to apply this job. Redirecting to login page..');
+                window.setTimeout(function(){
+                    window.location.href = "{{ path('app_login') }}";
+                }, 1000);
+                return;
+            }
+            applyForJob(userId, jobId);
+            window.setTimeout(function(){
+                window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
+            }, 1000);
+        });
+        function applyForJob(userId, jobId) {
+            fetch("{{ path('app_job_apply', {'id': jobDetail.id}) }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify({userId: userId, jobId: jobId}),
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                showToast(data.status, data.message);
+            })
+            .catch((error) => {
+                showToast('error', error);
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".btn-save").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    let jobId = this.id.split("_")[1];
+                    const userId = '{{ app.user ? app.user.id : 0 }}';
+                    if(userId == 0){
+                        showToast('error', 'Please login to save this job. Redirecting to login page..');
+                        window.setTimeout(function(){
+                            window.location.href = "{{ path('app_login') }}";
+                        }, 1000);
+                        return;
+                    }
+                    saveJob(jobId, this);
+                });
+            });
+            function saveJob(jobId) {
+                fetch('/jobs/'+jobId+'/save', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    body: JSON.stringify({jobId: jobId}),
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    showToast(data.status, data.message);
+                })
+                .catch((error) => {
+                    showToast('error', error);
+                });
+            }
+        });
+    </script>
+    {% endif %}
+    <script>
+        $(document).ready(function () {
+            $('#profession').on('change', function () {
+                $('#specialities-container input[type="checkbox"]').prop('checked', false);
+                $('.opt-field-label').each(function () {
+                    if ($(this).next('.opt-field-dropdown').attr('id') === 'specialities-container') {
+                        $(this).find('span').text('Speciality');
+                    }
+                });
+                let professionId = $(this).val();
+                if (!professionId) {
+                    $('#specialities-container').empty();
+                    return;
+                }
+                $.ajax({
+                    url: '/get-specialities/' + professionId,
+                    type: 'GET',
+                    success: function (response) {
+                        let html = '';
+                        response.forEach(function (speciality) {
+                            html += `
+                                <label for="spec_${speciality.id}">
+                                    <input type="checkbox" value="${speciality.id}" name="speciality[]" id="spec_${speciality.id}">
+                                    ${speciality.name}
+                                </label>`;
+                        });
+                        $('#specialities-container').html(html);
+                    },
+                    error: function () {
+                        console.error('Could not load specialities.');
+                    }
+                });
+            });
+        });
+    </script>
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=67fa4cd659793500196ab1e5&product=sop' async='async'></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            const jobIdInput = document.getElementById('report-job-id');
+            const reportText = document.getElementById('report-text');
+            const reportForm = document.getElementById('reportJobForm');
+            document.querySelectorAll('.btn-report').forEach(button => {
+                button.addEventListener('click', () => {
+                    const jobId = button.getAttribute('data-job-id');
+                    jobIdInput.value = jobId;
+                    reportText.value = '';
+                    reportModal.show();
+                });
+            });
+            reportForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                fetch('{{ path('app_job_report_ajax') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': '{{ csrf_token('report_job') }}'
+                    },
+                    body: JSON.stringify({
+                        job_id: jobIdInput.value,
+                        text: reportText.value
+                    })
+                })
+                    .then(response => {
+                        if (response.status === 401) {
+                            showToast('error', 'Please login first to report this job.');
+                            window.setTimeout(function(){
+                                window.location.href = "{{ path('app_login') }}";
+                            }, 1000);
+                            return;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.success) {
+                            showToast('success', 'Report submitted successfully!');
+                            reportModal.hide();
+                        } else if (data?.error) {
+                            showToast('error', data.error);
+                            reportModal.hide();
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('error', 'An error occurred while submitting the report.');
+                    });
+            });
+        });
+    </script>
+    <script>
+        $(function () {
+            let lastChecked = null;
+            $('input[type="radio"][name="timeRange"]').on('click', function () {
+                if (lastChecked && lastChecked.is(this)) {
+                    $(this).prop('checked', false);
+                    lastChecked = null;
+                } else {
+                    lastChecked = $(this);
+                }
+            });
+            // Set initial checked if any
+            $('input[type="radio"][name="timeRange"]').each(function () {
+                if ($(this).is(':checked')) {
+                    lastChecked = $(this);
+                }
+            });
+        });
+    </script>
+    <script>
+        // New script for sorting and dynamic content loading
+        $(document).ready(function() {
+            // --- Sort By functionality ---
+            const sortButton = $('.sort-button');
+            const sortDropdown = $('.sort-dropdown');
+            const sortLinks = $('.sort-link');
+
+            sortButton.on('click', function() {
+                sortDropdown.toggleClass('show');
+            });
+
+            sortLinks.on('click', function(event) {
+                event.preventDefault();
+                const sortValue = $(this).data('sort-value');
+                const url = new URL(window.location.href);
+                url.searchParams.set('sort', sortValue);
+
+                $.ajax({
+                    url: url.href,
+                    type: 'GET',
+                    success: function(response) {
+                        const newHtml = $(response);
+                        const $newJobList = newHtml.find('.job-sidebar').html();
+                        $('.job-sidebar').html($newJobList);
+                        const $newCount = newHtml.find('#results-count').text();
+                        $('#results-count').text($newCount);
+                        attachJobCardClickHandler();
+                        sortDropdown.removeClass('show');
+                    },
+                    error: function(error) {
+                        console.error("Error fetching sorted jobs:", error);
+                    }
+                });
+            });
+
+            // Close dropdown if clicked outside
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('.sort-options').length) {
+                    sortDropdown.removeClass('show');
+                }
+            });
+
+            // --- AJAX Job Detail Loading ---
+            function attachJobCardClickHandler() {
+                $('.job-info-card').off('click').on('click', function(event) {
+                    event.preventDefault();
+                    // Prevent page reload
+                    // Get job ID and URL from data attributes
+                    const jobUrl = $(this).data('job-url');
+                    // Remove 'active' class from all job cards and add to the...
+                    $('.job-info-card.active').removeClass('active');
+                    $(this).addClass('active');
+                    // Show a loading indicator
+                    $('#job-detail-container').html('<div class="loading-spinner"></div>');
+                    // Fetch job details via AJAX
+                    $.ajax({
+                        url: jobUrl,
+                        type: 'GET',
+                        success: function(response) {
+                            const newHtml = $(response);
+                            const jobDetails = newHtml.find('.job-detail').html();
+                            $('#job-detail-container').html('<div class="job-detail" id="job-detail-content">' + jobDetails + '</div>');
+                        },
+                        error: function() {
+                            $('#job-detail-container').html('<div class="text-center p-5"><p>Error loading job details. Please try again.</p></div>');
+                        }
+                    });
+                });
+            }
+            // Initial call to attach handlers when the page first loads
+            attachJobCardClickHandler();
+        });
+    </script>
+    <script>
+        // New script to make the advanced filters functional
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('.row-group-search');
+            if (form) {
+                // Listen for changes on checkboxes and radio buttons within the advanced filter section
+                const advancedFilters = form.querySelector('.advanced-filter-field');
+                if (advancedFilters) {
+                    advancedFilters.addEventListener('change', () => {
+                        form.submit();
+                    });
+                }
+            }
+        });
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: 'I am a'
+            });
+        });
+    </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $form = document.querySelector('.row-group-search');
+    const $resultsCount = document.getElementById('results-count');
+
+    function getSelectedValues(name) {
+        return Array.from($form.querySelectorAll(`input[name="${name}"]:checked`))
+                    .map(input => input.value.trim());
+    }
+
+    function getSelectedProfession() {
+        const select = $form.querySelector('#profession');
+        return select ? select.value.trim() : '';
+    }
+
+    function filterJobs() {
+        const selectedProfession = getSelectedProfession();
+        const selectedSpecialities = getSelectedValues('speciality[]');
+        const selectedStates = getSelectedValues('state[]');
+        const selectedWorkTypes = getSelectedValues('workType[]');
+        const selectedNeeds = getSelectedValues('need[]');
+
+        let visibleCount = 0;
+
+        document.querySelectorAll('.job-info-card').forEach(card => {
+            const matchesProfession = !selectedProfession || card.dataset.jobProfession === selectedProfession;
+            const matchesSpeciality = selectedSpecialities.length === 0 || selectedSpecialities.includes(card.dataset.jobSpeciality);
+            const matchesState = selectedStates.length === 0 || selectedStates.includes(card.dataset.jobLocation);
+            const matchesWorkType = selectedWorkTypes.length === 0 || selectedWorkTypes.includes(card.dataset.jobWorktype);
+            const matchesNeed = selectedNeeds.length === 0 || selectedNeeds.includes(card.dataset.jobNeed);
+
+            const isVisible = matchesProfession && matchesSpeciality && matchesState && matchesWorkType && matchesNeed;
+
+            card.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) visibleCount++;
+        });
+
+        const totalVisible = Array.from(document.querySelectorAll('.job-info-card'))
+                          .filter(card => card.style.display !== 'none').length;
+        $resultsCount.textContent = `${totalVisible} Unique Openings`;
+
+        console.log('Profession selected:', selectedProfession);
+        console.log('speciality[] selected:', selectedSpecialities);
+        console.log('state[] selected:', selectedStates);
+        console.log('workType[] selected:', selectedWorkTypes);
+        console.log('need[] selected:', selectedNeeds);
+    }
+
+    function paginateJobs() {
+        const allVisibleCards = Array.from(document.querySelectorAll('.job-info-card'))
+                                    .filter(card => card.style.display !== 'none');
+
+        const jobsPerPage = 25;
+        const totalJobs = allVisibleCards.length;
+        const totalPages = Math.ceil(totalJobs / jobsPerPage);
+
+        const paginationContainer = document.getElementById('pagination-container');
+        paginationContainer.innerHTML = '';
+
+        if (totalJobs <= jobsPerPage) {
+            paginationContainer.style.display = 'none';
+            allVisibleCards.forEach(card => card.style.display = 'block');
+            return;
+        }
+
+        paginationContainer.style.display = 'block';
+
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.classList.add('pagination-btn');
+            btn.dataset.page = i;
+            paginationContainer.appendChild(btn);
+        }
+
+        showPage(1, allVisibleCards, jobsPerPage);
+
+        paginationContainer.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const page = parseInt(this.dataset.page);
+                showPage(page, allVisibleCards, jobsPerPage);
+            });
+        });
+    }
+
+    function showPage(page, cards, perPage) {
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+
+        cards.forEach((card, index) => {
+            card.style.display = (index >= start && index < end) ? 'block' : 'none';
+        });
+    }
+
+    function showPage(page, cards, perPage) {
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+
+        cards.forEach((card, index) => {
+            card.style.display = (index >= start && index < end) ? 'block' : 'none';
+        });
+    }
+
+    // Bind change listener to all inputs (including dynamically injected ones)
+    function bindFilterListeners() {
+        $form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach(input => {
+            input.removeEventListener('change', filterJobs); // prevent duplicates
+            input.addEventListener('change', filterJobs);
+        });
+    }
+
+    // Handle profession change → load specialities
+    const professionSelect = document.querySelector('#profession');
+    if (professionSelect) {
+        $(professionSelect).on('select2:select', function () {
+            const professionId = professionSelect.value;
+            if (!professionId) {
+                document.getElementById('specialities-container').innerHTML = '';
+                filterJobs();
+                return;
+            }
+
+            $.get('/get-specialities/' + professionId, function (response) {
+                let html = '';
+                response.forEach(function (speciality) {
+                    html += `
+                        <label for="spec_${speciality.id}">
+                            <input type="checkbox" value="${speciality.id}" name="speciality[]" id="spec_${speciality.id}">
+                            ${speciality.name}
+                        </label>`;
+                });
+                const container = document.getElementById('specialities-container');
+                container.innerHTML = html;
+                bindFilterListeners(); // re-bind listeners to new inputs
+                filterJobs(); // trigger after injection
+            });
+        });
+    }
+
+    // Initial binding and filtering
+    bindFilterListeners();
+    filterJobs();
+    paginateJobs();
+});
+</script>
+{% endblock %}

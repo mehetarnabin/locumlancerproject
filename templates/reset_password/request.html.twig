@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forgot password{% endblock %}
+
+{% block body %}
+    <section class="section">
+        <div class="lm-container ">
+            <div class="form-container">
+                <div class="section-title-wrap">
+                    <h2 class="section-title mb-2">
+                        Forgot <strong> Password?</strong>
+                    </h2>
+
+                    <p>Enter your email address, and we will send you a link to reset your password.</p>
+                </div>
+
+                {% for flash_error in app.flashes('reset_password_error') %}
+                    <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                {% endfor %}
+
+                {{ form_start(requestForm) }}
+
+                {{ form_row(requestForm.email, {'attr': {'class': 'form-control'}}) }}
+
+                <button class="th-btn th-btn-full" type="submit">Send Password Reset Link</button>
+                {{ form_end(requestForm) }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

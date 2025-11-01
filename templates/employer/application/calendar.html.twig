@@ -1,0 +1,107 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Interview Calendar{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Interview Calendar</h1>
+
+        {# Uncomment the filters below if you want to enable filtering #}
+        {#
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Filter by Platform</label>
+                <select id="platformFilter" class="form-select">
+                    <option value="">All</option>
+                    <option value="Zoom">Zoom</option>
+                    <option value="Google Meet">Google Meet</option>
+                    <option value="Teams">Teams</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Search by Applicant Name</label>
+                <input type="text" id="applicantFilter" class="form-control" placeholder="Type to search...">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Search by Job Title</label>
+                <input type="text" id="jobFilter" class="form-control" placeholder="Type to search...">
+            </div>
+        </div>
+        #}
+
+        <div id="calendar"></div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+
+    <script>
+        let calendar;
+
+        function initCalendar(filteredPlatform = '', filteredName = '', filteredJob = '') {
+            const calendarEl = document.getElementById('calendar');
+
+            if (calendar) {
+                calendar.destroy();
+            }
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                views: {
+                    dayGridMonth: { buttonText: 'Month' },
+                    timeGridWeek: { buttonText: 'Week' },
+                    timeGridDay: { buttonText: 'Day' },
+                    listWeek: { buttonText: 'List' }
+                },
+                eventDidMount: function(info) {
+                    $(info.el).tooltip({
+                        title: info.event.extendedProps.description,
+                        placement: 'top',
+                        trigger: 'hover',
+                        container: 'body'
+                    });
+                },
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    $.ajax({
+                        url: '/employer/interviews/calendar-data',
+                        dataType: 'json',
+                        success: function(data) {
+                            const filtered = data.filter(event => {
+                                return (!filteredPlatform || event.platform?.toLowerCase() === filteredPlatform.toLowerCase())
+                                    && (!filteredName || event.applicant?.toLowerCase().includes(filteredName.toLowerCase()))
+                                    && (!filteredJob || event.job?.toLowerCase().includes(filteredJob.toLowerCase()));
+                            });
+                            successCallback(filtered);
+                        },
+                        error: failureCallback
+                    });
+                },
+                eventClick: function(info) {
+                    if (info.event.url) {
+                        window.open(info.event.url, '_blank');
+                        info.jsEvent.preventDefault();
+                    }
+                }
+            });
+
+            calendar.render();
+        }
+
+        $(document).ready(function () {
+            initCalendar();
+
+            $('#platformFilter, #applicantFilter, #jobFilter').on('change keyup', function () {
+                const platform = $('#platformFilter').val();
+                const applicant = $('#applicantFilter').val();
+                const job = $('#jobFilter').val();
+                initCalendar(platform, applicant, job);
+            });
+        });
+    </script>
+{% endblock %}

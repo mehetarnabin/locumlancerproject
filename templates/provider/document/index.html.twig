@@ -1,0 +1,211 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Documents{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+
+        {# Document Upload Form #}
+        <div class="card mb-4 app-card-settings">
+            <div class="card-body">
+                <h5 class="card-title">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                <div class="row">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="mb-3">
+                            {{ form_label(form.fileName) }}
+                            {{ form_widget(form.fileName, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.fileName) }}
+                        </div>
+
+                        <p>
+                            <small>
+                                <i>Max File Size: 8MB</i><br/>
+                                <i>Allowed File Types: DOC, DOCX, or PDF</i>
+                            </small>
+                        </p>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="mb-3">
+                            {{ form_label(form.issueDate) }}
+                            {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker'}}) }}
+                            {{ form_errors(form.issueDate) }}
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <div class="mb-3">
+                            {{ form_label(form.expirationDate) }}
+                            {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker'}}) }}
+                            {{ form_errors(form.expirationDate) }}
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">{{ editMode is defined ? 'Update' : 'Upload' }}</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {# Document List Table #}
+        <div class="card app-card-settings">
+            <div class="card-body">
+                <h5 class="card-title">Uploaded Documents</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Issue Date</th>
+                        <th>Expiration Date</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for document in documents %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ document.name }}</td>
+                            <td>{{ document.issueDate ? document.issueDate|date('m/d/Y') : '' }}</td>
+                            <td>{{ document.expirationDate ? document.expirationDate|date('m/d/Y') : '' }}</td>
+                            <td class="text-nowrap">
+                                <a href="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}"
+                                   target="_blank" title="View">
+                                    <img src="{{ asset('assets/icons/shared-folder.png') }}" class="icon-image"/>
+                                </a> &nbsp;
+                                <a href="{{ path('app_provider_document_edit', {'id': document.id}) }}"
+                                   title="Edit"><img src="{{ asset('assets/icons/compose.png') }}"
+                                                     class="icon-image"/></a> &nbsp;
+                                <a href="{{ path('app_provider_document_delete', {'id': document.id}) }}" title="Remove"
+                                   onclick="return confirm('Are you sure? Do you want to delete this document?');"><img
+                                            src="{{ asset('assets/icons/trash-bin.png') }}" class="icon-image"/></a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No documents uploaded yet.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+
+        {# Document Request List Table #}
+        <div class="card mt-4 app-card-settings">
+            <div class="card-body">
+                <h5 class="card-title">Document Requests</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Document Name</th>
+                        <th>Job</th>
+                        <th>Requested By</th>
+                        <th>Requested At</th>
+                        <th>Provided At</th>
+                        <th>Document</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for documentRequest in documentRequests %}
+                        {% set document = documentRequest.document %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ documentRequest.name }}</td>
+                            <td>{{ documentRequest.application.job }}</td>
+                            <td>
+                                {{ documentRequest.application.employer.companyName }}<br/>
+                                {{ documentRequest.application.employer }}
+                            </td>
+                            <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
+                            <td>{{ documentRequest.providedAt ? documentRequest.providedAt|date('m/d/Y') : '-' }}</td>
+                            <td>
+                                <select class="form-control document-select" data-request-id="{{ documentRequest.id }}">
+                                    <option value="">Select Document</option>
+                                    {% for documentObj in documents %}
+                                        <option {% if documentObj == documentRequest.document %}selected{% endif %} value="{{ documentObj.id }}">{{ documentObj.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">Document requests not found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(".js-datepicker").flatpickr();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.document-select').forEach(select => {
+                select.addEventListener('change', function () {
+                    const documentId = this.value;
+                    const requestId = this.dataset.requestId;
+
+                    if (!documentId) return;
+
+                    fetch(`/provider/document-request/${requestId}/assign-document`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
+                        },
+                        body: JSON.stringify({ documentId: documentId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const row = this.closest('tr');
+                                row.querySelector('td:nth-child(5)').textContent = data.providedAtFormatted;
+                                showToast('success', "Document provided successfully.");
+                            } else {
+                                showToast('success', "Unable to provided doument.");
+                            }
+                        });
+                });
+            });
+        });
+
+        function showToast(type, message) {
+            console.log(`${type.toUpperCase()}: ${message}`);
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: "linear-gradient(to right, #051a48, #9AC77F)",
+                },
+                onClick: function(){} // Callback after click
+            }).showToast();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Jobs{% endblock %}
+
+{% block employer_body %}
+    {% set statusColors = {
+        'draft': 'applied',
+        'published': 'interview',
+        'paused': 'review',
+        'closed': 'rejected'
+    } %}
+
+    {% set transitionColors = {
+        'publish': 'success',
+        'resume': 'success',
+        'pause': 'warning',
+        'close': 'danger'
+    } %}
+
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Jobs</h1>
+        <a href="{{ path('app_employer_job_new') }}" title="Create new job">
+            <img src="{{ asset('assets/icons/create-new.png') }}" class="icon-image">
+        </a>
+
+        <div class="table-responsive mt-4">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Profession</th>
+                    <th>Speciality</th>
+                    {#                <th>Location</th> #}
+                    <th>Status</th>
+{#                    <th>ExpiresAt</th>#}
+                    <th>Verified</th>
+                    <th>CreatedAt</th>
+                    <th width="20%">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.jobId }}</td>
+                        <td><a href="{{ path('app_employer_job_applications', {'id': job.id}) }}">{{ job.title }}</a></td>
+                        <td>{{ job.profession }}</td>
+                        <td>{{ job.speciality }}</td>
+                        {#                <td>{{ job.state }}, {{ job.state }}</td> #}
+                        <td>
+                    <span class="badge badge-pill is-{{ statusColors[job.status] ?? 'dark' }}">
+                        {{ job.status|capitalize }}
+                    </span>
+                        </td>
+{#                        <td>{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</td>#}
+                        <td>{{ job.verified ? 'YES' : 'NO' }}</td>
+                        <td>{{ job.createdAt ? job.createdAt|date('m/d/Y') : '' }}</td>
+                        <td class="text-nowrap">
+                            {% if job.status == 'draft' or job.status == 'published' or job.status == 'paused' %}
+                                <a href="{{ path('app_employer_job_edit', {'id': job.id}) }}"
+                                   title="Edit"><img src="{{ asset('assets/icons/edit-file.png') }}" class="icon-image" /></a> &nbsp;
+                            {% endif %}
+                            <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}"
+                                title="Applications"><img src="{{ asset('assets/icons/list-search.png') }}" class="icon-image" /></a>
+                            {% for transition in jobTransitions[job.id.toString()] %}
+                                <a href="{{ path('app_employer_job_transition', {id: job.id, transition: transition}) }}"
+                                   title="{{ transition|capitalize }} Job"> &nbsp;
+{#                                    {{ transition|capitalize }}#}
+                                    {% if transition == 'close' %}<img src="{{ asset('assets/icons/padlock.png') }}" class="icon-image" />{% endif %}
+                                    {% if transition == 'publish' %}<img src="{{ asset('assets/icons/document.png') }}" class="icon-image" />{% endif %}
+                                    {% if transition == 'pause' %}<img src="{{ asset('assets/icons/pause.png') }}" class="icon-image" />{% endif %}
+                                    {% if transition == 'resume' %}<img src="{{ asset('assets/icons/refresh-arrow.png') }}" class="icon-image" />{% endif %}
+                                </a>
+                            {% endfor %}
+                            &nbsp;
+                            <a href="{{ path('app_employer_job_delete', {'id': job.id}) }}"
+                               title="Remove" onclick="return confirm('Are you sure? Do you want to delete this job.')">
+                                <img src="{{ asset('assets/icons/delete.png') }}" class="icon-image" />
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="12">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if jobs.nbPages > 1 %}
+            <div class="col-12">
+                {{ pagerfanta(jobs, 'twitter_bootstrap5') }}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

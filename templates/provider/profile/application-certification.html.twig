@@ -1,0 +1,63 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Application Certification{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+    <h1 class="app-page-title">Application Certification</h1>
+    <hr class="mb-4">
+    <div class="row">
+        <div class="col-12">
+            {{ form_start(form, {'attr': {'class': 'application-certification-form needs-validation', 'novalidate': 'novalidate'}}) }}
+            {{ form_errors(form) }}
+            <div class="app-card app-card-settings shadow-sm p-4">
+                <div class="app-card-body">
+                    <p>I attest I am the applicant, owner, and creator of the account, and the information in this application is complete and accurate, to the best of my knowledge. Providing incomplete or inaccurate information may result in disqualification from the program, and may be a violation of state law(s) that could result in civil penalties. The Company is authorized to obtain information from my current and previous employers, and to release information in support of my application to the Company's clients. The Company may also share information regarding my employment with its affiliates and appropriate governmental or licensing entities. I agree to receive emails, automated text messages and phone calls (including calls that contain prerecorded content) from and on behalf of Locumlancer and affiliates. I understand these messages will be to the email or phone number provided, and will be about employment opportunities, positions in which I’ve been placed, and my engagement with Locumlancer companies. Lastly, I understand submitting an application does not guarantee an assignment. I agree with all of the above statements.</p>
+
+                    <p>We respect our Healthcare Professionals' right to privacy and are committed to handling personal information in accordance with our policies and the law. Please see our Privacy Statement, which includes infomation about the personal information we may collect and why we collect it.</p>
+
+                    <hr/>
+
+                    <p>By filling out these fields and clicking 'I Agree', I agree with all of the above statements.</p>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                {{ form_label(form.name) }}
+                                {{ form_widget(form.name, {'attr':{'class': 'form-control'}}) }}
+                                {{ form_errors(form.name) }}
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="mb-3">
+                                {{ form_label(form.applicationCertificationDate) }}
+                                {{ form_widget(form.applicationCertificationDate, {'attr':{'class': 'form-control js-datepicker'}}) }}
+                                {{ form_errors(form.applicationCertificationDate) }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="mt-3">
+                        <button class="btn btn-primary">{{ button_label|default('I Agree') }}</button>
+                        <button name="save_continue" value="1" class="btn btn-primary">{{ button_label|default('I Agree and Continue') }}</button>
+                    </div>
+                </div>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        $(".js-datepicker").flatpickr();
+    </script>
+{% endblock %}

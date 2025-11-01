@@ -1,0 +1,54 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Cashback{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Cashback Detail</h1>
+
+        <hr class="mb-4">
+
+        <div class="table-responsive">
+            <div class="table-row">
+                <div class="job-row">
+                    <div class="job-label">Employer</div>
+                    <div class="job-value">{{ cashback.employer }}</div>
+                </div>
+                <div class="job-row">
+                    <div class="job-label">Job</div>
+                    <div class="job-value">{{ cashback.job }}</div>
+                </div>
+                <div class="job-row">
+                    <div class="job-label">Amount($)</div>
+                    <div class="job-value">{{ cashback.amount|number_format }}</div>
+                </div>
+                <div class="job-row">
+                    <div class="job-label">Created At</div>
+                    <div class="job-value">{{ cashback.createdAt ? cashback.createdAt|date('m/d/Y') : '' }}</div>
+                </div>
+                <div class="job-row">
+                    <div class="job-label">Paid At</div>
+                    <div class="job-value">{{ cashback.paidDate ? cashback.paidDate|date('m/d/Y') : '' }}</div>
+                </div>
+                <div class="job-row">
+                    <div class="job-label">Status</div>
+                    <div class="job-value">
+                        <span class="badge badge-pill {% if cashback.status == 'pending' %}is-review{% elseif cashback.status == 'paid' %}is-hired{% endif %}">
+                            {{ cashback.status }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if cashback.attachment  %}
+                <div class="col-md-12 mt-5">
+                    Receipt
+                    <iframe src="{{ '/uploads/cashbacks/' ~ cashback.attachment }}" width="100%" height="450px"></iframe>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+

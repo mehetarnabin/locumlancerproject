@@ -1,0 +1,66 @@
+framework:
+  workflows:
+    job_workflow:
+      type: 'state_machine'
+      audit_trail:
+        enabled: true
+      marking_store:
+        type: 'method'
+        property: 'status'
+      supports:
+        - App\Entity\Job
+      initial_marking: draft
+      places:
+        - draft
+        - published
+        - paused
+        - closed
+      transitions:
+        publish:
+          from: draft
+          to: published
+        pause:
+          from: published
+          to: paused
+        resume:
+          from: paused
+          to: published
+        close:
+          from: [ draft, published, paused ]
+          to: closed
+
+    job_application_workflow:
+      type: 'state_machine'
+      marking_store:
+        type: 'method'
+        property: 'status'
+      supports:
+        - App\Entity\Application
+      initial_marking: 'applied'
+      places:
+        - applied
+        - in_review
+        - interview
+        - offered
+        - rejected
+        - hired
+        - completed
+      transitions:
+        review:
+          from: applied
+          to: in_review
+        interview:
+          from: in_review
+          to: interview
+        offer:
+          from: interview
+          to: offered
+        hire:
+          from: offered
+          to: hired
+        reject:
+          from: [ applied, in_review, interview, offered ]
+          to: rejected
+        complete:
+          from: hired
+          to: completed

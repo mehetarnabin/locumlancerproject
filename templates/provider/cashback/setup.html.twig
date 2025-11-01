@@ -1,0 +1,57 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Cashback Setup{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Cashback Setup</h1>
+
+        <hr class="mb-4">
+
+        <form method="post" action="">
+            <div class="row">
+                <!-- Bank Details (Left) -->
+                <div class="col-md-6 border-end">
+                    <h6 class="mb-3">Bank Details</h6>
+
+                    <div class="mb-3">
+                        <label for="bankName" class="form-label">Bank Name</label>
+                        <input type="text" class="form-control" id="bankName" name="bankName"
+                               value="{{ provider.cashback ? provider.cashback.bank.name : '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bankAccountName" class="form-label">Account Holder Name</label>
+                        <input type="text" class="form-control" id="bankAccountName" name="bankAccountName"
+                               value="{{ provider.cashback ? provider.cashback.bank.accountName : '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bankAccountNumber" class="form-label">Account Number</label>
+                        <input type="text" class="form-control" id="bankAccountNumber" name="bankAccountNumber"
+                               value="{{ provider.cashback ? provider.cashback.bank.accountNumber : '' }}" required>
+                    </div>
+                </div>
+
+                <!-- PayPal Details (Right) -->
+                <div class="col-md-6">
+                    <h6 class="mb-3">PayPal Details</h6>
+
+                    <div class="mb-3">
+                        <label for="paypalName" class="form-label">PayPal Account Holder Name</label>
+                        <input type="text" class="form-control" id="paypalName" name="paypalName"
+                               value="{{ provider.cashback ? provider.cashback.paypal.name : '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="paypalAccountNumber" class="form-label">PayPal Email or Mobile Number</label>
+                        <input type="text" class="form-control" id="paypalAccountNumber" name="paypalAccountNumber"
+                               value="{{ provider.cashback ? provider.cashback.paypal.accountNumber : '' }}">
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Provider Detail{% endblock %}
+
+{% block admin_body %}
+    <div class="container-xl">
+
+        <h1 class="app-page-title">Provider Detail</h1>
+
+        <div class="mb-4">
+            {% if user.blocked == false %}
+                <a href="{{ path('app_admin_provider_block', {'id': user.id}) }}" title="Block">
+                    <img src="{{ asset('assets/icons/sign.png') }}" class="icon-image" />
+                </a>
+            {% else %}
+                <a href="{{ path('app_admin_provider_block', {'id': user.id}) }}" title="Unblock">
+                    <img src="{{ asset('assets/icons/unlocked.png') }}" class="icon-image" />
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Basic Information</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Name:</strong> {{ provider.name }}</li>
+                            <li><strong>Suffix:</strong> {{ provider.suffix }}</li>
+                            <li><strong>Title:</strong> {{ provider.title }}</li>
+                            <li><strong>NPI Number:</strong> {{ provider.npiNumber }}</li>
+                            <li><strong>Date of Birth:</strong> {{ provider.dob ?  provider.dob|date("m/d/Y") : '' }}</li>
+                            <li><strong>SSN:</strong> {{ provider.ssn }}</li>
+                            <li><strong>Country of Birth:</strong> {{ provider.countryOfBirth }}</li>
+                            <li><strong>State of Birth:</strong> {{ provider.stateOfBirth }}</li>
+                            <li><strong>City of Birth:</strong> {{ provider.cityOfBirth }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Contact Information</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Phone (Home):</strong> {{ provider.phoneHome }}</li>
+                            <li><strong>Phone (Work):</strong> {{ provider.phoneWork }}</li>
+                            <li><strong>Phone (Mobile):</strong> {{ provider.phoneMobile }}</li>
+                            <li><strong>Street Address:</strong> {{ provider.streetAddress }}</li>
+                            <li><strong>City:</strong> {{ provider.city }}</li>
+                            <li><strong>State:</strong> {{ provider.state }}</li>
+                            <li><strong>Country:</strong> {{ provider.country }}</li>
+                            <li><strong>Zip Code:</strong> {{ provider.zipCode }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3 summary-title">Work Preferences</h5>
+                <div class="card summary-card shadow-sm border-light">
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><strong>Desired Pay Rate:</strong> {{ provider.desiredPayRate }}</li>
+                            <li><strong>Hourly Rate:</strong> {{ provider.payRateHourly }}</li>
+                            <li><strong>Daily Rate:</strong> {{ provider.payRateDaily }}</li>
+                            <li><strong>Desired Hours:</strong> {{ provider.desiredHour }}</li>
+                            <li><strong>Preferred Patient Volume:</strong> {{ provider.preferredPatientVolume }}</li>
+                            <li><strong>Willing to Travel:</strong> {{ provider.willingToTravel ? 'Yes' : 'No' }}</li>
+                            <li><strong>Availability to
+                                    Start:</strong> {{ provider.availabilityToStart | date("m/d/Y") }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

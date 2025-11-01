@@ -1,0 +1,73 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css'), source('@styles/email.css')) %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <spacer size="32"></spacer>
+
+    <container>
+        <row>
+            <columns>
+
+                <spacer size="16"></spacer>
+
+                <center class="header-logo">
+                    <img src="{{ email.image('@images/email-logo.png') }}" alt="Logo">
+{#                    <img src="{{ asset('images/email-logo.png') }}" alt="Logo">#}
+                </center>
+
+                <spacer size="16"></spacer>
+
+                {% block body %}{% endblock %}
+
+            </columns>
+        </row>
+
+        <spacer size="16"></spacer>
+
+    </container>
+
+    <spacer size="32"></spacer>
+
+    <container style="background: none;">
+        <rows>
+            <columns>
+                <p class="text-center text-sm quote">{{ getConfig('slogan') }}</p>
+
+                <p class="text-center text-sm">E-Mail us at:  <a href="mailto:{{ getConfig('office_email') }}">{{ getConfig('office_email') }}</a></p>
+
+                <center class="social-icons">
+                    <span class="text-center text-sm">Follow us on</span>
+                    <a href="{{ getConfig('twitter_url') }}">
+                        <img src="{{ email.image('@images/twitter-email-icon.png') }}" alt="Twitter">
+{#                        <img src="{{ asset('images/twitter-email-icon.png') }}" alt="Instagram">#}
+                    </a>
+                    <a href="{{ getConfig('linkend_url') }}">
+                        <img src="{{ email.image('@images/linkedin-email-icon.png') }}" alt="Linkedin">
+{#                        <img src="{{ asset('images/linkedin-email-icon.png') }}" alt="Linkedin">#}
+                    </a>
+                </center>
+
+                <spacer size="16"></spacer>
+
+                <p class="text-center text-xxs text-muted">{{ getConfig('office_address') }}</p>
+            </columns>
+        </rows>
+    </container>
+
+{#    <spacer size="32"></spacer>#}
+
+{#    <center class="footer-logo">#}
+{#                <img src="{{ email.image('@images/email-logo-footer.png') }}" alt="Logo">#}
+{#        <img src="{{ asset('images/email-logo-footer.png') }}" alt="Logo">#}
+{#    </center>#}
+
+{#    <spacer size="16"></spacer>#}
+
+    <p class="text-center"><small class="text-xxs text-muted">Copyright © 2025</small></p>
+
+    <spacer size="16"></spacer>
+
+{#    <p class="text-center text-sm unsubscribe">Don't want any more emails from Locumlancer <a href="#">Unsubscribe.</a></p>#}
+{% endapply %}

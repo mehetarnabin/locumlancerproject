@@ -1,0 +1,129 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Cashback{% endblock %}
+
+{% block admin_body %}
+    <div class="container-xl">
+
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Job</th>
+                    <th>Employer</th>
+                    <th>Provider</th>
+                    <th>Amount($)</th>
+                    <th>Created At</th>
+                    <th>Paid At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for cashback in cashbacks %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('app_admin_cashback_detail', {'id': cashback.id}) }}">
+                                {{ cashback.job }}
+                            </a>
+                        </td>
+                        <td>{{ cashback.employer }}</td>
+                        <td>{{ cashback.provider }}</td>
+                        <td>{{ cashback.amount|number_format }}</td>
+                        <td>{{ cashback.createdAt ? cashback.createdAt|date('m/d/Y') : '' }}</td>
+                        <td>{{ cashback.paidDate ? cashback.paidDate|date('m/d/Y') : '' }}</td>
+                        <td>
+                            <span class="badge badge-pill {% if cashback.status == 'pending' %}is-review{% elseif cashback.status == 'paid' %}is-hired{% endif %}">
+                                {{ cashback.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if cashback.status == 'pending' %}
+                            <a href="#" class="mark-paid-btn" title="Mark as Paid"
+                               data-id="{{ cashback.id }}"
+                               data-bs-toggle="modal"
+                               data-bs-target="#markAsPaidModal">
+                                <img src="{{ asset('assets/icons/cheque.png') }}" class="icon-image" alt="Mark as Paid" />
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="12">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if cashbacks.nbPages > 1 and cashbacks|length > 0 %}
+            <div class="col-12">
+                {{ pagerfanta(cashbacks, 'twitter_bootstrap5') }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="markAsPaidModal" tabindex="-1" aria-labelledby="markAsPaidModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="markAsPaidForm" enctype="multipart/form-data">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="markAsPaidModalLabel">Mark Cashback as Paid</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="cashback_id" id="cashbackId">
+                        <div class="mb-3">
+                            <label for="attachment" class="form-label">Attachment</label>
+                            <input type="file" name="attachment" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Mark as Paid</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block footer_scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set cashback ID to hidden input on click
+            document.querySelectorAll('.mark-paid-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const cashbackId = this.getAttribute('data-id');
+                    document.getElementById('cashbackId').value = cashbackId;
+                });
+            });
+
+            // Handle form submit
+            document.getElementById('markAsPaidForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(this);
+
+                fetch('{{ path("app_admin_cashback_mark_paid") }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            $('#markAsPaidModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(data.message || 'An error occurred.');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Upload failed.');
+                        console.error(error);
+                    });
+            });
+        });
+    </script>
+{% endblock %}

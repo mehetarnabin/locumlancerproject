@@ -1,0 +1,65 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Reviews{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+
+        <!-- Average Rating Highlight -->
+        {% if employer.averagePoint %}
+        <div class="text-center my-4">
+            <div class="card shadow-sm bg-light border-primary review-card-full">
+                <div class="card-body">
+                    <h4 class="text-primary review-card-title mb-0">Your Average Rating</h4>
+                    <h1 class="display-4 fw-semibold text-success">{{ employer.averagePoint }}/5</h1>
+{#                    <div class="text-warning fs-4">#}
+{#                        {% for i in 1..5 %}#}
+{#                            {% if i <= employer.averagePoint %}#}
+{#                                ★#}
+{#                            {% else %}#}
+{#                                ☆#}
+{#                            {% endif %}#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Reviews Section -->
+        {% if reviews is not empty %}
+            <div class="row">
+                {% for review in reviews %}
+                    {% set bgClass = review.point >= 4 ? 'border-success' : (review.point >= 3 ? 'border-warning' : 'border-danger') %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm review-card {{ bgClass }}">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    {{ review.provider }}
+                                    <span class="badge bg-secondary float-end">{{ review.point }}/5</span>
+                                </h5>
+                                <h6 class="text-muted">{{ review.application.job }}</h6>
+                                <p class="mt-2">{{ review.message|default('No message') }}</p>
+
+{#                                <ul class="list-group list-group-flush small">#}
+{#                                    <li class="list-group-item">Professionalism: <strong>{{ review.professionalism }}</strong></li>#}
+{#                                    <li class="list-group-item">Quality of care: <strong>{{ review.quality }}</strong></li>#}
+{#                                    <li class="list-group-item">Communication: <strong>{{ review.communication }}</strong></li>#}
+{#                                    <li class="list-group-item">Emotional Intelligence: <strong>{{ review.emotionalIntelligence }}</strong></li>#}
+{#                                </ul>#}
+                            </div>
+                            <div class="card-footer text-muted text-end small">
+                                {{ review.createdAt|date('M d, Y') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                No reviews found.
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

@@ -1,0 +1,53 @@
+<div class="job-title-wrap">
+    <div class="job-header">
+        <h1>
+            {{ jobDetail.title }}
+        </h1>
+        {#                            <img src="{{ asset('assets/frontend/img/cty11.png') }}" alt="">#}
+        <h3>{{ jobDetail.state }}, {{ jobDetail.city }}, {{ jobDetail.streetAddress }}</h3>
+
+        <ul class="job">
+            <li><strong>Profession:</strong> {{ jobDetail.profession }}</li>
+            <li><strong>Speciality:</strong> {{ jobDetail.speciality }}</li>
+            <li><strong>Pay:</strong>
+                {% if jobDetail.payRate == 'Hourly' %}{{ jobDetail.payRateHourly }} Hourly{% endif %}
+                {% if jobDetail.payRate == 'Daily' %}{{ jobDetail.payRateDaily }} Daily{% endif %}
+            </li>
+            {#                                <li><strong>Assignment Length:</strong> {{ jobDetail.assignmentLength }}</li>#}
+            <li><strong>Schedule:</strong> {{ jobDetail.schedule }}</li>
+            {#                                <li><strong>Openings:</strong> 1</li>#}
+            <li><strong>Start Date:</strong> {{ jobDetail.startDate|date('m/d/Y') }}</li>
+            {#                                <li><strong>Facility Info:</strong>#}
+        </ul>
+
+        <div class="block-buttons ">
+            <button class="th-btn" id="apply-button" data-job-id="{{ jobDetail.id }}" data-user-id="{{ app.user.id }}">
+                Apply
+            </button>
+            <button class="btn-save" id="save-button_{{ jobDetail.id }}"  data-user-id="{{ app.user.id }}" title="Save this job">
+                <img src="{{ asset('assets/icons/favorite.png') }}" alt="bookmark"/>
+            </button>
+            <button class="btn-report" data-job-id="{{ jobDetail.id }}"  data-user-id="{{ app.user.id }}" title="Report this job">
+                <img src="{{ asset('assets/icons/danger-sign.png') }}" alt="report" />
+            </button>
+            <div title="Share this job" class="share-btn">
+                <img src="{{ asset('assets/icons/send.png') }}" alt="share"/>
+                <div class="share-dropdown">
+                    <div class="sharethis-inline-share-buttons"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="details content-area">
+        <h4>Job Descriptions</h4>
+
+        {{ jobDetail.description|raw }}
+    </div>
+</div>
+<div class="block-buttons ">
+    <button class="th-btn" id="apply-button-below">
+        Apply
+    </button>
+</div>
+

@@ -1,0 +1,115 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Office{% endblock %}
+
+{% block employer_body %}
+    <div class="container-xl">
+        <div class="row mt-4">
+            <div class="col-12 mb-4">
+                <div class="app-card app-card-stats-table h-100 shadow-sm">
+                    <div class="app-card-header p-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <h4 class="app-card-title">Current Jobs ({{ currentJobs|length }})</h4>
+                            </div>
+                            <div class="col-auto">
+                                <div class="card-header-action">
+{#                                    <a href="{{ path('app_employer_jobs') }}">View all</a>#}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-body p-3 p-lg-4">
+                        <div class="table-responsive">
+                            {% if currentJobs|length > 0 %}
+                                <table class="table table-borderless mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th class="meta">Job</th>
+                                        <th class="meta stat-cell">Location</th>
+                                        <th class="meta stat-cell">Schedule</th>
+                                        <th class="meta stat-cell">Work Type</th>
+                                        <th class="meta stat-cell">Need</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for job in currentJobs %}
+                                        <tr>
+                                            <td>
+                                                <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}">{{ job.title }}</a>
+                                            </td>
+                                            <td>{{ job.state }}, {{ job.city }}</td>
+                                            <td>{{ job.schedule }}</td>
+                                            <td>{{ job.workType }}</td>
+                                            <td>{{ job.need }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <p>Jobs not found.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="app-card app-card-stats-table h-100 shadow-sm">
+                    <div class="app-card-header p-3">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-auto">
+                                <h4 class="app-card-title">Pending Invoices ({{ pendingInvoices|length }})</h4>
+                            </div>
+                            <div class="col-auto">
+                                <div class="card-header-action">
+{#                                    <a href="{{ path('app_employer_invoices_pending') }}">View all</a>#}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-body p-3 p-lg-4">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Number</th>
+                                    <th>Job</th>
+                                    <th>Provider</th>
+                                    <th>Particular</th>
+                                    <th>Amount($)</th>
+                                    <th>CreatedAt</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for invoice in pendingInvoices %}
+                                    <tr>
+                                        <td>
+                                            <a href="{{ path('app_employer_invoice_show', {'id': invoice.id}) }}">{{ invoice.invoiceNumber }}</a>
+                                        </td>
+                                        <td>{{ invoice.job }}</td>
+                                        <td>{{ invoice.provider }}</td>
+                                        <td>{{ invoice.particular }}</td>
+                                        <td>{{ invoice.amount|number_format }}</td>
+                                        <td>{{ invoice.createdAt ? invoice.createdAt|date('m/d/Y') : '' }}</td>
+                                        <td class="text-nowrap">
+                                            <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}" title="Pay Now">
+                                                <img src="{{ asset('assets/icons/cheque.png') }}" class="icon-image" />
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="12">no records found</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

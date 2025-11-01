@@ -1,0 +1,63 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}CV Upload{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">CV Upload</h1>
+        <div class="section-intro">Uploading a digital copy of your CV is optional, but it helps employers review your
+            profile more efficiently. If you've already uploaded a CV, uploading a new one will replace the existing
+            copy.
+        </div>
+
+        <hr class="mb-4">
+
+        {{ form_start(form, {'attr': {'class': 'cv-form needs-validation', 'novalidate': 'novalidate'}}) }}
+
+        {{ form_errors(form) }}
+        <div class="app-card app-card-settings shadow-sm p-4">
+            <div class="app-card-body">
+                <div class="row">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <div class="form-group mb-2">
+                            {% if app.user.provider.cvFilename %}
+                                {{ form_widget(form.cv, {'attr':{'class': 'file'}}) }}
+                            {% else %}
+                                {{ form_widget(form.cv, {'required': true, 'attr':{'class': 'file'}}) }}
+                            {% endif %}
+                            {{ form_errors(form.cv) }}
+                            <div class="invalid-feedback">
+                                CV File is required.
+                            </div>
+                        </div>
+
+                        <p>
+                            <i>Max File Size: 8MB</i><br/>
+                            <i>Allowed File Types: DOC, DOCX, or PDF</i>
+                        </p>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        {% if  provider.cvFilename %}
+                            <span>{{ provider.cvFilename }}</span>
+                            <div class="mb-2"></div>
+                            <a href="{{ asset('uploads/'~provider.user.id~'/'~provider.cvFilename) }}" title="Download" target="_blank">
+                                <img src="{{ asset('assets/icons/download.png') }}" class="icon-image">
+                            </a>
+                            &nbsp; &nbsp; <a href="{{ path('app_provider_profile_cv_remove') }}" title="Remove" onclick="return confirm('Are you sure? Do you want to delete CV?')"><img src="{{ asset('assets/icons/trash-bin.png') }}" class="icon-image" /></a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-2">{{ button_label|default('Save') }}</button>
+        <button class="btn btn-primary mt-2" name="save_continue" value="1">{{ button_label|default('Save and Continue') }}</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+{% endblock %}

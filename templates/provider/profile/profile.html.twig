@@ -1,0 +1,1795 @@
+{# profile.html.twig - updated design to match dashboard cards #}
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block provider_body %}
+<style>
+/* == Scoped modern card styles (unique class names) == */
+.profile-card, .section-card, .profile-right-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Keep inner content spacing consistent */
+.profile-card .app-card-body,
+.section-card .app-card-body {
+  padding: 0;
+}
+
+/* Header row */
+.card-header-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+/* Title */
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin:0;
+}
+
+/* Small icon link */
+.card-header-link svg { width:28px; height:28px; }
+
+/* Profile avatar box */
+.profile-avatar-box {
+  width:92px;
+  height:92px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid #85BB65;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Info row items */
+.info-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eef2f6;
+}
+.info-item:last-child { border-bottom: none; }
+
+/* Right column upload buttons */
+.upload-list {
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.upload-btn-custom {
+  display:flex;
+  align-items:center;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#F4F9F1;
+  border:1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  text-decoration:none;
+  color:inherit;
+}
+.upload-btn-custom .cstm-btn-text {
+  flex: 1;
+}
+.upload-btn-custom .cstm-btn-checkmark {
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+/* Make CV upload visually emphasized */
+.upload-btn-custom.upload-cv {
+  border: 1px solid #e6eef6;
+  background: #F4F9F1;
+}
+
+/* small badge for ratings etc */
+.small-metric {
+  text-align:center;
+}
+.small-metric .big {
+  font-size:1.6rem;
+  font-weight:700;
+}
+
+/* Section cards (Education / License) spacing */
+.section-card { margin-top:18px; }
+
+/* In-card toggle style (visual only) */
+.section-toggle {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+}
+
+/* Make list elements inside sections look like cards */
+.section-list {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:12px;
+  max-height: calc(4 * 72px + 3 * 10px); /* show 4 items, scroll rest */
+  overflow-y:auto;
+  padding-right:6px;
+}
+.section-list .section-list-item {
+  background:#F4F9F1;
+  border-radius:10px;
+  padding:10px 12px;
+  box-shadow: 0 1px 6px rgba(11,22,40,0.03);
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  min-height:72px;
+}
+
+/* Scrollbar styling */
+.section-list::-webkit-scrollbar { width:6px; }
+.section-list::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:4px; }
+.section-list::-webkit-scrollbar-track { background:transparent; }
+
+/* Don’t let small-right column push content on small screens */
+@media (max-width: 991.98px) {
+  .col-lg-10 { flex: 0 0 100%; max-width: 100%; }
+  .col-lg-2  { flex: 0 0 100%; max-width: 100%; margin-top: 18px; }
+}
+.profile-card, .section-card, .profile-right-card {
+  padding: 16px; /* slightly tighter now */
+}
+.profile-right-card {
+  height: 100%;
+}
+.card-header-link svg { width: 25px; height: 25px; }
+.profile-avatar-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: visible;
+  background: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.profile-avatar-box  label {
+  background: #e3e3e3;
+}
+.quick-link-btn {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+.quick-link-btn:hover {
+  background: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.card-title {
+  font-size: 1rem;
+  color: #252930;
+}
+.info-item svg {
+  flex-shrink: 0;
+}
+.app-page-title {
+    color: #121C0C;
+}
+a.upload-btn-custom {
+    cursor:default;
+}
+a.upload-btn-custom span {
+    padding: 2px;
+    height: 28px;
+    width: 28px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    overflow: hidden;
+    color: rgb(93, 103, 120);
+    cursor: pointer;
+}
+.upload-btn-custom span.cstm-btn-icon {
+  border-radius: 100px;
+  width: 24px;
+  height: 24px;
+  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-btn-custom:hover span.cstm-btn-icon {
+    background: #ccc;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+}
+button.upload-btn-custom {
+    cursor: default;
+}
+button.upload-btn-custom span {
+    padding: 2px;
+    height: 28px;
+    width: 28px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    overflow: hidden;
+    color: rgb(93, 103, 120);
+    margin-left: 20px;
+    cursor: pointer;
+}
+button.upload-btn-custom:hover span {
+    background: #ccc;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+}
+.upload-btn-custom.upload-cv:hover {
+  color: #85BB65;
+}
+.mg-btm-18 {
+    margin-bottom: 18px;
+}
+/* --- To Do List --- */
+.todo-list {
+    overflow-y: auto;
+    max-height: calc(4 * 72px + 3 * 10px); /* 4 visible items */
+    padding-right: 6px;
+}
+.todo-item {
+    border-radius: 10px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    padding: 2px 14px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.card.app-card-settings {
+  border: none;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  padding: 16px;
+}
+.list-unstyled label {
+  font-style: 400;
+}
+.share-label {
+  font-weight: 500;
+  font-size: 16px;
+}
+.card-header {
+  text-align: center;
+}
+.profile-right-card .small-metric .big {
+  color: #252930;
+}
+
+.upload-dropzone {
+  border: 2px dashed #85BB65;
+  border-radius: 12px;
+  background: #F4F9F1;
+  padding: 40px 20px;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+}
+.upload-dropzone:hover {
+  background: #f0f5ec;
+}
+.dropzone-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.dropzone-content {
+  position: relative;
+  z-index: 1;
+}
+.pointer-events-none {
+  pointer-events: none;
+}
+.upload-text {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 12px;
+  color: #374151;
+}
+.upload-subtext {
+  font-size: 0.85rem;
+  color: #6B7280;
+  margin-top: 6px;
+}
+.file-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #85BB65;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+.file-remove-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.profile-right-card.h-fix-auto {
+  height: auto;
+}
+.cstm-toggle-btn {
+  background: transparent;
+  border: none;
+}
+.cstm-toggle-btn:hover svg {
+  color: #85BB65;
+}
+input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #bec0c1;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #bec0c1;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.action-btn-edit {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.action-btn-edit:hover, .dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+.action-btn-edit:hover svg {
+    color: #85BB65;
+}
+#profileForm ul {
+  display: none;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: white;
+  max-width: 100%;
+  width: 91%;
+  height: 90%;
+  overflow-y: scroll;
+}
+
+.popup-body {
+  margin-top: 10px;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.ed-card {
+  border: none;
+}
+.ed-card .card-body {
+  border-radius: 10px;
+  background: #F4F9F1;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+#educationModal { 
+  z-index: 999999;
+}
+.popup-close {
+  border: none;
+  background: transparent;
+}
+.cstm-btn-style {
+  background: #F4F9F1;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  border-radius: 10px;
+  padding: 4px 12px;
+}
+.cstm-btn-style:hover, .dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+</style>
+
+<div class="container-xl">
+  <h1 class="app-page-title">Profile</h1>
+
+  <div class="row mt-4">
+    <div class="col-12 col-lg-8">
+      <div class="row">
+        {# Left: profile card #}
+          <div class="col-12 col-lg-6 d-flex flex-column">
+              <div id="personalSection" class="profile-card">
+                <div id="infoView">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h6 class="app-card-title mb-0">Personal Information</h6>
+                      <div id="actionIcons">
+                        <a href="javascript:void(0);" id="editToggle" class="link-plain" title="Edit">
+                          <!-- Pencil Icon -->
+                          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                          </svg>
+                        </a>
+                      </div>
+                  </div>
+
+                  <div class="d-flex gap-3 align-items-center">
+                    <div class="profile-avatar-box">
+                      <div class="profile-icon-box ">
+                      {% if app.user.profilePictureFilename %}
+                        <img src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                      {% elseif app.user.profilePicture %}
+                        <img src="{{ app.user.profilePicture }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                      {% else %}
+                        <img src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
+                      {% endif %}
+                      </div>
+                    </div>
+
+                    <div style="flex:1;">
+                      <div class="fw-semibold fs-5">{{ app.user.name }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Removed duplicate name section -->
+
+                  <div style="margin-top:14px;">
+
+                    <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g id="style=stroke">
+                        <g id="email">
+                        <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#121C0C"></path>
+                        <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#121C0C"></path>
+                        </g>
+                        </g>
+                        </svg>
+                        <div class="text-muted small"> {{ app.user.email }}</div>
+                      </div>
+                    </div>
+
+                    <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <!-- Email Icon -->
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
+                        </svg>
+                        <div>Address</div>
+                      </div>
+                    </div>
+
+                    <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <!-- Phone Icon -->
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
+                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
+                        </svg>
+                        <div>{{ app.user.phone1 }}</div>
+                      </div>
+                    </div>
+
+                    {#<div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <!-- Gender Icon -->
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="4"></circle>
+                          <path d="M20 4v5h-5"></path>
+                          <path d="M4 20v-5h5"></path>
+                        </svg>
+                        <div>{{ app.user.gender }}</div>
+                      </div>
+                    </div>#}
+
+                    <!-- Proper Toggle Switch (visual only) -->
+                    {#<div class="form-check form-switch mt-3">
+                      <input class="form-check-input" type="checkbox" id="togglePersonal" checked disabled>
+                      <label class="form-check-label" for="togglePersonal">
+                        One file: Personal Information
+                      </label>
+                    </div>#}
+                  </div>
+                </div>
+                <div id="infoEdit" style="display: none;">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h6 class="app-card-title mb-0">Personal Information</h6>
+                      <div id="actionIcons" class="d-flex gap-2">
+                        <!-- Save Button -->
+                        <button type="submit" form="profileForm" id="saveBtn" class="action-btn-edit" title="Save">
+                          <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <g data-name="Layer 2">
+                          <g data-name="checkmark-circle">
+                          <rect width="24" height="24" opacity="0"></rect>
+                          <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"></path>
+                          <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"></path>
+                          </g>
+                          </g>
+                          <use xlink:href="#icon-apply"></use>
+                          </svg> Save
+                        </button>
+
+                        <!-- Cancel Button -->
+                        <button type="button" id="cancelBtn" class="action-btn-edit" title="Cancel">
+                          <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="cancelIconTitle" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" color="currentcolor"> <title id="cancelIconTitle">Cancel</title> <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"/> <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"/> </svg> Cancel
+                        </button>
+                      </div>
+                  </div>
+                  {{ form_start(form, {'attr': {'id': 'profileForm', 'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                  {{ form_errors(form) }}
+                  <div class="d-flex gap-3 align-items-center mb-3">
+                    <div class="position-relative profile-avatar-box">
+                      <div class="profile-icon-box">
+                      {% if app.user.profilePictureFilename %}
+                        <img id="editProfileImage" src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                      {% elseif app.user.profilePicture %}
+                        <img id="editProfileImage" src="{{ app.user.profilePicture }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                      {% else %}
+                        <img id="editProfileImage" src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
+                      {% endif %}
+                      </div>
+
+                      <!-- Camera Icon Overlay -->
+                      <label for="profileImageInput" class="position-absolute bottom-0 end-0 bg-light p-1 rounded-circle" style="cursor:pointer;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="13" r="3" stroke="#1C274C" stroke-width="1.5"/>
+                        <path d="M2 13.3636C2 10.2994 2 8.76721 2.74902 7.6666C3.07328 7.19014 3.48995 6.78104 3.97524 6.46268C4.69555 5.99013 5.59733 5.82123 6.978 5.76086C7.63685 5.76086 8.20412 5.27068 8.33333 4.63636C8.52715 3.68489 9.37805 3 10.3663 3H13.6337C14.6219 3 15.4728 3.68489 15.6667 4.63636C15.7959 5.27068 16.3631 5.76086 17.022 5.76086C18.4027 5.82123 19.3044 5.99013 20.0248 6.46268C20.51 6.78104 20.9267 7.19014 21.251 7.6666C22 8.76721 22 10.2994 22 13.3636C22 16.4279 22 17.9601 21.251 19.0607C20.9267 19.5371 20.51 19.9462 20.0248 20.2646C18.9038 21 17.3433 21 14.2222 21H9.77778C6.65675 21 5.09624 21 3.97524 20.2646C3.48995 19.9462 3.07328 19.5371 2.74902 19.0607C2.53746 18.7498 2.38566 18.4045 2.27673 18" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M19 10H18" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </label>
+                      <input type="file" id="profileImageInput" name="profilePictureFilename" accept="image/*" class="file d-none">
+                    </div>
+
+                    <div style="flex:1;">
+                      {{ form_widget(form.name, {'attr': {'class': 'form-control fw-semibold fs-5'}}) }}
+                      {{ form_errors(form.name) }}
+                    </div>
+                  </div>
+
+                  <div style="margin-top:14px;">
+                    <!-- Email -->
+                    <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <g id="style=stroke">
+                            <g id="email">
+                              <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#121C0C"></path>
+                              <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#121C0C"></path>
+                            </g>
+                          </g>
+                        </svg>
+                        <input type="email" name="email" class="form-control" value="{{ app.user.email }}">
+                      </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="info-item mt-3">
+                      <div class="d-flex gap-3 align-items-center">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
+                        </svg>
+                        <input type="text" name="address" class="form-control" value="Address">
+                      </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="info-item mt-3">
+                      <div class="d-flex gap-3 align-items-center">
+                      <!-- Phone Icon -->
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
+                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
+                        </svg>
+                        {{ form_widget(form.phone1, {'attr':{'class': 'form-control'}}) }}
+                        {{ form_errors(form.phone1) }}
+                        </div>
+                    </div>
+                  </div>
+                  {# Do NOT render these fields #}
+                  {# form_widget(form.gender) #}
+                  {# form_widget(form.phone2) #}
+                  {# form_widget(form.profilePictureFilename) #}
+
+                  {{ form_end(form, {'render_rest': false}) }}
+                </div>
+              </div>
+          </div>
+
+          {# Center: assignment column #}
+          <div class="col-12 col-lg-6 d-flex flex-column">
+            <div class="profile-right-card">
+              <h6 class="app-card-title text-center mb-4">Your History</h6>
+              <div class="small-metric mb-4">
+                <h6 class="app-card-title">Your Average Rating</h6>
+                <div class="big fw-normal">3.72/5</div>
+              </div>
+              <div class="card-header mb-4">
+                <h6 class="app-card-title mb-1">Locum Assignments : </h6>
+                <h4 class="fw-normal">10</h4>
+              </div>
+              <div class="card-header">
+                <h6 class="app-card-title mb-1">Years Active : </h6>
+                <h4 class="fw-normal">15 years</h4>
+                </div>
+            </div>
+          </div>
+
+          <div class="col-12 mt-3">
+            <div class="card app-card-settings">
+              <div class="card-body">
+                <h5 class="card-title mb-3">{{ editMode is defined ? 'Edit Document' : 'CV Upload' }}</h5>
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                <div class="upload-dropzone mb-4" onclick="document.getElementById('dropzoneInput').click();">
+                  {{ form_widget(documentForm.fileName, {
+                    'attr': {
+                      'class': 'dropzone-input',
+                      'id': 'dropzoneInput',
+                      'onchange': 'handleFileChange(this)'
+                    }
+                  }) }}
+
+                  <!-- Filename badge inside dropzone -->
+                  <div id="fileBadge" class="file-badge" style="display:none;">
+                    <span id="fileNameText"></span>
+                    <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
+                  </div>
+
+                  <div class="dropzone-content pointer-events-none">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                      <line x1="10" y1="9" x2="8" y2="9"/>
+                    </svg>
+
+                    <p class="upload-text">Drag and drop or click to upload</p>
+                    <p class="upload-subtext">Supported formats: CSV, XLS, PDF. Max size: 25MB</p>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-3">
+                  <a href="javascript:void(0);" class="upload-btn-custom" onclick="clearFile()">Cancel</a>
+                  <button type="submit" class="upload-btn-custom upload-cv">
+                    {{ editMode is defined ? 'Update' : 'CV Upload' }}
+                    <span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.625 15C5.625 14.5858 5.28921 14.25 4.875 14.25C4.46079 14.25 4.125 14.5858 4.125 15H5.625ZM4.875 16H4.125H4.875ZM19.275 15C19.275 14.5858 18.9392 14.25 18.525 14.25C18.1108 14.25 17.775 14.5858 17.775 15H19.275ZM12.2914 5.46127C12.5461 5.13467 12.4879 4.66338 12.1613 4.40862C11.8347 4.15387 11.3634 4.21212 11.1086 4.53873L12.2914 5.46127ZM7.20862 9.53873C6.95387 9.86533 7.01212 10.3366 7.33873 10.5914C7.66533 10.8461 8.13662 10.7879 8.39138 10.4613L7.20862 9.53873ZM12.2914 4.53873C12.0366 4.21212 11.5653 4.15387 11.2387 4.40862C10.9121 4.66338 10.8539 5.13467 11.1086 5.46127L12.2914 4.53873ZM15.0086 10.4613C15.2634 10.7879 15.7347 10.8461 16.0613 10.5914C16.3879 10.3366 16.4461 9.86533 16.1914 9.53873L15.0086 10.4613ZM12.45 5C12.45 4.58579 12.1142 4.25 11.7 4.25C11.2858 4.25 10.95 4.58579 10.95 5H12.45ZM10.95 16C10.95 16.4142 11.2858 16.75 11.7 16.75C12.1142 16.75 12.45 16.4142 12.45 16H10.95ZM4.125 15V16H5.625V15H4.125ZM4.125 16C4.125 18.0531 5.75257 19.75 7.8 19.75V18.25C6.61657 18.25 5.625 17.2607 5.625 16H4.125ZM7.8 19.75H15.6V18.25H7.8V19.75ZM15.6 19.75C17.6474 19.75 19.275 18.0531 19.275 16H17.775C17.775 17.2607 16.7834 18.25 15.6 18.25V19.75ZM19.275 16V15H17.775V16H19.275ZM11.1086 4.53873L7.20862 9.53873L8.39138 10.4613L12.2914 5.46127L11.1086 4.53873ZM11.1086 5.46127L15.0086 10.4613L16.1914 9.53873L12.2914 4.53873L11.1086 5.46127ZM10.95 5V16H12.45V5H10.95Z" fill="currentcolor"/>
+                    </span>
+                    </svg>
+                  </button>
+                </div>
+
+                {{ form_end(form, {'render_rest': false}) }}
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-3">
+            <div class="card app-card-settings">
+              <h5 class="card-title mb-0">Work Preferences</h5>
+              <div class="work-preferences" style="height: 150px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {# Right: narrow column for upload buttons and quick links - col-lg-2 #}
+    <div class="col-12 col-lg-4 d-flex flex-column">
+      <div class="profile-right-card h-fix-auto">
+        <div class="card-header-row d-flex justify-content-between">
+            <h5 class="card-title mb-0">Quick Links</h5>
+            <h5 class="card-title mb-0">Share</h5>
+        </div>
+
+        <div class="upload-list mt-2">
+          {# Other items as links to specific pages (you can replace '#' with real routes) #}
+           <div class="upload-btn-custom"><span class="cstm-btn-text">Education & Training</span>
+           <span class="cstm-btn-checkmark">
+           <input type="checkbox" class="upload-check d-none ms-2">
+           </span>
+           <a href="#" class="open-popup" data-popup="education" role="button">
+           <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">License & Certificate</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" class="open-popup" data-popup="license" role="button">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          {#<a class="upload-btn-custom" href="/provider/profile/work-preferences" role="link">Work Preference<span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span></a>#}
+          <div class="upload-btn-custom"><span class="cstm-btn-text">Insurance</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" class="open-popup" data-popup="insurance" role="button">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">Health Assessment</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" class="open-popup" data-popup="health" role="button">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">Risk Assessment</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" class="open-popup" data-popup="risk" role="button">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">References</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" role="link">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">Documents</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="/provider/documents" role="link">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
+      </div>
+      {#<div class="profile-right-card mg-btm-18">
+          <div class="upload-list">
+              Only CV Upload triggers modal; others are links (change href to your real routes)
+              <button type="button" class="upload-btn-custom upload-cv" data-bs-toggle="modal" data-bs-target="#uploadModal" onclick="setCategory('CV Upload')">
+              </button>
+          </div>
+      </div>#}
+
+        {# Note: the toggles are intentionally inert and were moved inside each card above #}
+      </div>
+      <div class="profile-right-card mt-3 h-fix-auto">
+          <div class="card-header-row d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Share via Onelink</h5>
+            <button id="toggle-checkmarks" class="cstm-toggle-btn" title="Toggle Checkmarks">
+              <svg icon-image width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g id="Communication / Share_iOS_Export">
+              <path id="Vector" d="M9 6L12 3M12 3L15 6M12 3V13M7.00023 10C6.06835 10 5.60241 10 5.23486 10.1522C4.74481 10.3552 4.35523 10.7448 4.15224 11.2349C4 11.6024 4 12.0681 4 13V17.8C4 18.9201 4 19.4798 4.21799 19.9076C4.40973 20.2839 4.71547 20.5905 5.0918 20.7822C5.5192 21 6.07899 21 7.19691 21H16.8036C17.9215 21 18.4805 21 18.9079 20.7822C19.2842 20.5905 19.5905 20.2839 19.7822 19.9076C20 19.4802 20 18.921 20 17.8031V13C20 12.0681 19.9999 11.6024 19.8477 11.2349C19.6447 10.7448 19.2554 10.3552 18.7654 10.1522C18.3978 10 17.9319 10 17 10" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              </svg>
+            </button>
+          </div>
+
+          <div class="card-body">
+            <div class="mb-3 ">
+              <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="max-width: 300px;">
+            </div>
+
+            <h6 class="mt-4">Doc Shared</h6>
+            <ul class="list-unstyled">
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc1">
+                <label class="form-check-label" for="doc1">Document 1.pdf</label>
+              </li>
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc2">
+                <label class="form-check-label" for="doc2">Document 2.docx</label>
+              </li>
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc3">
+                <label class="form-check-label" for="doc3">Document 3.xlsx</label>
+              </li>
+            </ul>
+
+            <div class="d-flex justify-content-end mt-3">
+              <button type="button" class="upload-btn-custom">Share</button>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+  </div>
+</div>
+</div>
+
+<div id="popup-education" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-4">Education & Training</h5>
+      <button id="popupClose" class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <a href="#" class="cstm-btn-style" id="openAddEducationModal">
+              Add New
+            </a>
+
+            <div class="row mb-4 mt-4">
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">Kathmandu University</h5>
+                      <p><strong>Degree Name:</strong> Bachelor of Engineering</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Nepal, Bagmati, Dhulikhel</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-education" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Start Date:</strong> 08/01/2015</p>
+                      <p><strong>End Date:</strong> 06/30/2019</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">Tribhuvan University</h5>
+                      <p><strong>Degree Name:</strong> Master of Science</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Nepal, Bagmati, Kirtipur</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-education" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Start Date:</strong> 09/01/2020</p>
+                      <p><strong>End Date:</strong> 07/30/2022</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#" class="cstm-btn-style">
+              Continue
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="popup-license" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-4">License & Certificate</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <a href="#" class="cstm-btn-style" id="openLicenseModal">
+              Add New
+            </a>
+
+            <div class="row mt-4 mb-4">
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">Registered Nurse License</h5>
+                      <p><strong>Employment Type:</strong> Full-Time</p>
+                      <p><strong>Company:</strong> HealthCare Nepal</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Kathmandu, Nepal</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-experience" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Start Date:</strong> 01/01/2020</p>
+                      <p><strong>End Date:</strong> 12/31/2025</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">CPR Certification</h5>
+                      <p><strong>Employment Type:</strong> Part-Time</p>
+                      <p><strong>Company:</strong> Red Cross Nepal</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Lalitpur, Nepal</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-experience" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Start Date:</strong> 03/15/2021</p>
+                      <p><strong>End Date:</strong> 03/15/2024</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#" class="cstm-btn-style">
+              Continue
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="popup-insurance" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-4">Insurance</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <a href="#" class="cstm-btn-style" id="openInsuranceModal">
+              Add New
+            </a>
+
+            <div class="row mt-4 mb-4">
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">Everest Insurance Co.</h5>
+                      <p><strong>Policy Number:</strong> EVR-2023-001</p>
+                      <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 500,000 / NPR 2,000,000</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Bagmati, Kathmandu</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-insurance" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Effective Date:</strong> 01/01/2023</p>
+                      <p><strong>Expiration Date:</strong> 12/31/2025</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="card ed-card mb-2">
+                  <div class="card-body d-flex align-items-start">
+                    <div class="me-4">
+                      <h5 class="card-title">Himalayan General Insurance</h5>
+                      <p><strong>Policy Number:</strong> HGI-2022-045</p>
+                      <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 300,000 / NPR 1,000,000</p>
+                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Province 1, Biratnagar</p>
+
+                      <div class="mt-3">
+                        <a href="#" class="edit-insurance" title="Edit">
+                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                        </a>
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="ms-auto">
+                      <p><strong>Effective Date:</strong> 06/15/2022</p>
+                      <p><strong>Expiration Date:</strong> 06/14/2024</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <a href="#" class="cstm-btn-style">
+              Continue
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="popup-health" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-4">Health Assessment</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <form method="post" action="">
+              <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
+
+                <!-- Substance Abuse Question -->
+                <div class="form-group">
+                  <label for="substance-abuse">Do you currently have any chemical substance abuse dependency?</label>
+                  <div class="radio-group mt-2">
+                    <label><input type="radio" name="substance_abuse" value="yes" onchange="toggleTextarea('substance-abuse-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="substance_abuse" value="no" checked onchange="toggleTextarea('substance-abuse-explanation', this.value)"> No</label>
+                  </div>
+                  <div class="mt-2">
+                    <textarea id="substance-abuse-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Job Related Question -->
+                <div class="form-group mt-4">
+                  <label for="job-related">Are there any reasons that would prevent you from being able to perform competently the job-related functions of a locum tenens physician?</label>
+                  <div class="radio-group mt-2">
+                    <label><input type="radio" name="job_related" value="yes" onchange="toggleTextarea('job-related-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="job_related" value="no" checked onchange="toggleTextarea('job-related-explanation', this.value)"> No</label>
+                  </div>
+                  <div class="mt-2">
+                    <textarea id="job-related-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Travel Question -->
+                <div class="form-group mt-4">
+                  <label for="travel">Are there any reasons that would prevent you from being able to travel and promptly assume locum tenens physician responsibilities in unfamiliar facilities?</label>
+                  <div class="radio-group mt-2">
+                    <label><input type="radio" name="travel" value="yes" onchange="toggleTextarea('travel-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="travel" value="no" checked onchange="toggleTextarea('travel-explanation', this.value)"> No</label>
+                  </div>
+                  <div class="mt-2">
+                    <textarea id="travel-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <button type="submit" class="cstm-btn-style mr-2">Save</button>
+              <button type="submit" name="save_continue" value="1" class="cstm-btn-style">Save and Continue</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="popup-risk" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-4">Risk Assessment</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <form method="post" action="">
+              <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
+
+                <!-- Work Verification -->
+                <div class="form-group">
+                  <label>Can you submit verification of your legal right to work in the U.S.? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="work_verification" value="yes"> Yes</label>
+                    <label><input type="radio" name="work_verification" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <!-- Degree Group -->
+                <div class="form-group">
+                  <label for="degree">Degree Group *</label>
+                  <select id="degree" name="degree" class="form-control">
+                    <option value="">Select Degree Group</option>
+                    <option value="MD/DO">MD/DO</option>
+                    <option value="CRNA">CRNA</option>
+                    <option value="CNS">CNS</option>
+                    <option value="DDS">DDS</option>
+                    <option value="DMD">DMD</option>
+                    <option value="PA">PA</option>
+                    <option value="NP">NP</option>
+                    <option value="PhD">PhD</option>
+                    <option value="PsyD">PsyD</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <hr/>
+
+                <!-- Yes/No Questions -->
+                <div class="form-group">
+                  <label>In the past 24 months, have you had patient contact practicing in the specialty area for which you are applying? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="patient_contact" value="yes"> Yes</label>
+                    <label><input type="radio" name="patient_contact" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever been named in a malpractice claim? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="malpractice_claim" value="yes"> Yes</label>
+                    <label><input type="radio" name="malpractice_claim" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Has your license to practice in your profession ever been formally investigated, sanctioned, or revoked? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="license_investigation" value="yes"> Yes</label>
+                    <label><input type="radio" name="license_investigation" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever been denied provider participation in Medicare/Medicaid? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="medicare_denial" value="yes"> Yes</label>
+                    <label><input type="radio" name="medicare_denial" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever resigned from a position in lieu of an investigation, or been terminated from employment? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="resigned_or_terminated" value="yes"> Yes</label>
+                    <label><input type="radio" name="resigned_or_terminated" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have your hospital or clinic privileges ever been revoked, suspended, or restricted? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="clinic_privileges" value="yes"> Yes</label>
+                    <label><input type="radio" name="clinic_privileges" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever been disciplined by a hospital staff or professional education program? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="disciplinary_action" value="yes"> Yes</label>
+                    <label><input type="radio" name="disciplinary_action" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever been convicted of a felony or misdemeanor other than a minor traffic violation? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="felony_conviction" value="yes"> Yes</label>
+                    <label><input type="radio" name="felony_conviction" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you ever abused alcohol, used illegal drugs, or failed to take legally prescribed drugs? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="substance_abuse" value="yes"> Yes</label>
+                    <label><input type="radio" name="substance_abuse" value="no"> No</label>
+                  </div>
+                </div>
+
+                <hr/>
+
+                <div class="form-group">
+                  <label>Have you incurred or become aware of having a condition that impairs your ability to practice your medical specialty? *</label>
+                  <div class="radio-group">
+                    <label><input type="radio" name="medical_condition" value="yes"> Yes</label>
+                    <label><input type="radio" name="medical_condition" value="no"> No</label>
+                  </div>
+                </div>
+
+              </div>
+
+              <button type="submit" class="cstm-btn-style mr-2">Save</button>
+              <button type="submit" name="save_continue" value="1" class="cstm-btn-style">Save and Continue</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add Experience Modal -->
+    <div class="modal fade" id="experienceModal" tabindex="-1" aria-labelledby="experienceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="experienceModalLabel">Add Work History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Experience Modal -->
+    <div class="modal fade" id="editExperienceModal" tabindex="-1" aria-labelledby="editExperienceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editExperienceModalLabel">Edit Work History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="editExperienceFormContainer">
+                        <!-- The form will be loaded here via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{# == Upload Modal (kept as-is, using your existing form and JS) == #}
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="POST" enctype="multipart/form-data" action="{{ path('app_provider_documents') }}">
+        <div class="modal-header">
+            <h5 class="modal-title" id="uploadModalLabel">Upload Document</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <label>Category</label>
+            <select class="form-select" name="category" id="documentCategory" required>
+            <option value="CV">CV</option>
+            <option value="Work Preference">Work Preference</option>
+            <option value="Insurance">Insurance</option>
+            <option value="Health Assessment">Health Assessment</option>
+            <option value="Risk Assessment">Risk Assessment</option>
+            <option value="References">References</option>
+            <option value="Documents">Documents</option>
+            </select>
+            <div class="mb-3">
+                <label for="name" class="form-label">Document Name</label>
+                <input type="text" class="form-control" name="name" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="fileName" class="form-label">Choose File</label>
+                <input type="file" class="form-control" name="fileName" id="fileName" accept=".pdf,.docx" required>
+                <small class="text-muted">Max upload size 8MB. Only PDF and DOCX allowed.</small>
+            </div>
+            <div class="mb-3">
+                <label for="issueDate" class="form-label">Issue Date</label>
+                <input type="date" class="form-control" name="issueDate" id="issueDate">
+            </div>
+            <div class="mb-3">
+                <label for="expirationDate" class="form-label">Expiration Date</label>
+                <input type="date" class="form-control" name="expirationDate" id="expirationDate">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Education Modal -->
+    <div class="modal fade" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="educationModalLabel">Add Education & Training</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal -->
+    <div class="modal fade" id="editEducationModal" tabindex="-1" aria-labelledby="editEducationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEducationModalLabel">Edit Education & Training</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="editEducationFormContainer">
+                        <!-- Form will be loaded here via AJAX -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    $(".js-datepicker").flatpickr();
+</script>
+
+<script>
+    let clickedButton = null;
+    $(document).ready(function () {
+        // Track which submit button was clicked
+        $('#educationModal button[type=submit]').on('click', function () {
+            clickedButton = $(this);
+        });
+
+        $('#educationModal form').submit(function (e) {
+            var form = $(this)[0]; // Get the native form element
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                form.classList.add('was-validated'); // Apply Bootstrap validation styles
+                return false;
+            }
+
+            e.preventDefault();
+
+            var form = $(this);
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function () {
+                    $('#educationModal').modal('hide');
+
+                    // If save_continue button was clicked and has redirect URL, redirect
+                    if (clickedButton && clickedButton.attr('name') === 'save_continue' && clickedButton.data('redirect-url')) {
+                        window.location.href = clickedButton.data('redirect-url');
+                    } else {
+                        location.reload(); // Normal Save just reloads the page
+                    }
+                },
+                error: function () {
+                    alert("Error occurred while saving.");
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('.edit-education').forEach(button => {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        let educationId = this.dataset.id;
+
+        fetch(`/provider/application/education/${educationId}/edit`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('editEducationFormContainer').innerHTML = data.form;
+
+            // Re-initialize flatpickr for dynamically added date fields
+            $(".js-datepicker").flatpickr();
+
+            // ✅ Show the modal after content is loaded
+            const modal = new bootstrap.Modal(document.getElementById('editEducationModal'));
+            modal.show();
+          })
+          .catch(error => console.error('Error loading form:', error));
+      });
+    });
+</script>
+<script>
+document.getElementById('openAddEducationModal')?.addEventListener('click', function (e) {
+  e.preventDefault();
+  const modal = new bootstrap.Modal(document.getElementById('educationModal'));
+  modal.show();
+});
+</script>
+
+{# == JS: keep setCategory and upload handler; remove previous toggle hide/show code == #}
+<script>
+function setCategory(label) {
+    const map = {
+        'CV Upload': 'CV',
+        'Work Preference': 'Work Preference',
+        'Insurance': 'Insurance',
+        'Health Assessment': 'Health Assessment',
+        'Risk Assessment': 'Risk Assessment',
+        'References': 'References',
+        'Documents': 'Documents'
+    };
+    document.getElementById('documentCategory').value = map[label] || 'Documents';
+}
+
+/* Upload handler preserved */
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('#uploadModal form');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    if (!confirm('Are you sure you want to upload this document?')) return;
+
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Upload failed');
+      return response.text();
+    })
+    .then(() => {
+      alert('Document has been successfully uploaded.');
+      const modalEl = document.getElementById('uploadModal');
+      const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.hide();
+      form.reset();
+    })
+    .catch(error => {
+      alert('Something went wrong: ' + error.message);
+    });
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const dropzone = document.querySelector('.upload-dropzone');
+  const input = document.getElementById('dropzoneInput');
+
+  // Make entire dropzone clickable
+  if (dropzone && input) {
+    dropzone.addEventListener('click', function () {
+      input.click();
+    });
+  }
+});
+
+function handleFileChange(input) {
+  const badge = document.getElementById('fileBadge');
+  const nameText = document.getElementById('fileNameText');
+
+  if (input && input.files.length > 0) {
+    nameText.textContent = input.files[0].name;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function clearFile() {
+  const input = document.getElementById('dropzoneInput');
+  const badge = document.getElementById('fileBadge');
+
+  if (input) input.value = '';
+  if (badge) badge.style.display = 'none';
+}
+</script>
+<script>
+  document.getElementById('toggle-checkmarks').addEventListener('click', function () {
+    document.querySelectorAll('.upload-check').forEach(checkbox => {
+      checkbox.classList.toggle('d-none');
+    });
+  });
+</script>
+<script>
+  const infoView = document.getElementById('infoView');
+  const infoEdit = document.getElementById('infoEdit');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const imageInput = document.getElementById('profileImageInput');
+  const imagePreview = document.getElementById('editProfileImage');
+
+  let originalData = {};
+
+  // Store original values
+  document.querySelectorAll('#infoEdit input, #infoEdit select, #infoEdit textarea').forEach(el => {
+    originalData[el.name] = el.value;
+  });
+
+  // Cancel button logic
+  cancelBtn?.addEventListener('click', () => {
+    document.querySelectorAll('#infoEdit input, #infoEdit select, #infoEdit textarea').forEach(el => {
+      el.value = originalData[el.name] || '';
+    });
+    infoEdit.style.display = 'none';
+    infoView.style.display = 'block';
+
+    document.getElementById('actionIcons').innerHTML = `
+      <a href="javascript:void(0);" id="editToggle" class="link-plain" title="Edit">
+        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+        </svg>
+      </a>
+    `;
+    document.getElementById('editToggle')?.addEventListener('click', switchToEditMode);
+  });
+
+  // Image preview logic
+  imageInput?.addEventListener('change', function () {
+    const file = this.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        imagePreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Edit toggle logic
+  function switchToEditMode() {
+    infoView.style.display = 'none';
+    infoEdit.style.display = 'block';
+  }
+
+  document.getElementById('editToggle')?.addEventListener('click', switchToEditMode);
+</script>
+<script>
+  // Open popup based on data-popup attribute
+  document.querySelectorAll('.open-popup').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+      const popupId = this.dataset.popup;
+      const popup = document.getElementById(`popup-${popupId}`);
+      if (popup) {
+        popup.classList.remove('d-none');
+      }
+    });
+  });
+
+  // Close popup for any .popup-close button
+  document.querySelectorAll('.popup-close').forEach(closeBtn => {
+    closeBtn.addEventListener('click', function () {
+      this.closest('.popup-overlay').classList.add('d-none');
+    });
+  });
+</script>
+<script>
+  function toggleTextarea(id, value) {
+    const textarea = document.getElementById(id);
+    if (textarea) {
+      textarea.style.display = value === 'yes' ? 'block' : 'none';
+      if (value === 'no') textarea.value = '';
+    }
+  }
+
+  // Initialize all explanation fields as hidden if "No" is selected
+  document.addEventListener('DOMContentLoaded', () => {
+    ['substance-abuse-explanation', 'job-related-explanation', 'travel-explanation'].forEach(id => {
+      const textarea = document.getElementById(id);
+      if (textarea) textarea.style.display = 'none';
+    });
+  });
+</script>
+
+{% endblock %}

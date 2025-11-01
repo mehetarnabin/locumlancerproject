@@ -1,0 +1,97 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block provider_body %}
+    <div class="container-xl">
+        <h1 class="app-page-title">Inbox</h1>
+        <div class="message-wrapper">
+            <div class="row">
+                <!-- BEGIN INBOX -->
+                <div class="col-md-12">
+                    <div class="grid email">
+                        <div class="grid-body">
+                            <div class="row">
+                                <!-- BEGIN INBOX MENU -->
+                                <div class="col-md-3">
+                                    <div class="sticky">
+                                        <a class="btn btn-primary d-block w-100" href="{{ path('app_provider_messages_new') }}">
+                                            <i class="fa fa-pencil"></i> New Message
+                                        </a>
+
+                                        <div class="card">
+                                            {#                                            <div class="card-header">#}
+                                            {#                                                <strong>Folders</strong>#}
+                                            {#                                            </div>#}
+                                            <div class="list-group">
+                                                <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
+                                                    <i class="fa fa-inbox"></i>
+                                                    Inbox
+                                                </a>
+                                                <a href="{{ path('app_provider_messages', {'type': 'sent'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == 'sent' %}active{% endif %}">
+                                                    <i class="fa fa-mail-forward"></i>
+                                                    Sent
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END INBOX MENU -->
+
+
+                                <!-- BEGIN INBOX CONTENT -->
+                                <div class="col-md-9">
+                                    <div class="row">
+                                        <div class="col-md-6 search-form">
+                                            <form action="" class="text-right">
+                                                <div class="input-group">
+                                                    <input type="text" name="keyword" class="form-control input-sm"
+                                                           placeholder="Search">
+                                                    <span class="input-group-btn">
+                                                        <button type="submit" class="btn btn-primary btn-sm search"><i class="fa fa-search"></i></button>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tbody>
+                                            {% for message in messages %}
+                                                <tr {% if message.seen %}class="read"{% endif %}>
+                                                    {% if app.request.get('type') == 'sent' %}
+                                                        <td class="name">{{ message.receiver }}</td>
+                                                    {% else %}
+                                                        <td class="name">{{ message.sender }}</td>
+                                                    {% endif %}
+                                                    <td class="subject"> <a href="{{ path('app_provider_message_show', {'id': message.id}) }}">{{ message.text|raw }}</a></td>
+                                                    <td class="time">{{ message.createdAt|time_diff }}</td>
+                                                    <td class="text-nowrap">
+                                                        <a href="{{ path('app_provider_message_delete', {'id': message.id}) }}" onclick="return confirm('Are you sure? Do you want to delete this message?');"><img src="{{ asset('assets/icons/delete.png') }}" class="icon-image" /></a>
+                                                    </td>
+                                                </tr>
+                                            {% else %}
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <p>Messages not found.</p>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% if messages.nbPages > 1 %}
+                                        {{ pagerfanta(messages, 'twitter_bootstrap5') }}
+                                    {% endif %}
+                                </div>
+                                <!-- END INBOX CONTENT -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END INBOX -->
+            </div>
+        </div>
+    </div>
+{% endblock %}

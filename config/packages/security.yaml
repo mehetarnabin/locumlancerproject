@@ -1,0 +1,112 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        hwi_oauth.user.provider:
+            id: hwi_oauth.user.provider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\AppUserAuthenticator
+            entry_point: App\Security\AppUserAuthenticator
+            oauth:
+                resource_owners:
+                    google: "/oauth/check-google"
+                    linkedin: "/oauth/check-linkedin"
+                login_path: /
+                use_forward: false
+                success_handler: App\Security\OAuthSuccessHandler
+                failure_path: /
+                oauth_user_provider:
+                    service: App\Security\OAuthUserProvider
+                provider: hwi_oauth.user.provider
+            logout:
+                path: app_logout
+                # where to redirect after logout
+                target: /
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+                # by default, the feature is enabled by checking a checkbox in the
+                # login form, uncomment the following line to always enable it.
+                #always_remember_me: true
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/employer, roles: ROLE_EMPLOYER }
+        - { path: ^/provider, roles: ROLE_PROVIDER }
+        - { path: ^/admin, roles: [ROLE_MANAGER, ROLE_ACCOUNTING, ROLE_RECEPTION, ROLE_SUPER_ADMIN] }
+
+    role_hierarchy:
+        ROLE_JOB_ADMIN:
+          [ ROLE_JOB_LIST, ROLE_JOB_VIEW, ROLE_JOB_BLOCK ]
+        ROLE_APPLICATION_ADMIN:
+          [ ROLE_APPLICATION_LIST, ROLE_APPLICATION_VIEW ]
+        ROLE_EMPLOYER_ADMIN:
+          [ ROLE_EMPLOYER_LIST, ROLE_EMPLOYER_VIEW, ROLE_EMPLOYER_BLOCK ]
+        ROLE_PROVIDER_ADMIN:
+          [ ROLE_PROVIDER_LIST, ROLE_PROVIDER_VIEW, ROLE_PROVIDER_BLOCK ]
+        ROLE_INVOICE_ADMIN:
+          [ ROLE_INVOICE_LIST, ROLE_INVOICE_VIEW ]
+        ROLE_CASHBACK_ADMIN:
+          [ ROLE_CASHBACK_LIST, ROLE_CASHBACK_VIEW ]
+        ROLE_PROFESSION_ADMIN:
+          [ ROLE_PROFESSION_LIST, ROLE_PROFESSION_VIEW, ROLE_PROFESSION_CREATE, ROLE_PROFESSION_EDIT, ROLE_PROFESSION_DELETE ]
+        ROLE_SPECIALITY_ADMIN:
+          [ ROLE_SPECIALITY_LIST, ROLE_SPECIALITY_VIEW, ROLE_SPECIALITY_CREATE, ROLE_SPECIALITY_EDIT, ROLE_SPECIALITY_DELETE ]
+        ROLE_MESSAGE_ADMIN:
+          [ ROLE_MESSAGE_LIST, ROLE_MESSAGE_VIEW ]
+        ROLE_USER_ADMIN:
+          [ ROLE_USER_LIST, ROLE_USER_VIEW, ROLE_USER_CREATE, ROLE_USER_EDIT, ROLE_USER_DELETE ]
+        ROLE_CONFIG_ADMIN:
+          [ ROLE_GENERAL_SETTING, ROLE_INVOICE_SETTING ]
+        ROLE_ADMIN:
+          [
+              ROLE_JOB_ADMIN,
+              ROLE_EMPLOYER_ADMIN,
+              ROLE_PROVIDER_ADMIN,
+              ROLE_INVOICE_ADMIN,
+              ROLE_CASHBACK_ADMIN,
+              ROLE_PROFESSION_ADMIN,
+              ROLE_SPECIALITY_ADMIN,
+              ROLE_MESSAGE_ADMIN,
+              ROLE_USER_ADMIN,
+              ROLE_CONFIG_ADMIN
+          ]
+        ROLE_SUPER_ADMIN: [ ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
+        ROLE_ACCOUNTING: [ ROLE_INVOICE_ADMIN, ROLE_CASHBACK_ADMIN ]
+        ROLE_MANAGER: [ ROLE_JOB_ADMIN, ROLE_APPLICATION_ADMIN, ROLE_EMPLOYER_ADMIN, ROLE_PROVIDER_ADMIN ]
+        ROLE_RECEPTION: [ROLE_MESSAGE_ADMIN]
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon
