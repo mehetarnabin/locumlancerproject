@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller\Provider;
-
+use App\Entity\Application;
 use App\Form\ProviderApplicationCertificationType;
 use App\Form\ProviderReleaseAuthorizationType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Uid\Uuid;
 
 #[Route('/provider/application')]
 class ApplicationController extends AbstractController
@@ -111,4 +113,44 @@ class ApplicationController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/update-rank', name: 'app_update_application_rank', methods: ['POST'])]
+    public function updateRank(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            if (!isset($data['applicationId'], $data['rank'])) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Invalid request data'
+                ], 400);
+            }
+
+            // Convert string to Uuid object
+            $applicationId = Uuid::fromString($data['applicationId']);
+            $application = $em->getRepository(Application::class)->find($applicationId);
+
+            if (!$application) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            $application->setRank((int)$data['rank']);
+            $em->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Rank updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
 }

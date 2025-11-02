@@ -11,6 +11,8 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity(repositoryClass: BookmarkRepository::class)]
 class Bookmark
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -23,7 +25,10 @@ class Bookmark
     #[ORM\ManyToOne]
     private ?Job $job = null;
 
-    use TimestampableEntity;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $rank = null;
+
+    // --- Getters & Setters ---
 
     public function getId(): ?Uuid
     {
@@ -48,5 +53,16 @@ class Bookmark
     public function setJob(?Job $job): void
     {
         $this->job = $job;
+    }
+
+    public function getRank(): ?int
+    {
+        return $this->rank;
+    }
+
+    public function setRank(int $rank): self
+    {
+        $this->rank = $rank;
+        return $this;
     }
 }

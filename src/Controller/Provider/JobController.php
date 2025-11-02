@@ -376,4 +376,47 @@ class JobController extends AbstractController
         $this->addFlash('error', 'Unable to create review');
         return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
     }
+
+    #[Route('/provider/update-rank', name: 'app_update_rank', methods: ['POST'])]
+    public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepo): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $jobId = $data['jobId'] ?? null;
+        $rank = $data['rank'] ?? null;
+
+        if ($jobId === null || $rank === null) {
+            return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
+        }
+
+        try {
+            // Fetch the Job entity
+            $job = $em->getRepository(Job::class)->find($jobId);
+            if (!$job) {
+                return new JsonResponse(['success' => false, 'error' => 'Job not found'], 404);
+            }
+
+            // Fetch the Bookmark for the current user and job
+            $bookmark = $bookmarkRepo->findOneBy([
+                'job' => $job,
+                'user' => $this->getUser()
+            ]);
+
+            if (!$bookmark) {
+                return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
+            }
+
+            // Update rank
+            $bookmark->setRank((int) $rank);
+            $em->flush();
+
+            return new JsonResponse(['success' => true, 'rank' => $rank]);
+        } catch (\Throwable $e) {
+            // Return full error in JSON for debugging
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ], 500);
+        }
+    }
 }

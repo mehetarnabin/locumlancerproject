@@ -57,6 +57,9 @@ class Application
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Interview $interview = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $rank = null;
+
     use TimestampableEntity;
 
     public function getId(): ?Uuid
@@ -207,4 +210,17 @@ class Application
 
         return $this;
     }
+
+    public function getRank(): ?int
+    {
+        return $this->rank;
+    }
+
+    public function setRank(?int $rank): self
+    {
+        $this->rank = $rank;
+        return $this;
+    }
+
+
 }
