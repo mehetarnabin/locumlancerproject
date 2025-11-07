@@ -119,6 +119,7 @@ class ApplicationController extends AbstractController
     {
         try {
             $data = json_decode($request->getContent(), true);
+
             if (!isset($data['applicationId'], $data['rank'])) {
                 return $this->json([
                     'success' => false,
@@ -126,7 +127,10 @@ class ApplicationController extends AbstractController
                 ], 400);
             }
 
-            // Convert string to Uuid object
+            $rank = floatval($data['rank']);
+            if ($rank < 1) $rank = 1;
+            if ($rank > 10) $rank = 10;
+
             $applicationId = Uuid::fromString($data['applicationId']);
             $application = $em->getRepository(Application::class)->find($applicationId);
 
@@ -137,20 +141,71 @@ class ApplicationController extends AbstractController
                 ], 404);
             }
 
-            $application->setRank((int)$data['rank']);
+            $application->setRank($rank);
             $em->flush();
 
             return $this->json([
                 'success' => true,
-                'message' => 'Rank updated successfully'
+                'message' => 'Rank updated successfully',
+                'rank' => $application->getRank()
             ]);
         } catch (\Exception $e) {
+            // Optional: Log exception here
             return $this->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
+    
+
+   #[Route('/archive/bulk', name: 'app_provider_application_archive_bulk', methods: ['POST'])]
+public function archiveApplicationsJobsBulk(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    try {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data['ids']) || !is_array($data['ids'])) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Please select at least one application to archive.'
+            ], 400);
+        }
+
+        $archivedCount = 0;
+        $applicationRepo = $em->getRepository(Application::class);
+
+        foreach ($data['ids'] as $appIdStr) {
+            $application = $applicationRepo->find($appIdStr); // ✅ no Uuid::fromString()
+
+            if (!$application) {
+                continue;
+            }
+
+            $job = $application->getJob();
+            if (!$job || ($job->getArchived() ?? false)) {
+                continue;
+            }
+
+            $job->setArchived(true);
+            $em->persist($job);
+            $archivedCount++;
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => "$archivedCount job(s) archived successfully."
+        ]);
+    } catch (\Throwable $e) {
+        return $this->json([
+            'success' => false,
+            'message' => 'Server error: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
 
 
 }

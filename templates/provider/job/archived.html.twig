@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h2>Archived Jobs</h2>
+
+{% if bookmarks is empty %}
+    <p>No archived jobs found.</p>
+{% else %}
+<table class="jobs-table">
+    <thead>
+        <tr>
+            <th>Select</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for bookmark in bookmarks %}
+        <tr class="job-row" data-job-id="{{ bookmark.job.id }}">
+            <td><input type="checkbox" class="job-checkbox" data-job-id="{{ bookmark.job.id }}"></td>
+            <td>{{ bookmark.job.title }}</td>
+            <td>{{ bookmark.job.status }}</td>
+            <td>
+                <button class="action-btn delete-btn" data-job-id="{{ bookmark.job.id }}">Delete</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

@@ -20,28 +20,36 @@ class ApplicationRepository extends ServiceEntityRepository
     }
 
     public function getAll($offset, $perPage, $filters)
-    {
-        $qb = $this->createQueryBuilder('a')
-            ->where('1 = 1');
+{
+    $qb = $this->createQueryBuilder('a')
+        ->join('a.job', 'j')                 // ✅ join related Job
+        ->where('1 = 1')
+        ->andWhere('j.archived = 0');        // ✅ exclude archived jobs
 
-        if(!empty($filters['status'])){
-            $qb->andWhere('a.status IN (:status)')->setParameter('status', $filters['status']);
-        }
-        if(!empty($filters['provider'])){
-            $qb->andWhere('a.provider = :provider')->setParameter('provider', $filters['provider'], UuidType::NAME);
-        }
-        if(!empty($filters['employer'])){
-            $qb->andWhere('a.employer = :employer')->setParameter('employer', $filters['employer'], UuidType::NAME);
-        }
-
-        $qb->orderBy('a.id', 'DESC');
-
-        $pagerfanta = new Pagerfanta(new QueryAdapter($qb));
-        $pagerfanta->setMaxPerPage($perPage);
-        $pagerfanta->setCurrentPage($offset);
-
-        return $pagerfanta;
+    if (!empty($filters['status'])) {
+        $qb->andWhere('a.status IN (:status)')
+           ->setParameter('status', $filters['status']);
     }
+
+    if (!empty($filters['provider'])) {
+        $qb->andWhere('a.provider = :provider')
+           ->setParameter('provider', $filters['provider'], UuidType::NAME);
+    }
+
+    if (!empty($filters['employer'])) {
+        $qb->andWhere('a.employer = :employer')
+           ->setParameter('employer', $filters['employer'], UuidType::NAME);
+    }
+
+    $qb->orderBy('a.id', 'DESC');
+
+    $pagerfanta = new Pagerfanta(new QueryAdapter($qb));
+    $pagerfanta->setMaxPerPage($perPage);
+    $pagerfanta->setCurrentPage($offset);
+
+    return $pagerfanta;
+}
+
 
     public function getProviderApplicationStatusCounts($provider): array
     {

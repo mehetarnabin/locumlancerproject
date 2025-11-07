@@ -13,29 +13,43 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 class Job
 {
-    const JOB_STATUS_DRAFT = 'draft';
-    const JOB_STATUS_PUBLISHED = 'published';
-    const JOB_STATUS_PAUSED = 'paused';
-    const JOB_STATUS_CLOSED = 'closed';
+    use TimestampableEntity;
 
+    public const JOB_STATUS_DRAFT = 'draft';
+    public const JOB_STATUS_PUBLISHED = 'published';
+    public const JOB_STATUS_PAUSED = 'paused';
+    public const JOB_STATUS_CLOSED = 'closed';
+
+    // -------------------- Primary Key --------------------
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
+    public function getId(): ?Uuid
+    {
+        return $this->id;
+    }
+
+    // -------------------- Relations --------------------
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Employer::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Employer $employer = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Profession::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Profession $profession = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Speciality::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Speciality $speciality = null;
 
+    // -------------------- Fields --------------------
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
@@ -89,7 +103,7 @@ class Job
     private ?int $payRateDaily = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $blocked = false;
+    private ?bool $blocked = false;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $jobId = null;
@@ -97,40 +111,15 @@ class Job
     #[ORM\Column(nullable: true)]
     private ?bool $verified = null;
 
-    use TimestampableEntity;
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $archived = false;
+    
 
-    public function __toString()
+    // -------------------- Getters & Setters --------------------
+
+    public function __toString(): string
     {
-        return $this->title;
-    }
-
-    public function getId(): ?Uuid
-    {
-        return $this->id;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): static
-    {
-        $this->description = $description;
-
-        return $this;
+        return (string) $this->title;
     }
 
     public function getUser(): ?User
@@ -141,7 +130,6 @@ class Job
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -153,7 +141,6 @@ class Job
     public function setEmployer(?Employer $employer): static
     {
         $this->employer = $employer;
-
         return $this;
     }
 
@@ -177,6 +164,28 @@ class Job
         $this->speciality = $speciality;
     }
 
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
     public function getStatus(): ?string
     {
         return $this->status;
@@ -195,7 +204,6 @@ class Job
     public function setCountry(string $country): static
     {
         $this->country = $country;
-
         return $this;
     }
 
@@ -207,7 +215,6 @@ class Job
     public function setState(?string $state): static
     {
         $this->state = $state;
-
         return $this;
     }
 
@@ -219,7 +226,6 @@ class Job
     public function setCity(?string $city): static
     {
         $this->city = $city;
-
         return $this;
     }
 
@@ -231,7 +237,6 @@ class Job
     public function setStreetAddress(?string $streetAddress): static
     {
         $this->streetAddress = $streetAddress;
-
         return $this;
     }
 
@@ -243,7 +248,6 @@ class Job
     public function setExpirationDate(?\DateTimeInterface $expirationDate): static
     {
         $this->expirationDate = $expirationDate;
-
         return $this;
     }
 
@@ -252,10 +256,9 @@ class Job
         return $this->highlight;
     }
 
-    public function setHighlight(string $highlight): static
+    public function setHighlight(?string $highlight): static
     {
         $this->highlight = $highlight;
-
         return $this;
     }
 
@@ -267,7 +270,6 @@ class Job
     public function setSchedule(?string $schedule): static
     {
         $this->schedule = $schedule;
-
         return $this;
     }
 
@@ -279,7 +281,6 @@ class Job
     public function setStartDate(?\DateTimeInterface $startDate): static
     {
         $this->startDate = $startDate;
-
         return $this;
     }
 
@@ -291,13 +292,17 @@ class Job
     public function setYearOfExperience(?int $yearOfExperience): static
     {
         $this->yearOfExperience = $yearOfExperience;
-
         return $this;
     }
 
     public function getPayRate(): ?string
     {
         return $this->payRate;
+    }
+
+    public function setPayRate(?string $payRate): void
+    {
+        $this->payRate = $payRate;
     }
 
     public function getWorkType(): ?string
@@ -318,11 +323,6 @@ class Job
     public function setNeed(?string $need): void
     {
         $this->need = $need;
-    }
-
-    public function setPayRate(?string $payRate): void
-    {
-        $this->payRate = $payRate;
     }
 
     public function getPayRateHourly(): ?int
@@ -373,7 +373,22 @@ class Job
     public function setVerified(?bool $verified): static
     {
         $this->verified = $verified;
-
         return $this;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(bool $archived): self
+    {
+        $this->archived = $archived;
+        return $this;
+    }
+
+    public function getArchived(): bool
+    {
+        return $this->archived;
     }
 }

@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Component\Uid\Uuid;
 
 #[Route('/provider')]
 class JobController extends AbstractController
@@ -87,7 +88,16 @@ class JobController extends AbstractController
         $user = $this->getUser();
         $provider = $user->getProvider();
         
-        $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
+        // $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
+        $bookmarks = $bookmarkRepository->createQueryBuilder('b')
+            ->join('b.job', 'j')
+            ->where('b.user = :user')
+            ->andWhere('j.archived = 0')
+            ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
+            ->orderBy('b.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
         $messages = $em->getRepository(Message::class)->findBy(['receiver' => $user], ['id' => 'DESC'], 10);
         $notifications = $em->getRepository(Notification::class)->findBy(['user' => $user], ['id' => 'DESC'], 5);
 
@@ -110,7 +120,10 @@ class JobController extends AbstractController
             $matchingJobs = null;
         }
 
-        $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
+        // $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
+        $applications = $em->getRepository(Application::class)
+                   ->findBy(['provider' => $this->getUser()->getProvider(), 'archived' => false], ['createdAt' => 'DESC']);
+
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
         $statusCounts[] = [
             'status' => 'saved',
@@ -377,46 +390,220 @@ class JobController extends AbstractController
         return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
     }
 
-    #[Route('/provider/update-rank', name: 'app_update_rank', methods: ['POST'])]
-    public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepo): JsonResponse
+    #[Route('/update-rank', name: 'app_update_rank', methods: ['POST'])]
+    public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
     {
+        // Parse JSON body
         $data = json_decode($request->getContent(), true);
         $jobId = $data['jobId'] ?? null;
         $rank = $data['rank'] ?? null;
 
-        if ($jobId === null || $rank === null) {
+        if (!$jobId || $rank === null) {
             return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
         }
 
+        // Find user’s bookmark for this job
+        $bookmark = $bookmarkRepository->findOneBy([
+            'job' => $jobId,
+            'user' => $this->getUser(),
+        ]);
+
+        if (!$bookmark) {
+            return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
+        }
+
+        // Update and save
+        $bookmark->setRank((float)$rank);
+        $em->persist($bookmark);
+        $em->flush();
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
+    public function jobDetailContent($id, EntityManagerInterface $em): Response
+    {
         try {
-            // Fetch the Job entity
-            $job = $em->getRepository(Job::class)->find($jobId);
+            // Validate UUID
+            if (!Uuid::isValid($id)) {
+                return new Response(
+                    '<div class="alert alert-danger">Invalid job ID format</div>',
+                    400
+                );
+            }
+
+            // Find the job
+            $job = $em->getRepository(Job::class)->find($id);
+            
             if (!$job) {
-                return new JsonResponse(['success' => false, 'error' => 'Job not found'], 404);
+                return new Response(
+                    '<div class="alert alert-danger">Job not found</div>',
+                    404
+                );
             }
 
-            // Fetch the Bookmark for the current user and job
-            $bookmark = $bookmarkRepo->findOneBy([
+            // Get applied jobs IDs
+            $appliedJobsIds = $this->getAppliedJobsIds($em);
+
+            return $this->render('provider/job/_job_detail_content.html.twig', [
                 'job' => $job,
-                'user' => $this->getUser()
+                'appliedJobsIds' => $appliedJobsIds
             ]);
-
-            if (!$bookmark) {
-                return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
-            }
-
-            // Update rank
-            $bookmark->setRank((int) $rank);
-            $em->flush();
-
-            return new JsonResponse(['success' => true, 'rank' => $rank]);
-        } catch (\Throwable $e) {
-            // Return full error in JSON for debugging
-            return new JsonResponse([
-                'success' => false,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ], 500);
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            error_log('Job detail content error: ' . $e->getMessage());
+            
+            return new Response(
+                '<div class="alert alert-danger">Error loading job details. Please try again.</div>',
+                500
+            );
         }
     }
+
+    private function getAppliedJobsIds(EntityManagerInterface $em): array
+    {
+        try {
+            $user = $this->getUser();
+            if (!$user || !$user->getProvider()) {
+                return [];
+            }
+
+            $applications = $em->getRepository(Application::class)
+                ->findBy(['provider' => $user->getProvider()]);
+
+            $appliedJobsIds = [];
+            foreach ($applications as $application) {
+                $job = $application->getJob();
+                if ($job && $job->getId()) {
+                    $appliedJobsIds[] = (string) $job->getId();
+                }
+            }
+
+            return $appliedJobsIds;
+        } catch (\Exception $e) {
+            // Return empty array and log the error
+            error_log('Error in getAppliedJobsIds: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    
+    #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
+public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
+    $ids = $data['ids'] ?? [];
+
+    if (empty($ids)) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'No job IDs provided.'
+        ], 400);
+    }
+
+    $repo = $em->getRepository(Job::class);
+    $updated = 0;
+
+    foreach ($ids as $idStr) {
+        try {
+            $uuid = Uuid::fromString($idStr);
+            $job = $repo->find($uuid);
+            if ($job) {
+                $job->setArchived(true);
+                $updated++;
+            }
+        } catch (\Throwable $e) {
+            // invalid UUID or other issue, skip
+            continue;
+        }
+    }
+
+    $em->flush();
+    $em->clear();
+
+    return new JsonResponse([
+        'success' => true,
+        'message' => "$updated job(s) archived successfully."
+    ]);
+}
+
+
+
+
+    
+    #[Route('/jobs/archived', name: 'app_provider_jobs_archived')]
+public function archivedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
+{
+    $user = $this->getUser();
+    $provider = $user->getProvider();
+
+   $bookmarks = $bookmarkRepository->createQueryBuilder('b')
+    ->join('b.job', 'j')
+    ->where('b.user = :user')
+    ->andWhere('j.archived = false') // <- use false instead of 0
+    ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
+    ->orderBy('b.id', 'DESC')
+    ->getQuery()
+    ->getResult();
+
+
+    // Fetch applications for the provider (optional, for status counts)
+    $applications = $applicationRepository->findBy(['provider' => $provider], ['id' => 'DESC']);
+
+    $appliedJobsIds = [];
+    foreach ($applications as $application) {
+        $appliedJobsIds[] = (string) $application->getJob()->getId();
+    }
+
+    return $this->render('provider/job/archived.html.twig', [
+        'bookmarks' => $bookmarks,
+        'appliedJobsIds' => $appliedJobsIds,
+    ]);
+}
+
+#[Route('/jobs/export', name: 'app_provider_jobs_export')]
+public function exportJobs(Request $request, BookmarkRepository $bookmarkRepository): Response
+{
+    $page = $request->query->get('page'); // e.g., "archived" or null
+
+    $qb = $bookmarkRepository->createQueryBuilder('b')
+        ->join('b.job', 'j')
+        ->where('b.user = :user')
+        ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
+        ->orderBy('b.id', 'DESC');
+
+    if ($page === 'archived') {
+        $qb->andWhere('j.archived = 1');
+    } else {
+        $qb->andWhere('j.archived = 0');
+    }
+
+    $bookmarks = $qb->getQuery()->getResult();
+
+    $csv = "Job,Location,Posted on,Expires on,Salary(Hourly),Rank\n";
+
+    foreach ($bookmarks as $bookmark) {
+        $job = $bookmark->getJob();
+        $csv .= sprintf(
+            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+            $job->getTitle() ?: '',
+            $job->getCity() ?: '',
+            $job->getCreatedAt() ? $job->getCreatedAt()->format('m/d/Y') : '',
+            $job->getExpirationDate() ? $job->getExpirationDate()->format('m/d/Y') : '',
+            $job->getPayRateHourly() ?: '',
+            $bookmark->getRank() ?: ''
+        );
+    }
+
+    return new Response($csv, 200, [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="jobs.csv"',
+    ]);
+}
+
+
+
+    
+
 }
