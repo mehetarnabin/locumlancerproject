@@ -762,7 +762,7 @@
             {% set job = application.job %}
             <div class="d-flex align-items-center job-lists">
             <div class="job-row d-flex align-items-center flex-grow-1 gap-2" style="min-width: 1320px;">
-                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
+                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                     <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
                 </div>
                 <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
@@ -777,9 +777,9 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">{{ job.state }}</div>
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">{{ job.payRateHourly }}</div>
-                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
+                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
+                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.payRateHourly }}</div>
+                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
                     <select class="category-select" data-job-id="{{ job.id }}" style="width: 100%; padding: 6px 10px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 16px;">
                       <option value="locums">Locums</option>
                       <option value="part-time">Part-time job</option>
@@ -788,11 +788,11 @@
                 </div>
                 {% if app.request.get('status') not in ['interview', 'hired', 'completed'] %}
                 {% if application.status == 'applied' %}
-                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">{{ application.createdAt|date('m/d/Y') }}</div>
+                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ application.createdAt|date('m/d/Y') }}</div>
                 {% else %}
-                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">—</div>
+                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">—</div>
                 {% endif %}
-                <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">
+                <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
   <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 18px;">
     {{ application.rank is not null ? application.rank ~ '/10' : '—' }}
   </span>
@@ -810,18 +810,18 @@
                 {% endif %}
                 {% if app.request.get('status') not in ['applied', 'hired', 'completed'] %}
                 {% if application.status == 'interview' %}
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">
+                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
                     <span class="badge badge-pill" style="font-size: 18px;">
                     To Do Actions
                     </span>
                 </div>
-                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">06/14/2025</div>
+                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">06/14/2025</div>
                 {% else %}
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">—</div>
-                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; text-align: center; padding: 0 8px; box-sizing: border-box;">—</div>
+                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">—</div>
+                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">—</div>
                 {% endif %}
                 {% endif %}
-                <div class="col-start col-center" style="width: 140px; flex-shrink: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 8px; box-sizing: border-box;">
+                <div class="col-start col-center" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                     <span style="display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         {{ application.status | replace({'_': ' '}) | title }}
                     </span>
