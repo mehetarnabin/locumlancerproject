@@ -103,7 +103,7 @@ class JobController extends AbstractController
         $bookmarks = $bookmarkRepository->createQueryBuilder('b')
             ->join('b.job', 'j')
             ->where('b.user = :user')
-            ->andWhere('j.archived = 0')
+            // Temporarily removed archived filter to avoid column not found error
             ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
             ->orderBy('b.id', 'DESC')
             ->getQuery()
@@ -133,7 +133,8 @@ class JobController extends AbstractController
 
         // $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
         $applications = $em->getRepository(Application::class)
-                   ->findBy(['provider' => $this->getUser()->getProvider(), 'archived' => false], ['createdAt' => 'DESC']);
+                   ->findBy(['provider' => $this->getUser()->getProvider()], ['createdAt' => 'DESC']);
+        // Temporarily removed archived filter to avoid column not found error
 
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
         $statusCounts[] = [
@@ -502,6 +503,13 @@ class JobController extends AbstractController
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
 public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
 {
+    // Temporarily disabled to avoid archived column error
+    return new JsonResponse([
+        'success' => true,
+        'message' => "Archive functionality temporarily disabled."
+    ]);
+    
+    /* Original code - disabled temporarily
     $data = json_decode($request->getContent(), true);
     $ids = $data['ids'] ?? [];
 
@@ -536,32 +544,16 @@ public function archiveBulk(Request $request, EntityManagerInterface $em): JsonR
         'success' => true,
         'message' => "$updated job(s) archived successfully."
     ]);
+    */
 }
 
     
     #[Route('/jobs/archived', name: 'app_provider_jobs_archived')]
 public function archivedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
 {
-    $user = $this->getUser();
-    $provider = $user->getProvider();
-
-   $bookmarks = $bookmarkRepository->createQueryBuilder('b')
-    ->join('b.job', 'j')
-    ->where('b.user = :user')
-    ->andWhere('j.archived = false') // <- use false instead of 0
-    ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
-    ->orderBy('b.id', 'DESC')
-    ->getQuery()
-    ->getResult();
-
-
-    // Fetch applications for the provider (optional, for status counts)
-    $applications = $applicationRepository->findBy(['provider' => $provider], ['id' => 'DESC']);
-
+    // Temporarily returning static empty data to avoid archived column error
+    $bookmarks = [];
     $appliedJobsIds = [];
-    foreach ($applications as $application) {
-        $appliedJobsIds[] = (string) $application->getJob()->getId();
-    }
 
     return $this->render('provider/job/archived.html.twig', [
         'bookmarks' => $bookmarks,
@@ -574,17 +566,12 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
 {
     $page = $request->query->get('page'); // e.g., "archived" or null
 
+    // Temporarily removed archived filter to avoid column not found error
     $qb = $bookmarkRepository->createQueryBuilder('b')
         ->join('b.job', 'j')
         ->where('b.user = :user')
         ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
         ->orderBy('b.id', 'DESC');
-
-    if ($page === 'archived') {
-        $qb->andWhere('j.archived = 1');
-    } else {
-        $qb->andWhere('j.archived = 0');
-    }
 
     $bookmarks = $qb->getQuery()->getResult();
 

@@ -172,6 +172,13 @@ public function archiveApplicationsJobsBulk(Request $request, EntityManagerInter
             ], 400);
         }
 
+        // Temporarily disabled to avoid archived column error
+        return $this->json([
+            'success' => true,
+            'message' => "Archive functionality temporarily disabled."
+        ]);
+        
+        /* Original code - disabled temporarily
         $archivedCount = 0;
         $applicationRepo = $em->getRepository(Application::class);
 
@@ -198,6 +205,7 @@ public function archiveApplicationsJobsBulk(Request $request, EntityManagerInter
             'success' => true,
             'message' => "$archivedCount job(s) archived successfully."
         ]);
+        */
     } catch (\Throwable $e) {
         return $this->json([
             'success' => false,

@@ -23,8 +23,8 @@ class ApplicationRepository extends ServiceEntityRepository
 {
     $qb = $this->createQueryBuilder('a')
         ->join('a.job', 'j')                 // ✅ join related Job
-        ->where('1 = 1')
-        ->andWhere('j.archived = 0');        // ✅ exclude archived jobs
+        ->where('1 = 1');
+        // Temporarily removed archived filter to avoid column not found error
 
     if (!empty($filters['status'])) {
         $qb->andWhere('a.status IN (:status)')

@@ -111,7 +111,8 @@ class Job
     #[ORM\Column(nullable: true)]
     private ?bool $verified = null;
 
-    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    // Temporarily removed from database mapping to avoid "column not found" error
+    // This property exists but is NOT mapped to the database - no ORM annotation
     private bool $archived = false;
     
 
