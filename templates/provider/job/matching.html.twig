@@ -329,17 +329,17 @@
                     <path id="Vector" d="M12 11V16M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12.0498 8V8.1L11.9502 8.1002V8H12.0498Z" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </g>
                     </svg> Quick Tour</div>
-                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
                     <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
                     <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg> Archived Jobs</div>
+                    </svg> Archived Jobs</a>
                   <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg> Export Report</div>
-                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div class="menu-item" id="download-data-btn" style="cursor: pointer;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -370,7 +370,6 @@
                         <div class="col-start col-center flex-grow-1">Posted on</div>
                         <div class="col-expiry col-center flex-grow-1">Expires on</div>
                         <div class="col-start col-center flex-grow-1">Salary(Hourly)</div>
-                        <div class="col-start col-center flex-grow-1">% Matched</div>
                         <div class="col-start col-center col-rank flex-grow-1">Rank</div>
                     </div>
                 </div>
@@ -400,7 +399,6 @@
                 <div class="col-start col-center flex-grow-1">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
                 <div class="col-expiry col-center flex-grow-1">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
                 <div class="col-start col-center flex-grow-1">{{ job.payRateHourly }}</div>
-                <div class="col-start col-center flex-grow-1">50%</div>
                 <div class="col-start col-center col-rank flex-grow-1">1</div>
                 {#<div class="col-action d-flex gap-2 justify-content-end" style="width: 150px; visibility: hidden;">
                     {% if job.id|striptags not in appliedJobsIds %}
@@ -592,5 +590,34 @@
       console.log('Deleting jobs:', selectedIds);
     });
   });
+</script>
+
+<script>
+// Download Data button handler
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadDataBtn = document.getElementById('download-data-btn');
+    if (downloadDataBtn) {
+        downloadDataBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Show loading state
+            const originalText = downloadDataBtn.innerHTML;
+            downloadDataBtn.innerHTML = '<span>Downloading...</span>';
+            downloadDataBtn.style.opacity = '0.6';
+            downloadDataBtn.style.pointerEvents = 'none';
+            
+            // Trigger download with page type
+            window.location.href = '{{ path("app_provider_download_data", {"type": "matching"}) }}';
+            
+            // Reset button after a delay
+            setTimeout(function() {
+                downloadDataBtn.innerHTML = originalText;
+                downloadDataBtn.style.opacity = '1';
+                downloadDataBtn.style.pointerEvents = 'auto';
+            }, 2000);
+        });
+    }
+});
 </script>
 {% endblock %}

@@ -30,15 +30,16 @@
     border: 1px solid #e6eef6;
     height: 48px;
     margin-bottom: 2px;
+    font-size: 18px;
 }
 .job-row {
     border: none;
-    padding: 12px 14px;
+    padding: 20px 14px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin: 2px 0;
-    font-size: 14px;
+    align-items: center;
+    margin: 4px 0;
+    font-size: 18px;
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
@@ -192,12 +193,56 @@
   transform: rotate(45deg);
 }
 
+/* Consistent rounded-square style for all job list checkboxes */
+.job-list-container input[type="checkbox"].job-check,
+.split-job-list input[type="checkbox"].job-checkbox,
+#select-all-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cfd9e3;
+  border-radius: 6px; /* rounded square */
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.job-list-container input[type="checkbox"].job-check:checked,
+.split-job-list input[type="checkbox"].job-checkbox:checked,
+#select-all-checkbox:checked {
+  background-color: #47ddff;
+  border-color: #47ddff;
+}
+
+.job-list-container input[type="checkbox"].job-check:checked::after,
+.split-job-list input[type="checkbox"].job-checkbox:checked::after,
+#select-all-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Remove previous scale that distorted shape */
+.job-check { transform: none; margin-right: 8px; }
+
 .job-title {
     color: #121C0C;
+    font-size: 20px;
 }
 
 .action-btn {
-    background: #F4F9F1;
+    // background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
@@ -338,12 +383,75 @@
     background-color: #ADF0FF;
 }
 .sort-toggle {
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 2px;
   margin-left: 6px;
-  transition: transform 0.2s ease;
-}
-.sort-toggle svg {
   vertical-align: middle;
+  position: relative;
+  top: 1px; /* nudges to visually center with text */
+}
+.sort-toggle svg { width: 10px; height: 10px; }
+.sort-toggle .arrow { opacity: 0.35; transition: opacity 0.15s ease; }
+.sort-toggle .arrow.active { opacity: 1; }
+
+.actions-container {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Ensure header and row cells vertically align */
+.job-header > div,
+.job-row > div {
+  display: flex;
+  align-items: center;
+    box-sizing: border-box;
+  padding: 0 8px; /* consistent horizontal padding for alignment */
+}
+
+/* Center content for numeric/text columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center { justify-content: center; }
+
+.job-actions-left {
+  justify-self: start;
+}
+
+.job-actions-middle {
+  justify-self: center;
+}
+
+.col-dropdowns {
+  justify-self: end;
+}
+
+.table-responsive-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb {
+  background: #85BB65;
+  border-radius: 10px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #6fa852;
 }
 </style>
 
@@ -410,8 +518,15 @@
             </div>
         </div>
 
-        <div class="actions-container d-flex justify-content-between align-items-center ml-15-px mr-15-px">
-            <div class="job-actions" style="display: flex; gap: 8px; align-items: center;">
+        <div class="actions-container ml-15-px mr-15-px">
+            <!-- Left Group: Filter, Notify of hire, Email, Apply -->
+            <div class="job-actions-left" style="display: flex; gap: 8px; align-items: center;">
+              <button id="filter-btn" class="action-btn" title="Filter" style="flex-shrink: 0;">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Filter
+              </button>
               <button id="save-btn" class="action-btn" title="Save">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -420,7 +535,19 @@
                 <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg> Notify of hire
               </button>
-              <button id="apply-btn" class="action-btn" disabled title="Apply">
+              <button id="email-btn" class="action-btn" title="Email" style="margin-left: 8px;">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="style=stroke">
+                <g id="email">
+                <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
+                <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
+                </g>
+                </g>
+                <use xlink:href="#icon-email"/>
+                </svg> Email
+              </button>
+              
+              <button id="apply-btn" class="action-btn" disabled title="Apply" style="display: none;">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
                 <g data-name="checkmark-circle">
@@ -432,16 +559,17 @@
                 <use xlink:href="#icon-apply"/>
                 </svg> Apply
               </button>
-              <button id="email-btn" class="action-btn" title="Email">
+            </div>
+            
+            <!-- Middle Group: Archive, Delete -->
+            <div class="job-actions-middle" style="display: flex; gap: 8px; align-items: center;">
+              <button id="archive-btn" class="action-btn" title="Archive">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g id="style=stroke">
-                <g id="email">
-                <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
-                <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
-                </g>
-                </g>
-                <use xlink:href="#icon-email"/>
-                </svg> Email
+                <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
+                <use xlink:href="#icon-archive"/>
+                </svg> Archive
               </button>
               <button id="delete-btn" class="action-btn" title="Delete">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -453,18 +581,38 @@
                 <use xlink:href="#icon-delete"/>
                 </svg> Delete
               </button>
-              <button id="archive-btn" class="action-btn" title="Archive">
-                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
-                <use xlink:href="#icon-archive"/>
-                </svg> Archive
-              </button>
             </div>
+            
+            <!-- Right Group: Note, Grid View, New Window, Menu -->
             <div class="col-dropdowns d-flex gap-2">
+              <button id="note-btn" class="action-btn d-none" title="Add Note" onclick="handleNoteClick()" style="display: none;">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Sticky note with pencil icon -->
+                  <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Note
+              </button>
+              <button id="grid-view-btn" class="action-btn" title="Split View">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Split View
+              </button>
+              <button id="float-view-btn" class="action-btn" title="Open in New Window">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 21H3V3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 11L21 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                New Window
+            </button>
               <!-- Columns Dropdown -->
-              <div class="columns-dropdown position-relative">
+              <div class="columns-dropdown position-relative" style = "display: none;">
                 <button type="button" class="columns-dropdown-btn dropdown-cstm"><span>Columns</span></button>
                 <div class="dropdown-panel columns-panel custom-dropdown hidden">
                   <label><input type="checkbox" value="salary"> Salary</label>
@@ -472,7 +620,7 @@
                   <label><input type="checkbox" value="date-posted"> Date Posted</label>
                   <label><input type="checkbox" value="deadline"> Deadline</label>
                   <label><input type="checkbox" value="date-applied"> Date Applied</label>
-                  <label><input type="checkbox" value="excitement"> Rank</label>
+                  <label><input type="checkbox" value="excitement"> Score</label>
                 </div>
               </div>
 
@@ -485,17 +633,17 @@
                     <path id="Vector" d="M12 11V16M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12.0498 8V8.1L11.9502 8.1002V8H12.0498Z" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </g>
                     </svg> Quick Tour</div>
-                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
                     <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
                     <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg> Archived Jobs</div>
+                    </svg> Archived Jobs</a>
                   <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg> Export Report</div>
-                  <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div class="menu-item" id="download-data-btn" style="cursor: pointer;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -507,39 +655,26 @@
 
         {% if bookmarks|length > 0 %}
         <div class="job-list-container bg-light p-3 rounded-3">
+          <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
           <div class="d-flex align-items-center job-lists">
-            <div class="d-flex align-items-center flex-grow-1">
-              <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
-                <div class="col-check" style="width: 25px;">
+            <div class="d-flex align-items-center flex-grow-1" style="min-width: 1320px;">
+              <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1" style="min-width: 1320px;">
+                <div class="col-check" style="width: 30px; flex-shrink: 0;">
                   <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
                 </div>
-                <div class="col-job flex-grow-2 sortable" data-sort="job">Job<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center flex-grow-1 sortable" data-sort="location">Location<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center flex-grow-1 sortable" data-sort="posted">Posted on<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-start col-center sortable" data-sort="posted" style="width: 100px; flex-shrink: 0;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-expiry col-center flex-grow-1 sortable" data-sort="expires">Expires on<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-expiry col-center sortable" data-sort="expires" style="width: 100px; flex-shrink: 0;">Expires on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center flex-grow-1 sortable" data-sort="salary">Salary(Hourly)<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-start col-center sortable" data-sort="salary" style="width: 80px; flex-shrink: 0;">Salary(Hourly)<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center flex-grow-1 sortable" data-sort="match">% Matched<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center col-rank flex-grow-1 sortable" data-sort="rank">Rank<span class="sort-toggle"><svg class="sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg></span>
+                <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"><span style="font-size: 16px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
               </div>
             </div>
@@ -548,41 +683,54 @@
           {% for bookmark in bookmarks %}
             {% set job = bookmark.job %}
             <div class="d-flex align-items-center job-lists">
-              <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
-                <div class="col-check" style="width: 25px;">
+              <div class="job-row d-flex align-items-center flex-grow-1 gap-2" style="min-width: 1320px;">
+                <div class="col-check" style="width: 30px; flex-shrink: 0;">
                   <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
                 </div>
-                <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
+                <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0;">
                   <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
                     alt="Logo"
-                    style="width: 40px; height: 40px; border-radius: 8px;" />
-                  <div class="flex-grow-2">
+                    style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;" />
+                  <div style="min-width: 0; overflow: hidden;">
                     <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
-                      href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}">
+                      href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}"
+                      style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                         {{ job.title }}
                     </a>
                   </div>
                   </div>
-                  <div class="col-start col-center flex-grow-1">{{ job.state }}</div>
-                  <div class="col-start col-center flex-grow-1">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
-                  <div class="col-expiry col-center flex-grow-1">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
-                  <div class="col-start col-center flex-grow-1">{{ job.payRateHourly }}</div>
-                  <div class="col-start col-center flex-grow-1">50%</div>
-                  <div class="col-start col-center col-rank flex-grow-1">
-                    <span class="rank-display" data-job-id="{{ job.id }}">
-                      {{ bookmark.rank is not null ? bookmark.rank : loop.index }}
+                  <div class="col-start col-center" style="width: 100px; flex-shrink: 0; text-align: center;">{{ job.state }}</div>
+                  <div class="col-start col-center" style="width: 100px; flex-shrink: 0; text-align: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '—' }}</div>
+                  <div class="col-expiry col-center" style="width: 100px; flex-shrink: 0; text-align: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '—' }}</div>
+                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; text-align: center;">{{ job.payRateHourly }}</div>
+                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0;">
+                    <select class="category-select" data-job-id="{{ job.id }}" style="width: 100%; padding: 6px 10px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 16px;">
+                      <option value="locums">Locums</option>
+                      <option value="part-time">Part-time job</option>
+                      <option value="full-time">Full-time job</option>
+                    </select>
+                  </div>
+                  <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; text-align: center;">
+                    <span class="rank-display" data-job-id="{{ job.id }}" style="font-size: 16px;">
+                      {{ bookmark.rank is not null ? bookmark.rank ~ '/10' : '—' }}
                     </span>
-                    <input type="number"
+                    <input
+                      type="number"
                       class="rank-input hidden"
-                      value="{{ bookmark.rank is not null ? bookmark.rank : loop.index }}"
+                      value="{{ bookmark.rank is not null ? bookmark.rank : '' }}"
                       min="1"
-                      step="1"
+                      max="10"
+                      step="0.5"
                       data-job-id="{{ job.id }}"
-                      style="width: 45px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px;" />
+                      data-original-value="{{ bookmark.rank is not null ? bookmark.rank : '' }}"
+                      style="width: 60px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px; font-size: 16px;"
+                      oninput="if (this.value > 10) this.value = 10; if (this.value < 1) this.value = 1;"
+                    />
                   </div>
                 </div>
             </div>
           {% endfor %}
+          </div>
         </div>
         {% else %}
             <p class="mb-0">Saved jobs not found.</p>
@@ -596,7 +744,7 @@
                 <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
-              <button id="apply-btn" class="action-btn" disabled title="Apply">
+              <button id="apply-btn" class="action-btn" disabled title="Apply" style="display: none;">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
                 <g data-name="checkmark-circle">
@@ -619,6 +767,7 @@
                 <use xlink:href="#icon-email"/>
                 </svg>
               </button>
+              
               <button id="delete-btn" class="action-btn" title="Delete">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -635,18 +784,647 @@
                 <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
                 <use xlink:href="#icon-archive"/>
-                </svg>
+                </svg> Archive
               </button>
         </div>
-    </div>
-</div>
 
+        <!-- Split View Container -->
+        <div class="split-view-container" id="split-view-container">
+            <button class="list-toggle-btn" id="list-toggle-btn" style="display: none;" title="Toggle job list">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <!-- Left Side: Job List -->
+            <div class="split-job-list" id="split-job-list">
+                <button id="list-collapse-btn" class="list-collapse-toggle" title="Collapse/Expand Job List">
+                    <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                {% for bookmark in bookmarks %}
+                    {% set job = bookmark.job %}
+                    <div class="split-job-card" data-job-id="{{ job.id }}">
+                        <div class="split-job-card-header">
+                            <input type="checkbox" class="job-checkbox" data-job-id="{{ job.id }}" style="margin-top: 2px;">
+                            <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}" 
+                                alt="Logo" class="split-job-card-logo">
+                            <div class="flex-grow-1">
+                                <div class="split-job-card-title">{{ job.title }}</div>
+                                <div class="split-job-card-company">{{ job.companyName|default('Company') }}</div>
+                            </div>
+                        </div>
+                        <div class="split-job-summary">
+                            <div class="split-job-summary-item">
+                                <span class="split-job-meta-label">Match:</span>
+                                <span class="split-job-meta-value">50%</span>
+                            </div>
+                            <div class="split-job-summary-item">
+                                <span class="split-job-meta-label">Score:</span>
+                                <span class="split-job-meta-value">{{ bookmark.rank is not null ? bookmark.rank : loop.index }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="split-job-card-meta">
+                            {# Category removed from left card per request #}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Right Side: Job Details -->
+            <div class="split-job-details" id="split-job-details">
+                <button id="detail-note-btn" class="action-btn" title="Add Note" style="position: absolute; top: 10px; right: 10px; display: none; cursor: pointer;">
+                  <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Note
+                </button>
+                <div class="no-job-selected">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h4>Select a job to view details</h4>
+                    <p>Click on any job from the list to see its full details here.</p>
+                </div>
+                
+                <!-- Job details will be dynamically loaded here -->
+                <div id="job-detail-content" style="display: none;"></div>
+                
+                <!-- Notes Drawer -->
+                <aside id="notes-panel" class="notes-panel" aria-hidden="true">
+                  <div class="notes-panel-header">
+                    <span>Notes</span>
+                    <button type="button" class="notes-panel-close" onclick="closeNotesPanel()">×</button>
+                  </div>
+                  <div class="notes-panel-body">
+                    <div class="notes-title">
+                      <h6>Add notes for this job</h6>
+                      <p class="text-muted">Your notes are saved automatically and only visible to you.</p>
+                    </div>
+                    <textarea id="notes-textarea" class="notes-textarea" placeholder="Write your notes here..."></textarea>
+                    <div class="notes-footer">
+                      <div class="last-saved" style="display: none;">
+                        Last saved <span class="last-saved-time"></span>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Email Template Modals -->
+  <div id="email-modal-overlay" class="email-modal-overlay" style="display:none;"></div>
+  <div id="email-template-1-modal" class="email-modal" aria-hidden="true" style="display:none;">
+    <div class="email-modal-header">
+      <h5>Email Template: Intro/Referral</h5>
+      <button class="email-modal-close" data-close>&times;</button>
+    </div>
+    <div class="email-modal-body">
+      <label>Subject</label>
+      <input id="email-t1-subject" type="text" readonly>
+      <label>Message</label>
+      <textarea id="email-t1-message" readonly></textarea>
+    </div>
+    <div class="email-modal-footer">
+      <button class="dropdown-cstm" data-copy-subject="#email-t1-subject">Copy Subject</button>
+      <button class="dropdown-cstm" data-copy-message="#email-t1-message">Copy Message</button>
+      <button class="action-btn" data-open-gmail data-sub="#email-t1-subject" data-body="#email-t1-message">Open in Gmail</button>
+    </div>
+  </div>
+  <div id="email-template-2-modal" class="email-modal" aria-hidden="true" style="display:none;">
+    <div class="email-modal-header">
+      <h5>Email Template: Follow-up</h5>
+      <button class="email-modal-close" data-close>&times;</button>
+    </div>
+    <div class="email-modal-body">
+      <label>Subject</label>
+      <input id="email-t2-subject" type="text" readonly>
+      <label>Message</label>
+      <textarea id="email-t2-message" readonly></textarea>
+    </div>
+    <div class="email-modal-footer">
+      <button class="dropdown-cstm" data-copy-subject="#email-t2-subject">Copy Subject</button>
+      <button class="dropdown-cstm" data-copy-message="#email-t2-message">Copy Message</button>
+      <button class="action-btn" data-open-gmail data-sub="#email-t2-subject" data-body="#email-t2-message">Open in Gmail</button>
+    </div>
+  </div>
+  <style>
+  /* Split View Styles */
+  .split-view-container {
+      display: none;
+      grid-template-columns: minmax(350px, 1fr) 1.5fr;
+      gap: 20px;
+      margin-top: 20px;
+      height: 70vh;
+      position: relative;
+  }
+
+  .split-view-container.list-collapsed {
+      grid-template-columns: 50px 1fr !important;
+  }
+
+  .split-view-container.list-collapsed .split-job-list {
+      width: 50px;
+      min-width: 50px;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+  }
+
+  .split-view-container .split-job-list {
+      width: 100%;
+      opacity: 1;
+      transition: all 0.3s ease;
+      position: relative;
+  }
+
+  .list-toggle-btn {
+      display: none;
+      position: absolute;
+      right: -15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #fff;
+      border: 1px solid #e6eef6;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(11,22,40,0.1);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .list-toggle-btn:hover {
+      background: #F4F9F1;
+      border-color: #85BB65;
+      transform: translateY(-50%) scale(1.1);
+  }
+
+  .list-toggle-btn svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+  }
+
+  .split-view-container.list-collapsed .list-toggle-btn {
+      right: -45px;
+  }
+
+  .split-view-container.list-collapsed .list-toggle-btn svg {
+      transform: rotate(180deg);
+  }
+
+  .split-job-list {
+      background: #F4F9F1;
+      border: 1px solid #e6eef6;
+      border-radius: 10px;
+      padding: 16px;
+      overflow-y: auto;
+      box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+      position: relative; /* for collapse arrow positioning */
+  }
+  
+  .split-job-list.collapsed {
+      overflow: hidden;
+  }
+  
+  .split-job-list.collapsed .split-job-card {
+      display: none;
+  }
+  
+  .list-collapse-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      border: 1px solid #e6eef6;
+      border-radius: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      box-shadow: 0 2px 4px rgba(11,22,40,0.08);
+      transition: all 0.2s ease;
+  }
+  
+  .list-collapse-toggle:hover {
+      background: #F4F9F1;
+      border-color: #85BB65;
+  }
+  
+  .list-collapse-toggle .collapse-icon {
+      transition: transform 0.2s ease;
+  }
+  
+  .split-job-list.collapsed .list-collapse-toggle .collapse-icon {
+      transform: rotate(180deg);
+  }
+
+  .split-job-details {
+      background: #fff;
+      border: 1px solid #e6eef6;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+      position: relative; /* anchor absolute buttons inside the details box */
+  }
+  
+  /* Ensure job details content remains visible when notes panel is open */
+  .split-job-details {
+      transition: padding-right 0.2s ease;
+      position: relative;
+  }
+  
+  .split-job-details.notes-open {
+      padding-right: 380px;
+  }
+  
+  /* Ensure content inside job details is visible */
+  .split-job-details #job-detail-content,
+  .split-job-details .no-job-selected {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+  }
+  
+  /* When notes are open, content should be visible on the left side */
+  .split-job-details.notes-open #job-detail-content,
+  .split-job-details.notes-open .no-job-selected {
+      overflow: visible;
+  }
+
+  .split-job-card {
+      background: white;
+      border: 1px solid #e6eef6;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+  }
+
+  .split-job-card:hover {
+      border-color: #85BB65;
+      transform: translateX(2px);
+  }
+
+  .split-job-card.active {
+      border-color: #85BB65;
+      background-color: #F4F9F1;
+  }
+
+  .split-job-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+      position: relative;
+  }
+
+  .split-job-card-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      flex-shrink: 0;
+  }
+
+  .split-job-card-title {
+      font-weight: 600;
+      color: #121C0C;
+      font-size: 16px;
+      margin-bottom: 2px;
+  }
+
+  .split-job-card-company {
+      color: #666;
+      font-size: 13px;
+  }
+
+  .split-job-card-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      font-size: 13px;
+  }
+
+  .split-job-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 6px 0 4px 56px; /* indent to align under logo/title */
+      font-size: 13px;
+  }
+  .split-job-summary-item {
+      display: flex;
+      gap: 6px;
+  }
+
+  .split-job-meta-item {
+      display: flex;
+      justify-content: space-between;
+  }
+
+  .split-job-meta-label {
+      color: #666;
+  }
+
+  .split-job-meta-value {
+      color: #121C0C;
+      font-weight: 500;
+  }
+
+  /* Job Details Styles */
+  .job-detail-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e6eef6;
+  }
+
+  .job-detail-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+  }
+
+  .job-detail-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #121C0C;
+      margin-bottom: 4px;
+  }
+
+  .job-detail-company {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 8px;
+  }
+
+  .job-detail-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+  }
+
+  .job-detail-meta-item {
+      background: #F4F9F1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e6eef6;
+  }
+
+  .job-detail-meta-label {
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 4px;
+  }
+
+  .job-detail-meta-value {
+      font-size: 18px;
+      color: #121C0C;
+      font-weight: 600;
+  }
+
+  .job-detail-section {
+      margin-bottom: 24px;
+  }
+
+  .job-detail-section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #121C0C;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #85BB65;
+  }
+
+  .job-detail-description {
+      line-height: 1.6;
+      color: #333;
+  }
+
+  .job-detail-requirements {
+      list-style: none;
+      padding: 0;
+  }
+
+  .job-detail-requirements li {
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+  }
+
+  .job-detail-requirements li:before {
+      content: "•";
+      color: #47ddff;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+  }
+
+  .job-detail-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e6eef6;
+  }
+
+  /* Active state for grid view button */
+  #grid-view-btn.active {
+      //background-color: #85BB65;
+    
+      border-color: #85BB65;
+  }
+
+  .no-job-selected {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #666;
+      text-align: center;
+  }
+
+  .no-job-selected svg {
+      margin-bottom: 16px;
+      opacity: 0.5;
+  }
+
+  #float-view-btn.active {
+    background-color: #85BB65 !important;
+    color: white !important;
+    border-color: #85BB65 !important;
+}
+
+#float-view-btn.active:hover {
+    background-color: #85BB65 !important;
+    border-color: #85BB65 !important;
+}
+
+  /* Note button styles removed */
+
+  /* Notes side panel */
+  .notes-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 360px;
+    max-width: 90vw;
+    background: #fff;
+    border-left: 1px solid #e6eef6;
+    box-shadow: -2px 0 8px rgba(11,22,40,0.06);
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    visibility: hidden;
+    overflow-y: auto;
+    pointer-events: none;
+  }
+  .notes-panel.open { 
+    transform: translateX(0); 
+    visibility: visible;
+    pointer-events: auto;
+  }
+  
+  .notes-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e6eef6;
+    font-weight: 600;
+  }
+  .notes-panel-close { 
+    background: transparent; 
+    border: none; 
+    font-size: 22px; 
+    cursor: pointer;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .notes-panel-close:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+  .notes-panel-body { 
+    padding: 16px; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
+  }
+  .notes-title {
+    margin-bottom: 16px;
+  }
+  .notes-title h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .notes-title p {
+    font-size: 12px;
+    margin: 0;
+  }
+  .notes-textarea {
+    width: 100%;
+    flex: 1;
+    resize: none;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    padding: 12px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 200px;
+  }
+  .notes-textarea:focus {
+    border-color: #85BB65;
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.1);
+  }
+  .notes-footer {
+    margin-top: 12px;
+    color: #666;
+    font-size: 12px;
+  }
+  .notes-footer .last-saved {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .notes-footer .last-saved::before {
+    content: "✓";
+    color: #85BB65;
+  }
+  
+  /* Email modal styles */
+  .email-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 999;
+  }
+  .email-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(700px, 95vw);
+    max-height: 80vh;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(11,22,40,0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  .email-modal-header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 12px 14px; border-bottom: 1px solid #e6eef6; 
+  }
+  .email-modal-body { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .email-modal-body input, .email-modal-body textarea {
+    width: 100%; border: 1px solid #e6eef6; border-radius: 8px; padding: 10px; outline: none;
+  }
+  .email-modal-body textarea { min-height: 180px; resize: vertical; }
+  .email-modal-footer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid #e6eef6; }
+  .email-modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #666; }
+  </style>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const checkboxes = document.querySelectorAll('.job-checkbox');
     const applyBtn = document.getElementById('apply-btn');
     const saveBtn = document.getElementById('save-btn');
     const deleteBtn = document.getElementById('delete-btn');
+    const emailBtn = document.getElementById('email-btn');
     const actionsDivs = document.querySelectorAll('.hidden-buttons');
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     const columnsBtn = document.querySelector('.columns-dropdown-btn');
@@ -687,6 +1465,15 @@
         }
     });
 
+    // Link buttons to email modals directly
+    if (emailBtn) {
+      emailBtn.addEventListener('click', () => openEmailModal(1));
+    }
+    if (saveBtn) {
+      // "Notify of hire" opens the second template for now
+      saveBtn.addEventListener('click', () => openEmailModal(2));
+    }
+
     if (selectAllCheckbox) {
       selectAllCheckbox.addEventListener('change', function () {
         checkboxes.forEach(cb => {
@@ -705,11 +1492,57 @@
       });
     }
 
+    // Update the toggleActionsVisibility function
     function toggleActionsVisibility() {
-      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-      actionsDivs.forEach(div => {
-        div.style.visibility = anyChecked ? 'visible' : 'hidden';
-      });
+        const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+        const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+        const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+        let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+        const anyChecked = checkedCount > 0;
+        const splitViewContainer = document.getElementById('split-view-container');
+        const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+        // Buttons visibility panel (compact row) still toggles by selection in list view only
+        actionsDivs.forEach(div => {
+            if (isSplitActive) {
+                // Hide duplicate compact buttons in split view
+                div.style.display = 'none';
+            } else {
+                div.style.display = 'flex';
+                div.style.visibility = anyChecked ? 'visible' : 'hidden';
+            }
+        });
+        
+        // Show/hide Apply and Note
+        const applyButtons = document.querySelectorAll('#apply-btn');
+        const noteButtons = document.querySelectorAll('#note-btn');
+        const showApply = checkedCount === 1;
+        // Show Note only when exactly one job is selected
+        const showNote = checkedCount === 1;
+        applyButtons.forEach(btn => { btn.style.display = showApply ? 'flex' : 'none'; });
+        noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
+        
+        // Leave Email button behavior unchanged
+    }
+
+    // Update the updateButtonStates function
+    function updateButtonStates() {
+        const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+        const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+        const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+        
+        let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+        const splitViewContainer = document.getElementById('split-view-container');
+        const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+        const showApply = checkedCount === 1;
+        const showNote = checkedCount === 1;
+
+        // Show/hide and enable/disable Apply and Note
+        const applyButtons = document.querySelectorAll('#apply-btn');
+        const noteButtons = document.querySelectorAll('#note-btn');
+        applyButtons.forEach(btn => { btn.style.display = showApply ? 'flex' : 'none'; btn.disabled = !showApply; });
+        noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
+        
+        // Leave Email button behavior unchanged
     }
 
     checkboxes.forEach(cb => {
@@ -721,14 +1554,43 @@
 
     function updateActions() {
       const checked = Array.from(checkboxes).filter(cb => cb.checked);
-      applyBtn.disabled = checked.length !== 1;
+      const applyButtons = document.querySelectorAll('#apply-btn');
+      const noteButtons = document.querySelectorAll('#note-btn');
+      const splitViewContainer = document.getElementById('split-view-container');
+      const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+      const showApply = (checked.length === 1);
+      const showNote = (checked.length === 1);
+      applyButtons.forEach(btn => { btn.disabled = !showApply; btn.style.display = showApply ? 'flex' : 'none'; });
+      noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
     }
 
     checkboxes.forEach(cb => {
       cb.addEventListener('change', updateActions);
     });
 
-    applyBtn.addEventListener('click', () => {
+    // Safety net: recompute UI on any click within the listings area
+    const listingsRoot = document;
+    listingsRoot.addEventListener('click', () => {
+      try { toggleActionsVisibility(); updateButtonStates(); } catch(e) {}
+    });
+
+    // Delegated change listener to catch any checkbox state changes reliably
+    document.addEventListener('change', (e) => {
+      const target = e.target;
+      if (!target) return;
+      if (target.classList && target.classList.contains('job-checkbox')) {
+        try { toggleActionsVisibility(); updateButtonStates(); } catch (e) {}
+      }
+      if (target.id === 'select-all-checkbox') {
+        try { toggleActionsVisibility(); updateButtonStates(); } catch (e) {}
+      }
+    });
+
+    // Ensure notes panel is closed by default
+    try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
+
+      // Set up note auto-save functionality
+      setupNoteAutoSave();    applyBtn.addEventListener('click', () => {
       const selected = Array.from(checkboxes).filter(cb => cb.checked);
       if (selected.length === 1) {
         const jobId = selected[0].dataset.jobId;
@@ -755,39 +1617,423 @@
   });
 </script>
 <script>
+  // Split View Functionality
   document.addEventListener('DOMContentLoaded', function () {
-    const checkboxes = document.querySelectorAll('.job-checkbox');
-    const emailBtn = document.getElementById('email-btn');
-    const applyBtn = document.getElementById('apply-btn');
-
-    function updateButtonStates() {
-      const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-
-      // Apply button: enable if at least one is checked
-      applyBtn.disabled = checkedCount === 0;
-
-      // Email button: enable only if exactly one is checked
-      emailBtn.disabled = checkedCount !== 1;
-    }
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', updateButtonStates);
+  const gridViewBtn = document.getElementById('grid-view-btn');
+  const listViewContainer = document.querySelector('.job-list-container');
+  const splitViewContainer = document.getElementById('split-view-container');
+  const splitJobList = document.getElementById('split-job-list');
+  const splitJobDetails = document.getElementById('split-job-details');
+  const jobDetailContent = document.getElementById('job-detail-content');
+  const noJobSelected = document.querySelector('.no-job-selected');
+  const detailNoteBtn = document.getElementById('detail-note-btn');
+  
+  let selectedJobId = null;
+  
+  if (gridViewBtn && listViewContainer && splitViewContainer) {
+    gridViewBtn.addEventListener('click', function () {
+        const isSplitView = splitViewContainer.style.display === 'grid';
+        
+        if (isSplitView) {
+            // Switch to list view
+            splitViewContainer.style.display = 'none';
+            listViewContainer.style.display = 'block';
+            gridViewBtn.classList.remove('active');
+            gridViewBtn.innerHTML = `
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Grid View
+            `;
+            window.selectedJobId = null;
+            try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
+            try { toggleActionsVisibility && toggleActionsVisibility(); } catch (e) {}
+            if (detailNoteBtn) { detailNoteBtn.style.display = 'none'; }
+        } else {
+            // Switch to split view
+            splitViewContainer.style.display = 'grid';
+            listViewContainer.style.display = 'none';
+            gridViewBtn.classList.add('active');
+            gridViewBtn.innerHTML = `
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6H21V8H3V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 10H21V12H3V10Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 14H21V16H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 18H21V20H3V18Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                List View
+            `;
+            // Do NOT auto-select any job; wait for user selection
+            selectedJobId = null;
+            window.selectedJobId = null;
+            // Ensure Note button stays hidden until a card is selected
+            try { closeNotesPanel && closeNotesPanel(); toggleActionsVisibility && toggleActionsVisibility(); updateButtonStates && updateButtonStates(); } catch (e) {}
+            if (detailNoteBtn) { detailNoteBtn.style.display = 'none'; }
+        }
     });
-
-    // Optional: handle "Select All" checkbox
-    const selectAll = document.getElementById('select-all-checkbox');
-    if (selectAll) {
-      selectAll.addEventListener('change', function () {
-        checkboxes.forEach(cb => cb.checked = selectAll.checked);
-        updateButtonStates();
-      });
-    }
-
-    // Initial state
-    updateButtonStates();
+  }
+  
+  // List collapse/expand functionality
+  const listCollapseBtn = document.getElementById('list-collapse-btn');
+  if (listCollapseBtn) {
+    listCollapseBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      splitJobList.classList.toggle('collapsed');
+    });
+  }
+  
+  // Job card selection
+  splitJobList.addEventListener('click', function (e) {
+      const jobCard = e.target.closest('.split-job-card');
+      if (jobCard && !e.target.classList.contains('job-checkbox') && !e.target.closest('.list-collapse-toggle')) {
+          selectJobCard(jobCard);
+      }
   });
+  
+  function selectJobCard(jobCard) {
+      // Remove active class from all cards
+      document.querySelectorAll('.split-job-card').forEach(card => {
+          card.classList.remove('active');
+      });
+      
+      // Add active class to selected card
+      jobCard.classList.add('active');
+      
+      // Get job ID and load details
+      selectedJobId = jobCard.dataset.jobId;
+      window.selectedJobId = selectedJobId;
+      try { toggleActionsVisibility && toggleActionsVisibility(); updateButtonStates && updateButtonStates(); } catch (e) {}
+      // If notes panel is open, load notes for the newly selected job
+      const notesPanel = document.getElementById('notes-panel');
+      if (notesPanel && notesPanel.classList.contains('open')) {
+          openNotesPanel(selectedJobId);
+      }
+      loadJobDetails(selectedJobId);
+  }
+
+  function loadJobDetails(jobId) {
+      // Show loading state
+      noJobSelected.style.display = 'none';
+      jobDetailContent.style.display = 'block';
+      jobDetailContent.innerHTML = `
+          <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading job details...</p>
+          </div>
+      `;
+      
+      // Simulate AJAX call to fetch job details
+      // In a real application, you would make an API call here
+      setTimeout(() => {
+          renderJobDetails(jobId);
+      }, 500);
+  }
+  
+  function renderJobDetails(jobId) {
+    console.log('Loading job details for ID:', jobId);
+    
+    const jobDetailContent = document.getElementById('job-detail-content');
+    const noJobSelected = document.querySelector('.no-job-selected');
+    
+    // Show loading state
+    jobDetailContent.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="text-muted">Loading Job Details</h5>
+        </div>
+    `;
+    
+    const url = `/provider/jobs/${jobId}/detail-content`;
+    
+    fetch(url)
+        .then(response => response.text().then(text => {
+            console.log('Raw response:', text);
+            
+            if (!response.ok) {
+                // Show the actual server error message
+                throw new Error(`Server returned: ${text}`);
+            }
+            return text;
+        }))
+        .then(html => {
+            jobDetailContent.innerHTML = html;
+            jobDetailContent.style.display = 'block';
+            if (noJobSelected) noJobSelected.style.display = 'none';
+            if (detailNoteBtn) { detailNoteBtn.style.display = 'flex'; }
+        })
+        .catch(error => {
+            console.error('Full error:', error);
+            jobDetailContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error Loading Job Details</h4>
+                    <div>${error.message}</div>
+                    <div class="mt-3">
+                        <button class="action-btn" onclick="loadJobDetails('${jobId}')">Try Again</button>
+                        <a href="/provider/jobs/${jobId}" class="action-btn">View Full Page</a>
+                    </div>
+                </div>
+            `;
+            jobDetailContent.style.display = 'block';
+            if (noJobSelected) noJobSelected.style.display = 'none';
+        });
+}
+
+function loadJobDetails(jobId) {
+    renderJobDetails(jobId);
+}
+
+function applyToJob(jobId) {
+    if (confirm('Are you sure you want to apply to this job?')) {
+        // Show loading state on button
+        const applyBtn = document.querySelector('.btn-apply');
+        if (applyBtn) {
+            const originalText = applyBtn.innerHTML;
+            applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
+            applyBtn.disabled = true;
+        }
+        
+        window.location.href = `/provider/jobs/${jobId}/apply?redirect_route=app_provider_jobs_saved`;
+    }
+}
+
+function saveJob(jobId) {
+    const saveBtn = document.querySelector('.btn-save');
+    const originalText = saveBtn.innerHTML;
+    
+    // Show loading state
+    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Saving...';
+    saveBtn.disabled = true;
+
+    fetch(`/provider/jobs/${jobId}/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Job saved successfully!', 'success');
+            saveBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+                </svg>
+                Saved
+            `;
+            saveBtn.classList.add('btn-applied');
+            saveBtn.onclick = null;
+        } else {
+            showToast('Error: ' + data.error, 'error');
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error saving job:', error);
+        showToast('Error saving job. Please try again.', 'error');
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+function openNotesPanel(jobId) {
+    const panel = document.getElementById('notes-panel');
+    const textarea = document.getElementById('notes-textarea');
+    const jobDetails = document.getElementById('split-job-details');
+    if (!panel || !textarea) return;
+    panel.dataset.jobId = jobId;
+    const saved = localStorage.getItem('provider_job_notes_' + jobId) || '';
+    textarea.value = saved;
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    // Add class to job details container to adjust layout
+    if (jobDetails) {
+        jobDetails.classList.add('notes-open');
+    }
+    textarea.focus();
+}
+function closeNotesPanel() {
+    const panel = document.getElementById('notes-panel');
+    const jobDetails = document.getElementById('split-job-details');
+    if (!panel) return;
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    // Remove class from job details container to restore layout
+    if (jobDetails) {
+        jobDetails.classList.remove('notes-open');
+    }
+}
+function handleNoteClick() {
+    // Prefer selected card in split view; fallback to a single checked checkbox
+    const splitViewContainer = document.getElementById('split-view-container');
+    const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+    let jobId = null;
+    if (isSplitActive) {
+        jobId = window.selectedJobId || null;
+        if (!jobId) {
+            const activeCard = document.querySelector('.split-job-card.active');
+            if (activeCard) jobId = activeCard.dataset.jobId;
+        }
+    }
+    if (!jobId) {
+        const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+        if (single.length === 1) jobId = single[0].dataset.jobId;
+    }
+    if (jobId) {
+        openNotesPanel(jobId);
+    }
+}
+
+// Inline note panel on each split job card
+function openInlineNote(jobId, btn) {
+  const card = btn.closest('.split-job-card');
+  if (!card) return;
+  const panel = card.querySelector('.card-note-panel');
+  const textarea = panel.querySelector('.card-note-textarea');
+  // Load saved note
+  const key = 'provider_job_notes_' + jobId;
+  textarea.value = localStorage.getItem(key) || '';
+  panel.classList.toggle('open');
+  textarea.addEventListener('input', () => {
+    localStorage.setItem(key, textarea.value);
+  }, { once: true });
+}
+    
+  // Make split view checkboxes work with existing functionality
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  splitCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+          // Sync with main checkboxes if they exist
+          const mainCheckbox = document.querySelector(`.job-list-container .job-checkbox[data-job-id="${this.dataset.jobId}"]`);
+          if (mainCheckbox) {
+              mainCheckbox.checked = this.checked;
+          }
+          toggleActionsVisibility();
+          updateButtonStates();
+      });
+  });
+});
+
+
 </script>
 <script>
+// Global utility functions
+function updateButtonStates() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const showApply = checkedCount === 1;
+  const showNote = checkedCount === 1;
+
+  // Show/hide and enable/disable Apply and Note buttons
+  const applyButtons = document.querySelectorAll('#apply-btn');
+  const noteButtons = document.querySelectorAll('#note-btn');
+  
+  applyButtons.forEach(btn => { 
+    btn.style.display = showApply ? 'flex' : 'none';
+    btn.disabled = !showApply;
+  });
+  
+  noteButtons.forEach(btn => { 
+    btn.style.display = showNote ? 'flex' : 'none';
+    if (showNote) { btn.classList.remove('d-none'); btn.classList.add('d-flex'); }
+    else { btn.classList.add('d-none'); btn.classList.remove('d-flex'); }
+  });
+}
+
+function toggleActionsVisibility() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const anyChecked = checkedCount > 0;
+  const splitViewContainer = document.getElementById('split-view-container');
+  const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+  
+  // Show/hide based strictly on selections, regardless of split view
+  
+  const actionsDivs = document.querySelectorAll('.hidden-buttons');
+  actionsDivs.forEach(div => {
+    if (isSplitActive) {
+      // Hide duplicate compact buttons in split view
+      div.style.display = 'none';
+    } else {
+      div.style.display = 'flex';
+      div.style.visibility = anyChecked ? 'visible' : 'hidden';
+    }
+  });
+  
+  // Show/hide Apply and Note buttons
+  updateButtonStates();
+}
+
+function openNotesPanel(jobId) {
+  const panel = document.getElementById('notes-panel');
+  const textarea = document.getElementById('notes-textarea');
+  const jobDetails = document.getElementById('split-job-details');
+  if (!panel || !textarea) return;
+  
+  panel.dataset.jobId = jobId;
+  const saved = localStorage.getItem('provider_job_notes_' + jobId) || '';
+  textarea.value = saved;
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  // Add class to job details container to adjust layout
+  if (jobDetails) {
+    jobDetails.classList.add('notes-open');
+  }
+  textarea.focus();
+}
+
+function closeNotesPanel() {
+  const panel = document.getElementById('notes-panel');
+  const jobDetails = document.getElementById('split-job-details');
+  if (!panel) return;
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.dataset.jobId = '';
+  // Remove class from job details container to restore layout
+  if (jobDetails) {
+    jobDetails.classList.remove('notes-open');
+  }
+}
+
+// Add Note button event handler
+document.addEventListener('DOMContentLoaded', function() {
+  const noteBtn = document.getElementById('note-btn');
+  if (noteBtn) {
+    noteBtn.addEventListener('click', function() {
+      let jobId = null;
+      const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+      if (single.length === 1) jobId = single[0].dataset.jobId;
+      if (!jobId) {
+        jobId = window.selectedJobId || null;
+        if (!jobId) {
+          const activeCard = document.querySelector('.split-job-card.active');
+          if (activeCard) jobId = activeCard.dataset.jobId;
+        }
+      }
+      if (jobId) { openNotesPanel(jobId); }
+    });
+  }
+  const detailNoteBtn = document.getElementById('detail-note-btn');
+  if (detailNoteBtn) {
+    detailNoteBtn.addEventListener('click', function() {
+      const jobId = window.selectedJobId;
+      if (jobId) { openNotesPanel(jobId); }
+    });
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   const headers = document.querySelectorAll('.sortable');
   let currentSort = { key: null, direction: 'asc' };
@@ -798,16 +2044,13 @@ document.addEventListener('DOMContentLoaded', function () {
       const direction = (currentSort.key === key && currentSort.direction === 'asc') ? 'desc' : 'asc';
       currentSort = { key, direction };
 
-      // Reset all icons
-      document.querySelectorAll('.sort-toggle svg').forEach(svg => {
-        svg.style.transform = 'rotate(0deg)';
-      });
-
-      // Rotate active icon
-      const icon = header.querySelector('.sort-toggle svg');
-      if (icon) {
-        icon.style.transform = direction === 'asc' ? 'rotate(0deg)' : 'rotate(180deg)';
-      }
+      // Reset all arrows to inactive
+      document.querySelectorAll('.sort-toggle .arrow').forEach(a => a.classList.remove('active'));
+      // Activate the appropriate arrow on current header
+      const up = header.querySelector('.sort-toggle .sort-up');
+      const down = header.querySelector('.sort-toggle .sort-down');
+      if (direction === 'asc' && up) up.classList.add('active');
+      if (direction === 'desc' && down) down.classList.add('active');
 
       sortJobs(key, direction);
     });
@@ -821,8 +2064,8 @@ document.addEventListener('DOMContentLoaded', function () {
         location: row.querySelector('.col-start:nth-child(3)')?.textContent.trim().toLowerCase(),
         posted: row.querySelector('.col-start:nth-child(4)')?.textContent.trim(),
         expires: row.querySelector('.col-expiry')?.textContent.trim(),
-        salary: parseFloat(row.querySelector('.col-start:nth-child(5)')?.textContent.trim()) || 0,
-        match: parseInt(row.querySelector('.col-start:nth-child(6)')?.textContent.trim()) || 0,
+        salary: parseFloat(row.querySelector('.col-start:nth-child(6)')?.textContent.trim()) || 0,
+        category: row.querySelector('.category-select')?.value?.toLowerCase() || '',
         rank: parseInt(row.querySelector('.col-rank')?.textContent.trim()) || 0
       }
     }));
@@ -844,125 +2087,309 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const rankDisplays = document.querySelectorAll('.rank-display');
-    const rankInputs = document.querySelectorAll('.rank-input');
+// Handle list collapse functionality
+function setupListCollapse() {
+    const container = document.getElementById('split-view-container');
+    const toggleBtn = document.getElementById('list-toggle-btn');
+    const noteBtn = document.getElementById('note-btn');
+    
+    if (!container || !toggleBtn || !noteBtn) return;
 
-    function saveRank(input) {
-        let value = parseInt(input.value, 10);
-        const jobId = input.dataset.jobId;
-
-        if (isNaN(value) || value < 1) {
-            alert('Rank must be a positive number.');
-            input.value = input.dataset.originalValue || '';
-            return;
-        }
-
-        // Only proceed if value changed (treat null/empty as changed)
-        if (input.dataset.originalValue !== undefined &&
-            input.dataset.originalValue !== '' &&
-            value === parseInt(input.dataset.originalValue, 10)) {
-            input.classList.add('hidden');
-            input.previousElementSibling.classList.remove('hidden');
-            return;
-        }
-
-        // Check duplicates among other inputs (ignore empty/invalid)
-        const otherRanks = Array.from(rankInputs)
-            .filter(i => i !== input)
-            .map(i => parseInt(i.value, 10))
-            .filter(v => !isNaN(v));
-
-        if (otherRanks.includes(value)) {
-            alert('Each rank must be unique.');
-            input.value = input.dataset.originalValue || '';
-            return;
-        }
-
-        // AJAX request to update rank
-        fetch('{{ path("app_update_rank") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({ jobId, rank: value })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Update display and original value
-                const display = input.previousElementSibling;
-                display.textContent = value;
-                input.dataset.originalValue = value;
-                input.classList.add('hidden');
-                display.classList.remove('hidden');
-
-                // Show success toaster
-                let msg = document.getElementById('rank-success-msg');
-                if (!msg) {
-                    msg = document.createElement('div');
-                    msg.id = 'rank-success-msg';
-                    msg.style.position = 'fixed';
-                    msg.style.top = '20px';
-                    msg.style.right = '20px';
-                    msg.style.backgroundColor = '#4CAF50';
-                    msg.style.color = 'white';
-                    msg.style.padding = '10px 15px';
-                    msg.style.borderRadius = '5px';
-                    msg.style.zIndex = '9999';
-                    document.body.appendChild(msg);
-                }
-                msg.textContent = 'Rank updated successfully!';
-                msg.style.display = 'block';
-                setTimeout(() => { msg.style.display = 'none'; }, 2000);
-
-            } else {
-                alert('Failed to update rank: ' + (data.error || 'Unknown error'));
-                input.value = input.dataset.originalValue || '';
+    // Show toggle button when split view is active
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'style' && mutation.target === container) {
+                toggleBtn.style.display = container.style.display === 'grid' ? 'block' : 'none';
             }
-        })
-        .catch(err => {
-            console.error('Fetch error:', err);
-            alert('Server error while updating rank.');
-            input.value = input.dataset.originalValue || '';
         });
+    });
+    
+    observer.observe(container, { attributes: true, attributeFilter: ['style'] });
+
+    // Toggle list collapse
+    toggleBtn.addEventListener('click', () => {
+        container.classList.toggle('list-collapsed');
+    });
+
+    // Collapse list when note button is clicked
+    noteBtn.addEventListener('click', () => {
+        if (!container.classList.contains('list-collapsed')) {
+            container.classList.add('list-collapsed');
+        }
+        toggleBtn.style.display = 'block';
+        handleNoteClick();
+    });
+}
+
+// Note auto-save functionality
+function setupNoteAutoSave() {
+  const textarea = document.getElementById('notes-textarea');
+  if (!textarea) return;
+
+  let saveTimeout;
+  textarea.addEventListener('input', () => {
+    const panel = document.getElementById('notes-panel');
+    const lastSavedDiv = document.querySelector('.last-saved');
+    const timeSpan = document.querySelector('.last-saved-time');
+    
+    if (!panel || !panel.dataset.jobId) return;
+    
+    // Clear previous timeout if it exists
+    if (saveTimeout) clearTimeout(saveTimeout);
+    
+    // Set new timeout for 500ms after last input
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem('provider_job_notes_' + panel.dataset.jobId, textarea.value);
+      
+      // Show last saved message
+      lastSavedDiv.style.display = 'block';
+      const now = new Date();
+      timeSpan.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      // Hide message after 3 seconds
+      setTimeout(() => {
+        lastSavedDiv.style.display = 'none';
+      }, 3000);
+    }, 500);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  setupListCollapse();
+  const rankDisplays = document.querySelectorAll('.rank-display');
+  const rankInputs = document.querySelectorAll('.rank-input');
+
+  function saveRank(input) {
+    let value = parseFloat(input.value);
+    const jobId = input.dataset.jobId;
+
+    // ✅ Validate and auto-correct range
+    if (isNaN(value)) {
+      alert('Score must be a number between 1 and 10.');
+      input.value = input.dataset.originalValue || '';
+      return;
     }
 
-    // Initialize original values for all inputs
-    rankInputs.forEach(input => {
-        input.dataset.originalValue = input.value || '';
-    });
+    if (value < 1) value = 1;
+    if (value > 10) value = 10;
 
-    // Show input on click
-    rankDisplays.forEach(display => {
-        display.addEventListener('click', function () {
-            const input = this.nextElementSibling;
-            input.classList.remove('hidden');
-            this.classList.add('hidden');
-            input.focus();
-            input.select();
-        });
-    });
+    // ✅ Round to nearest 0.5 step
+    value = Math.round(value * 2) / 2;
 
-    // Handle blur and key events
-    rankInputs.forEach(input => {
-        input.addEventListener('blur', () => saveRank(input));
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveRank(input);
-            }
-            if (e.key === 'Escape') {
-                const display = input.previousElementSibling;
-                input.value = input.dataset.originalValue || '';
-                input.classList.add('hidden');
-                display.classList.remove('hidden');
-            }
-        });
+    // ✅ Skip update if no change
+    if (
+      input.dataset.originalValue !== undefined &&
+      input.dataset.originalValue !== '' &&
+      value === parseFloat(input.dataset.originalValue)
+    ) {
+      input.classList.add('hidden');
+      input.previousElementSibling.classList.remove('hidden');
+      return;
+    }
+
+    // ✅ Send to Symfony backend
+    fetch('{{ path("app_update_rank") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ jobId, rank: value })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // ✅ Update UI
+          const display = input.previousElementSibling;
+          display.textContent = value + '/10';
+          input.value = value;
+          input.dataset.originalValue = value;
+          input.classList.add('hidden');
+          display.classList.remove('hidden');
+
+          // ✅ Show success toast
+          let msg = document.getElementById('rank-success-msg');
+          if (!msg) {
+            msg = document.createElement('div');
+            msg.id = 'rank-success-msg';
+            msg.style.position = 'fixed';
+            msg.style.top = '20px';
+            msg.style.right = '20px';
+            msg.style.backgroundColor = '#4CAF50';
+            msg.style.color = 'white';
+            msg.style.padding = '10px 15px';
+            msg.style.borderRadius = '5px';
+            msg.style.zIndex = '9999';
+            document.body.appendChild(msg);
+          }
+          msg.textContent = 'Score updated successfully!';
+          msg.style.display = 'block';
+          setTimeout(() => { msg.style.display = 'none'; }, 2000);
+        } else {
+          alert('Failed to update score: ' + (data.error || 'Unknown error'));
+          input.value = input.dataset.originalValue || '';
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        alert('Server error while updating score.');
+        input.value = input.dataset.originalValue || '';
+      });
+  }
+
+  // ✅ Initialize original values
+  rankInputs.forEach(input => {
+    input.dataset.originalValue = input.value || '';
+  });
+
+  // ✅ Click to edit
+  rankDisplays.forEach(display => {
+    display.addEventListener('click', function () {
+      const input = this.nextElementSibling;
+      input.classList.remove('hidden');
+      this.classList.add('hidden');
+      input.focus();
+      input.select();
     });
+  });
+
+  // ✅ Handle blur & key events
+  rankInputs.forEach(input => {
+    input.addEventListener('blur', () => saveRank(input));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveRank(input);
+      }
+      if (e.key === 'Escape') {
+        const display = input.previousElementSibling;
+        input.value = input.dataset.originalValue || '';
+        input.classList.add('hidden');
+        display.classList.remove('hidden');
+      }
+    });
+  });
 });
 </script>
 
+<script>
+// Email templates: modal logic and population
+function openEmailModal(templateId) {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modal = document.getElementById(`email-template-${templateId}-modal`);
+  if (!overlay || !modal) return;
+
+  // Build dynamic context from selected job (best effort)
+  const titleEl = document.querySelector('#job-detail-content .job-detail-title');
+  const companyEl = document.querySelector('#job-detail-content .job-detail-company');
+  const jobTitle = (titleEl && titleEl.textContent.trim()) || 'the role';
+  const company = (companyEl && companyEl.textContent.trim()) || 'your company';
+
+  const subjectEl = document.getElementById(`email-t${templateId}-subject`);
+  const messageEl = document.getElementById(`email-t${templateId}-message`);
+  if (!subjectEl || !messageEl) return;
+
+  if (templateId === 1) {
+    subjectEl.value = `Introduction and interest in ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI hope you’re doing well. I came across ${jobTitle} at ${company} and it looks like a strong match for my background. I’d welcome the chance to connect and share how I can help.\n\nI’ve attached my resume for your review. Below is a short paragraph you can paste for introductions if helpful.\n\n[INSERT BRIEF PARAGRAPH IN THE 3RD PERSON HERE.]\n\nThanks in advance for your help — I’d love to catch up soon.\n\nBest,\n[YOUR NAME]`;
+  } else {
+    subjectEl.value = `Following up on ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI wanted to follow up on ${jobTitle} at ${company}. I remain very interested and would be happy to provide any additional details.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`;
+  }
+
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeAllEmailModals() {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modals = document.querySelectorAll('.email-modal');
+  modals.forEach(m => { m.style.display = 'none'; m.setAttribute('aria-hidden', 'true'); });
+  if (overlay) overlay.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('email-modal-overlay');
+  if (overlay) overlay.addEventListener('click', closeAllEmailModals);
+
+  document.querySelectorAll('.email-modal [data-close]').forEach(btn => {
+    btn.addEventListener('click', closeAllEmailModals);
+  });
+
+  // Copy handlers
+  document.querySelectorAll('[data-copy-subject]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-subject');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Subject copied', 'success')).catch(()=>{});
+    });
+  });
+  document.querySelectorAll('[data-copy-message]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-message');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Message copied', 'success')).catch(()=>{});
+    });
+  });
+
+  // Open in Gmail
+  document.querySelectorAll('[data-open-gmail]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subSel = btn.getAttribute('data-sub');
+      const bodySel = btn.getAttribute('data-body');
+      const subEl = document.querySelector(subSel);
+      const bodyEl = document.querySelector(bodySel);
+      const su = encodeURIComponent(subEl ? subEl.value : '');
+      const body = encodeURIComponent(bodyEl ? bodyEl.value : '');
+      const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
+      window.open(url, '_blank');
+    });
+  });
+});
+</script>
+<script>
+  document.getElementById('float-view-btn').addEventListener('click', function() {
+      const url = window.location.href;
+
+      // Open in a new window with size and features
+      window.open(
+          url,
+          '_blank',
+          'width=1200,height=800,top=100,left=100,resizable=yes,scrollbars=yes'
+      );
+  });
+</script>
+
+<script>
+// Download Data button handler
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadDataBtn = document.getElementById('download-data-btn');
+    if (downloadDataBtn) {
+        downloadDataBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Show loading state
+            const originalText = downloadDataBtn.innerHTML;
+            downloadDataBtn.innerHTML = '<span>Downloading...</span>';
+            downloadDataBtn.style.opacity = '0.6';
+            downloadDataBtn.style.pointerEvents = 'none';
+            
+            // Trigger download with page type
+            window.location.href = '{{ path("app_provider_download_data", {"type": "saved"}) }}';
+            
+            // Reset button after a delay
+            setTimeout(function() {
+                downloadDataBtn.innerHTML = originalText;
+                downloadDataBtn.style.opacity = '1';
+                downloadDataBtn.style.pointerEvents = 'auto';
+            }, 2000);
+        });
+    }
+});
+</script>
 
 {% endblock %}

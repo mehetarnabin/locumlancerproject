@@ -25,8 +25,8 @@ class Bookmark
     #[ORM\ManyToOne]
     private ?Job $job = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $rank = null;
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $rank = null;
 
     // --- Getters & Setters ---
 
@@ -55,12 +55,12 @@ class Bookmark
         $this->job = $job;
     }
 
-    public function getRank(): ?int
+    public function getRank(): ?float
     {
         return $this->rank;
     }
 
-    public function setRank(int $rank): self
+    public function setRank(?float $rank): self
     {
         $this->rank = $rank;
         return $this;

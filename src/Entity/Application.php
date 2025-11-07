@@ -57,7 +57,7 @@ class Application
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Interview $interview = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'float', nullable: true)]
     private ?int $rank = null;
 
     use TimestampableEntity;
@@ -211,12 +211,12 @@ class Application
         return $this;
     }
 
-    public function getRank(): ?int
+    public function getRank(): ?float
     {
         return $this->rank;
     }
 
-    public function setRank(?int $rank): self
+    public function setRank(?float $rank): self
     {
         $this->rank = $rank;
         return $this;
