@@ -65,12 +65,7 @@ class Application
     private ?Interview $interview = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
-<<<<<<< HEAD
     private ?float $rank = null;
-=======
-    private ?int $rank = null;
->>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
-
     // ===== Getters & Setters =====
 
     public function getId(): ?Uuid
@@ -226,11 +221,8 @@ class Application
         return $this->rank;
     }
 
-<<<<<<< HEAD
     public function setRank(?float $rank): static
-=======
-    public function setRank(?float $rank): self
->>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
+    // public function setRank(?float $rank): self
     {
         $this->rank = $rank;
         return $this;

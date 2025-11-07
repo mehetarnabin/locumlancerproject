@@ -27,14 +27,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Uid\Uuid;
-<<<<<<< HEAD
-=======
 use Dompdf\Dompdf;
 use Dompdf\Options;
-
-
->>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
-
 #[Route('/provider')]
 class JobController extends AbstractController
 {
@@ -408,7 +402,6 @@ class JobController extends AbstractController
     }
 
     #[Route('/update-rank', name: 'app_update_rank', methods: ['POST'])]
-<<<<<<< HEAD
     public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
     {
         // Parse JSON body
@@ -441,42 +434,6 @@ class JobController extends AbstractController
     #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
     public function jobDetailContent($id, EntityManagerInterface $em): Response
     {
-=======
-public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
-{
-    // Parse JSON body
-    $data = json_decode($request->getContent(), true);
-    $jobId = $data['jobId'] ?? null;
-    $rank = $data['rank'] ?? null;
-
-    if (!$jobId || $rank === null) {
-        return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
-    }
-
-    // Find user’s bookmark for this job
-    $bookmark = $bookmarkRepository->findOneBy([
-        'job' => $jobId,
-        'user' => $this->getUser(),
-    ]);
-
-    if (!$bookmark) {
-        return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
-    }
-
-    // Update and save
-    $bookmark->setRank((float)$rank);
-    $em->persist($bookmark);
-    $em->flush();
-
-    return new JsonResponse(['success' => true]);
-}
-
-
-
-    #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
-    public function jobDetailContent($id, EntityManagerInterface $em): Response
-    {
->>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
         try {
             // Validate UUID
             if (!Uuid::isValid($id)) {
@@ -541,8 +498,6 @@ public function updateRank(Request $request, EntityManagerInterface $em, Bookmar
             return [];
         }
     }
-<<<<<<< HEAD
-
     
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
 public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
@@ -582,9 +537,6 @@ public function archiveBulk(Request $request, EntityManagerInterface $em): JsonR
         'message' => "$updated job(s) archived successfully."
     ]);
 }
-
-
-
 
     
     #[Route('/jobs/archived', name: 'app_provider_jobs_archived')]
@@ -658,10 +610,6 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
 }
 
 
-
-    
-
-=======
     #[Route('/download-data', name: 'app_provider_download_data', methods: ['GET'])]
     public function downloadData(
         BookmarkRepository $bookmarkRepository,
@@ -822,5 +770,4 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
         );
     }
     
->>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
 }
