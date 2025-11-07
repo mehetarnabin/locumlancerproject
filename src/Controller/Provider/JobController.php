@@ -27,10 +27,27 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Uid\Uuid;
+<<<<<<< HEAD
+=======
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
+
+>>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
 
 #[Route('/provider')]
 class JobController extends AbstractController
 {
+    #[Route('/jobs/archived', name: 'app_provider_jobs_archived', methods: ['GET'])]
+    public function archived(): Response
+    {
+        // For now, return an empty array to show the page without errors
+        // We'll update this later to fetch actual archived jobs
+        return $this->render('provider/job/archived.html.twig', [
+            'archived_jobs' => []
+        ]);
+    }
+
     #[Route('/jobs/{id}/detail', name: 'app_provider_jobs_detail', methods: ['GET'])]
     public function detail(Job $job, ApplicationRepository $applicationRepository): Response
     {
@@ -391,6 +408,7 @@ class JobController extends AbstractController
     }
 
     #[Route('/update-rank', name: 'app_update_rank', methods: ['POST'])]
+<<<<<<< HEAD
     public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
     {
         // Parse JSON body
@@ -423,6 +441,42 @@ class JobController extends AbstractController
     #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
     public function jobDetailContent($id, EntityManagerInterface $em): Response
     {
+=======
+public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
+{
+    // Parse JSON body
+    $data = json_decode($request->getContent(), true);
+    $jobId = $data['jobId'] ?? null;
+    $rank = $data['rank'] ?? null;
+
+    if (!$jobId || $rank === null) {
+        return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
+    }
+
+    // Find user’s bookmark for this job
+    $bookmark = $bookmarkRepository->findOneBy([
+        'job' => $jobId,
+        'user' => $this->getUser(),
+    ]);
+
+    if (!$bookmark) {
+        return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
+    }
+
+    // Update and save
+    $bookmark->setRank((float)$rank);
+    $em->persist($bookmark);
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
+}
+
+
+
+    #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
+    public function jobDetailContent($id, EntityManagerInterface $em): Response
+    {
+>>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
         try {
             // Validate UUID
             if (!Uuid::isValid($id)) {
@@ -487,6 +541,7 @@ class JobController extends AbstractController
             return [];
         }
     }
+<<<<<<< HEAD
 
     
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
@@ -606,4 +661,166 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
 
     
 
+=======
+    #[Route('/download-data', name: 'app_provider_download_data', methods: ['GET'])]
+    public function downloadData(
+        BookmarkRepository $bookmarkRepository,
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
+        $user = $this->getUser();
+        $provider = $user->getProvider();
+        
+        // Get the page type from query parameter (saved, applications, matching)
+        $type = $request->query->get('type', 'all');
+        
+        // Initialize data arrays
+        $bookmarks = [];
+        $appliedApplications = [];
+        $interviewApplications = [];
+        $completedApplications = [];
+        $matchingJobs = [];
+        
+        // Fetch data based on page type
+        switch ($type) {
+            case 'saved':
+                // Only saved jobs
+                $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
+                break;
+                
+            case 'applications':
+                // Get status filter from query parameter
+                $statusFilter = $request->query->get('status', '');
+                
+                if ($statusFilter && in_array($statusFilter, ['applied', 'interview', 'completed'])) {
+                    // Only fetch applications with the specific status (for PDF display)
+                    $filteredApplications = $em->getRepository(Application::class)->findBy(
+                        ['provider' => $provider, 'status' => $statusFilter],
+                        ['createdAt' => 'DESC']
+                    );
+                    
+                    // Group by status (only the filtered status)
+                    foreach ($filteredApplications as $application) {
+                        switch ($application->getStatus()) {
+                            case 'applied':
+                                $appliedApplications[] = $application;
+                                break;
+                            case 'interview':
+                                $interviewApplications[] = $application;
+                                break;
+                            case 'completed':
+                                $completedApplications[] = $application;
+                                break;
+                        }
+                    }
+                } else {
+                    // No status filter or status not in PDF sections - fetch all applications
+                    $allApplications = $em->getRepository(Application::class)->findBy(
+                        ['provider' => $provider],
+                        ['createdAt' => 'DESC']
+                    );
+                    
+                    // Group by status
+                    foreach ($allApplications as $application) {
+                        switch ($application->getStatus()) {
+                            case 'applied':
+                                $appliedApplications[] = $application;
+                                break;
+                            case 'interview':
+                                $interviewApplications[] = $application;
+                                break;
+                            case 'completed':
+                                $completedApplications[] = $application;
+                                break;
+                        }
+                    }
+                }
+                break;
+                
+            case 'matching':
+                // Only matching jobs
+                $filters['profession'] = $provider->getProfession()?->getId();
+                $providerSpecialities = $provider->getSpecialities();
+                if(!empty($providerSpecialities)) {
+                    foreach ($providerSpecialities as $speciality) {
+                        $filters['speciality_ids'][] = $speciality->getId();
+                    }
+                }
+                $filters['state'] = $provider->getDesiredStates() ? implode(',', $provider->getDesiredStates()) : null;
+                
+                if (empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
+                    $matchingJobs = [];
+                } else {
+                    $matchingJobs = $em->getRepository(Job::class)->getProviderMatchingJobs($filters);
+                    $matchingJobs = $matchingJobs ?? [];
+                }
+                break;
+                
+            default:
+                // All data (backward compatibility)
+                $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
+        $appliedApplications = $em->getRepository(Application::class)->findBy(
+            ['provider' => $provider, 'status' => 'applied'],
+            ['createdAt' => 'DESC']
+        );
+        $interviewApplications = $em->getRepository(Application::class)->findBy(
+            ['provider' => $provider, 'status' => 'interview'],
+            ['createdAt' => 'DESC']
+        );
+        $completedApplications = $em->getRepository(Application::class)->findBy(
+            ['provider' => $provider, 'status' => 'completed'],
+            ['createdAt' => 'DESC']
+        );
+                break;
+        }
+        
+        // Configure DomPDF options
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Arial');
+        
+        $dompdf = new Dompdf($options);
+        
+        // Get status filter for applications
+        $statusFilter = $request->query->get('status', '');
+        
+        // Render PDF template
+        $html = $this->renderView('provider/job/pdf_data.html.twig', [
+            'provider' => $provider,
+            'user' => $user,
+            'type' => $type,
+            'statusFilter' => $statusFilter,
+            'bookmarks' => $bookmarks,
+            'appliedApplications' => $appliedApplications,
+            'interviewApplications' => $interviewApplications,
+            'completedApplications' => $completedApplications,
+            'matchingJobs' => $matchingJobs,
+        ]);
+        
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        
+        // Generate filename based on type
+        $typeLabel = match($type) {
+            'saved' => 'saved_jobs',
+            'applications' => 'applications',
+            'matching' => 'matching_jobs',
+            default => 'all_data'
+        };
+        $filename = 'provider_' . $typeLabel . '_' . date('Y-m-d') . '.pdf';
+        
+        // Return PDF as download
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]
+        );
+    }
+    
+>>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
 }

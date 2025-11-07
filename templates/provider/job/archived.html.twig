@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {% extends 'base.html.twig' %}
 
 {% block body %}
@@ -29,4 +30,508 @@
     </tbody>
 </table>
 {% endif %}
+=======
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Archived Jobs{% endblock %}
+
+{% block provider_body %}
+<style>
+.job-header, .job-row {
+    display: flex;
+    align-items: center;
+}
+
+.col-job,
+.col-location,
+.col-schedule,
+.col-expiry,
+.col-start,
+.col-action {
+    flex: 1;
+    min-width: 130px;
+}
+.col-job {
+    flex: 2;
+}
+.job-header {
+    padding-left: 14px;
+    padding-right: 14px;
+    color: #121C0C;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    border: 1px solid #e6eef6;
+    height: 48px;
+    margin-bottom: 2px;
+    font-size: 18px;
+}
+.job-row {
+    border: none;
+    padding: 20px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 4px 0;
+    font-size: 18px;
+    border-radius: 10px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+.truncate-text {
+    display: inline-block;
+    max-width: 180px; /* Adjust as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+.job-section {
+    background-color: #fff;
+}
+.job-check {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+#toggleActions {
+    padding: 6px 16px;
+    border-radius: 18px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    color: #fff;
+}
+.job-meta {
+    margin-top: 1px;
+}
+.ml-15-px {
+    margin-left: 15px;
+}
+.mr-15-px {
+    margin-right: 15px;
+}
+.action-btn {
+    background: transparent;
+    border: none;
+    padding: 0 4px;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  background: #fff;
+  padding: 10px;
+  min-width: 150px;
+  z-index: 1000;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  border-radius: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.columns-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-weight: 400;
+  color: #121C0C;
+}
+
+.menu-panel .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  color: #121C0C;
+}
+
+.menu-panel svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dropdown-cstm {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+}
+
+.menu-panel {
+    min-width: 160px;
+}
+
+.columns-panel input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #e6eef6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.columns-panel input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+.columns-panel input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.col-check input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #e6eef6;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.col-check input[type="checkbox"]:checked {
+  background-color: #47ddff; /* Your custom fill color */
+  border-color: #47ddff;
+}
+
+.col-check input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Consistent rounded-square style for all job list checkboxes */
+.job-list-container input[type="checkbox"].job-check,
+.split-job-list input[type="checkbox"].job-checkbox,
+#select-all-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cfd9e3;
+  border-radius: 6px; /* rounded square */
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.job-list-container input[type="checkbox"].job-check:checked,
+.split-job-list input[type="checkbox"].job-checkbox:checked,
+#select-all-checkbox:checked {
+  background-color: #47ddff;
+  border-color: #47ddff;
+}
+
+.job-list-container input[type="checkbox"].job-check:checked::after,
+.split-job-list input[type="checkbox"].job-checkbox:checked::after,
+#select-all-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Remove previous scale that distorted shape */
+.job-check { transform: none; margin-right: 8px; }
+
+.job-title {
+    color: #121C0C;
+    font-size: 20px;
+}
+
+.action-btn {
+    // background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.action-btn, .dropdown-cstm {
+    transition: all 0.2s ease;
+}
+.action-btn:hover, .dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+.action-btn:hover svg {
+    color: #85BB65;
+}
+#delete-btn:hover {
+    color: #BA1824;
+    border: 1px solid #BA1824;
+    transition: all 0.2s ease; 
+}
+#delete-btn:hover svg {
+    color: #BA1824;
+}
+.col-center {
+    text-align: center;
+}
+.col-rank {
+    min-width: 55px;
+    max-width: 55px;
+}
+.application .card {
+  clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1 0 auto;
+  margin-left: -15px;
+  cursor: pointer;
+}
+
+/* First card: arrow on right only */
+.application .col:first-child .card {
+    clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,0% 0%);
+    margin-left: 0;
+    height: 65px;
+    align-items: center;
+    justify-content: center;
+}
+.application .col:first-child {
+    max-width: 150px;
+}
+.application .col .card-body {
+    justify-content: center;
+    flex-direction: column-reverse;
+    text-align: center;
+    align-items: center;
+}
+.application .col .card-body .card-title {
+    font-size: 16px;
+}
+.is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-rejected:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-rejected.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
+    color: rgb(33, 37, 41);
+}
+.application .col .card-body p {
+    font-size: 18px;
+    color: #121C0C;
+}
+.application .col:first-child .card .card-body {
+    align-items: center;
+}
+.application .col:nth-child(2) .card {
+  clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,0% 0%);
+  margin-left: 0;
+}
+.application .col:last-child .card {
+    clip-path: polygon(0% 0%,100% 0%,100% 100%,0% 100%,15px 50%,0% 0%);
+}
+.application .col:first-child .card-body .card-title {
+    font-size: 16px;
+}
+.col:nth-child(1) .is-card {
+  background-color: #D2E6C6;
+}
+.col:nth-child(2) .is-card {
+  background-color: #C7E0B8;
+}
+.col:nth-child(3) .is-card {
+  background-color: #BBDAAA;
+}
+.col:nth-child(4) .is-card {
+  background-color: #AFD39C;
+}
+.col:nth-child(5) .is-card {
+  background-color: #A4CC8E;
+}
+.col:nth-child(6) .is-card {
+  background-color: #99C680;
+}
+.col:nth-child(7) .is-card {
+  background-color: #8DC072;
+}
+.col:nth-child(8) .is-card {
+  background-color: #82B964;
+}
+
+.col:nth-child(1) .is-card:hover {
+  background-color: #B9F2FF;
+}
+.col:nth-child(2) .is-card:hover {
+  background-color: #ADF0FF;
+}
+.col:nth-child(3) .is-card:hover {
+  background-color: #99ECFF;
+}
+.col:nth-child(4) .is-card:hover {
+  background-color: #85E9FF;
+}
+.col:nth-child(5) .is-card:hover {
+  background-color: #70E5FF;
+}
+.col:nth-child(6) .is-card:hover {
+  background-color: #5CE1FF;
+}
+.col:nth-child(7) .is-card:hover {
+  background-color: #47DDFF;
+}
+.col:nth-child(8) .is-card:hover {
+  background-color: #33DAFF;
+}
+.col .is-card.is-saved.active {
+    background-color: #ADF0FF;
+}
+.sort-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 2px;
+  margin-left: 6px;
+  vertical-align: middle;
+  position: relative;
+  top: 1px; /* nudges to visually center with text */
+}
+.sort-toggle svg { width: 10px; height: 10px; }
+.sort-toggle .arrow { opacity: 0.35; transition: opacity 0.15s ease; }
+.sort-toggle .arrow.active { opacity: 1; }
+
+.actions-container {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Ensure header and row cells vertically align */
+.job-header > div,
+.job-row > div {
+  display: flex;
+  align-items: center;
+    box-sizing: border-box;
+  padding: 0 8px; /* consistent horizontal padding for alignment */
+}
+
+/* Center content for numeric/text columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center { justify-content: center; }
+
+.job-actions-left {
+  justify-self: start;
+}
+
+.job-actions-middle {
+  justify-self: center;
+}
+
+.col-dropdowns {
+  justify-self: end;
+}
+
+.table-responsive-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb {
+  background: #85BB65;
+  border-radius: 10px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #6fa852;
+}
+</style>
+
+<div class="container-xl">
+    <div class="job-section shadow-lg p-3 rounded-3">
+
+        <div class="application">
+            <div class="row g-2">
+                <div class="col">
+                    <div class="card is-card mb-3 is-applied active">
+                        <div class="card-body">
+                            <h6 class="card-title">Archived</h6>
+                            <p class="card-text">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="job-list-container bg-light p-3 rounded-3">
+            <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
+                <div class="d-flex align-items-center job-lists">
+                    <div class="d-flex align-items-center flex-grow-1" style="min-width: 1320px;">
+                        <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1" style="min-width: 1320px;">
+                            <div class="col-check" style="width: 30px; flex-shrink: 0;">
+                                <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
+                            </div>
+                            <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-start col-center sortable" data-sort="posted" style="width: 100px; flex-shrink: 0;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-expiry col-center sortable" data-sort="expires" style="width: 100px; flex-shrink: 0;">Expires on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-start col-center sortable" data-sort="salary" style="width: 80px; flex-shrink: 0;">Salary(Hourly)<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                            <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"><span style="font-size: 16px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+</div>
+
+        <p class="mb-0 ml-15-px mt-3" style="font-size: 18px; color: #121C0C;">No archived jobs right now.</p>
+    </div>
+</div>
+
+>>>>>>> 97beec3ace1c31e07e9245cff07c82bcf3f1f1bb
 {% endblock %}

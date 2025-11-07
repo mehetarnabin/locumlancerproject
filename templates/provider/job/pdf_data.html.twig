@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #121C0C;
+            background: #fff;
+        }
+        
+        .header {
+            background: #85BB65;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            background: #F4F9F1;
+            color: #121C0C;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-left: 4px solid #85BB65;
+            margin-bottom: 15px;
+        }
+        
+        .profile-grid {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .profile-row {
+            display: table-row;
+        }
+        
+        .profile-label {
+            display: table-cell;
+            padding: 8px 15px;
+            font-weight: bold;
+            background: #F4F9F1;
+            border: 1px solid #e6eef6;
+            width: 30%;
+        }
+        
+        .profile-value {
+            display: table-cell;
+            padding: 8px 15px;
+            border: 1px solid #e6eef6;
+        }
+        
+        .jobs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .jobs-table th {
+            background: #85BB65;
+            color: #fff;
+            padding: 10px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .jobs-table td {
+            padding: 8px 10px;
+            border: 1px solid #e6eef6;
+            font-size: 10px;
+        }
+        
+        .jobs-table tr:nth-child(even) {
+            background: #F4F9F1;
+        }
+        
+        .jobs-table tr:nth-child(odd) {
+            background: #fff;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        
+        .badge-applied {
+            background: #47ddff;
+            color: #fff;
+        }
+        
+        .badge-interview {
+            background: #85BB65;
+            color: #fff;
+        }
+        
+        .badge-completed {
+            background: #666;
+            color: #fff;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e6eef6;
+            text-align: center;
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .no-data {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Provider Data Report{% if type == 'saved' %} - Saved Jobs{% elseif type == 'applications' %}{% if statusFilter %} - {{ statusFilter|title }} Jobs{% else %} - Applications{% endif %}{% elseif type == 'matching' %} - Matching Jobs{% endif %}</h1>
+        <p>Generated on {{ "now"|date("F d, Y") }}</p>
+    </div>
+    
+    <!-- Profile Section -->
+    <div class="section">
+        <div class="section-title">Profile Information</div>
+        <div class="profile-grid">
+            <div class="profile-row">
+                <div class="profile-label">Name</div>
+                <div class="profile-value">{{ provider.name ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Email</div>
+                <div class="profile-value">{{ user.email ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Title</div>
+                <div class="profile-value">{{ provider.title ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">NPI Number</div>
+                <div class="profile-value">{{ provider.npiNumber ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Phone (Mobile)</div>
+                <div class="profile-value">{{ provider.phoneMobile ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Phone (Home)</div>
+                <div class="profile-value">{{ provider.phoneHome ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Phone (Work)</div>
+                <div class="profile-value">{{ provider.phoneWork ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Address</div>
+                <div class="profile-value">
+                    {{ provider.streetAddress ?? '' }}
+                    {% if provider.city %} {{ provider.city }}{% endif %}
+                    {% if provider.state %}, {{ provider.state }}{% endif %}
+                    {% if provider.zipCode %} {{ provider.zipCode }}{% endif %}
+                    {% if provider.country %} {{ provider.country }}{% endif %}
+                    {% if not provider.streetAddress and not provider.city %}-{% endif %}
+                </div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Desired Pay Rate (Hourly)</div>
+                <div class="profile-value">{{ provider.payRateHourly ?? 'N/A' }}</div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Desired Pay Rate (Daily)</div>
+                <div class="profile-value">{{ provider.payRateDaily ?? 'N/A' }}</div>
+            </div>
+        </div>
+    </div>
+    
+    {% if type == 'saved' or type == 'all' %}
+    <!-- Saved Jobs Section -->
+    <div class="section">
+        <div class="section-title">Saved Jobs ({{ bookmarks|length }})</div>
+        {% if bookmarks|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Posted Date</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bookmark in bookmarks %}
+                {% set job = bookmark.job %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.startDate ? job.startDate|date('m/d/Y') : 'N/A' }}</td>
+                    <td>{{ bookmark.rank ?? '—' }}/10</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No saved jobs found.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if type == 'applications' or type == 'all' %}
+    {% if not statusFilter or statusFilter == 'applied' %}
+    <!-- Applied Jobs Section -->
+    <div class="section">
+        <div class="section-title">Applied Jobs ({{ appliedApplications|length }})</div>
+        {% if appliedApplications|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Applied Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in appliedApplications %}
+                {% set job = application.job %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
+                    <td><span class="badge badge-applied">{{ application.status|title }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No applied jobs found.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if not statusFilter or statusFilter == 'interview' %}
+    <!-- Interview Jobs Section -->
+    <div class="section">
+        <div class="section-title">Interview Jobs ({{ interviewApplications|length }})</div>
+        {% if interviewApplications|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Interview Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in interviewApplications %}
+                {% set job = application.job %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
+                    <td><span class="badge badge-interview">{{ application.status|title }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No interview jobs found.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if not statusFilter or statusFilter == 'completed' %}
+    <!-- Completed Jobs Section -->
+    <div class="section">
+        <div class="section-title">Completed Jobs ({{ completedApplications|length }})</div>
+        {% if completedApplications|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Completed Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in completedApplications %}
+                {% set job = application.job %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
+                    <td><span class="badge badge-completed">{{ application.status|title }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No completed jobs found.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+    
+    {% if type == 'matching' %}
+    <!-- Matching Jobs Section -->
+    <div class="section">
+        <div class="section-title">Matching Jobs ({{ matchingJobs|length }})</div>
+        {% if matchingJobs|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Posted Date</th>
+                    <th>Expires Date</th>
+                    <th>Match %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in matchingJobs %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.startDate ? job.startDate|date('m/d/Y') : 'N/A' }}</td>
+                    <td>{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : 'N/A' }}</td>
+                    <td>50%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No matching jobs found.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <p>This report was generated automatically by Locumlancer System</p>
+        <p>© {{ "now"|date("Y") }} Locumlancer. All rights reserved.</p>
+    </div>
+</body>
+</html>
+
