@@ -111,8 +111,7 @@ class Job
     #[ORM\Column(nullable: true)]
     private ?bool $verified = null;
 
-    // COMPLETELY REMOVED from database mapping - no ORM annotation at all
-    // This property exists in code but Doctrine will NOT try to map it to database
+    #[ORM\Column(name: 'archived', type: Types::BOOLEAN, nullable: false, options: ['default' => 0])]
     private bool $archived = false;
     
 
@@ -377,20 +376,19 @@ class Job
         return $this;
     }
 
-    // Temporarily disabled - archived column not mapped to database
     public function isArchived(): bool
     {
-        return false; // Always return false to avoid database access
+        return $this->archived;
     }
 
     public function setArchived(bool $archived): self
     {
-        // Do nothing - archived column not mapped to database
+        $this->archived = $archived;
         return $this;
     }
 
     public function getArchived(): bool
     {
-        return false; // Always return false to avoid database access
+        return $this->archived;
     }
 }

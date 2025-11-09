@@ -33,20 +33,18 @@
   z-index: 2;
 }
 </style>#}
-<div class="container-xl">
+{% set statusColors = {
+    'saved': 'saved',
+    'applied': 'applied',
+    'interview': 'interview',
+    'negotiating': 'offered',
+    'accepted' : 'hired',
+    'completed': 'completed',
+} %}
 
-    {% set statusColors = {
-        'saved': 'saved',
-        'applied': 'applied',
-        'interview': 'interview',
-        'negotiating': 'offered',
-        'accepted' : 'hired',
-        'completed': 'completed',
-    } %}
+{% set allStatuses = ['saved', 'applied', 'interview', 'negotiating', 'accepted', 'completed'] %}
 
-    {% set allStatuses = ['saved', 'applied', 'interview', 'negotiating', 'accepted', 'completed'] %}
-
-    <div class="container-xl">
+<div class="container-xl" style="padding-left: 0 !important; margin-left: -100px !important;">
 
     <div class="application">
         <div class="row g-2">
@@ -279,8 +277,6 @@
         {% endif %}
     </div>
 </div>
-
-    </div>
 
     <!-- Row 2: 3 Equal Cards -->
     <div class="row g-3 mt-5 dashboard-row-2">
@@ -871,27 +867,62 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1 0 auto;
   margin-left: -15px;
+  margin-bottom: 0 !important;
   cursor: pointer;
+  height: 100%;
+  width: 100%;
+  flex: 1;
 }
 
 /* First card: no left cutout */
+.application .col:first-child {
+    max-width: 80px;
+    display: flex;
+}
+
+.application .col:first-child > a {
+    display: flex;
+    width: 100%;
+    flex: 1;
+}
+
 .application .col:first-child .card {
     clip-path:none;
     margin-left: 0;
-    height: 65px;
+    margin-bottom: 0 !important;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    width: 100%;
+    flex: 1;
 }
-.application .col:first-child {
-    max-width: 80px;
+.application .row {
+    display: flex;
+    align-items: stretch;
 }
+
+.application .row .col {
+    display: flex;
+    align-items: stretch;
+}
+
+.application .row .col > a {
+    display: flex;
+    width: 100%;
+    flex: 1;
+    align-items: stretch;
+}
+
 .application .col .card-body {
     justify-content: center;
     flex-direction: column-reverse;
     text-align: center;
     align-items: center;
+    display: flex;
+    height: 100%;
+    min-height: 100%;
+    padding: 0.5rem 1rem;
 }
 .application .col .card-body .card-title {
     font-size: 16px;

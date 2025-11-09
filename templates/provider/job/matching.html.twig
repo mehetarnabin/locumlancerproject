@@ -232,6 +232,10 @@
     min-width: 50px;
     max-width: 50px;
 }
+.actions-container {
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
 </style>
 <div class="container-xl">
     <div class="job-section shadow-lg p-3 rounded-3">
@@ -361,7 +365,7 @@
         <div class="job-list-container bg-light p-3 rounded-3">
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1">
-                    <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0;">
                         <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                             <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
                         </div>
@@ -370,6 +374,7 @@
                         <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Posted on</div>
                         <div class="col-expiry col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Expires on</div>
                         <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Salary(Hourly)</div>
+                        <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category</div>
                         <div class="col-start col-center col-rank flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Rank</div>
                     </div>
                 </div>
@@ -377,7 +382,7 @@
 
             {% for job in jobs %}
             <div class="d-flex align-items-center job-lists">
-            <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
+            <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                     <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
                 </div>
@@ -400,6 +405,13 @@
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
                 <div class="col-expiry col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.payRateHourly }}</div>
+                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                    <select class="category-select" style="width: 100%; padding: 6px 10px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 14px; color: #121C0C;">
+                        <option value="locums">Locums</option>
+                        <option value="parttime">Parttime</option>
+                        <option value="fulltime">Full time</option>
+                    </select>
+                </div>
                 <div class="col-start col-center col-rank flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">1</div>
                 {#<div class="col-action d-flex gap-2 justify-content-end" style="width: 150px; visibility: hidden;">
                     {% if job.id|striptags not in appliedJobsIds %}

@@ -34,22 +34,44 @@ h6 {
 }
 
 .app-branding {
-    /* height: 60px; */
     padding-top: 1rem;
-    padding-left: 14px;
+    padding-left: 0;
+    padding-right: 0;
     margin-bottom: 1rem;
-    display: block;
-}
-
-/* .app-logo {
     display: flex;
     align-items: center;
-} */
+    justify-content: center;
+    width: 100%;
+}
+
+.app-branding .app-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    width: 100%;
+}
 
 .app-branding .logo-icon {
-    width: auto;
-    height: 50px;
-    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    font-family: "Lexend", serif;
+}
+
+.app-branding .logo-l-first {
+    color: #85BB65;
+    display: inline-block;
+}
+
+.app-branding .logo-l-second {
+    color: #121C0C;
+    display: inline-block;
+    margin-left: 2px;
 }
 
 .text-logo {
@@ -83,34 +105,72 @@ label {
 /* sidbar */
 
 .app-nav .nav-link.active,
-.app-nav .nav-link.active:hover,
+
+.app-nav .nav-link.active:hover {
+    color: #85BB65 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border-left: 3px solid transparent !important;
+    font-weight: 500 !important;
+}
+
 .app-nav .nav-link.submenu-toggle.active,
 .app-nav .nav-link.submenu-toggle.active:hover,
 .app-nav .has-submenu .nav-link.active,
 .app-nav .has-submenu .nav-link.active:hover {
-    color: #fff !important;
+
+    color: #85BB65 !important;
     background: transparent !important;
     background-color: transparent !important;
-    border-left: 3px solid #121C0C !important;
+
+    border-left: 3px solid transparent !important;
     font-weight: 500 !important;
 }
 
-.app-nav .nav-link.active .submenu-arrow  {
-	color: #fff !important;
+
+.app-nav .nav-link.active .submenu-arrow,
+.app-nav .nav-link.submenu-toggle.active .submenu-arrow {
+	color: #85BB65 !important;
 }
 
-.app-nav .nav-link.active .icon-image {
-    color: #fff !important;
-    fill: #fff !important;
+.app-nav .nav-link.active .icon-image,
+.app-nav .nav-link.submenu-toggle.active .icon-image {
+    color: #85BB65 !important;
+    fill: #85BB65 !important;
+}
+
+.app-nav .nav-link.active .nav-link-text,
+.app-nav .nav-link.submenu-toggle.active .nav-link-text {
+    color: #85BB65 !important;
+}
+
+.app-nav .submenu-link {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Ensure inactive submenu links have no background */
+.app-nav .submenu-item .submenu-link:not(.active) {
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 .app-nav .submenu-link.active,
 .app-nav .submenu-link.active:hover,
 .app-nav .submenu-item .submenu-link.active,
-.app-nav .submenu-item .submenu-link.active:hover {
+
+.app-nav .submenu-item .submenu-link.active:hover,
+.app-nav .submenu-item a.submenu-link.active,
+.app-nav .submenu-list .submenu-item .submenu-link.active,
+.app-nav .submenu-list .submenu-item a.submenu-link.active {
     color: #121C0C !important;
     background: transparent !important;
     background-color: transparent !important;
+
+    background-image: none !important;
+    font-weight: 500;
+    display: block;
+    padding: 0.5rem 1rem;
 }
 
 .app-nav .submenu-link.active:before,
@@ -159,6 +219,26 @@ label {
     margin-bottom: 0;
     font-weight: 400;
     font-family: "Lexend", serif;
+
+    position: relative;
+    overflow: visible;
+}
+
+.app-nav .nav-item.has-submenu {
+    position: relative;
+    overflow: visible;
+}
+
+.app-nav .nav-item.has-submenu .nav-link {
+    position: relative;
+    z-index: 5;
+}
+
+.app-nav .nav-item.has-submenu .submenu {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    padding-top: 0;
 }
 
 .app-nav .submenu-link {
@@ -207,12 +287,113 @@ label {
 
 .app-nav .nav-link {
     padding-left: 40px;
+
+    background: transparent !important;
+    background-color: transparent !important;
+    position: relative;
+    overflow: visible;
+}
+
+.app-nav .nav-link:not(.active) {
+    color: rgba(19, 21, 25, 0.9) !important;
+}
+
+.app-nav .nav-icon {
+    position: absolute;
+    left: 1rem;
+    top: 0.7rem;
+    z-index: 10;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-nav .nav-icon .icon-image {
+    width: 1.25rem;
+    height: 1.25rem;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+    object-fit: contain;
+    display: block;
+    position: relative;
+    z-index: 10;
+}
+
+.app-nav .submenu,
+.app-nav .submenu-list {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+}
+
+.app-nav .submenu-item {
+    position: relative;
+    z-index: 2;
+    background: transparent;
 }
 
 /* sidbar */
 
 a:hover {
     color: var(--primary-color);
+}
+
+
+/* Center app content and fix left spacing - match image layout */
+.app-content {
+    padding-left: 0 !important;
+    padding-right: 25px !important;
+    padding-top: 20px !important;
+}
+
+.app-content .container-xl,
+.container-xl,
+div.container-xl,
+[class*="container-xl"] {
+    margin-left: 0 !important;
+    margin-right: auto;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100%;
+}
+
+/* Remove excessive left padding on dashboard and main content */
+.main-content,
+.dashboard,
+.dashboard .container-xl {
+    padding-left: 0 !important;
+    padding-right: 25px !important;
+    margin-left: 0 !important;
+}
+
+/* Override Bootstrap's calc() padding completely */
+.container-xl {
+    --bs-gutter-x: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Ensure consistent spacing on all screen sizes */
+@media (min-width: 576px) {
+    .app-content {
+        padding-right: 25px !important;
+    }
+    .app-content .container-xl {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .app-content {
+        padding-right: 30px !important;
+    }
+    .app-content .container-xl {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 }
 
 .is-card .card-body {
@@ -230,4 +411,115 @@ a:hover {
     position: absolute;
     right: 12px;
     top: 12px;
+}
+
+
+/* Top bar styling - icons with labels below */
+.app-utilities {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.25rem;
+    flex-wrap: nowrap;
+}
+
+.app-utility-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-right: 0 !important;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.app-utility-item > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #000 !important;
+    gap: 4px;
+    padding: 2px 4px;
+    transition: color 0.2s ease;
+    min-width: 50px;
+}
+
+.app-utility-item > a:hover {
+    color: #000 !important;
+    text-decoration: none;
+}
+
+.app-utility-item .icon-image {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0;
+    display: block;
+}
+
+/* Keep icons in their original style - don't modify stroke or fill */
+.app-utility-item > a .label-text,
+.app-utility-item > a > *:not(.icon-image):not(.icon-badge):not(.outer-ring) {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-align: center;
+    color: #000;
+    font-weight: 400;
+}
+
+/* Notification badge styling - red oval badge */
+.app-utility-item .icon-badge {
+    position: absolute;
+    top: -4px;
+    right: 0;
+    background: #ff0000 !important;
+    color: #fff !important;
+    border-radius: 10px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0 4px;
+    line-height: 1;
+    z-index: 10;
+}
+
+/* Profile avatar styling */
+.app-user-dropdown .outer-ring {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #85BB65;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+}
+
+.app-user-dropdown .outer-ring img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.app-user-dropdown .icon-image {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50%;
+}
+
+/* Ensure text in notifications dropdown is visible */
+.app-notifications-dropdown .dropdown-toggle {
+    position: relative;
 }

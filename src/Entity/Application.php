@@ -228,12 +228,19 @@ class Application
         return $this;
     }
 
-    // near other properties
-#[ORM\Column(type: "boolean")]
-private bool $archived = false;
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => 0])]
+    private bool $archived = false;
 
-public function getArchived(): bool { return $this->archived; }
-public function setArchived(bool $archived): self { $this->archived = $archived; return $this; }
+    public function getArchived(): bool
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(bool $archived): self
+    {
+        $this->archived = $archived;
+        return $this;
+    }
 
 
 
