@@ -3,6 +3,248 @@
 {% block title %}Profile Analytics | Locumlancer{% endblock %}
 
 {% block provider_body %}
+<style>
+/* Analytics Page Styling - Proper Alignment and Spacing */
+.analytics-metric-card,
+.analytics-chart-card {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    transition: box-shadow 0.2s ease;
+}
+
+.analytics-metric-card:hover,
+.analytics-chart-card:hover {
+    box-shadow: 0 4px 12px rgba(11, 22, 40, 0.08) !important;
+}
+
+/* Consistent card padding and spacing */
+.analytics-metric-card {
+    padding: 20px !important;
+}
+
+.analytics-chart-card {
+    padding: 24px !important;
+}
+
+/* Metric card content alignment */
+.analytics-metric-card .metric-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.analytics-metric-card .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #121C0C;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.analytics-metric-card .metric-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: #EAF3E4;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.analytics-metric-card .metric-change {
+    font-size: 12px;
+    font-weight: 500;
+    color: #85BB65;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Chart card headers */
+.analytics-chart-card h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #121C0C;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.analytics-chart-card .form-select-sm {
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    color: #121C0C;
+}
+
+/* Chart container alignment */
+.analytics-chart-card .chart-container {
+    height: 300px;
+    position: relative;
+    margin-top: 8px;
+}
+
+/* Stats grid alignment */
+.stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stats-grid .stat-item {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.stats-grid .stat-item .text-muted {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.stats-grid .stat-item .fw-bold {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #121C0C;
+    line-height: 1.2;
+}
+
+.stats-grid .row.g-2 {
+    margin-top: 12px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.stats-grid .row.g-2 > [class*="col-"] {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.stats-grid .stat-item.text-center {
+    text-align: center;
+}
+
+.stats-grid .stat-item.text-center .fw-bold {
+    font-size: 1.25rem;
+}
+
+/* Performance metrics alignment */
+.performance-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.performance-metrics .metric-bar {
+    margin-bottom: 0;
+}
+
+.performance-metrics .metric-bar .fw-medium {
+    font-size: 14px;
+    font-weight: 500;
+    color: #121C0C;
+    line-height: 1.4;
+}
+
+.performance-metrics .metric-bar .fw-bold {
+    font-size: 14px;
+    font-weight: 700;
+    color: #85BB65;
+    line-height: 1.4;
+}
+
+.performance-metrics .progress {
+    height: 10px;
+    background-color: #F4F9F1;
+    border-radius: 5px;
+    margin-top: 8px;
+}
+
+/* Skills list alignment */
+.skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skills-list .skill-item {
+    margin-bottom: 0;
+}
+
+.skills-list .skill-item .fw-medium {
+    font-size: 14px;
+    font-weight: 500;
+    color: #121C0C;
+    line-height: 1.4;
+}
+
+.skills-list .skill-item .text-muted {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.skills-list .skill-item .progress {
+    height: 8px;
+    background-color: #F4F9F1;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* Row spacing consistency */
+.row.g-4 {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.row.g-4 > [class*="col-"] {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Page title alignment */
+.app-page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #121C0C;
+    margin-bottom: 24px;
+    line-height: 1.3;
+}
+
+/* Container alignment */
+.container-xl {
+    padding-left: 0;
+    padding-right: 25px;
+}
+
+/* Ensure consistent card heights */
+.h-100 {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.analytics-chart-card.h-100 {
+    display: flex;
+    flex-direction: column;
+}
+
+.analytics-chart-card.h-100 .chart-container,
+.analytics-chart-card.h-100 .skills-list,
+.analytics-chart-card.h-100 .stats-grid,
+.analytics-chart-card.h-100 .performance-metrics {
+    flex: 1;
+}
+</style>
+
 <div class="container-xl">
     <div class="app-page-title mb-4">Profile Analytics</div>
     

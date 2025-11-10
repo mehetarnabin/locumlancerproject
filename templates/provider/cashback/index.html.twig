@@ -4,9 +4,68 @@
 
 {% block provider_body %}
 <style>
-.job-header, .job-row {
-    display: flex;
-    align-items: center;
+/* Enhanced table alignment and typography */
+.job-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #121C0C;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  background: #F8FAF9;
+  border-bottom: 2px solid #e6eef6;
+  padding: 0;
+}
+
+.job-row {
+  font-size: 13px;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.5;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.job-row:hover {
+  background-color: #F8FAF9;
+}
+
+.job-header > div,
+.job-row > div {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 12px 8px;
+  min-width: 0;
+  overflow: hidden;
+  height: 48px;
+}
+
+.job-header {
+  min-height: 48px;
+  height: 48px;
+}
+
+.job-header .col-start.col-center,
+.job-row .col-start.col-center {
+  justify-content: center;
+  text-align: center;
+}
+
+.col-job {
+  font-weight: 500;
+}
+
+.job-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #121C0C;
+  line-height: 1.4;
+}
+
+.job-row > div {
+  font-size: 13px;
+  color: #1a1a1a;
 }
 
 .col-job,
@@ -21,24 +80,18 @@
 .col-job {
     flex: 2;
 }
+/* Header and row styling consolidated in enhanced section above */
 .job-header {
-    padding-left: 14px;
-    padding-right: 14px;
-    color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
-    height: 48px;
     margin-bottom: 2px;
 }
 .job-row {
     border: none;
-    padding: 3px 14px;
-    display: flex;
+    padding: 0;
     justify-content: space-between;
-    align-items: flex-start;
     margin: 2px 0;
-    font-size: 14px;
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
@@ -55,9 +108,54 @@
 .job-section {
     background-color: #fff;
 }
+/* Consistent rounded rectangle style for all job list checkboxes */
+.job-list-container input[type="checkbox"].job-check,
+#select-all-checkbox,
 .job-check {
-    margin-right: 8px;
-    transform: scale(1.2);
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cfd9e3;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  margin-right: 8px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transform: none;
+}
+
+/* Hover state - green border */
+.job-list-container input[type="checkbox"].job-check:hover,
+#select-all-checkbox:hover,
+.job-check:hover {
+  border-color: #85BB65;
+}
+
+/* Checked state - green filled with white checkmark */
+.job-list-container input[type="checkbox"].job-check:checked,
+#select-all-checkbox:checked,
+.job-check:checked {
+  background-color: #85BB65;
+  border-color: #85BB65;
+}
+
+.job-list-container input[type="checkbox"].job-check:checked::after,
+#select-all-checkbox:checked::after,
+.job-check:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 #toggleActions {
     padding: 6px 16px;
@@ -138,17 +236,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.columns-panel input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked::after {
@@ -167,17 +269,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.col-check input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked::after {

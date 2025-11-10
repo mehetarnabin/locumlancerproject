@@ -7,6 +7,8 @@
 .job-header, .job-row {
     display: flex;
     align-items: center;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .col-job,
@@ -22,24 +24,24 @@
     flex: 2;
 }
 .job-header {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
-    height: 48px;
+    height: 40px;
     margin-bottom: 2px;
-    font-size: 16px;
+    font-size: 13px;
 }
 .job-row {
     border: none;
-    padding: 20px 14px;
+    padding: 10px 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 4px 0;
-    font-size: 16px;
+    margin: 2px 0;
+    font-size: 13px;
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
@@ -139,17 +141,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.columns-panel input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked::after {
@@ -168,17 +174,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.col-check input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked::after {
@@ -202,21 +212,29 @@
   width: 18px;
   height: 18px;
   border: 1px solid #cfd9e3;
-  border-radius: 4px; /* rounded rectangle */
+  border-radius: 4px;
   background: #fff;
   cursor: pointer;
   position: relative;
   display: inline-block;
   vertical-align: middle;
   margin: 0;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Hover state - green border */
+.job-list-container input[type="checkbox"].job-check:hover,
+.split-job-list input[type="checkbox"].job-checkbox:hover,
+#select-all-checkbox:hover {
+  border-color: #85BB65;
+}
+
+/* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
 .split-job-list input[type="checkbox"].job-checkbox:checked,
 #select-all-checkbox:checked {
-  background-color: #47ddff;
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
@@ -276,6 +294,9 @@
 .col-rank {
     min-width: 55px;
     max-width: 55px;
+}
+.application {
+    padding-left: 16px;
 }
 .application .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
@@ -435,18 +456,80 @@
   margin-bottom: 12px;
 }
 
-/* Ensure header and row cells vertically align */
+/* Enhanced table alignment and typography */
+.job-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #121C0C;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  background: #F8FAF9;
+  border-bottom: 2px solid #e6eef6;
+}
+
+.job-row {
+  font-size: 13px;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.5;
+  transition: background-color 0.2s ease;
+}
+
+.job-row:hover {
+  background-color: #F8FAF9;
+}
+
+/* Perfect alignment between headers and rows */
 .job-header > div,
 .job-row > div {
   display: flex;
   align-items: center;
-    box-sizing: border-box;
-  padding: 0 8px; /* consistent horizontal padding for alignment */
+  box-sizing: border-box;
+  padding: 12px 8px;
+  min-width: 0;
+  overflow: hidden;
+  height: 48px;
+}
+
+/* Ensure consistent vertical alignment */
+.job-header {
+  min-height: 48px;
+  height: 48px;
 }
 
 /* Center content for numeric/text columns */
 .job-header .col-start.col-center,
-.job-row .col-start.col-center { justify-content: center; }
+.job-row .col-start.col-center {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Job column specific styling */
+.col-job {
+  font-weight: 500;
+}
+
+/* Improve text truncation */
+.job-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #121C0C;
+  line-height: 1.4;
+}
+
+/* Consistent cell content styling */
+.job-row > div {
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+/* Status and badge styling */
+.job-row .badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
 
 .job-actions-left {
   justify-self: start;
@@ -508,17 +591,17 @@
                                 <h6 class="card-title">All</h6>
                                 <p class="card-text">{{ totalApplications|number_format }}</p>
                             </div>
-                        </div>
-                    </a>
+                </div>
+            </a>
                 </div>
 
-                {% for status in allStatuses %}
-                    {% set count = 0 %}
-                    {% for item in statusCounts %}
-                        {% if item.status == status %}
-                            {% set count = item.count %}
-                        {% endif %}
-                    {% endfor %}
+            {% for status in allStatuses %}
+                {% set count = 0 %}
+                {% for item in statusCounts %}
+                    {% if item.status == status %}
+                        {% set count = item.count %}
+                    {% endif %}
+                {% endfor %}
                     <div class="col">
                         <a href="{% if status == 'saved' %}{{ path('app_provider_jobs_saved') }}{% else %}{{ path('app_provider_jobs_applications', {'status': status}) }}{% endif %}">
                         <div class="card is-card mb-3 is-{{ statusColors[status] }} {% if app.request.get('status') == status or (status == 'saved' and app.request.get('_route') == 'app_provider_jobs_saved') %}active{% endif %}">
@@ -541,22 +624,74 @@
                                     <img src="{{ asset('assets/icons/flag.png') }}" class="icon-image" alt="">
                                 {% endif %} #}
                             </div>
-                        </div>
-                        </a>
                     </div>
-                {% endfor %}
+                </a>
+                    </div>
+            {% endfor %}
             </div>
         </div>
 
         <div class="actions-container ml-15-px mr-15-px">
             <!-- Left Group: Filter, Notify of hire, Email, Apply -->
             <div class="job-actions-left" style="display: flex; gap: 8px; align-items: center;">
-              <button id="filter-btn" class="action-btn" title="Filter" style="flex-shrink: 0;">
-                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Filter
-              </button>
+              <div class="position-relative" style="flex-shrink: 0;">
+                <button id="filter-btn" class="action-btn" title="Filter">
+                  <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Filter
+                </button>
+                <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 280px; z-index: 1000;">
+                  <div style="padding: 16px;">
+                    <h6 style="margin-bottom: 12px; font-weight: 600; color: #121C0C;">Filter Jobs</h6>
+                    
+                    <!-- Location Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Location</label>
+                      <input type="text" id="filter-location" class="form-control" placeholder="Enter location" style="font-size: 13px; padding: 6px 10px;">
+                    </div>
+                    
+                    <!-- Salary Range Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Salary Range</label>
+                      <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="number" id="filter-salary-min" class="form-control" placeholder="Min" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                        <span style="color: #6b7280;">-</span>
+                        <input type="number" id="filter-salary-max" class="form-control" placeholder="Max" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                      </div>
+                    </div>
+                    
+                    <!-- Category Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Category</label>
+                      <select id="filter-category" class="form-control" style="font-size: 13px; padding: 6px 10px;">
+                        <option value="">All Categories</option>
+                        <option value="locums">Locums</option>
+                        <option value="parttime">Parttime</option>
+                        <option value="fulltime">Full time</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Date Posted Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Posted Within</label>
+                      <select id="filter-date-posted" class="form-control" style="font-size: 13px; padding: 6px 10px;">
+                        <option value="">Any time</option>
+                        <option value="1">Last 24 hours</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; margin-top: 16px;">
+                      <button id="apply-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; font-size: 13px;">Apply</button>
+                      <button id="clear-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; font-size: 13px; background: #f3f4f6; color: #6b7280;">Clear</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <button id="save-btn" class="action-btn" title="Save">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -640,7 +775,7 @@
                     <path d="M13 11L21 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 New Window
-            </button>
+              </button>
               <!-- Columns Dropdown -->
               <div class="columns-dropdown position-relative" style = "display: none;">
                 <button type="button" class="columns-dropdown-btn dropdown-cstm"><span>Columns</span></button>
@@ -687,12 +822,9 @@
         <div class="job-list-container bg-light p-3 rounded-3">
           <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
           <div class="d-flex align-items-center job-lists">
-            <div class="d-flex align-items-center flex-grow-1" style="min-width: 1320px;">
-              <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="min-width: 1320px; gap: 0;">
-                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
-                  <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
-                </div>
-                <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
+              <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
+                <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; gap: 4px;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
                 <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
@@ -704,7 +836,7 @@
                 </div>
                 <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
-                <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="font-size: 16px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="font-size: 13px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
               </div>
             </div>
@@ -713,7 +845,7 @@
           {% for bookmark in bookmarks %}
             {% set job = bookmark.job %}
             <div class="d-flex align-items-center job-lists">
-              <div class="job-row d-flex align-items-center flex-grow-1" style="min-width: 1320px; gap: 0;">
+              <div class="job-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                   <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
                 </div>
@@ -734,14 +866,14 @@
                   <div class="col-expiry col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '—' }}</div>
                   <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.payRateHourly }}</div>
                   <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
-                    <select class="category-select" style="width: 100%; padding: 6px 10px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 12px; color: #121C0C;">
+                    <select class="category-select" style="width: 100%; padding: 4px 8px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 11px; color: #121C0C;">
                       <option value="locums">Locums</option>
                       <option value="parttime">Parttime</option>
                       <option value="fulltime">Full time</option>
                     </select>
                   </div>
                   <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                    <span class="rank-display" data-job-id="{{ job.id }}" style="font-size: 16px;">
+                    <span class="rank-display" data-job-id="{{ job.id }}" style="font-size: 13px;">
                       {{ bookmark.rank is not null ? bookmark.rank ~ '/10' : '—' }}
                     </span>
                     <input
@@ -753,7 +885,7 @@
                       step="0.5"
                       data-job-id="{{ job.id }}"
                       data-original-value="{{ bookmark.rank is not null ? bookmark.rank : '' }}"
-                      style="width: 60px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px; font-size: 16px;"
+                      style="width: 60px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px; font-size: 13px;"
                       oninput="if (this.value > 10) this.value = 10; if (this.value < 1) this.value = 1;"
                     />
                   </div>
@@ -1456,7 +1588,6 @@
     const deleteBtn = document.getElementById('delete-btn');
     const emailBtn = document.getElementById('email-btn');
     const actionsDivs = document.querySelectorAll('.hidden-buttons');
-    const selectAllCheckbox = document.getElementById('select-all-checkbox');
     const columnsBtn = document.querySelector('.columns-dropdown-btn');
     const menuBtn = document.querySelector('.menu-dropdown-btn');
     const columnsPanel = document.querySelector('.columns-panel');
@@ -1504,23 +1635,7 @@
       saveBtn.addEventListener('click', () => openEmailModal(2));
     }
 
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', function () {
-        checkboxes.forEach(cb => {
-          cb.checked = selectAllCheckbox.checked;
-        });
-        toggleActionsVisibility();
-        updateActions();
-      });
-
-      // Sync master checkbox if user manually toggles individual ones
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-          const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-          selectAllCheckbox.checked = allChecked;
-        });
-      });
-    }
+    // Select all checkbox has been removed from the UI
 
     // Update the toggleActionsVisibility function
     function toggleActionsVisibility() {
@@ -1609,9 +1724,18 @@
       const target = e.target;
       if (!target) return;
       if (target.classList && target.classList.contains('job-checkbox')) {
-        try { toggleActionsVisibility(); updateButtonStates(); } catch (e) {}
-      }
-      if (target.id === 'select-all-checkbox') {
+        // Enforce single selection
+        if (target.checked) {
+          // Get all checkboxes (including split view ones)
+          const allCheckboxes = document.querySelectorAll('.job-checkbox');
+          const otherChecked = Array.from(allCheckboxes).find(cb => cb !== target && cb.checked);
+          if (otherChecked) {
+            // Prevent this checkbox from being checked and show alert
+            target.checked = false;
+            alert('You cannot select multiple values');
+            return;
+          }
+        }
         try { toggleActionsVisibility(); updateButtonStates(); } catch (e) {}
       }
     });
@@ -2112,6 +2236,118 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const container = document.querySelector('.job-list-container');
     rows.forEach(row => container.appendChild(row.element.parentElement));
+  }
+});
+</script>
+
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtn = document.getElementById('filter-btn');
+  const filterPanel = document.getElementById('filter-panel');
+  const applyFilterBtn = document.getElementById('apply-filter-btn');
+  const clearFilterBtn = document.getElementById('clear-filter-btn');
+  
+  if (!filterBtn || !filterPanel) return;
+  
+  // Toggle filter panel
+  filterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filterPanel.classList.toggle('hidden');
+  });
+  
+  // Close filter panel when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!filterPanel.contains(e.target) && !filterBtn.contains(e.target)) {
+      filterPanel.classList.add('hidden');
+    }
+  });
+  
+  // Apply filters
+  applyFilterBtn.addEventListener('click', function() {
+    applyFilters();
+    filterPanel.classList.add('hidden');
+  });
+  
+  // Clear filters
+  clearFilterBtn.addEventListener('click', function() {
+    document.getElementById('filter-location').value = '';
+    document.getElementById('filter-salary-min').value = '';
+    document.getElementById('filter-salary-max').value = '';
+    document.getElementById('filter-category').value = '';
+    document.getElementById('filter-date-posted').value = '';
+    applyFilters();
+    filterPanel.classList.add('hidden');
+  });
+  
+  function applyFilters() {
+    const locationFilter = document.getElementById('filter-location').value.toLowerCase().trim();
+    const salaryMin = parseFloat(document.getElementById('filter-salary-min').value) || 0;
+    const salaryMax = parseFloat(document.getElementById('filter-salary-max').value) || Infinity;
+    const categoryFilter = document.getElementById('filter-category').value.toLowerCase();
+    const dateFilter = document.getElementById('filter-date-posted').value;
+    
+    const rows = document.querySelectorAll('.job-row');
+    const now = new Date();
+    
+    rows.forEach(row => {
+      let show = true;
+      
+      // Location filter
+      if (locationFilter) {
+        const location = row.querySelector('.col-start:nth-child(3)')?.textContent.trim().toLowerCase() || '';
+        if (!location.includes(locationFilter)) {
+          show = false;
+        }
+      }
+      
+      // Salary filter
+      if (show && (salaryMin > 0 || salaryMax < Infinity)) {
+        const salaryText = row.querySelector('.col-start:nth-child(6)')?.textContent.trim() || '';
+        const salary = parseFloat(salaryText.replace(/[^0-9.]/g, '')) || 0;
+        if (salary < salaryMin || salary > salaryMax) {
+          show = false;
+        }
+      }
+      
+      // Category filter
+      if (show && categoryFilter) {
+        const categorySelect = row.querySelector('.category-select');
+        const category = categorySelect ? categorySelect.value.toLowerCase() : '';
+        if (category !== categoryFilter) {
+          show = false;
+        }
+      }
+      
+      // Date posted filter
+      if (show && dateFilter) {
+        const postedText = row.querySelector('.col-start:nth-child(4)')?.textContent.trim() || '';
+        if (postedText) {
+          const postedDate = parseDate(postedText);
+          if (postedDate) {
+            const daysDiff = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff > parseInt(dateFilter)) {
+              show = false;
+            }
+          }
+        }
+      }
+      
+      // Show/hide row
+      const rowWrapper = row.closest('.job-lists') || row.parentElement;
+      if (rowWrapper) {
+        rowWrapper.style.display = show ? '' : 'none';
+      }
+    });
+  }
+  
+  function parseDate(dateStr) {
+    // Parse MM/DD/YYYY format
+    const parts = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (parts) {
+      return new Date(parseInt(parts[3]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+    return null;
   }
 });
 </script>

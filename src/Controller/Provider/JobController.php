@@ -48,6 +48,7 @@ class JobController extends AbstractController
         $applications = $applicationRepository->findBy(['provider' => $this->getUser()->getProvider()]);
 
         $appliedJobs = [];
+        $appliedJobsIds = [];
         foreach ($applications as $application){
             $appliedJobsIds[] =  (string) $application->getJob()->getId();
         }

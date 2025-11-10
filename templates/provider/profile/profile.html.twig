@@ -10,7 +10,7 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-  padding: 18px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
 }
@@ -53,8 +53,8 @@
 
 /* Info row items */
 .info-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #eef2f6;
+  padding: 14px 0;
+  border-bottom: none;
 }
 .info-item:last-child { border-bottom: none; }
 
@@ -144,7 +144,7 @@
   .col-lg-2  { flex: 0 0 100%; max-width: 100%; margin-top: 18px; }
 }
 .profile-card, .section-card, .profile-right-card {
-  padding: 16px; /* slightly tighter now */
+  padding: 24px; /* increased for better spacing */
 }
 .profile-right-card {
   height: 100%;
@@ -429,6 +429,36 @@ input[type="checkbox"]:checked::after {
     display: flex;
     gap: 6px;
     align-items: center;
+    font-size: 14px;
+}
+/* Smaller buttons when in edit mode */
+#infoEdit .action-btn-edit {
+    padding: 3px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+#infoEdit .action-btn-edit .icon-image {
+    width: 18px;
+    height: 18px;
+}
+/* Smaller form inputs and icons in edit mode */
+#infoEdit .form-control {
+    font-size: 14px !important;
+    padding: 6px 12px;
+}
+#infoEdit .info-item svg {
+    width: 20px;
+    height: 20px;
+}
+#infoEdit .app-card-title {
+    font-size: 16px;
+}
+/* Reduce gap between elements in edit mode */
+#infoEdit .d-flex.gap-3 {
+    gap: 12px !important;
+}
+#infoEdit .d-flex.gap-2 {
+    gap: 8px !important;
 }
 .action-btn-edit:hover, .dropdown-cstm:hover {
     color: #85BB65;
@@ -509,8 +539,8 @@ input[type="checkbox"]:checked::after {
       <div class="row">
         {# Left: profile card #}
           <div class="col-12 col-lg-6 d-flex flex-column">
-              <div id="personalSection" class="profile-card">
-                <div id="infoView">
+              <div id="personalSection" class="profile-card" style="position: relative;">
+                <div id="infoView" style="position: relative;">
                   <div class="d-flex justify-content-between align-items-center mb-3">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons">
@@ -525,7 +555,7 @@ input[type="checkbox"]:checked::after {
                       </div>
                   </div>
 
-                  <div class="d-flex gap-3 align-items-center">
+                  <div class="d-flex gap-4 align-items-center" style="margin-bottom: 8px;">
                     <div class="profile-avatar-box">
                       <div class="profile-icon-box ">
                       {% if app.user.profilePictureFilename %}
@@ -606,7 +636,7 @@ input[type="checkbox"]:checked::after {
                     </div>#}
                   </div>
                 </div>
-                <div id="infoEdit" style="display: none;">
+                <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%;">
                   <div class="d-flex justify-content-between align-items-center mb-3">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons" class="d-flex gap-2">
@@ -656,7 +686,7 @@ input[type="checkbox"]:checked::after {
                     </div>
 
                     <div style="flex:1;">
-                      {{ form_widget(form.name, {'attr': {'class': 'form-control fw-semibold fs-5'}}) }}
+                      {{ form_widget(form.name, {'attr': {'class': 'form-control fw-semibold'}}) }}
                       {{ form_errors(form.name) }}
                     </div>
                   </div>
@@ -795,6 +825,44 @@ input[type="checkbox"]:checked::after {
     {# Right: narrow column for upload buttons and quick links - col-lg-2 #}
     <div class="col-12 col-lg-4 d-flex flex-column">
       <div class="profile-right-card h-fix-auto">
+          <div class="card-header-row d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Share via Onelink</h5>
+            <button id="toggle-checkmarks" class="cstm-toggle-btn" title="Toggle Checkmarks">
+              <svg icon-image width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g id="Communication / Share_iOS_Export">
+              <path id="Vector" d="M9 6L12 3M12 3L15 6M12 3V13M7.00023 10C6.06835 10 5.60241 10 5.23486 10.1522C4.74481 10.3552 4.35523 10.7448 4.15224 11.2349C4 11.6024 4 12.0681 4 13V17.8C4 18.9201 4 19.4798 4.21799 19.9076C4.40973 20.2839 4.71547 20.5905 5.0918 20.7822C5.5192 21 6.07899 21 7.19691 21H16.8036C17.9215 21 18.4805 21 18.9079 20.7822C19.2842 20.5905 19.5905 20.2839 19.7822 19.9076C20 19.4802 20 18.921 20 17.8031V13C20 12.0681 19.9999 11.6024 19.8477 11.2349C19.6447 10.7448 19.2554 10.3552 18.7654 10.1522C18.3978 10 17.9319 10 17 10" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              </svg>
+            </button>
+          </div>
+
+          <div class="card-body">
+            <div class="mb-3 ">
+              <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="max-width: 300px;">
+            </div>
+
+            <h6 class="mt-4">Doc Shared</h6>
+            <ul class="list-unstyled">
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc1">
+                <label class="form-check-label" for="doc1">Document 1.pdf</label>
+              </li>
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc2">
+                <label class="form-check-label" for="doc2">Document 2.docx</label>
+              </li>
+              <li class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="doc3">
+                <label class="form-check-label" for="doc3">Document 3.xlsx</label>
+              </li>
+            </ul>
+
+            <div class="d-flex justify-content-end mt-3">
+              <button type="button" class="upload-btn-custom">Share</button>
+            </div>
+          </div>
+        </div>
+      <div class="profile-right-card mt-4 h-fix-auto">
         <div class="card-header-row d-flex justify-content-between">
             <h5 class="card-title mb-0">Quick Links</h5>
             <h5 class="card-title mb-0">Share</h5>
@@ -902,44 +970,6 @@ input[type="checkbox"]:checked::after {
 
         {# Note: the toggles are intentionally inert and were moved inside each card above #}
       </div>
-      <div class="profile-right-card mt-3 h-fix-auto">
-          <div class="card-header-row d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Share via Onelink</h5>
-            <button id="toggle-checkmarks" class="cstm-toggle-btn" title="Toggle Checkmarks">
-              <svg icon-image width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="Communication / Share_iOS_Export">
-              <path id="Vector" d="M9 6L12 3M12 3L15 6M12 3V13M7.00023 10C6.06835 10 5.60241 10 5.23486 10.1522C4.74481 10.3552 4.35523 10.7448 4.15224 11.2349C4 11.6024 4 12.0681 4 13V17.8C4 18.9201 4 19.4798 4.21799 19.9076C4.40973 20.2839 4.71547 20.5905 5.0918 20.7822C5.5192 21 6.07899 21 7.19691 21H16.8036C17.9215 21 18.4805 21 18.9079 20.7822C19.2842 20.5905 19.5905 20.2839 19.7822 19.9076C20 19.4802 20 18.921 20 17.8031V13C20 12.0681 19.9999 11.6024 19.8477 11.2349C19.6447 10.7448 19.2554 10.3552 18.7654 10.1522C18.3978 10 17.9319 10 17 10" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </g>
-              </svg>
-            </button>
-          </div>
-
-          <div class="card-body">
-            <div class="mb-3 ">
-              <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="max-width: 300px;">
-            </div>
-
-            <h6 class="mt-4">Doc Shared</h6>
-            <ul class="list-unstyled">
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc1">
-                <label class="form-check-label" for="doc1">Document 1.pdf</label>
-              </li>
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc2">
-                <label class="form-check-label" for="doc2">Document 2.docx</label>
-              </li>
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc3">
-                <label class="form-check-label" for="doc3">Document 3.xlsx</label>
-              </li>
-            </ul>
-
-            <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="upload-btn-custom">Share</button>
-            </div>
-          </div>
-        </div>
     </div>
   </div>
   </div>
@@ -1714,13 +1744,22 @@ function clearFile() {
     originalData[el.name] = el.value;
   });
 
-  // Cancel button logic
+  // Cancel button logic - maintain layout position
   cancelBtn?.addEventListener('click', () => {
     document.querySelectorAll('#infoEdit input, #infoEdit select, #infoEdit textarea').forEach(el => {
       el.value = originalData[el.name] || '';
     });
+    
+    // Restore view mode
     infoEdit.style.display = 'none';
+    infoEdit.style.visibility = 'hidden';
+    infoEdit.style.opacity = '0';
+    
     infoView.style.display = 'block';
+    infoView.style.visibility = 'visible';
+    infoView.style.opacity = '1';
+    infoView.style.height = 'auto';
+    infoView.style.overflow = 'visible';
 
     document.getElementById('actionIcons').innerHTML = `
       <a href="javascript:void(0);" id="editToggle" class="link-plain" title="Edit">
@@ -1746,10 +1785,19 @@ function clearFile() {
     }
   });
 
-  // Edit toggle logic
+  // Edit toggle logic - maintain layout position without moving flexbox
   function switchToEditMode() {
-    infoView.style.display = 'none';
+    // Hide view, show edit in same position
+    const viewHeight = infoView.offsetHeight;
+    infoView.style.visibility = 'hidden';
+    infoView.style.opacity = '0';
+    infoView.style.height = viewHeight + 'px';
+    infoView.style.overflow = 'hidden';
+    
     infoEdit.style.display = 'block';
+    infoEdit.style.visibility = 'visible';
+    infoEdit.style.opacity = '1';
+    infoEdit.style.height = 'auto';
   }
 
   document.getElementById('editToggle')?.addEventListener('click', switchToEditMode);

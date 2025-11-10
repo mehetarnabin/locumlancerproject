@@ -8,6 +8,8 @@
 .job-header, .job-row {
     display: flex;
     align-items: center;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .col-job,
@@ -23,30 +25,34 @@
     flex: 2;
 }
 .job-header {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 8px;
+    padding-right: 8px;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
-    height: 48px;
+    height: 40px;
     margin-bottom: 2px;
-    font-size: 16px;
+    font-size: 13px;
+    min-width: 0;
+    overflow: hidden;
 }
 .job-row {
     border: none;
-    padding: 20px 14px;
+    padding: 8px 8px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin: 4px 0;
+    margin: 2px 0;
     align-items: center;
-    margin: 4px 0;
-    font-size: 16px;
+    margin: 2px 0;
+    font-size: 13px;
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    min-width: 0;
+    overflow: hidden;
 }
 .truncate-text {
     display: inline-block;
@@ -151,17 +157,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.columns-panel input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .columns-panel input[type="checkbox"]:checked::after {
@@ -180,17 +190,21 @@
   appearance: none;
   width: 16px;
   height: 16px;
-  border: 1px solid #e6eef6;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.col-check input[type="checkbox"]:hover {
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .col-check input[type="checkbox"]:checked::after {
@@ -220,13 +234,20 @@
   display: inline-block;
   vertical-align: middle;
   margin: 0;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+/* Hover state - green border */
+.job-list-container input[type="checkbox"]:hover,
+#select-all-checkbox:hover {
+  border-color: #85BB65;
+}
+
+/* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"]:checked,
 #select-all-checkbox:checked {
-  background-color: #47ddff;
-  border-color: #47ddff;
+  background-color: #85BB65;
+  border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"]:checked::after,
@@ -282,6 +303,9 @@
 .col-rank {
     min-width: 50px;
     max-width: 50px;
+}
+.application {
+    padding-left: 16px;
 }
 .application .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
@@ -457,24 +481,79 @@
   margin-bottom: 12px;
 }
 
-/* Align header and row cells consistently */
+/* Enhanced table alignment and typography */
+.job-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #121C0C;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  background: #F8FAF9;
+  border-bottom: 2px solid #e6eef6;
+}
+
+.job-row {
+  font-size: 13px;
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.5;
+  transition: background-color 0.2s ease;
+}
+
+.job-row:hover {
+  background-color: #F8FAF9;
+}
+
+/* Perfect alignment between headers and rows */
 .job-header > div,
 .job-row > div {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: 0 8px;
+  padding: 12px 8px;
+  min-width: 0;
+  overflow: hidden;
+  height: 48px;
 }
 
-/* Center numeric/text columns for consistent look */
-.job-header .col-start.col-center,
-.job-row .col-start.col-center { justify-content: center; }
+/* Ensure consistent vertical alignment */
+.job-header {
+  min-height: 48px;
+  height: 48px;
+}
 
-/* Ensure header and row cells vertically align */
-.job-header > div,
+/* Center content for numeric/text columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Job column specific styling */
+.col-job {
+  font-weight: 500;
+}
+
+/* Improve text truncation */
+.job-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #121C0C;
+  line-height: 1.4;
+}
+
+/* Consistent cell content styling */
 .job-row > div {
-  display: flex;
-  align-items: center;
+  font-size: 13px;
+  color: #1a1a1a;
+}
+
+/* Status and badge styling */
+.job-row .badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .job-actions-left {
@@ -513,14 +592,36 @@
   background: #6fa852;
 }
 
+.sort-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 2px;
+  margin-left: 6px;
+  vertical-align: middle;
+  position: relative;
+  top: 1px;
+}
+.sort-toggle svg { width: 10px; height: 10px; }
+.sort-toggle .arrow { opacity: 0.35; transition: opacity 0.15s ease; }
+.sort-toggle .arrow.active { opacity: 1; }
+
 .col-start.col-center {
   box-sizing: border-box;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .job-row .col-start.col-center {
   max-width: 100%;
   word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .job-header .col-start.col-center {
@@ -595,12 +696,64 @@
             <div class="actions-container ml-15-px mr-15-px">
                 <!-- Left Group: Filter, Notify of hire, Say thank you, and conditional buttons -->
                 <div class="job-actions-left" style="display: flex; gap: 8px; align-items: center;">
-                  <button id="filter-btn" class="action-btn" title="Filter" style="flex-shrink: 0;">
+                  <div class="position-relative" style="flex-shrink: 0;">
+                    <button id="filter-btn" class="action-btn" title="Filter">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                     Filter
                   </button>
+                    <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 280px; z-index: 1000;">
+                      <div style="padding: 16px;">
+                        <h6 style="margin-bottom: 12px; font-weight: 600; color: #121C0C;">Filter Applications</h6>
+                        
+                        <!-- Location Filter -->
+                        <div style="margin-bottom: 16px;">
+                          <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Location</label>
+                          <input type="text" id="filter-location" class="form-control" placeholder="Enter location" style="font-size: 13px; padding: 6px 10px;">
+                        </div>
+                        
+                        <!-- Salary Range Filter -->
+                        <div style="margin-bottom: 16px;">
+                          <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Salary Range</label>
+                          <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="number" id="filter-salary-min" class="form-control" placeholder="Min" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                            <span style="color: #6b7280;">-</span>
+                            <input type="number" id="filter-salary-max" class="form-control" placeholder="Max" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                          </div>
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div style="margin-bottom: 16px;">
+                          <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Category</label>
+                          <select id="filter-category" class="form-control" style="font-size: 13px; padding: 6px 10px;">
+                            <option value="">All Categories</option>
+                            <option value="locums">Locums</option>
+                            <option value="parttime">Parttime</option>
+                            <option value="fulltime">Full time</option>
+                          </select>
+                        </div>
+                        
+                        <!-- Applied Date Filter -->
+                        <div style="margin-bottom: 16px;">
+                          <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Applied Within</label>
+                          <select id="filter-date-applied" class="form-control" style="font-size: 13px; padding: 6px 10px;">
+                            <option value="">Any time</option>
+                            <option value="1">Last 24 hours</option>
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 3 months</option>
+                          </select>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 8px; margin-top: 16px;">
+                          <button id="apply-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; font-size: 13px;">Apply</button>
+                          <button id="clear-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; font-size: 13px; background: #f3f4f6; color: #6b7280;">Clear</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <button id="save-btn" class="action-btn" title="Save">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -718,7 +871,7 @@
                     <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                     <use xlink:href="#icon-delete"/>
                     </svg> Delete
-                  </button>
+</button>
                 </div>
                 
                 <!-- Right Group: Menu -->
@@ -769,24 +922,24 @@
             <div class="job-list-container bg-light p-3 rounded-3">
             <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
             <div class="d-flex align-items-center job-lists">
-                <div class="d-flex align-items-center flex-grow-1" style="min-width: 1320px;">
-                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="min-width: 1320px; gap: 0;">
-                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
+                <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
+                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 4px; box-sizing: border-box; display: flex; align-items: center; min-width: 0; overflow: hidden;">
                             <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
                         </div>
-                        <div class="col-job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">Job</div>
-                <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Location</div>
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Salary</div>
-                <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category</div>
+                        <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                <div class="col-start col-center sortable" data-sort="salary" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         {% if app.request.get('status') not in ['interview', 'hired', 'completed'] %}
-                        <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Applied on</div>
-                        <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box;"><span style="font-size: 16px; font-weight: bold; line-height: 1.2;">Score</span></div>
+                        <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Applied on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer;"><span style="font-size: 13px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         {% endif %}
                         {% if app.request.get('status') not in ['applied', 'hired', 'completed'] %}
-                        <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
-                        <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; white-space: nowrap;">Interview date</div>
+                        <div class="col-start col-center sortable" data-sort="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="interview" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer;">Interview date<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         {% endif %}            
-                        <div class="col-start col-center" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Status</div>
+                        <div class="col-start col-center sortable" data-sort="status" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     </div>
                 </div>
             </div>
@@ -794,11 +947,11 @@
             {% for application in applications %}
             {% set job = application.job %}
               <div class="d-flex align-items-center job-lists">
-                <div class="job-row d-flex align-items-center flex-grow-1" style="min-width: 1320px; gap: 0;">
+                <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; min-width: 0; width: 100%;">
                   <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                       <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ application.id }}" />
                   </div>
-                  <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
+                  <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 4px; box-sizing: border-box; min-width: 0; overflow: hidden;">
                       <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
                           alt="Logo"
                           style="width: 40px; height: 40px; border-radius: 8px;" />
@@ -813,7 +966,7 @@
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
                   <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.payRateHourly }}</div>
                   <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                      <select class="category-select" style="width: 100%; padding: 6px 10px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 12px; color: #121C0C;">
+                      <select class="category-select" style="width: 100%; padding: 4px 8px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 11px; color: #121C0C;">
                           <option value="locums">Locums</option>
                           <option value="parttime">Parttime</option>
                           <option value="fulltime">Full time</option>
@@ -903,7 +1056,7 @@
                 <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">—</div>
                 {% endif %}
                 <div class="col-start col-center col-rank" style="width: 70px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-  <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 16px;">
+  <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 13px;">
     {{ application.rank is not null ? application.rank ~ '/10' : '—' }}
   </span>
   <input type="number"
@@ -914,14 +1067,14 @@
          step="0.5"
          data-application-id="{{ application.id }}"
          data-original-value="{{ application.rank is not null ? application.rank : '' }}"
-         style="width: 60px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px; font-size: 16px;"
+         style="width: 60px; text-align:center; border: 1px solid #ccc; border-radius: 6px; padding: 2px 4px; font-size: 13px;"
          oninput="if(this.value>10) this.value=10; if(this.value<1)this.value=1;" />
 </div>
                 {% endif %}
                 {% if app.request.get('status') not in ['applied', 'hired', 'completed'] %}
                 {% if application.status == 'interview' %}
                 <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                    <span class="badge badge-pill" style="font-size: 16px;">
+                    <span class="badge badge-pill" style="font-size: 13px;">
                     To Do Actions
                     </span>
                 </div>
@@ -1505,6 +1658,218 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("An error occurred while archiving applications.");
         }
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const headers = document.querySelectorAll('.sortable');
+  let currentSort = { key: null, direction: 'asc' };
+
+  headers.forEach(header => {
+    header.addEventListener('click', () => {
+      const key = header.dataset.sort;
+      const direction = (currentSort.key === key && currentSort.direction === 'asc') ? 'desc' : 'asc';
+      currentSort = { key, direction };
+
+      // Reset all arrows to inactive
+      document.querySelectorAll('.sort-toggle .arrow').forEach(a => a.classList.remove('active'));
+      // Activate the appropriate arrow on current header
+      const up = header.querySelector('.sort-toggle .sort-up');
+      const down = header.querySelector('.sort-toggle .sort-down');
+      if (direction === 'asc' && up) up.classList.add('active');
+      if (direction === 'desc' && down) down.classList.add('active');
+
+      sortApplications(key, direction);
+    });
+  });
+
+  function sortApplications(key, direction) {
+    const rows = Array.from(document.querySelectorAll('.job-row')).map(row => {
+      const cells = Array.from(row.children);
+      // Structure: [0]checkbox, [1]job, [2]location, [3]salary, [4]category, [5]applied(cond), [6]rank(cond), [7]todo(cond), [8]interview(cond), [9]status
+      
+      // Find cells by their content/class rather than index since columns are conditional
+      const locationCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c.textContent.trim() && !c.querySelector('select') && c !== cells[1]);
+      const salaryCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c !== locationCell && !c.querySelector('select') && c !== cells[1]);
+      const categoryCell = row.querySelector('.category-select')?.parentElement;
+      const appliedCell = cells.find(c => c.textContent.trim().match(/\d{2}\/\d{2}\/\d{4}/) && c !== salaryCell && c !== locationCell);
+      const rankCell = row.querySelector('.col-rank');
+      const todoCell = cells.find(c => c.textContent.trim() && c !== locationCell && c !== salaryCell && c !== appliedCell && c !== rankCell && !c.querySelector('select') && !c.classList.contains('col-job'));
+      const interviewCell = cells.find(c => c.textContent.trim() && c !== locationCell && c !== salaryCell && c !== appliedCell && c !== rankCell && c !== todoCell && !c.querySelector('select') && !c.classList.contains('col-job'));
+      // Status is the last cell with text content that's not a checkbox, select, or other special cell
+      // It typically contains status text like "Applied", "Interview", "Hired", etc.
+      const statusCell = Array.from(cells).reverse().find(c => {
+        const text = c.textContent.trim();
+        const hasStatusText = text && 
+               (text.match(/^(Applied|Interview|Hired|Rejected|Saved|In Review|Offered|Completed)$/i) ||
+                (text.length > 0 && !text.match(/^\d+$/) && !text.match(/^\d+\/\d+\/\d+$/) && text !== '—' && text !== 'To Do Actions'));
+        return hasStatusText &&
+               !c.querySelector('select') && 
+               !c.querySelector('input[type="checkbox"]') && 
+               !c.querySelector('.job-title') &&
+               !c.querySelector('.rank-display') &&
+               !c.querySelector('.rank-input') &&
+               c !== locationCell && 
+               c !== salaryCell && 
+               c !== appliedCell && 
+               c !== rankCell && 
+               c !== todoCell && 
+               c !== interviewCell;
+      });
+      
+      return {
+        element: row,
+        job: {
+          job: row.querySelector('.job-title')?.textContent.trim().toLowerCase() || '',
+          location: locationCell?.textContent.trim().toLowerCase() || '',
+          salary: parseFloat(salaryCell?.textContent.trim().replace(/[^0-9.]/g, '')) || 0,
+          category: row.querySelector('.category-select')?.value?.toLowerCase() || categoryCell?.textContent.trim().toLowerCase() || '',
+          applied: appliedCell?.textContent.trim() || '',
+          rank: parseInt(rankCell?.textContent.trim()) || 0,
+          todo: todoCell?.textContent.trim() || '',
+          interview: interviewCell?.textContent.trim() || '',
+          status: statusCell?.textContent.trim().toLowerCase() || ''
+        }
+      };
+    });
+
+    rows.sort((a, b) => {
+      const valA = a.job[key];
+      const valB = b.job[key];
+      if (typeof valA === 'string') {
+        return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      } else {
+        return direction === 'asc' ? valA - valB : valB - valA;
+      }
+    });
+
+    const container = document.querySelector('.job-list-container');
+    if (container) {
+      rows.forEach(row => {
+        if (row.element && row.element.parentElement) {
+          container.appendChild(row.element.parentElement);
+        }
+      });
+    }
+  }
+});
+</script>
+
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtn = document.getElementById('filter-btn');
+  const filterPanel = document.getElementById('filter-panel');
+  const applyFilterBtn = document.getElementById('apply-filter-btn');
+  const clearFilterBtn = document.getElementById('clear-filter-btn');
+  
+  if (!filterBtn || !filterPanel) return;
+  
+  // Toggle filter panel
+  filterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filterPanel.classList.toggle('hidden');
+  });
+  
+  // Close filter panel when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!filterPanel.contains(e.target) && !filterBtn.contains(e.target)) {
+      filterPanel.classList.add('hidden');
+    }
+  });
+  
+  // Apply filters
+  applyFilterBtn.addEventListener('click', function() {
+    applyFilters();
+    filterPanel.classList.add('hidden');
+  });
+  
+  // Clear filters
+  clearFilterBtn.addEventListener('click', function() {
+    document.getElementById('filter-location').value = '';
+    document.getElementById('filter-salary-min').value = '';
+    document.getElementById('filter-salary-max').value = '';
+    document.getElementById('filter-category').value = '';
+    const dateApplied = document.getElementById('filter-date-applied');
+    if (dateApplied) dateApplied.value = '';
+    applyFilters();
+    filterPanel.classList.add('hidden');
+  });
+  
+  function applyFilters() {
+    const locationFilter = document.getElementById('filter-location').value.toLowerCase().trim();
+    const salaryMin = parseFloat(document.getElementById('filter-salary-min').value) || 0;
+    const salaryMax = parseFloat(document.getElementById('filter-salary-max').value) || Infinity;
+    const categoryFilter = document.getElementById('filter-category').value.toLowerCase();
+    const dateAppliedFilter = document.getElementById('filter-date-applied')?.value || '';
+    
+    const rows = document.querySelectorAll('.job-row');
+    const now = new Date();
+    
+    rows.forEach(row => {
+      let show = true;
+      const cells = Array.from(row.children);
+      
+      // Location filter
+      if (locationFilter && show) {
+        const locationCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c.textContent.trim() && !c.querySelector('select') && c !== cells[1]);
+        const location = locationCell?.textContent.trim().toLowerCase() || '';
+        if (!location.includes(locationFilter)) {
+          show = false;
+        }
+      }
+      
+      // Salary filter
+      if (show && (salaryMin > 0 || salaryMax < Infinity)) {
+        const salaryCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c !== cells[1] && !c.querySelector('select'));
+        const salaryText = salaryCell?.textContent.trim() || '';
+        const salary = parseFloat(salaryText.replace(/[^0-9.]/g, '')) || 0;
+        if (salary < salaryMin || salary > salaryMax) {
+          show = false;
+        }
+      }
+      
+      // Category filter
+      if (show && categoryFilter) {
+        const categorySelect = row.querySelector('.category-select');
+        const category = categorySelect ? categorySelect.value.toLowerCase() : '';
+        if (category !== categoryFilter) {
+          show = false;
+        }
+      }
+      
+      // Date applied filter
+      if (show && dateAppliedFilter) {
+        const appliedCell = cells.find(c => c.textContent.trim().match(/\d{2}\/\d{2}\/\d{4}/) && c !== cells[1]);
+        if (appliedCell) {
+          const appliedText = appliedCell.textContent.trim();
+          const appliedDate = parseDate(appliedText);
+          if (appliedDate) {
+            const daysDiff = Math.floor((now - appliedDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff > parseInt(dateAppliedFilter)) {
+              show = false;
+            }
+          }
+        }
+      }
+      
+      // Show/hide row
+      const rowWrapper = row.closest('.job-lists') || row.parentElement;
+      if (rowWrapper) {
+        rowWrapper.style.display = show ? '' : 'none';
+      }
+    });
+  }
+  
+  function parseDate(dateStr) {
+    // Parse MM/DD/YYYY format
+    const parts = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (parts) {
+      return new Date(parseInt(parts[3]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+    return null;
+  }
 });
 </script>
 {% endblock %}

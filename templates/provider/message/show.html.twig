@@ -1,107 +1,369 @@
 {% extends 'provider/base.html.twig' %}
 
-{% block title %}Inbox{% endblock %}
+{% block title %}Message{% endblock %}
 
 {% block provider_body %}
-    <div class="container-xl">
-        <h1 class="app-page-title">Inbox</h1>
-        <div class="message-wrapper">
-            <div class="row">
-                <!-- BEGIN INBOX -->
-                <div class="col-md-12">
-                    <div class="grid email">
-                        <div class="grid-body">
-                            <div class="row">
-                                <!-- BEGIN INBOX MENU -->
-                                <div class="col-md-3">
-                                    <div class="sticky">
-                                        <a class="btn btn-primary d-block w-100" href="{{ path('app_provider_messages_new') }}">
-                                            <i class="fa fa-pencil"></i> New Message
-                                        </a>
+<style>
+.message-detail-page {
+    padding: 0;
+}
 
-                                        <div class="card">
-                                            {#                                            <div class="card-header">#}
-                                            {#                                                <strong>Folders</strong>#}
-                                            {#                                            </div>#}
-                                            <div class="list-group">
-                                                <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
-                                                    <i class="fa fa-inbox"></i>
-                                                    Inbox
-                                                </a>
-                                                <a href="{{ path('app_provider_messages', {'type': 'sent'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == 'sent' %}active{% endif %}">
-                                                    <i class="fa fa-mail-forward"></i>
-                                                    Sent
+.message-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.message-detail-header h6 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #121C0C;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #121C0C;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #85BB65;
+    text-decoration: none;
+}
+
+.message-detail-content {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    margin-bottom: 24px;
+}
+
+.message-header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e6eef6;
+    margin-bottom: 20px;
+}
+
+.message-sender-avatar {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.message-header-details {
+    flex: 1;
+}
+
+.message-sender-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #121C0C;
+    margin-bottom: 4px;
+}
+
+.message-date {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.message-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #121C0C;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.message-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    margin-top: 16px;
+    text-decoration: none;
+    color: #121C0C;
+    transition: all 0.2s ease;
+}
+
+.message-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.replies-section {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    margin-bottom: 24px;
+}
+
+.replies-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #121C0C;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.replies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.reply-item {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 16px 20px;
+}
+
+.reply-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.reply-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.reply-sender {
+    font-weight: 600;
+    font-size: 15px;
+    color: #121C0C;
+}
+
+.reply-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-left: auto;
+}
+
+.reply-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #121C0C;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-bottom: 12px;
+}
+
+.reply-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #121C0C;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.reply-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.reply-form-section {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+
+.reply-form-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #121C0C;
+    margin-bottom: 20px;
+}
+
+.reply-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #121C0C;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    margin-bottom: 16px;
+}
+
+.reply-form textarea:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+}
+
+.reply-form input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #121C0C;
+    margin-bottom: 16px;
+    background: #F4F9F1;
+}
+
+.reply-form input[type="file"]:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+}
+
+.reply-form button {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reply-form button:hover {
+    background: #6fa050;
+}
+
+.empty-replies {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 14px;
+}
+</style>
+
+<div class="container-xl message-detail-page">
+    <div class="message-detail-header">
+        <a href="{{ path('app_provider_messages') }}" class="back-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Messages
                                                 </a>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- END INBOX MENU -->
 
-                                <!-- BEGIN INBOX CONTENT -->
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6 search-form">
-                                            <form action="" class="text-right">
-                                                <div class="input-group">
-                                                    <input type="text" name="keyword" class="form-control input-sm"
-                                                           placeholder="Search">
-                                                    <span class="input-group-btn">
-                                                        <button type="submit" class="btn btn-primary btn-sm search"><i class="fa fa-search"></i></button>
-                                                    </span>
-                                                </div>
-                                            </form>
+    <!-- Message Detail -->
+    <div class="message-detail-content">
+        <div class="message-header-info">
+            {% set senderName = message.sender.name|default(message.sender.email) %}
+            {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+            
+            <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar">
+            <div class="message-header-details">
+                <div class="message-sender-name">{{ senderName }}</div>
+                <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
                                         </div>
                                     </div>
 
-                                    <div class="table-responsive">
-                                        <strong>Sender: {{ message.sender }}</strong>
-                                        <p>{{ message.createdAt|date('m/d/Y') }}</p>
+        <div class="message-body">
                                         {{ message.text|raw }}
+        </div>
 
                                         {% if message.attachment %}
-                                            <p><i class="fa fa-file-alt"></i> <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank">{{ message.attachment }}</a></p>
+            <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank" class="message-attachment">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{{ message.attachment }}</span>
+            </a>
                                         {% endif %}
                                     </div>
 
-                                    <!-- BEGIN REPLY SECTION -->
-                                    <hr>
-                                    <h5>Replies</h5>
-                                    <div id="replies-list" class="mb-4">
+    <!-- Replies Section -->
+    <div class="replies-section">
+        <h5 class="replies-section-title">Replies</h5>
+        
+        {% if replies is defined and replies|length > 0 %}
+            <div class="replies-list">
                                         {% for reply in replies %}
-                                            <div class="reply-item border rounded p-2 mb-2">
-                                                <strong>{{ reply.sender }}</strong> replied:<br>
-                                                <p>{{ reply.text|nl2br }}</p>
+                    {% set replySenderName = reply.sender.name|default(reply.sender.email) %}
+                    {% set replySenderAvatar = reply.sender.profilePictureFilename ? '/uploads/' ~ reply.sender.id ~ '/' ~ reply.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                    
+                    <div class="reply-item">
+                        <div class="reply-header">
+                            <img src="{{ replySenderAvatar }}" alt="{{ replySenderName }}" class="reply-avatar">
+                            <div class="reply-sender">{{ replySenderName }}</div>
+                            <div class="reply-date">{{ reply.createdAt|date('M j, Y g:i A') }}</div>
+                        </div>
+                        <div class="reply-text">{{ reply.text|nl2br }}</div>
                                                 {% if reply.attachment %}
-                                                    <a href="/uploads/{{ reply.sender.id }}/{{ reply.attachment }}" target="_blank">
-                                                        <i class="fa fa-paperclip"></i> {{ reply.attachment }}
+                            <a href="/uploads/{{ reply.sender.id }}/{{ reply.attachment }}" target="_blank" class="reply-attachment">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ reply.attachment }}</span>
                                                     </a>
                                                 {% endif %}
                                             </div>
                                         {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-replies">No replies yet.</div>
+        {% endif %}
                                     </div>
 
-                                    <h5>Write a Reply</h5>
-                                    <form id="reply-form" enctype="multipart/form-data">
-                                        <div class="mb-3">
-                                            <textarea name="message" class="form-control" placeholder="Your reply..." required></textarea>
-                                        </div>
-                                        <div class="mb-3">
+    <!-- Reply Form -->
+    <div class="reply-form-section">
+        <h5 class="reply-form-title">Write a Reply</h5>
+        <form id="reply-form" enctype="multipart/form-data" class="reply-form">
+            <textarea name="message" placeholder="Type your reply here..." required></textarea>
                                             <input type="file" name="attachment" class="form-control">
-                                        </div>
-                                        <button type="submit" class="btn btn-success">Send Reply</button>
+            <button type="submit">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Send Reply
+            </button>
                                     </form>
                                     <div id="reply-status" class="mt-2"></div>
-                                    <!-- END REPLY SECTION -->
-
-                                </div>
-                                <!-- END INBOX CONTENT -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END INBOX -->
-            </div>
         </div>
     </div>
 {% endblock %}
@@ -114,23 +376,40 @@
             const form = e.target;
             const formData = new FormData(form);
             const messageId = '{{ message.id }}';
+            const button = form.querySelector('button[type="submit"]');
+            const originalButtonText = button.innerHTML;
 
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = '<span>Sending...</span>';
+
+            try {
             const response = await fetch(`/provider/messages/${messageId}/reply`, {
                 method: 'POST',
                 body: formData
             });
 
             const result = await response.json();
-            const statusDiv = document.getElementById('reply-status');
 
             if (result.success) {
-                document.getElementById('replies-list').insertAdjacentHTML('beforeend', result.replyHtml);
+                    // Add the new reply to the list
+                    const repliesList = document.querySelector('.replies-list');
+                    if (repliesList) {
+                        repliesList.insertAdjacentHTML('beforeend', result.replyHtml);
+                    } else {
+                        // If no replies list exists, reload the page
+                        location.reload();
+                    }
                 form.reset();
-                // statusDiv.innerHTML = '<div class="alert alert-success mt-2">Reply sent successfully!</div>';
-                showToast('success', 'Reply sent successfully')
+                    showToast('success', 'Reply sent successfully');
             } else {
-                // statusDiv.innerHTML = `<div class="alert alert-danger mt-2">${result.error || 'An error occurred.'}</div>`;
-                showToast('error', 'An error occurred.')
+                    showToast('error', result.error || 'An error occurred.');
+                }
+            } catch (error) {
+                showToast('error', 'An error occurred while sending your reply.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalButtonText;
             }
         });
     </script>

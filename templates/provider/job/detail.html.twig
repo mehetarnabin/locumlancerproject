@@ -1,81 +1,489 @@
 {% extends 'provider/base.html.twig' %}
 
-{% block title %}Job Detail{% endblock %}
+{% block title %}{{ job.title }} - Job Detail{% endblock %}
 
 {% block provider_body %}
 
-    <div class="container-xl">
+<div class="container-xl">
+    {# Back Button #}
+    <div class="mb-4">
+        <a href="{{ app.request.headers.get('referer')|default(path('app_provider_jobs_matching')) }}" 
+           class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Jobs
+        </a>
+    </div>
 
-        <h1 class="app-page-title">Job Detail</h1>
+    {# Main Job Card #}
+    <div class="job-detail-card">
+        {# Header Section with Logo and Title #}
+        <div class="job-detail-header-section">
+            <div class="job-detail-logo-wrapper">
+                <img src="{{ job.companyLogo|default(job.employerLogo|default(job.employer.logo|default(asset('assets/icons/job.png')))) }}" 
+                     alt="{{ job.employer }} Logo" 
+                     class="job-detail-logo-img"
+                     onerror="this.src='{{ asset('assets/icons/job.png') }}'">
+            </div>
+            <div class="job-detail-header-content">
+                <h1 class="job-detail-main-title">{{ job.title }}</h1>
+                <div class="job-detail-company-name">{{ job.employer }}</div>
+                <div class="job-detail-location-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>
+                </div>
+            </div>
+            <div class="job-detail-action-buttons">
+                {% if job.id|striptags not in appliedJobsIds %}
+                    <a href="{{ path('app_provider_jobs_apply', {'id': job.id, 'redirect_route':'app_provider_jobs_detail'}) }}"
+                       class="btn-apply-primary"
+                       onclick="return confirm('Are you sure? Do you want to apply to this job?')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Apply Now
+                    </a>
+                {% else %}
+                    <button class="btn-applied-disabled" disabled>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Already Applied
+                    </button>
+                {% endif %}
+            </div>
+        </div>
 
-        <hr class="mb-4">
+        {# Key Information Grid #}
+        <div class="job-detail-info-grid">
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Start Date</div>
+                    <div class="info-value">{{ job.startDate ? job.startDate|date('M d, Y') : 'Not specified' }}</div>
+                </div>
+            </div>
 
-        {% if job.id|striptags not in appliedJobsIds %}
-            <div class="mb-4">
-                <a href="{{ path('app_provider_jobs_apply', {'id': job.id, 'redirect_route':'app_provider_jobs_matching'}) }}"
-                   title="Apply" onclick="return confirm('Are you sure? Do you want to apply to this job?')">
-                    <img src="{{ asset('assets/icons/click.png') }}" alt="apply" class="icon-image"/>
-                </a>
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Schedule</div>
+                    <div class="info-value">{{ job.schedule ? job.schedule : 'Not specified' }}</div>
+                </div>
             </div>
-        {% else %}
-            <img src="{{ asset('assets/icons/check.png') }}" class="icon-image mb-4"  title="Applied" />
-        {% endif %}
 
-        <div class="job-details">
-            <div class="job-row">
-                <div class="job-label">ID</div>
-                <div class="job-value">{{ job.jobId }}</div>
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Work Type</div>
+                    <div class="info-value">{{ job.workType ? job.workType : 'Not specified' }}</div>
+                </div>
             </div>
-            <div class="job-row">
-                <div class="job-label">Job Title</div>
-                <div class="job-value">{{ job.title }}</div>
+
+            {% if job.payRateHourly %}
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Hourly Rate</div>
+                    <div class="info-value">${{ job.payRateHourly }}/hr</div>
+                </div>
             </div>
-            <div class="job-row">
-                <div class="job-label">Employer</div>
-                <div class="job-value">{{ job.employer }}</div>
+            {% endif %}
+
+            {% if job.payRateDaily %}
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Daily Rate</div>
+                    <div class="info-value">${{ job.payRateDaily }}/day</div>
+                </div>
             </div>
-            <div class="job-row">
-                <div class="job-label">Location</div>
-                <div class="job-value">{{ job.state }}, {{ job.city }}</div>
+            {% endif %}
+
+            {% if job.expirationDate %}
+            <div class="info-card">
+                <div class="info-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="info-content">
+                    <div class="info-label">Expires On</div>
+                    <div class="info-value">{{ job.expirationDate|date('M d, Y') }}</div>
+                </div>
             </div>
-            <div class="job-row">
-                <div class="job-label">Schedule</div>
-                <div class="job-value">{{ job.schedule }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Start Date</div>
-                <div class="job-value">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate</div>
-                <div class="job-value">{{ job.payRate }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate Daily</div>
-                <div class="job-value">{{ job.payRateDaily }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate Hourly</div>
-                <div class="job-value">{{ job.payRateHourly }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Work Type</div>
-                <div class="job-value">{{ job.workType }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Need</div>
-                <div class="job-value">{{ job.need }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Years of Experience</div>
-                <div class="job-value">{{ job.yearOfExperience }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Description</div>
-                <div class="job-value">
+            {% endif %}
+        </div>
+
+        {# Job Description Section #}
+        {% if job.description %}
+        <div class="job-detail-section">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Job Description
+            </h2>
+            <div class="section-content">
+                <div class="job-description-text">
                     {{ job.description|raw }}
                 </div>
             </div>
         </div>
+        {% endif %}
+
+        {# Additional Details Section #}
+        <div class="job-detail-section">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Additional Information
+            </h2>
+            <div class="section-content">
+                <div class="details-grid">
+                    {% if job.jobId %}
+                    <div class="detail-item">
+                        <span class="detail-label">Job ID</span>
+                        <span class="detail-value">{{ job.jobId }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if job.need %}
+                    <div class="detail-item">
+                        <span class="detail-label">Position Need</span>
+                        <span class="detail-value">{{ job.need }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if job.yearOfExperience %}
+                    <div class="detail-item">
+                        <span class="detail-label">Years of Experience</span>
+                        <span class="detail-value">{{ job.yearOfExperience }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if job.payRate %}
+                    <div class="detail-item">
+                        <span class="detail-label">Pay Rate</span>
+                        <span class="detail-value">{{ job.payRate }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<style>
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    color: #85BB65;
+    background: #F4F9F1;
+}
+
+.job-detail-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+.job-detail-header-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #e6eef6;
+    margin-bottom: 32px;
+}
+
+.job-detail-logo-wrapper {
+    flex-shrink: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+
+.job-detail-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.job-detail-header-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.job-detail-main-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #121C0C;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+    font-family: "Lexend", serif;
+}
+
+.job-detail-company-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.job-detail-location-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #F4F9F1;
+    border-radius: 8px;
+    color: #121C0C;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.job-detail-action-buttons {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-apply-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-apply-primary:hover {
+    background: #6fa852;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3);
+}
+
+.btn-applied-disabled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #e6eef6;
+    color: #6b7280;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+.job-detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.info-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #F4F9F1;
+    border-radius: 10px;
+    border: 1px solid #e6eef6;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 10px;
+    color: #85BB65;
+}
+
+.info-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 600;
+    word-wrap: break-word;
+}
+
+.job-detail-section {
+    margin-bottom: 32px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #121C0C;
+    margin: 0 0 20px 0;
+    font-family: "Lexend", serif;
+}
+
+.section-title svg {
+    color: #85BB65;
+}
+
+.section-content {
+    background: #F4F9F1;
+    border-radius: 10px;
+    padding: 24px;
+    border: 1px solid #e6eef6;
+}
+
+.job-description-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #374151;
+}
+
+.job-description-text p {
+    margin-bottom: 16px;
+}
+
+.job-description-text p:last-child {
+    margin-bottom: 0;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+}
+
+.detail-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .job-detail-card {
+        padding: 20px;
+    }
+
+    .job-detail-header-section {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .job-detail-action-buttons {
+        width: 100%;
+    }
+
+    .btn-apply-primary,
+    .btn-applied-disabled {
+        width: 100%;
+    }
+
+    .job-detail-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .job-detail-main-title {
+        font-size: 24px;
+    }
+}
+</style>
+
 {% endblock %}
