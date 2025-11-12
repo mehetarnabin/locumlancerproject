@@ -242,6 +242,17 @@ class Application
         return $this;
     }
 
+     public function getHiredAt(): ?\DateTimeInterface
+    {
+        return $this->hiredAt;
+    }
+
+    public function setHiredAt(?\DateTimeInterface $hiredAt): self
+    {
+        $this->hiredAt = $hiredAt;
+        return $this;
+    }
+
 
 
 
