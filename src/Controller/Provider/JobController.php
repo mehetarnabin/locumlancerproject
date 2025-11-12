@@ -757,5 +757,158 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
             ]
         );
     }
+
+     // Add this method to your existing JobController
+
+#[Route('/applications/{id}/hire', name: 'app_provider_application_hire', methods: ['POST'])]
+public function hireApplication(
+    Application $application,
+    Request $request,
+    ApplicationService $applicationService,
+    EntityManagerInterface $em
+): Response {
+    // Check if user has permission to hire for this application
+    $user = $this->getUser();
+    
+    // Check if the current user is the provider in this application
+    if ($application->getProvider()->getUser()->getId() !== $user->getId()) {
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['success' => false, 'message' => 'You are not authorized to hire for this application.']);
+        }
+        $this->addFlash('error', 'You are not authorized to hire for this application.');
+        return $this->redirectToRoute('app_provider_jobs_applications');
+    }
+
+    // Check if already hired
+    if ($application->getStatus() === 'accepted') {
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['success' => false, 'message' => 'This application has already been marked as hired.']);
+        }
+        $this->addFlash('error', 'This application has already been marked as hired.');
+        return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
+    }
+
+    try {
+        // Mark as hired - this will trigger the notification
+        $applicationService->markAsHired($application);
+        
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse([
+                'success' => true, 
+                'message' => 'Provider hired successfully! Admin has been notified. The application has been moved to the "accepted" section.'
+            ]);
+        }
+        
+        $this->addFlash('success', 'Provider hired successfully! Admin has been notified.');
+        return $this->redirectToRoute('app_provider_jobs_applications');
+        
+    } catch (\Exception $e) {
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(['success' => false, 'message' => 'Error hiring provider: ' . $e->getMessage()]);
+        }
+        $this->addFlash('error', 'Error hiring provider: ' . $e->getMessage());
+        return $this->redirectToRoute('app_provider_jobs_applications');
+    }
+}
+
+#[Route('/saved-jobs/notify-hire', name: 'app_provider_saved_jobs_notify_hire', methods: ['POST'])]
+public function notifyHireFromSaved(
+    Request $request,
+    ApplicationService $applicationService,
+    EntityManagerInterface $em,
+    BookmarkRepository $bookmarkRepository,
+    JobRepository $jobRepository,
+    ApplicationRepository $applicationRepository
+): JsonResponse {
+    $user = $this->getUser();
+    $data = json_decode($request->getContent(), true);
+    $jobIds = $data['jobIds'] ?? [];
+
+    if (empty($jobIds)) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'No jobs selected.'
+        ], 400);
+    }
+
+    try {
+        $results = [
+            'successful' => [],
+            'failed' => [],
+            'notApplied' => []
+        ];
+
+        foreach ($jobIds as $jobId) {
+            // Validate UUID
+            if (!Uuid::isValid($jobId)) {
+                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Invalid job ID format'];
+                continue;
+            }
+
+            // Find the job
+            $job = $jobRepository->find($jobId);
+            if (!$job) {
+                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Job not found'];
+                continue;
+            }
+
+            // Check if user has an application for this job
+            $application = $applicationRepository->findOneBy([
+                'provider' => $user->getProvider(),
+                'job' => $job,
+                'employer' => $job->getEmployer()
+            ]);
+
+            if (!$application) {
+                $results['notApplied'][] = ['jobId' => $jobId, 'jobTitle' => $job->getTitle()];
+                continue;
+            }
+
+            // Check if already hired
+            if ($application->getStatus() === 'accepted') {
+                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Already hired'];
+                continue;
+            }
+
+            // Mark as hired
+            $applicationService->markAsHired($application);
+
+            // Remove from saved jobs
+            $bookmark = $bookmarkRepository->findOneBy([
+                'user' => $user,
+                'job' => $job
+            ]);
+
+            if ($bookmark) {
+                $em->remove($bookmark);
+            }
+
+            $results['successful'][] = [
+                'jobId' => $jobId,
+                'jobTitle' => $job->getTitle(),
+                'applicationId' => $application->getId()
+            ];
+        }
+
+        $em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Hire notifications processed successfully.',
+            'results' => $results
+        ]);
+
+    } catch (\Exception $e) {
+        return new JsonResponse([
+            'success' => false,
+            'message' => 'Error processing hire notifications: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+
+
     
 }

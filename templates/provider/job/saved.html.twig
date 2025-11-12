@@ -280,12 +280,12 @@
 .action-btn:hover svg {
     color: #85BB65;
 }
-#delete-btn:hover {
+#delete-btn:hover, #delete-btn-bottom:hover {
     color: #BA1824;
     border: 1px solid #BA1824;
     transition: all 0.2s ease; 
 }
-#delete-btn:hover svg {
+#delete-btn:hover svg, #delete-btn-bottom:hover svg {
     color: #BA1824;
 }
 .col-center {
@@ -566,7 +566,71 @@
 .table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
   background: #6fa852;
 }
+
+/* Toast notifications */
+.toast-container {
+    z-index: 9999;
+}
+
+.toast {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Button states */
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn:disabled:hover {
+    color: inherit;
+    border-color: #e6eef6;
+}
+
+/* Modal enhancements */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    background: #F4F9F1;
+    border-bottom: 1px solid #e6eef6;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-footer {
+    border-top: 1px solid #e6eef6;
+    border-radius: 0 0 12px 12px;
+}
 </style>
+
+<!-- Hidden form for delete action -->
+<form id="delete-bookmarks-form" method="POST" action="{{ path('app_provider_bookmarks_delete') }}" style="display: none;">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete_bookmarks') }}">
+    <input type="hidden" name="bookmark_ids" id="bookmark-ids-input">
+</form>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the selected saved jobs? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     {% set statusColors = {
         'saved': 'saved',
@@ -692,7 +756,7 @@
                   </div>
                 </div>
               </div>
-              <button id="save-btn" class="action-btn" title="Save">
+              <button id="save-btn" class="action-btn" title="Notify Hire - Mark selected jobs as hired and move to accepted" data-bs-toggle="tooltip" data-bs-placement="top">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
@@ -718,7 +782,7 @@
                 <g data-name="checkmark-circle">
                 <rect width="24" height="24" opacity="0"/>
                 <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
+                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 a1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
                 </g>
                 </g>
                 <use xlink:href="#icon-apply"/>
@@ -847,7 +911,7 @@
             <div class="d-flex align-items-center job-lists">
               <div class="job-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
-                  <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
+                  <input type="checkbox" class="job-check job-checkbox" data-bookmark-id="{{ bookmark.id }}" data-job-id="{{ job.id }}" />
                 </div>
                 <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
                   <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
@@ -864,7 +928,7 @@
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '—' }}</div>
                   <div class="col-expiry col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '—' }}</div>
-                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.payRateHourly }}</div>
+                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.formattedSalary }}</div>
                   <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                     <select class="category-select" style="width: 100%; padding: 4px 8px; border: 1px solid #e6eef6; border-radius: 6px; background-color: #fff; cursor: pointer; font-size: 11px; color: #121C0C;">
                       <option value="locums">Locums</option>
@@ -898,7 +962,7 @@
             <p class="mb-0">Saved jobs not found.</p>
         {% endif %}
         <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
-          <button id="save-btn" class="action-btn" title="Save">
+          <button id="save-btn-bottom" class="action-btn" title="Notify Hire - Mark selected jobs as hired and move to accepted" data-bs-toggle="tooltip" data-bs-placement="top">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
@@ -906,19 +970,19 @@
                 <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
-              <button id="apply-btn" class="action-btn" disabled title="Apply" style="display: none;">
+              <button id="apply-btn-bottom" class="action-btn" disabled title="Apply" style="display: none;">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
                 <g data-name="checkmark-circle">
                 <rect width="24" height="24" opacity="0"/>
                 <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
+                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 a1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
                 </g>
                 </g>
                 <use xlink:href="#icon-apply"/>
                 </svg>
               </button>
-              <button id="email-btn" class="action-btn" title="Email">
+              <button id="email-btn-bottom" class="action-btn" title="Email">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="style=stroke">
                 <g id="email">
@@ -930,7 +994,7 @@
                 </svg>
               </button>
               
-              <button id="delete-btn" class="action-btn" title="Delete">
+              <button id="delete-btn-bottom" class="action-btn" title="Delete">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -940,7 +1004,7 @@
                 <use xlink:href="#icon-delete"/>
                 </svg>
               </button>
-              <button id="archive-btn" class="action-btn" title="Archive">
+              <button id="archive-btn-bottom" class="action-btn" title="Archive">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -968,7 +1032,7 @@
                     {% set job = bookmark.job %}
                     <div class="split-job-card" data-job-id="{{ job.id }}">
                         <div class="split-job-card-header">
-                            <input type="checkbox" class="job-checkbox" data-job-id="{{ job.id }}" style="margin-top: 2px;">
+                            <input type="checkbox" class="job-checkbox" data-bookmark-id="{{ bookmark.id }}" data-job-id="{{ job.id }}" style="margin-top: 2px;">
                             <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}" 
                                 alt="Logo" class="split-job-card-logo">
                             <div class="flex-grow-1">
@@ -1580,18 +1644,22 @@
   .email-modal-footer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid #e6eef6; }
   .email-modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #666; }
   </style>
-<script>
+{% endblock %}
+
+{% block footer_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
   document.addEventListener('DOMContentLoaded', function () {
     const checkboxes = document.querySelectorAll('.job-checkbox');
-    const applyBtn = document.getElementById('apply-btn');
-    const saveBtn = document.getElementById('save-btn');
     const deleteBtn = document.getElementById('delete-btn');
-    const emailBtn = document.getElementById('email-btn');
+    const deleteBtnBottom = document.getElementById('delete-btn-bottom');
     const actionsDivs = document.querySelectorAll('.hidden-buttons');
-    const columnsBtn = document.querySelector('.columns-dropdown-btn');
     const menuBtn = document.querySelector('.menu-dropdown-btn');
-    const columnsPanel = document.querySelector('.columns-panel');
     const menuPanel = document.querySelector('.menu-panel');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+    const deleteForm = document.getElementById('delete-bookmarks-form');
+    const bookmarkIdsInput = document.getElementById('bookmark-ids-input');
 
     function toggleDropdown(panel, btn) {
         const isOpen = !panel.classList.contains('hidden');
@@ -1600,14 +1668,8 @@
     }
 
     function closeAllDropdowns() {
-        columnsPanel.classList.add('hidden');
         menuPanel.classList.add('hidden');
     }
-
-    columnsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleDropdown(columnsPanel, columnsBtn);
-    });
 
     menuBtn.addEventListener('click', e => {
         e.stopPropagation();
@@ -1615,79 +1677,59 @@
     });
 
     document.addEventListener('click', e => {
-        // Only close if click is outside both dropdowns and buttons
-        if (
-          !columnsPanel.contains(e.target) &&
-          !columnsBtn.contains(e.target) &&
-          !menuPanel.contains(e.target) &&
-          !menuBtn.contains(e.target)
-        ) {
-          closeAllDropdowns();
+        if (!menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+            closeAllDropdowns();
         }
     });
 
-    // Link buttons to email modals directly
-    if (emailBtn) {
-      emailBtn.addEventListener('click', () => openEmailModal(1));
-    }
-    if (saveBtn) {
-      // "Notify of hire" opens the second template for now
-      saveBtn.addEventListener('click', () => openEmailModal(2));
-    }
+   // Delete functionality for bookmarks
+function handleDelete() {
+    const selectedBookmarks = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.dataset.bookmarkId);
 
-    // Select all checkbox has been removed from the UI
-
-    // Update the toggleActionsVisibility function
-    function toggleActionsVisibility() {
-        const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
-        const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
-        const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
-        let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-        const anyChecked = checkedCount > 0;
-        const splitViewContainer = document.getElementById('split-view-container');
-        const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-        // Buttons visibility panel (compact row) still toggles by selection in list view only
-        actionsDivs.forEach(div => {
-            if (isSplitActive) {
-                // Hide duplicate compact buttons in split view
-                div.style.display = 'none';
-            } else {
-                div.style.display = 'flex';
-                div.style.visibility = anyChecked ? 'visible' : 'hidden';
-            }
+    console.log('=== DELETE BOOKMARKS DEBUG ===');
+    console.log('Selected bookmarks:', selectedBookmarks);
+    console.log('Number of checkboxes:', checkboxes.length);
+    
+    // Debug each checkbox
+    checkboxes.forEach((cb, index) => {
+        console.log(`Checkbox ${index}:`, {
+            checked: cb.checked,
+            bookmarkId: cb.dataset.bookmarkId,
+            jobId: cb.dataset.jobId,
+            element: cb
         });
-        
-        // Show/hide Apply and Note
-        const applyButtons = document.querySelectorAll('#apply-btn');
-        const noteButtons = document.querySelectorAll('#note-btn');
-        const showApply = checkedCount === 1;
-        // Show Note only when exactly one job is selected
-        const showNote = checkedCount === 1;
-        applyButtons.forEach(btn => { btn.style.display = showApply ? 'flex' : 'none'; });
-        noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
-        
-        // Leave Email button behavior unchanged
+    });
+
+    if (selectedBookmarks.length === 0) {
+        alert('Please select at least one saved job to delete.');
+        return;
     }
 
-    // Update the updateButtonStates function
-    function updateButtonStates() {
-        const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
-        const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
-        const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
-        
-        let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-        const splitViewContainer = document.getElementById('split-view-container');
-        const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-        const showApply = checkedCount === 1;
-        const showNote = checkedCount === 1;
+    // Store the selected IDs and show confirmation modal
+    bookmarkIdsInput.value = JSON.stringify(selectedBookmarks);
+    console.log('Sending to server:', bookmarkIdsInput.value);
+    
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    deleteModal.show();
+}
 
-        // Show/hide and enable/disable Apply and Note
-        const applyButtons = document.querySelectorAll('#apply-btn');
-        const noteButtons = document.querySelectorAll('#note-btn');
-        applyButtons.forEach(btn => { btn.style.display = showApply ? 'flex' : 'none'; btn.disabled = !showApply; });
-        noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
-        
-        // Leave Email button behavior unchanged
+    // Delete button click handlers
+    deleteBtn.addEventListener('click', handleDelete);
+    deleteBtnBottom.addEventListener('click', handleDelete);
+
+    // Confirm delete button in modal
+    confirmDeleteBtn.addEventListener('click', () => {
+        // Submit the form
+        deleteForm.submit();
+    });
+
+    function toggleActionsVisibility() {
+      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+      actionsDivs.forEach(div => {
+        div.style.visibility = anyChecked ? 'visible' : 'hidden';
+      });
     }
 
     checkboxes.forEach(cb => {
@@ -1696,78 +1738,6 @@
 
     // Initial check in case some boxes are pre-checked
     toggleActionsVisibility();
-
-    function updateActions() {
-      const checked = Array.from(checkboxes).filter(cb => cb.checked);
-      const applyButtons = document.querySelectorAll('#apply-btn');
-      const noteButtons = document.querySelectorAll('#note-btn');
-      const splitViewContainer = document.getElementById('split-view-container');
-      const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-      const showApply = (checked.length === 1);
-      const showNote = (checked.length === 1);
-      applyButtons.forEach(btn => { btn.disabled = !showApply; btn.style.display = showApply ? 'flex' : 'none'; });
-      noteButtons.forEach(btn => { btn.style.display = showNote ? 'flex' : 'none'; });
-    }
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', updateActions);
-    });
-
-    // Safety net: recompute UI on any click within the listings area
-    const listingsRoot = document;
-    listingsRoot.addEventListener('click', () => {
-      try { toggleActionsVisibility(); updateButtonStates(); } catch(e) {}
-    });
-
-    // Delegated change listener to catch any checkbox state changes reliably
-    document.addEventListener('change', (e) => {
-      const target = e.target;
-      if (!target) return;
-      if (target.classList && target.classList.contains('job-checkbox')) {
-        // Enforce single selection
-        if (target.checked) {
-          // Get all checkboxes (including split view ones)
-          const allCheckboxes = document.querySelectorAll('.job-checkbox');
-          const otherChecked = Array.from(allCheckboxes).find(cb => cb !== target && cb.checked);
-          if (otherChecked) {
-            // Prevent this checkbox from being checked and show alert
-            target.checked = false;
-            alert('You cannot select multiple values');
-            return;
-          }
-        }
-        try { toggleActionsVisibility(); updateButtonStates(); } catch (e) {}
-      }
-    });
-
-    // Ensure notes panel is closed by default
-    try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
-
-      // Set up note auto-save functionality
-      setupNoteAutoSave();    applyBtn.addEventListener('click', () => {
-      const selected = Array.from(checkboxes).filter(cb => cb.checked);
-      if (selected.length === 1) {
-        const jobId = selected[0].dataset.jobId;
-        // Trigger apply logic here
-        console.log('Applying to job:', jobId);
-      }
-    });
-
-    saveBtn.addEventListener('click', () => {
-      const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.dataset.jobId);
-      // Trigger batch save logic here
-      console.log('Saving jobs:', selectedIds);
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.dataset.jobId);
-      // Trigger batch delete logic here
-      console.log('Deleting jobs:', selectedIds);
-    });
   });
 </script>
 <script>
@@ -1800,7 +1770,7 @@
                     <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Grid View
+                Split View
             `;
             window.selectedJobId = null;
             try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
@@ -2557,7 +2527,7 @@ function openEmailModal(templateId) {
 
   if (templateId === 1) {
     subjectEl.value = `Introduction and interest in ${jobTitle}`;
-    messageEl.value = `Hi there,\n\nI hope you’re doing well. I came across ${jobTitle} at ${company} and it looks like a strong match for my background. I’d welcome the chance to connect and share how I can help.\n\nI’ve attached my resume for your review. Below is a short paragraph you can paste for introductions if helpful.\n\n[INSERT BRIEF PARAGRAPH IN THE 3RD PERSON HERE.]\n\nThanks in advance for your help — I’d love to catch up soon.\n\nBest,\n[YOUR NAME]`;
+    messageEl.value = `Hi there,\n\nI hope you're doing well. I came across ${jobTitle} at ${company} and it looks like a strong match for my background. I'd welcome the chance to connect and share how I can help.\n\nI've attached my resume for your review. Below is a short paragraph you can paste for introductions if helpful.\n\n[INSERT BRIEF PARAGRAPH IN THE 3RD PERSON HERE.]\n\nThanks in advance for your help — I'd love to catch up soon.\n\nBest,\n[YOUR NAME]`;
   } else {
     subjectEl.value = `Following up on ${jobTitle}`;
     messageEl.value = `Hi there,\n\nI wanted to follow up on ${jobTitle} at ${company}. I remain very interested and would be happy to provide any additional details.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`;
@@ -2658,4 +2628,408 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Notify Hire JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const saveBtn = document.getElementById('save-btn');
+    const saveBtnBottom = document.getElementById('save-btn-bottom');
+    const applyBtn = document.getElementById('apply-btn');
+    
+    if (saveBtn) {
+        saveBtn.addEventListener('click', handleNotifyHireFromSaved);
+    }
+    
+    if (saveBtnBottom) {
+        saveBtnBottom.addEventListener('click', handleNotifyHireFromSaved);
+    }
+    
+    // Enable/disable buttons based on selection
+    function updateActionButtons() {
+        const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+        const hasSelection = selectedCheckboxes.length > 0;
+        
+        applyBtn.disabled = !hasSelection;
+        saveBtn.disabled = !hasSelection;
+        if (saveBtnBottom) saveBtnBottom.disabled = !hasSelection;
+        
+        // Update tooltips
+        if (hasSelection) {
+            saveBtn.title = "Notify Hire for Selected Jobs";
+            if (saveBtnBottom) saveBtnBottom.title = "Notify Hire for Selected Jobs";
+            applyBtn.title = "Apply to selected jobs";
+        } else {
+            saveBtn.title = "Notify of Hire";
+            if (saveBtnBottom) saveBtnBottom.title = "Notify of Hire";
+            applyBtn.title = "Apply";
+        }
+    }
+    
+    // Update buttons when checkboxes change
+    document.querySelectorAll('.job-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updateActionButtons);
+    });
+    
+    // Initial update
+    updateActionButtons();
+});
+
+function handleNotifyHireFromSaved() {
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    
+    if (selectedCheckboxes.length === 0) {
+        showToast('Please select at least one job to notify hire.', 'warning');
+        return;
+    }
+    
+    const selectedJobIds = selectedCheckboxes.map(cb => cb.dataset.jobId);
+    
+    // Show confirmation modal
+    showNotifyHireModal(selectedJobIds);
+}
+
+function showNotifyHireModal(jobIds) {
+    const modalHtml = `
+        <div class="modal fade" id="notifyHireModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Notify Hire for Selected Jobs</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>This action will:</p>
+                        <ul>
+                            <li>Mark providers as hired for jobs you've applied to</li>
+                            <li>Move successfully processed jobs to "Accepted" status</li>
+                            <li>Remove them from your saved jobs</li>
+                            <li>Notify the admin about the hire</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <strong>Note:</strong> Only jobs you have already applied to can be processed. 
+                            Jobs without applications will be skipped.
+                        </div>
+                        <p>Are you sure you want to proceed?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" id="confirm-notify-hire-btn">
+                            Yes, Notify Hire
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('notifyHireModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    const modal = new bootstrap.Modal(document.getElementById('notifyHireModal'));
+    modal.show();
+    
+    // Handle confirm button
+    document.getElementById('confirm-notify-hire-btn').addEventListener('click', function() {
+        modal.hide();
+        processNotifyHire(jobIds);
+    });
+}
+
+function processNotifyHire(jobIds) {
+    // Show loading state
+    const saveBtn = document.getElementById('save-btn');
+    const saveBtnBottom = document.getElementById('save-btn-bottom');
+    const originalHtml = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Processing...';
+    saveBtn.disabled = true;
+    if (saveBtnBottom) {
+        saveBtnBottom.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+        saveBtnBottom.disabled = true;
+    }
+    
+    fetch('{{ path("app_provider_saved_jobs_notify_hire") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ jobIds: jobIds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showResultsModal(data.results);
+            // Remove successful jobs from the UI
+            removeSuccessfulJobsFromUI(data.results.successful);
+            // Uncheck all checkboxes
+            uncheckAllCheckboxes();
+        } else {
+            showToast('Error: ' + data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error. Please try again.', 'error');
+    })
+    .finally(() => {
+        // Reset button
+        saveBtn.innerHTML = originalHtml;
+        saveBtn.disabled = false;
+        if (saveBtnBottom) {
+            saveBtnBottom.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/><circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/><path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+            saveBtnBottom.disabled = false;
+        }
+        updateActionButtons();
+    });
+}
+
+function showResultsModal(results) {
+    const successfulCount = results.successful.length;
+    const notAppliedCount = results.notApplied.length;
+    const failedCount = results.failed.length;
+    
+    let resultsHtml = `
+        <div class="modal fade" id="resultsModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Hire Notification Results</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+    `;
+    
+    // Successful results
+    if (successfulCount > 0) {
+        resultsHtml += `
+            <div class="alert alert-success">
+                <h6>✅ Successfully Hired (${successfulCount})</h6>
+                <small>The following jobs have been moved to "Accepted" and removed from saved:</small>
+                <ul class="mb-0 mt-2">
+        `;
+        results.successful.forEach(job => {
+            resultsHtml += `<li>${job.jobTitle}</li>`;
+        });
+        resultsHtml += `</ul></div>`;
+    }
+    
+    // Not applied jobs
+    if (notAppliedCount > 0) {
+        resultsHtml += `
+            <div class="alert alert-warning">
+                <h6>⚠️ Not Applied (${notAppliedCount})</h6>
+                <small>These jobs need to be applied to first:</small>
+                <ul class="mb-0 mt-2">
+        `;
+        results.notApplied.forEach(job => {
+            resultsHtml += `<li>${job.jobTitle}</li>`;
+        });
+        resultsHtml += `</ul></div>`;
+    }
+    
+    // Failed jobs
+    if (failedCount > 0) {
+        resultsHtml += `
+            <div class="alert alert-danger">
+                <h6>❌ Failed (${failedCount})</h6>
+                <small>These jobs could not be processed:</small>
+                <ul class="mb-0 mt-2">
+        `;
+        results.failed.forEach(job => {
+            resultsHtml += `<li>${job.jobTitle} - ${job.reason}</li>`;
+        });
+        resultsHtml += `</ul></div>`;
+    }
+    
+    resultsHtml += `
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue</button>
+                        ${notAppliedCount > 0 ? 
+                            '<button type="button" class="btn btn-success" id="apply-remaining-btn">Apply to Remaining Jobs</button>' : 
+                            ''
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('resultsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', resultsHtml);
+    
+    const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+    modal.show();
+    
+    // Handle apply remaining button
+    if (notAppliedCount > 0) {
+        document.getElementById('apply-remaining-btn').addEventListener('click', function() {
+            modal.hide();
+            // Apply to the not applied jobs
+            const notAppliedJobIds = results.notApplied.map(job => job.jobId);
+            applyToSelectedJobs(notAppliedJobIds);
+        });
+    }
+}
+
+function removeSuccessfulJobsFromUI(successfulJobs) {
+    successfulJobs.forEach(job => {
+        // Remove from list view
+        const jobRow = document.querySelector(`.job-checkbox[data-job-id="${job.jobId}"]`)?.closest('.job-lists');
+        if (jobRow) {
+            jobRow.remove();
+        }
+        
+        // Remove from split view
+        const splitJobCard = document.querySelector(`.split-job-card[data-job-id="${job.jobId}"]`);
+        if (splitJobCard) {
+            splitJobCard.remove();
+        }
+    });
+    
+    // Update counters
+    updateJobCounters();
+}
+
+function uncheckAllCheckboxes() {
+    document.querySelectorAll('.job-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+function updateJobCounters() {
+    // Update the saved jobs count in the status cards
+    const remainingBookmarks = document.querySelectorAll('.job-checkbox').length;
+    const savedCountElement = document.querySelector('.is-card.is-saved .card-text');
+    if (savedCountElement) {
+        savedCountElement.textContent = remainingBookmarks;
+    }
+}
+
+function applyToSelectedJobs(jobIds) {
+    if (!jobIds || jobIds.length === 0) {
+        showToast('No jobs to apply to.', 'warning');
+        return;
+    }
+    
+    // Show loading state
+    const applyBtn = document.getElementById('apply-btn');
+    const applyBtnBottom = document.getElementById('apply-btn-bottom');
+    const originalHtml = applyBtn.innerHTML;
+    applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
+    applyBtn.disabled = true;
+    if (applyBtnBottom) {
+        applyBtnBottom.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
+        applyBtnBottom.disabled = true;
+    }
+    
+    // Apply to each job
+    const applyPromises = jobIds.map(jobId => {
+        return applyToJob(jobId);
+    });
+    
+    // Execute all apply operations
+    Promise.allSettled(applyPromises).then(results => {
+        const successful = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results.filter(r => r.status === 'rejected').length;
+        
+        // Reset button
+        applyBtn.innerHTML = originalHtml;
+        applyBtn.disabled = false;
+        if (applyBtnBottom) {
+            applyBtnBottom.innerHTML = '<svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g data-name="checkmark-circle"><rect width="24" height="24" opacity="0"/><path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/><path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 a1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/></g></g></svg>';
+            applyBtnBottom.disabled = false;
+        }
+        
+        // Show results
+        if (failed === 0) {
+            showToast(`Successfully applied to ${successful} job(s)!`, 'success');
+        } else {
+            showToast(`Applied to ${successful} job(s), ${failed} failed.`, 'warning');
+        }
+        
+        // Refresh the page to update the UI
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+    });
+}
+
+function applyToJob(jobId) {
+    return new Promise((resolve, reject) => {
+        fetch(`/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                resolve();
+            } else {
+                reject(new Error('Apply failed'));
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container') || createToastContainer();
+    
+    const toastId = 'toast-' + Date.now();
+    const bgClass = type === 'success' ? 'text-bg-success' : 
+                   type === 'error' ? 'text-bg-danger' : 
+                   type === 'warning' ? 'text-bg-warning' : 'text-bg-info';
+    
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+    
+    // Remove toast from DOM after it hides
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container position-fixed top-0 end-0 p-3';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Initialize tooltips
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+</script>
 {% endblock %}

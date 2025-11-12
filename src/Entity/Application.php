@@ -7,7 +7,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Uid\Uuid;
-use App\Entity\Job;
 
 #[ORM\Table(name: 'b_application')]
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
@@ -21,21 +20,20 @@ class Application
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    // Relations
-    #[ORM\ManyToOne(targetEntity: Job::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Job $job = null;
-
-    #[ORM\ManyToOne(targetEntity: Employer::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne]
     private ?Employer $employer = null;
 
-    #[ORM\ManyToOne(targetEntity: Provider::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne]
     private ?Provider $provider = null;
+
+    #[ORM\ManyToOne]
+    private ?Job $job = null;
 
     #[ORM\Column(length: 40)]
     private ?string $status = 'applied';
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $hiredAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $documentRequestedAt = null;
@@ -64,24 +62,18 @@ class Application
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Interview $interview = null;
 
-    #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $rank = null;
-    // ===== Getters & Setters =====
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
+    private ?string $rank = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $archivedAt = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isArchived = false;
 
     public function getId(): ?Uuid
     {
         return $this->id;
-    }
-
-    public function getJob(): ?Job
-    {
-        return $this->job;
-    }
-
-    public function setJob(?Job $job): static
-    {
-        $this->job = $job;
-        return $this;
     }
 
     public function getEmployer(): ?Employer
@@ -89,10 +81,9 @@ class Application
         return $this->employer;
     }
 
-    public function setEmployer(?Employer $employer): static
+    public function setEmployer(?Employer $employer): void
     {
         $this->employer = $employer;
-        return $this;
     }
 
     public function getProvider(): ?Provider
@@ -100,10 +91,9 @@ class Application
         return $this->provider;
     }
 
-    public function setProvider(?Provider $provider): static
+    public function setProvider(?Provider $provider): void
     {
         $this->provider = $provider;
-        return $this;
     }
 
     public function getStatus(): ?string
@@ -114,6 +104,17 @@ class Application
     public function setStatus(string $status): static
     {
         $this->status = $status;
+        return $this;
+    }
+
+    public function getJob(): ?Job
+    {
+        return $this->job;
+    }
+
+    public function setJob(?Job $job): static
+    {
+        $this->job = $job;
         return $this;
     }
 
@@ -144,10 +145,9 @@ class Application
         return $this->oneFileRequestedAt;
     }
 
-    public function setOneFileRequestedAt(?\DateTimeInterface $oneFileRequestedAt): static
+    public function setOneFileRequestedAt(?\DateTimeInterface $oneFileRequestedAt): void
     {
         $this->oneFileRequestedAt = $oneFileRequestedAt;
-        return $this;
     }
 
     public function getOneFileProvidedAt(): ?\DateTimeInterface
@@ -155,10 +155,9 @@ class Application
         return $this->oneFileProvidedAt;
     }
 
-    public function setOneFileProvidedAt(?\DateTimeInterface $oneFileProvidedAt): static
+    public function setOneFileProvidedAt(?\DateTimeInterface $oneFileProvidedAt): void
     {
         $this->oneFileProvidedAt = $oneFileProvidedAt;
-        return $this;
     }
 
     public function getContractSentAt(): ?\DateTimeInterface
@@ -188,10 +187,9 @@ class Application
         return $this->contractSignedAt;
     }
 
-    public function setContractSignedAt(?\DateTimeInterface $contractSignedAt): static
+    public function setContractSignedAt(?\DateTimeInterface $contractSignedAt): void
     {
         $this->contractSignedAt = $contractSignedAt;
-        return $this;
     }
 
     public function getContractSignedFileName(): ?string
@@ -199,10 +197,9 @@ class Application
         return $this->contractSignedFileName;
     }
 
-    public function setContractSignedFileName(?string $contractSignedFileName): static
+    public function setContractSignedFileName(?string $contractSignedFileName): void
     {
         $this->contractSignedFileName = $contractSignedFileName;
-        return $this;
     }
 
     public function getInterview(): ?Interview
@@ -216,33 +213,53 @@ class Application
         return $this;
     }
 
-    public function getRank(): ?float
+    public function getRank(): ?string
     {
         return $this->rank;
     }
 
-    public function setRank(?float $rank): static
-    // public function setRank(?float $rank): self
+    public function setRank(?string $rank): self
     {
         $this->rank = $rank;
         return $this;
     }
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => 0])]
-    private bool $archived = false;
-
-    public function getArchived(): bool
+    // ✅ ARCHIVE METHODS ONLY
+    public function getArchivedAt(): ?\DateTimeInterface
     {
-        return $this->archived;
+        return $this->archivedAt;
     }
 
-    public function setArchived(bool $archived): self
+    public function setArchivedAt(?\DateTimeInterface $archivedAt): self
     {
-        $this->archived = $archived;
+        $this->archivedAt = $archivedAt;
         return $this;
     }
 
-     public function getHiredAt(): ?\DateTimeInterface
+    public function isArchived(): bool
+    {
+        return $this->isArchived;
+    }
+
+    public function setIsArchived(bool $isArchived): self
+    {
+        $this->isArchived = $isArchived;
+        return $this;
+    }
+
+    public function archive(): void
+    {
+        $this->archivedAt = new \DateTime();
+        $this->isArchived = true;
+    }
+
+    public function restore(): void
+    {
+        $this->archivedAt = null;
+        $this->isArchived = false;
+    }
+
+    public function getHiredAt(): ?\DateTimeInterface
     {
         return $this->hiredAt;
     }
@@ -252,11 +269,4 @@ class Application
         $this->hiredAt = $hiredAt;
         return $this;
     }
-
-
-
-
-
-
-
 }
