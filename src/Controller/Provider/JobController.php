@@ -14,6 +14,7 @@ use App\Repository\JobRepository;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Service\ApplicationService;
+use App\Service\ProfileAnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
