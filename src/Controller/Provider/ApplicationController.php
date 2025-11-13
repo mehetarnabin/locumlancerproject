@@ -2,6 +2,7 @@
 
 namespace App\Controller\Provider;
 use App\Entity\Application;
+use App\Entity\Bookmark;
 use App\Form\ProviderApplicationCertificationType;
 use App\Form\ProviderReleaseAuthorizationType;
 use Doctrine\ORM\EntityManagerInterface;

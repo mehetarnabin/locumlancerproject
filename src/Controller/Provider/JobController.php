@@ -415,7 +415,7 @@ class JobController extends AbstractController
             return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
         }
 
-        // Find user’s bookmark for this job
+        // Find user's bookmark for this job
         $bookmark = $bookmarkRepository->findOneBy([
             'job' => $jobId,
             'user' => $this->getUser(),
@@ -906,9 +906,176 @@ public function notifyHireFromSaved(
     }
 }
 
+#[Route('/saved-jobs/apply', name: 'app_provider_saved_jobs_apply', methods: ['POST'])]
+public function applyToSavedJobs(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    // Start debug logging
+    $debugLog = "=== APPLY JOBS REQUEST START ===\n";
+    $debugLog .= "Time: " . date('Y-m-d H:i:s') . "\n";
+    
+    // Handle both JSON and form data
+    if ($request->headers->get('Content-Type') === 'application/json') {
+        // JSON request
+        $content = $request->getContent();
+        $data = json_decode($content, true);
+        $jobIds = $data['jobIds'] ?? [];
+        $debugLog .= "Request type: JSON\n";
+    } else {
+        // Form data request
+        $jobIdsParam = $request->request->get('job_ids', '[]');
+        if (is_string($jobIdsParam) && str_starts_with($jobIdsParam, '[')) {
+            $jobIds = json_decode($jobIdsParam, true) ?? [];
+        } else {
+            $jobIds = [];
+        }
+        $debugLog .= "Request type: FORM\n";
+    }
+    
+    $debugLog .= "Job IDs received: " . print_r($jobIds, true) . "\n";
+    $debugLog .= "Job IDs count: " . count($jobIds) . "\n";
+    
+    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+    
+    $user = $this->getUser();
+    $debugLog = "User ID: " . ($user ? $user->getId() : 'NO USER') . "\n";
+    
+    if ($user && method_exists($user, 'getProvider')) {
+        $provider = $user->getProvider();
+        $debugLog .= "Provider: " . ($provider ? $provider->getId() : 'NO PROVIDER') . "\n";
+    } else {
+        $debugLog .= "User has no getProvider method or no user\n";
+    }
+    
+    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+    
+    $appliedCount = 0;
+    $alreadyAppliedCount = 0;
+    $appliedJobIds = [];
+    $removedBookmarkIds = [];
+    $alreadyAppliedJobIds = [];
 
+    foreach ($jobIds as $index => $jobId) {
+        $debugLog = "Processing job #$index: " . $jobId . "\n";
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        try {
+            // Find the job
+            $job = $entityManager->getRepository(Job::class)->find($jobId);
+            
+            if (!$job) {
+                $debugLog = "❌ Job not found: " . $jobId . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                continue;
+            }
 
+            $debugLog = "✅ Found job: " . $job->getId() . " - " . $job->getTitle() . "\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
 
+            // Check if already applied
+            $existingApplication = $entityManager->getRepository(Application::class)
+                ->findOneBy([
+                    'provider' => $user->getProvider(), 
+                    'job' => $job, 
+                    'employer' => $job->getEmployer()
+                ]);
+                
+            if ($existingApplication) {
+                $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                
+                $alreadyAppliedCount++;
+                $alreadyAppliedJobIds[] = $jobId;
+            } else {
+                $debugLog = "✅ No existing application found, creating new one\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
 
+                // Create new application
+                $application = new Application();
+                $application->setJob($job);
+                $application->setProvider($user->getProvider());
+                $application->setEmployer($job->getEmployer());
+                $application->setStatus('applied');
+                $application->setAppliedAt(new \DateTime());
+                
+                $entityManager->persist($application);
+                $appliedCount++;
+                $appliedJobIds[] = $jobId;
+                $debugLog = "✅ Created application for job: " . $jobId . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            }
+            
+            // Remove from bookmarks REGARDLESS of whether it was just applied or already applied
+            $bookmark = $entityManager->getRepository(Bookmark::class)
+                ->findOneBy(['job' => $job, 'user' => $user]);
+                
+            if ($bookmark) {
+                $removedBookmarkIds[] = $bookmark->getId();
+                $entityManager->remove($bookmark);
+                $debugLog = "✅ Removed bookmark for job: " . $jobId . " (Bookmark ID: " . $bookmark->getId() . ")\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            } else {
+                $debugLog = "❌ No bookmark found for job: " . $jobId . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            }
+            
+            $debugLog = "✅ Successfully processed job: " . $jobId . "\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            
+        } catch (\Exception $e) {
+            $debugLog = '❌ Error applying to job ' . $jobId . ': ' . $e->getMessage() . "\n";
+            $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            continue;
+        }
+    }
+    
+    try {
+        $debugLog = "Flushing entity manager...\n";
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        $entityManager->flush();
+        
+        $debugLog = "✅ Flush completed\n";
+        $debugLog .= "Final applied count: " . $appliedCount . "\n";
+        $debugLog .= "Already applied count: " . $alreadyAppliedCount . "\n";
+        $debugLog .= "Applied job IDs: " . print_r($appliedJobIds, true) . "\n";
+        $debugLog .= "Already applied job IDs: " . print_r($alreadyAppliedJobIds, true) . "\n";
+        $debugLog .= "Removed bookmark IDs: " . print_r($removedBookmarkIds, true) . "\n";
+        $debugLog .= '=== APPLY JOBS REQUEST END ===' . "\n\n";
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        // Build success message
+        $message = "";
+        if ($appliedCount > 0) {
+            $message .= "Successfully applied to {$appliedCount} job(s). ";
+        }
+        if ($alreadyAppliedCount > 0) {
+            $message .= "Removed {$alreadyAppliedCount} already applied job(s) from saved jobs.";
+        }
+        if ($appliedCount === 0 && $alreadyAppliedCount === 0) {
+            $message = "No jobs were processed.";
+        }
+        
+        return $this->json([
+            'success' => true,
+            'message' => $message,
+            'appliedCount' => $appliedCount,
+            'alreadyAppliedCount' => $alreadyAppliedCount,
+            'appliedJobIds' => $appliedJobIds,
+            'alreadyAppliedJobIds' => $alreadyAppliedJobIds,
+            'removedBookmarkIds' => $removedBookmarkIds
+        ]);
+    } catch (\Exception $e) {
+        $debugLog = "❌ Flush error: " . $e->getMessage() . "\n";
+        $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
+        $debugLog .= '=== APPLY JOBS REQUEST END WITH ERROR ===' . "\n\n";
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        return $this->json([
+            'success' => false,
+            'message' => 'Error applying to jobs: ' . $e->getMessage()
+        ], 500);
+    }
+}
     
 }

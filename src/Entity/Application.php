@@ -71,6 +71,9 @@ class Application
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isArchived = false;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $appliedAt = null;
+
     public function getId(): ?Uuid
     {
         return $this->id;
@@ -267,6 +270,17 @@ class Application
     public function setHiredAt(?\DateTimeInterface $hiredAt): self
     {
         $this->hiredAt = $hiredAt;
+        return $this;
+    }
+
+    public function getAppliedAt(): ?\DateTimeInterface
+{
+    return $this->appliedAt;
+}
+
+    public function setAppliedAt(?\DateTimeInterface $appliedAt): self
+    {
+        $this->appliedAt = $appliedAt;
         return $this;
     }
 }
