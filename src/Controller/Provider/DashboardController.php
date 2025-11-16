@@ -90,6 +90,9 @@ class DashboardController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
+        $analytics = $analyticsService->getProfileAnalytics($user);
+
+
         return $this->render('provider/dashboard.html.twig', [
             'bookmarks' => $bookmarks,
             'matchingJobs' => $matchingJobs,

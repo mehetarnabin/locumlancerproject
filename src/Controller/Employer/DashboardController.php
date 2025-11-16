@@ -7,6 +7,7 @@ use App\Entity\Job;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Repository\JobRepository;
+use App\Service\ProfileAnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,6 +64,29 @@ class DashboardController extends AbstractController
             'notifications' => $notifications,
             'currentJobs' => $currentJobs,
             'pastJobs' => $pastJobs,
+        ]);
+    }
+
+    // In DashboardController.php - temporary search tracking
+    #[Route('/search/providers', name: 'app_employer_search_providers', methods: ['GET'])]
+    public function searchProviders(
+        Request $request,
+        ProfileAnalyticsService $analyticsService,
+        JobRepository $jobRepository
+    ): Response {
+        $searchQuery = $request->query->get('q', '');
+        
+        // Your search logic here - this is just an example
+        $searchResults = []; // Replace with your actual search results
+        
+        // 🎯 COUNT BUTTON - Count each provider in search results
+        foreach ($searchResults as $provider) {
+            $analyticsService->recordSearchImpression($provider);
+        }
+        
+        return $this->render('employer/search_providers.html.twig', [
+            'providers' => $searchResults,
+            'searchQuery' => $searchQuery,
         ]);
     }
 }

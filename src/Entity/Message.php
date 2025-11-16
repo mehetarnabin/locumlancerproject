@@ -12,6 +12,8 @@ use Symfony\Component\Uid\Uuid;
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message
 {
+    use TimestampableEntity;
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
@@ -41,7 +43,30 @@ class Message
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $attachment = null;
 
-    use TimestampableEntity;
+    // NEW: Draft functionality fields
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private ?bool $isDraft = false;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $savedAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $sentAt = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $deleted = false;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $deletedAt = null;
+
+    public function __construct()
+    {
+        $this->id = Uuid::v4();
+        $this->isDraft = false;
+        $this->seen = false;
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?Uuid
     {
@@ -53,9 +78,10 @@ class Message
         return $this->parent;
     }
 
-    public function setParent(?Message $parent): void
+    public function setParent(?Message $parent): static
     {
         $this->parent = $parent;
+        return $this;
     }
 
     public function getSender(): ?User
@@ -66,7 +92,6 @@ class Message
     public function setSender(?User $sender): static
     {
         $this->sender = $sender;
-
         return $this;
     }
 
@@ -78,7 +103,6 @@ class Message
     public function setReceiver(?User $receiver): static
     {
         $this->receiver = $receiver;
-
         return $this;
     }
 
@@ -87,9 +111,10 @@ class Message
         return $this->employer;
     }
 
-    public function setEmployer(?Employer $employer): void
+    public function setEmployer(?Employer $employer): static
     {
         $this->employer = $employer;
+        return $this;
     }
 
     public function getText(): ?string
@@ -100,7 +125,6 @@ class Message
     public function setText(string $text): static
     {
         $this->text = $text;
-
         return $this;
     }
 
@@ -112,7 +136,6 @@ class Message
     public function setSeen(bool $seen): static
     {
         $this->seen = $seen;
-
         return $this;
     }
 
@@ -121,8 +144,94 @@ class Message
         return $this->attachment;
     }
 
-    public function setAttachment(?string $attachment): void
+    public function setAttachment(?string $attachment): static
     {
         $this->attachment = $attachment;
+        return $this;
     }
+
+    // NEW: Draft-related methods
+    public function isDraft(): bool
+    {
+        return $this->isDraft;
+    }
+
+    public function setIsDraft(bool $isDraft): static
+    {
+        $this->isDraft = $isDraft;
+        
+        if ($isDraft) {
+            $this->savedAt = new \DateTime();
+            $this->sentAt = null;
+            $this->seen = true; // Drafts are always "seen" by sender
+        } else {
+            $this->sentAt = new \DateTime();
+            $this->seen = false;
+        }
+        
+        return $this;
+    }
+
+    public function getSavedAt(): ?\DateTimeInterface
+    {
+        return $this->savedAt;
+    }
+
+    public function setSavedAt(?\DateTimeInterface $savedAt): static
+    {
+        $this->savedAt = $savedAt;
+        return $this;
+    }
+
+    public function getSentAt(): ?\DateTimeInterface
+    {
+        return $this->sentAt;
+    }
+
+    public function setSentAt(?\DateTimeInterface $sentAt): static
+    {
+        $this->sentAt = $sentAt;
+        return $this;
+    }
+
+    // Helper method to send a draft
+    public function send(): static
+    {
+        $this->setIsDraft(false);
+        return $this;
+    }
+
+    // Helper method to check if message can be sent (has receiver and text)
+    public function canBeSent(): bool
+    {
+        return $this->getReceiver() !== null && !empty(trim($this->getText()));
+    }
+
+
+    public function isDeleted(): ?bool
+{
+    return $this->deleted;
+}
+
+public function setDeleted(?bool $deleted): static
+{
+    $this->deleted = $deleted;
+    if ($deleted) {
+        $this->deletedAt = new \DateTime();
+    } else {
+        $this->deletedAt = null;
+    }
+    return $this;
+}
+
+public function getDeletedAt(): ?\DateTimeInterface
+{
+    return $this->deletedAt;
+}
+
+public function setDeletedAt(?\DateTimeInterface $deletedAt): static
+{
+    $this->deletedAt = $deletedAt;
+    return $this;
+}
 }

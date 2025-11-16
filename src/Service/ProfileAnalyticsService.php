@@ -3,9 +3,11 @@
 
 namespace App\Service;
 
+use App\Entity\Provider;
 use App\Entity\User;
 use App\Repository\ApplicationRepository;
 use App\Repository\JobRepository;
+use App\Repository\ProfileAnalyticsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProfileAnalyticsService
@@ -13,6 +15,7 @@ class ProfileAnalyticsService
     public function __construct(
         private ApplicationRepository $applicationRepo,
         private JobRepository $jobRepo,
+        private ProfileAnalyticsRepository $profileAnalyticsRepo,
         private EntityManagerInterface $entityManager
     ) {}
 
@@ -29,10 +32,117 @@ class ProfileAnalyticsService
             'ratio' => $this->getApplicationToInterviewRatio($provider),
             'skills' => $this->getTopSkillsInDemand($provider),
             'resume' => $this->getResumeInsights($provider, $user),
+            'metrics' => $this->getProfileMetrics($provider),
         ];
     }
 
-    private function getApplicationToInterviewRatio($provider): array
+    public function getProfileMetrics(Provider $provider): array
+    {
+        try {
+            // Get current month metrics
+            $startOfMonth = new \DateTime('first day of this month 00:00:00');
+            $currentMetrics = $this->profileAnalyticsRepo->getProviderMetrics($provider, $startOfMonth);
+            
+            // Get previous month metrics for comparison
+            $startOfLastMonth = new \DateTime('first day of last month 00:00:00');
+            $previousMetrics = $this->profileAnalyticsRepo->getProviderMetrics($provider, $startOfLastMonth);
+
+            // Calculate response rate from applications
+            $responseRate = $this->calculateResponseRate($provider);
+
+            return [
+                'impressions' => $currentMetrics['total_impressions'],
+                'profile_views' => $currentMetrics['profile_views'],
+                'resume_downloads' => $currentMetrics['resume_downloads'],
+                'response_rate' => $responseRate,
+                'trends' => $this->calculateTrends($currentMetrics, $previousMetrics),
+            ];
+        } catch (\Exception $e) {
+            error_log('Error in getProfileMetrics: ' . $e->getMessage());
+            return $this->getDefaultMetrics();
+        }
+    }
+
+    private function calculateResponseRate(Provider $provider): float
+{
+    $applications = $this->applicationRepo->findBy(['provider' => $provider]);
+    
+    if (empty($applications)) {
+        return 0.0;
+    }
+
+    $respondedApplications = 0;
+    foreach ($applications as $application) {
+        $status = strtolower($application->getStatus() ?? '');
+        
+        // Count as "responded" if employer has taken any meaningful action
+        // This uses only existing status fields
+        if (in_array($status, ['interview', 'negotiating', 'accepted', 'rejected', 'hired', 'reviewed'])) {
+            $respondedApplications++;
+        }
+        // OR if there's an interview scheduled (using existing interview relation)
+        elseif ($application->getInterview() !== null) {
+            $respondedApplications++;
+        }
+        // OR if contract was sent (using existing contract fields)
+        elseif ($application->getContractSentAt() !== null) {
+            $respondedApplications++;
+        }
+    }
+
+    return ($respondedApplications / count($applications)) * 100;
+}
+    private function calculateTrends(array $current, array $previous): array
+    {
+        $trends = [];
+        
+        foreach ($current as $key => $currentValue) {
+            $previousValue = $previous[$key] ?? 0;
+            
+            if ($previousValue > 0) {
+                $change = (($currentValue - $previousValue) / $previousValue) * 100;
+            } else {
+                $change = $currentValue > 0 ? 100 : 0;
+            }
+            
+            $trends[$key] = round($change, 1);
+        }
+        
+        return $trends;
+    }
+
+    private function getDefaultMetrics(): array
+    {
+        return [
+            'impressions' => 0,
+            'profile_views' => 0,
+            'resume_downloads' => 0,
+            'response_rate' => 0,
+            'trends' => [
+                'total_impressions' => 0,
+                'profile_views' => 0,
+                'resume_downloads' => 0,
+            ],
+        ];
+    }
+
+    // Record analytics events
+    public function recordProfileView(Provider $provider, ?User $viewer = null): void
+    {
+        $this->profileAnalyticsRepo->recordAnalyticsEvent($provider, $viewer, 'profile_view');
+    }
+
+    public function recordResumeDownload(Provider $provider, ?User $downloader = null): void
+    {
+        $this->profileAnalyticsRepo->recordAnalyticsEvent($provider, $downloader, 'resume_download');
+    }
+
+    public function recordSearchImpression(Provider $provider): void
+    {
+        $this->profileAnalyticsRepo->recordAnalyticsEvent($provider, null, 'search_impression');
+    }
+
+    private function getApplicationToInterviewRatio(Provider $provider): array
     {
         try {
             // Get all applications for this provider
@@ -65,108 +175,235 @@ class ProfileAnalyticsService
         }
     }
 
-    private function getTopSkillsInDemand($provider): array
+    private function getTopSkillsInDemand(Provider $provider): array
     {
         try {
-            // Get provider's skills from profile
-            $providerSkills = [];
+            // Get provider's profession - this should exist
+            $providerProfession = $provider->getProfession();
             
-            // Check if provider has skills method
-            if (method_exists($provider, 'getSkills') && $provider->getSkills()) {
-                $providerSkills = $provider->getSkills();
-            }
-            
-            // Check specialities
-            if (method_exists($provider, 'getSpecialities') && $provider->getSpecialities()) {
-                foreach ($provider->getSpecialities() as $speciality) {
-                    if (method_exists($speciality, 'getName')) {
-                        $providerSkills[] = $speciality->getName();
-                    }
-                }
-            }
-            
-            // Check profession
-            if (method_exists($provider, 'getProfession') && $provider->getProfession()) {
-                $profession = $provider->getProfession();
-                if (method_exists($profession, 'getName')) {
-                    $providerSkills[] = $profession->getName();
-                }
+            if (!$providerProfession) {
+                return $this->getDefaultSkills();
             }
 
-            // Remove duplicates and empty values
-            $providerSkills = array_unique(array_filter($providerSkills));
-
-            // Sample data - in real implementation, you'd query jobs matching these skills
-            $skillsData = [];
-            $sampleSkills = [
-                'Nursing', 'Patient Care', 'Medical Records', 'Emergency Response', 
-                'Medication Administration', 'Healthcare', 'Clinical Skills',
-                'Patient Assessment', 'Treatment Planning', 'Medical Procedures'
+            // Get jobs that match the provider's profile - use only available data
+            $searchParams = [
+                'profession' => $providerProfession->getId(),
+                'limit' => 50
             ];
-            
-            $sampleColors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6', '#ec4899', '#84cc16', '#14b8a6'];
-            
-            foreach ($sampleSkills as $index => $skill) {
-                // Check if provider has this skill or if we should show it as a suggestion
-                if (in_array($skill, $providerSkills) || count($skillsData) < 5) {
-                    $percentage = in_array($skill, $providerSkills) ? rand(70, 95) : rand(40, 65);
-                    $skillsData[] = [
-                        'name' => $skill,
-                        'percentage' => $percentage,
-                        'color' => $sampleColors[$index] ?? '#10b981',
-                        'hasSkill' => in_array($skill, $providerSkills),
-                    ];
-                }
+
+            // Add speciality if available (based on Job entity structure)
+            if (method_exists($provider, 'getSpeciality') && $provider->getSpeciality()) {
+                $searchParams['speciality'] = $provider->getSpeciality()->getId();
             }
+
+            // Add states if available
+            if (method_exists($provider, 'getDesiredStates') && $provider->getDesiredStates()) {
+                $searchParams['state'] = implode(',', $provider->getDesiredStates());
+            }
+
+            $matchingJobs = $this->jobRepo->getProviderMatchingJobs($searchParams);
+
+            if (empty($matchingJobs)) {
+                return $this->getDefaultSkills();
+            }
+
+            // Extract and analyze skills from job descriptions
+            $skillFrequency = $this->analyzeSkillsFromJobs($matchingJobs);
             
-            // Sort by percentage descending
-            usort($skillsData, fn($a, $b) => $b['percentage'] <=> $a['percentage']);
+            // Get provider's current skills
+            $providerSkills = $this->getProviderSkills($provider);
+            
+            // Calculate skill gaps and demand
+            $skillsData = $this->calculateSkillDemand($skillFrequency, $providerSkills);
             
             return array_slice($skillsData, 0, 5);
+            
         } catch (\Exception $e) {
-            return [];
+            error_log('Error in getTopSkillsInDemand: ' . $e->getMessage());
+            return $this->getDefaultSkills();
         }
     }
 
-    private function getResumeInsights($provider, User $user): array
+    private function analyzeSkillsFromJobs(array $jobs): array
+    {
+        $skillFrequency = [];
+        $commonSkills = [
+            'patient care', 'medical records', 'emergency response', 'medication administration',
+            'treatment planning', 'clinical skills', 'healthcare', 'nursing', 'medical procedures',
+            'patient assessment', 'vital signs', 'patient education', 'team collaboration',
+            'communication skills', 'electronic health records', 'medical terminology'
+        ];
+
+        foreach ($jobs as $job) {
+            // Analyze job title and description
+            $text = strtolower($job->getTitle() . ' ' . $job->getDescription());
+            
+            foreach ($commonSkills as $skill) {
+                if (strpos($text, $skill) !== false) {
+                    $skillFrequency[$skill] = ($skillFrequency[$skill] ?? 0) + 1;
+                }
+            }
+            
+            // Check for specific skills from job requirements
+            if (method_exists($job, 'getRequirements')) {
+                $requirements = strtolower($job->getRequirements() ?? '');
+                foreach ($commonSkills as $skill) {
+                    if (strpos($requirements, $skill) !== false) {
+                        $skillFrequency[$skill] = ($skillFrequency[$skill] ?? 0) + 2;
+                    }
+                }
+            }
+        }
+
+        return $skillFrequency;
+    }
+
+    private function getProviderSkills(Provider $provider): array
+    {
+        $skills = [];
+        
+        // Add profession
+        if ($provider->getProfession()) {
+            $skills[] = strtolower($provider->getProfession()->getName());
+        }
+        
+        // Add speciality (singular - based on Job entity)
+        if (method_exists($provider, 'getSpeciality') && $provider->getSpeciality()) {
+            $speciality = $provider->getSpeciality();
+            if (method_exists($speciality, 'getName')) {
+                $skills[] = strtolower($speciality->getName());
+            }
+        }
+        
+        // Add skills from user bio (from User entity, not Provider)
+        $user = $provider->getUser();
+        if ($user && $user->getBio()) {
+            $bio = strtolower($user->getBio());
+            $commonSkills = ['patient care', 'medical records', 'emergency response', 'medication administration'];
+            foreach ($commonSkills as $skill) {
+                if (strpos($bio, $skill) !== false && !in_array($skill, $skills)) {
+                    $skills[] = $skill;
+                }
+            }
+        }
+        
+        return array_unique($skills);
+    }
+
+    private function calculateSkillDemand(array $skillFrequency, array $providerSkills): array
+    {
+        $totalJobs = array_sum($skillFrequency);
+        $skillsData = [];
+        
+        $colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#84cc16'];
+        $colorIndex = 0;
+        
+        foreach ($skillFrequency as $skill => $count) {
+            if ($totalJobs > 0) {
+                $percentage = ($count / $totalJobs) * 100;
+                $percentage = min(95, max(5, $percentage));
+                
+                $formattedSkill = ucwords($skill);
+                $hasSkill = in_array($skill, $providerSkills);
+                
+                $skillsData[] = [
+                    'name' => $formattedSkill,
+                    'percentage' => round($percentage),
+                    'color' => $colors[$colorIndex % count($colors)],
+                    'hasSkill' => $hasSkill,
+                    'demandLevel' => $this->getDemandLevel($percentage),
+                    'suggestion' => !$hasSkill ? "Consider adding " . $formattedSkill . " to your profile" : null
+                ];
+                
+                $colorIndex++;
+            }
+        }
+        
+        // Sort by percentage descending
+        usort($skillsData, fn($a, $b) => $b['percentage'] <=> $a['percentage']);
+        
+        return $skillsData;
+    }
+
+    private function getDemandLevel(float $percentage): string
+    {
+        if ($percentage >= 70) return 'high';
+        if ($percentage >= 40) return 'medium';
+        return 'low';
+    }
+
+    private function getDefaultSkills(): array
+    {
+        return [
+            [
+                'name' => 'Patient Care',
+                'percentage' => 85,
+                'color' => '#10b981',
+                'hasSkill' => true,
+                'demandLevel' => 'high'
+            ],
+            [
+                'name' => 'Medical Records',
+                'percentage' => 65,
+                'color' => '#3b82f6',
+                'hasSkill' => false,
+                'demandLevel' => 'medium'
+            ],
+            [
+                'name' => 'Emergency Response',
+                'percentage' => 45,
+                'color' => '#f59e0b',
+                'hasSkill' => false,
+                'demandLevel' => 'medium'
+            ]
+        ];
+    }
+
+    private function getResumeInsights(Provider $provider, User $user): array
     {
         try {
             $completenessScore = 0;
             $missingFields = [];
             
-            // Check profile completeness - use the actual methods from your User entity
+            // Check profile completeness with only available methods
             $fieldsToCheck = [
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
                 'phone1' => $user->getPhone1(),
                 'bio' => $user->getBio(),
-                'profession' => method_exists($provider, 'getProfession') ? $provider->getProfession() : null,
-                'specialities' => method_exists($provider, 'getSpecialities') ? ($provider->getSpecialities() && !$provider->getSpecialities()->isEmpty()) : false,
-                'experience' => method_exists($provider, 'getExperience') ? $provider->getExperience() : null,
-                'education' => method_exists($provider, 'getEducation') ? $provider->getEducation() : null,
-                'desiredStates' => method_exists($provider, 'getDesiredStates') ? ($provider->getDesiredStates() && !empty($provider->getDesiredStates())) : false,
-                'location' => method_exists($provider, 'getLocation') ? $provider->getLocation() : null,
+                'profession' => $provider->getProfession(),
             ];
+
+            // Add optional fields if they exist
+            if (method_exists($provider, 'getSpeciality')) {
+                $fieldsToCheck['speciality'] = (bool) $provider->getSpeciality();
+            }
+
+            if (method_exists($provider, 'getDesiredStates')) {
+                $fieldsToCheck['desiredStates'] = $provider->getDesiredStates() && !empty($provider->getDesiredStates());
+            }
+
+            if (method_exists($provider, 'getLocation')) {
+                $fieldsToCheck['location'] = $provider->getLocation();
+            }
             
             $completedFields = 0;
             foreach ($fieldsToCheck as $field => $value) {
-                // For boolean fields (like specialities, desiredStates), check if they're true
-                if ($field === 'specialities' || $field === 'desiredStates') {
+                if (in_array($field, ['speciality', 'desiredStates'])) {
+                    // Boolean fields
                     if ($value === true) {
                         $completedFields++;
                     } else {
                         $missingFields[] = $this->formatFieldName($field);
                     }
-                } 
-                // For other fields, check if they're not empty
-                elseif (!empty($value)) {
+                } elseif (!empty($value)) {
                     $completedFields++;
                 } else {
                     $missingFields[] = $this->formatFieldName($field);
                 }
             }
             
-            $completenessScore = ($completedFields / count($fieldsToCheck)) * 100;
+            $completenessScore = count($fieldsToCheck) > 0 ? ($completedFields / count($fieldsToCheck)) * 100 : 0;
             
             return [
                 'profileCompleteness' => round($completenessScore),
@@ -196,6 +433,7 @@ class ProfileAnalyticsService
                 'missingFields' => ['Complete your profile setup'],
                 'suggestions' => ['Set up your provider profile to start using analytics'],
             ],
+            'metrics' => $this->getDefaultMetrics(),
         ];
     }
 
@@ -205,7 +443,7 @@ class ProfileAnalyticsService
             'name' => 'Full Name',
             'phone1' => 'Phone Number',
             'desiredStates' => 'Preferred Locations',
-            'specialities' => 'Specialties',
+            'speciality' => 'Specialty',
         ];
         
         return $fieldNames[$field] ?? ucfirst(str_replace('_', ' ', $field));
@@ -219,20 +457,8 @@ class ProfileAnalyticsService
             $suggestions[] = 'Add your profession to get better job matches';
         }
         
-        if (in_array('Specialties', $missingFields)) {
-            $suggestions[] = 'Add your specialties to attract relevant employers';
-        }
-        
-        if (in_array('Experience', $missingFields)) {
-            $suggestions[] = 'Include your work experience to showcase your expertise';
-        }
-        
-        if (in_array('Education', $missingFields)) {
-            $suggestions[] = 'Add your education background to build credibility';
-        }
-        
-        if (in_array('Bio', $missingFields)) {
-            $suggestions[] = 'Write a compelling bio to stand out to employers';
+        if (in_array('Specialty', $missingFields)) {
+            $suggestions[] = 'Add your specialty to attract relevant employers';
         }
         
         if (in_array('Preferred Locations', $missingFields)) {
@@ -247,6 +473,77 @@ class ProfileAnalyticsService
             $suggestions[] = 'Add your phone number so employers can contact you';
         }
         
+        if (in_array('Bio', $missingFields)) {
+            $suggestions[] = 'Write a compelling bio to stand out to employers';
+        }
+        
         return array_slice($suggestions, 0, 3);
+    }
+
+    // Add this method to your ProfileAnalyticsService.php
+// In ProfileAnalyticsService.php - Update the method
+public function getMonthlyApplicationTrends(Provider $provider, int $months = 6): array
+{
+    try {
+        $monthlyData = [];
+        $endDate = new \DateTime();
+        
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = new \DateTime();
+            $date->modify("-$i months");
+            $monthKey = $date->format('Y-m');
+            $monthName = $date->format('M Y');
+            
+            $monthStart = new \DateTime($monthKey . '-01 00:00:00');
+            $monthEnd = clone $monthStart;
+            $monthEnd->modify('last day of this month 23:59:59');
+            
+            // 🆕 COUNT ONLY "APPLIED" STATUS APPLICATIONS FOR THIS MONTH
+            $monthApplications = $this->applicationRepo->createQueryBuilder('a')
+                ->select('COUNT(a.id)')
+                ->where('a.provider = :provider')
+                ->andWhere('a.status = :status') // 🆕 ONLY COUNT APPLIED STATUS
+                ->andWhere('a.createdAt >= :start')
+                ->andWhere('a.createdAt <= :end')
+                ->setParameter('provider', $provider)
+                ->setParameter('status', 'applied') // 🆕 ONLY APPLIED STATUS
+                ->setParameter('start', $monthStart)
+                ->setParameter('end', $monthEnd)
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $monthlyData[] = [
+                'month' => $monthName,
+                'count' => (int)$monthApplications,
+                'year_month' => $monthKey
+            ];
+        }
+        
+        return $monthlyData;
+        
+    } catch (\Exception $e) {
+        error_log('Error in getMonthlyApplicationTrends: ' . $e->getMessage());
+        return $this->getDefaultMonthlyTrends($months);
+    }
+}
+
+    private function getDefaultMonthlyTrends(int $months = 6): array
+    {
+        $monthlyData = [];
+        $currentDate = new \DateTime();
+        
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = new \DateTime();
+            $date->modify("-$i months");
+            $monthName = $date->format('M Y');
+            
+            $monthlyData[] = [
+                'month' => $monthName,
+                'count' => 0,
+                'year_month' => $date->format('Y-m')
+            ];
+        }
+        
+        return $monthlyData;
     }
 }
