@@ -1,0 +1,63 @@
+{% if jobs is not empty and jobs|length > 0 %}
+<div class="job-list-container bg-light p-3 rounded-3">
+<div class="d-flex align-items-center job-lists">
+    <div class="d-flex align-items-center flex-grow-1">
+        <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0;">
+            <div class="col-job sortable" data-sort="job" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; flex-grow: 2; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="location" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="posted" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-expiry col-center sortable" data-sort="expires" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Expires on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="salary" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Salary/Hour<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="category" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        </div>
+    </div>
+</div>
+
+{% for job in jobs %}
+<div class="d-flex align-items-center job-lists">
+<div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0;">
+    <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
+        <input type="checkbox" class="job-check" data-job-id="{{ job.id }}" />
+    </div>
+    <div class="col-job d-flex align-items-center gap-2 flex-grow-2" style="padding: 0 8px; box-sizing: border-box;">
+        <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
+             alt="Logo"
+             style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;" />
+        <div class="flex-grow-2" style="min-width: 0; overflow: hidden;">
+            <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
+               href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}"
+               style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ job.title }}
+            </a>
+        </div>
+    </div>
+    <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
+    <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
+    <div class="col-expiry col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
+    <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
+    <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
+        {% if job.workType == 'locums' %}
+            Locums
+        {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
+            Parttime
+        {% elseif job.workType == 'fulltime' or job.workType == 'full-time' %}
+            Full time
+        {% else %}
+            {{ job.workType|default('—')|replace({'_': ' '})|title }}
+        {% endif %}
+    </div>
+    <div class="col-action flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+        {% if job.id in appliedJobsIds %}
+            <span class="badge badge-pill" style="background-color: #E3F2FD; color: #1976D2; padding: 4px 12px; font-size: 12px; border-radius: 4px;">Applied</span>
+        {% else %}
+            <a href="{{ path('app_provider_jobs_apply', {'id': job.id}) }}" class="btn btn-sm btn-success" style="padding: 4px 12px; font-size: 12px;">Apply</a>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<p class="mb-0">Matching jobs not found.</p>
+{% endif %}
+

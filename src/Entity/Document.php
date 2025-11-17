@@ -37,7 +37,7 @@ class Document
     private ?\DateTimeInterface $expirationDate = null;
 
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $category = null;
 
     use TimestampableEntity;

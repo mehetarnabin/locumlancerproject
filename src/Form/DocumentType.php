@@ -41,12 +41,13 @@ class DocumentType extends AbstractType
             ->add('fileName', FileType::class, [
                 'label' => 'Choose File (PDF or DOCX)',
                 'mapped' => false,
-                'required' => true,
+                'required' => $options['is_edit'] ?? true, // true for new upload, false for edit
                 'constraints' => [
                     new File([
                         'maxSize' => '8M',
                         'mimeTypes' => [
                             'application/pdf',
+                            'application/msword',
                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid PDF or DOCX document',
@@ -54,6 +55,7 @@ class DocumentType extends AbstractType
                 ],
                 'help' => 'Max upload size 8MB. Only PDF and DOCX allowed.',
             ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MessageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -20,8 +22,12 @@ class Message
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private ?Message $parent = null;
+
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: Message::class, cascade: ['remove'], orphanRemoval: true)]
+    private Collection $children;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -43,29 +49,17 @@ class Message
     #[ORM\Column(type: 'string', nullable: true)]
     private ?string $attachment = null;
 
-    // NEW: Draft functionality fields
-    #[ORM\Column(type: 'boolean', options: ['default' => false])]
-    private ?bool $isDraft = false;
+    #[ORM\Column(type: Types::STRING, length: 20)]
+    private ?string $type = 'inbox'; // 'inbox', 'sent', 'draft'
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $savedAt = null;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $sentAt = null;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    private ?bool $deleted = false;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $deletedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $sentAt = null;
 
     public function __construct()
     {
-        $this->id = Uuid::v4();
-        $this->isDraft = false;
+        $this->children = new ArrayCollection();
+        $this->type = 'inbox';
         $this->seen = false;
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): ?Uuid
@@ -81,6 +75,36 @@ class Message
     public function setParent(?Message $parent): static
     {
         $this->parent = $parent;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(Message $child): static
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(Message $child): static
+    {
+        if ($this->children->removeElement($child)) {
+            // set the owning side to null (unless already changed)
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
+
         return $this;
     }
 
@@ -150,88 +174,59 @@ class Message
         return $this;
     }
 
-    // NEW: Draft-related methods
-    public function isDraft(): bool
+    public function getType(): ?string
     {
-        return $this->isDraft;
+        return $this->type;
     }
 
-    public function setIsDraft(bool $isDraft): static
+    public function setType(string $type): static
     {
-        $this->isDraft = $isDraft;
-        
-        if ($isDraft) {
-            $this->savedAt = new \DateTime();
-            $this->sentAt = null;
-            $this->seen = true; // Drafts are always "seen" by sender
-        } else {
-            $this->sentAt = new \DateTime();
-            $this->seen = false;
-        }
-        
+        $this->type = $type;
         return $this;
     }
 
-    public function getSavedAt(): ?\DateTimeInterface
-    {
-        return $this->savedAt;
-    }
-
-    public function setSavedAt(?\DateTimeInterface $savedAt): static
-    {
-        $this->savedAt = $savedAt;
-        return $this;
-    }
-
-    public function getSentAt(): ?\DateTimeInterface
+    public function getSentAt(): ?\DateTimeImmutable
     {
         return $this->sentAt;
     }
 
-    public function setSentAt(?\DateTimeInterface $sentAt): static
+    public function setSentAt(?\DateTimeImmutable $sentAt): static
     {
         $this->sentAt = $sentAt;
         return $this;
     }
 
-    // Helper method to send a draft
-    public function send(): static
+    public function markAsSent(): static
     {
-        $this->setIsDraft(false);
+        $this->type = 'sent';
+        $this->sentAt = new \DateTimeImmutable();
         return $this;
     }
 
-    // Helper method to check if message can be sent (has receiver and text)
-    public function canBeSent(): bool
+    public function isInbox(): bool
     {
-        return $this->getReceiver() !== null && !empty(trim($this->getText()));
+        return $this->type === 'inbox';
     }
 
-
-    public function isDeleted(): ?bool
-{
-    return $this->deleted;
-}
-
-public function setDeleted(?bool $deleted): static
-{
-    $this->deleted = $deleted;
-    if ($deleted) {
-        $this->deletedAt = new \DateTime();
-    } else {
-        $this->deletedAt = null;
+    public function isSent(): bool
+    {
+        return $this->type === 'sent';
     }
-    return $this;
-}
 
-public function getDeletedAt(): ?\DateTimeInterface
-{
-    return $this->deletedAt;
-}
+    public function isDraft(): bool
+    {
+        return $this->type === 'draft';
+    }
 
-public function setDeletedAt(?\DateTimeInterface $deletedAt): static
-{
-    $this->deletedAt = $deletedAt;
-    return $this;
-}
+    public function markAsRead(): static
+    {
+        $this->seen = true;
+        return $this;
+    }
+
+    public function markAsUnread(): static
+    {
+        $this->seen = false;
+        return $this;
+    }
 }

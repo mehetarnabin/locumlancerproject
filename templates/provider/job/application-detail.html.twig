@@ -11,7 +11,6 @@
         'interview': 'interview',
         'offered': 'offered',
         'rejected': 'rejected',
-        //'hired': 'hired',
         'accepted': 'hired',
         'completed': 'hired'
     } %}
@@ -23,121 +22,76 @@
         <hr class="mb-4">
 
         <div class="application-detail-head">
-            Applied On: {{ application.createdAt|date('m/d/Y') }} &nbsp;
-
-    {#        {% if application.documentRequestedAt is not null and application.documentProvidedAt is null %}#}
-    {#            <a href="{{ path('app_provider_application_providedocument', {'id': application.id}) }}" class="btn btn-sm btn-primary" onclick="return confirm('Are you sure? Do you want to provide documents?');"><i class="fa fa-clipboard"></i> Provide Documents</a> &nbsp;#}
-    {#        {% else %}#}
-    {#            <i class="fa fa-clipboard"></i> Documents Provided On: {{ application.documentProvidedAt|date('m/d/Y') }} &nbsp;#}
-    {#        {% endif %}#}
+            Applied On: {{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}
+            <span class="ms-2"></span>
 
             {% if application.oneFileRequestedAt is not null and application.oneFileProvidedAt is null %}
-                <a href="{{ path('app_provider_application_provideonefile', {'id': application.id}) }}" onclick="return confirm('Are you sure? Do you want to provide one file?');" title="Provide One File">
+                <a href="{{ path('app_provider_application_provideonefile', {'id': application.id}) }}"
+                   onclick="return confirm('Are you sure? Do you want to provide one file?');"
+                   title="Provide One File">
                     <img src="{{ asset('assets/icons/folder.png') }}" class="icon-image" alt="summary" />
-                </a> &nbsp;
-            {% else %}
-                {% if application.oneFileProvidedAt %}
-                    One File Provided On: {{ application.oneFileProvidedAt|date('m/d/Y') }} &nbsp;
-                {% endif %}
+                </a><span class="ms-2"></span>
+            {% elseif application.oneFileProvidedAt %}
+                One File Provided On: {{ application.oneFileProvidedAt|date('m/d/Y') }}
+                <span class="ms-2"></span>
             {% endif %}
 
             {% if application.contractSentAt is not null and application.contractSignedAt is null %}
                 <a href="{{ asset('uploads/contracts/' ~ application.contractFileName) }}" target="_blank" title="View Contract">
                     <img src="{{ asset('assets/icons/download.png') }}" class="icon-image" alt="view contract" />
-                </a> &nbsp;
+                </a><span class="ms-2"></span>
                 <a href="#" data-toggle="modal" data-application_id="{{ application.id }}" data-target="#contractModal" title="Send Contract">
                     <img src="{{ asset('assets/icons/contract.png') }}" class="icon-image" alt="send contract" />
-                </a> &nbsp;
+                </a><span class="ms-2"></span>
             {% endif %}
 
-            {% if application.contractSignedAt is not null %}
+            {% if application.contractSignedAt %}
                 Contract Signed On: {{ application.contractSignedAt|date('m/d/Y') }}
             {% endif %}
 
             {% if review %}
-                Employer Reviewed On: {{ review.createdAt|date('m/d/Y') }} &nbsp;
-            {% else %}
-                {% if application.status ==  'completed' %}
-                    <a href="#" data-toggle="modal" data-target="#reviewModal" title="Write a Review">
-                        <img src="{{ asset('assets/icons/customer-review.png') }}" class="icon-image" />
-                    </a> &nbsp;
-                {% endif %}
+                Employer Reviewed On: {{ review.createdAt|date('m/d/Y') }}
+                <span class="ms-2"></span>
+            {% elseif application.status == 'completed' %}
+                <a href="#" data-toggle="modal" data-target="#reviewModal" title="Write a Review">
+                    <img src="{{ asset('assets/icons/customer-review.png') }}" class="icon-image" />
+                </a><span class="ms-2"></span>
             {% endif %}
 
-           <span class="badge badge-pill is-{{ statusColors[application.status] }}" style="float: right;">
+            <span class="badge badge-pill is-{{ statusColors[application.status] }}" style="float: right;">
                 {{ application.status | replace({'_': ' '}) | title }}
             </span>
         </div>
 
         <div class="job-details">
-            <div class="job-row">
-                <div class="job-label">Job Title</div>
-                <div class="job-value">{{ job.title }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Employer</div>
-                <div class="job-value">{{ job.employer }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Location</div>
-                <div class="job-value">{{ job.state }}, {{ job.city }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Schedule</div>
-                <div class="job-value">{{ job.schedule }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Start Date</div>
-                <div class="job-value">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate</div>
-                <div class="job-value">{{ job.payRate }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate Daily</div>
-                <div class="job-value">{{ job.payRateDaily }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Pay Rate Hourly</div>
-                <div class="job-value">{{ job.payRateHourly }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Work Type</div>
-                <div class="job-value">{{ job.workType }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Need</div>
-                <div class="job-value">{{ job.need }}</div>
-            </div>
-            <div class="job-row">
-                <div class="job-label">Years of Experience</div>
-                <div class="job-value">{{ job.yearOfExperience }}</div>
-            </div>
+            <div class="job-row"><div class="job-label">Job Title</div><div class="job-value">{{ job.title }}</div></div>
+            <div class="job-row"><div class="job-label">Employer</div><div class="job-value">{{ job.employer }}</div></div>
+            <div class="job-row"><div class="job-label">Location</div><div class="job-value">{{ job.state }}, {{ job.city }}</div></div>
+            <div class="job-row"><div class="job-label">Schedule</div><div class="job-value">{{ job.schedule }}</div></div>
+            <div class="job-row"><div class="job-label">Start Date</div><div class="job-value">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div></div>
+            <div class="job-row"><div class="job-label">Pay Rate</div><div class="job-value">{{ job.payRate }}</div></div>
+            <div class="job-row"><div class="job-label">Pay Rate Daily</div><div class="job-value">{{ job.payRateDaily }}</div></div>
+            <div class="job-row"><div class="job-label">Pay Rate Hourly</div><div class="job-value">{{ job.payRateHourly }}</div></div>
+            <div class="job-row"><div class="job-label">Work Type</div><div class="job-value">{{ job.workType }}</div></div>
+            <div class="job-row"><div class="job-label">Need</div><div class="job-value">{{ job.need }}</div></div>
+            <div class="job-row"><div class="job-label">Years of Experience</div><div class="job-value">{{ job.yearOfExperience }}</div></div>
             <div class="job-row">
                 <div class="job-label">Description</div>
-                <div class="job-value">
-                    {{ job.description|raw }}
-                </div>
+                <div class="job-value">{{ job.description|raw }}</div>
             </div>
         </div>
     </div>
 
-    <!-- Send Contract Modal -->
-    <div class="modal fade" id="contractModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    {# Send Contract Modal #}
+    <div class="modal fade" id="contractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="contractModalLabel">Send Contract</h5>
-                </div>
+                <div class="modal-header"><h5 class="modal-title">Send Contract</h5></div>
                 <form method="post" action="" enctype="multipart/form-data">
                     <div class="modal-body">
-                        <div class="form-group">
-                            <input type="file" name="contractFile" required />
-                        </div>
+                        <input type="file" name="contractFile" required class="form-control" />
                     </div>
                     <div class="modal-footer">
-                        {#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>#}
                         <button type="submit" class="btn btn-primary">Send</button>
                     </div>
                 </form>
@@ -145,52 +99,61 @@
         </div>
     </div>
 
-    <!-- Review Modal -->
-    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    {# Review Modal #}
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
-                </div>
+                <div class="modal-header"><h5 class="modal-title">Write a Review</h5></div>
                 <form method="post" action="{{ path('app_provider_application_review_employer', {'id': application.id}) }}">
                     <div class="modal-body">
-                        <div class="form-group mb-2">
-                            <textarea name="message" class="form-control" placeholder="Review message..." required></textarea>
-                        </div>
-                        <div class="form-group">
-                            <select name="point" class="form-control" required>
-                                <option value="5">5</option>
-                                <option value="4">4</option>
-                                <option value="3">3</option>
-                                <option value="2">2</option>
-                                <option value="1">1</option>
-                            </select>
-                        </div>
+                        <textarea name="message" class="form-control mb-2" placeholder="Review message..." required></textarea>
+                        <select name="point" class="form-control" required>
+                            {% for point in 1..5 %}
+                                <option value="{{ point }}">{{ point }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <div class="modal-footer">
-                        {#                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>#}
                         <button type="submit" class="btn btn-sm btn-primary">Review</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block footer_scripts %}
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js"></script>
 
     <script>
         $(document).ready(function() {
             $('#contractModal').on('show.bs.modal', function(event) {
-                var button = $(event.relatedTarget); // Button that triggered the modal
-                var applicationId = button.data('application_id'); // Get application ID
-                var form = $(this).find('form'); // Find the form inside the modal
-                var actionUrl = "{{ path('app_provider_application_sendcontract', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-                form.attr('action', actionUrl); // Set the form action
+                var button = $(event.relatedTarget);
+                var applicationId = button.data('application_id');
+                var form = $(this).find('form');
+                var actionUrl = "{{ path('app_provider_application_sendcontract', {'id': 'APPLICATION_ID'}) }}"
+                    .replace('APPLICATION_ID', applicationId);
+
+                form.attr('action', actionUrl);
             });
         });
     </script>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .container-xl {
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+            max-width: 100% !important;
+            transform: translateX(-80px) !important;
+        }
+
+        .app-content {
+            padding-left: 0 !important;
+        }
+    </style>
 {% endblock %}

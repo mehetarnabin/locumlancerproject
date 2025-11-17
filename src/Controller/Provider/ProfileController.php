@@ -27,86 +27,87 @@ use App\Entity\Document;
 #[Route('/provider/profile')]
 class ProfileController extends AbstractController
 {
-    #[Route('/', name: 'app_provider_profile')]
-    public function profile(Request $request, EntityManagerInterface $em): Response
-    {
-        $user = $this->getUser();
-        return $this->render('provider/profile/profile.html.twig', ['user' => $user]);
-    }
-
-    #[Route('/', name: 'app_provider_profile')]
-    public function profileUpdate(
+    #[Route('/', name: 'app_provider_profile', methods: ['GET', 'POST'])]
+    public function profile(
         Request $request,
         EntityManagerInterface $em,
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
+
+    ): Response {
         $user = $this->getUser();
-        $form = $this->createForm(UserProfileType::class, $user);
-        $form->handleRequest($request);
 
-        $document = new Document();
-        $documentForm = $this->createForm(DocumentType::class, $document);
-        $documentForm->handleRequest($request);
+        // --- PROFILE FORM ---
+        $profileForm = $this->createForm(UserProfileType::class, $user);
+        $profileForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $profilePictureFile = $form->get('profilePictureFilename')->getData();
+        if ($profileForm->isSubmitted() && $profileForm->isValid()) {
+            /** @var UploadedFile $profileFile */
+            $profileFile = $profileForm->get('profilePicture')->getData();
 
-            // this condition is needed because the 'brochure' field is not required
-            // so the PDF file must be processed only when a file is uploaded
-            if ($profilePictureFile) {
-                $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$profilePictureFile->guessExtension();
+            if ($profileFile) {
+                $userDir = $uploadDirectory . '/' . $user->getId();
+                if (!is_dir($userDir)) mkdir($userDir, 0777, true);
 
-                // Move the file to the directory where brochures are stored
+                $safeFilename = $slugger->slug(pathinfo($profileFile->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $profileFile->guessExtension();
+
                 try {
-                    $profilePictureFile->move($uploadDirectory. '/' . $user->getId(), $newFilename);
+                    $profileFile->move($userDir, $newFilename);
+                    $user->setProfilePictureFilename($newFilename); // <-- Use Filename property
                 } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
+                    $this->addFlash('error', 'Profile picture upload failed: ' . $e->getMessage());
                 }
-
-                $user->setProfilePictureFilename($newFilename);
             }
 
             $em->persist($user);
             $em->flush();
 
             $this->addFlash('success', 'Profile updated successfully.');
-            return $this->redirectToRoute('app_provider_dashboard');
+            return $this->redirectToRoute('app_provider_profile');
+        }
+
+        // --- DOCUMENT FORM ---
+        $document = new Document();
+        $documentForm = $this->createForm(DocumentType::class, $document);
+        $documentForm->handleRequest($request);
+
+        if ($documentForm->isSubmitted() && $documentForm->isValid()) {
+            /** @var UploadedFile $uploadedFile */
+            $uploadedFile = $documentForm->get('fileName')->getData();
+
+            if ($uploadedFile) {
+                $userDir = $uploadDirectory . '/' . $user->getId();
+                if (!is_dir($userDir)) mkdir($userDir, 0777, true);
+
+                $safeFilename = $slugger->slug(pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+
+                try {
+                    $uploadedFile->move($userDir, $newFilename);
+                    $document->setFileName($newFilename);
+                    $document->setUser($user);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Document upload failed: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_provider_profile');
+                }
+
+                $em->persist($document);
+                $em->flush();
+                $this->addFlash('success', 'Document uploaded successfully.');
+                return $this->redirectToRoute('app_provider_profile');
+            }
         }
 
         return $this->render('provider/profile/profile.html.twig', [
             'user' => $user,
-            'form' => $form,
+            'profileForm' => $profileForm->createView(),
             'documentForm' => $documentForm->createView(),
         ]);
     }
 
-    #[Route('/profile-picture-remove', name: 'app_provider_profile_picture_remove', methods: ['GET'])]
-    public function profilePictureRemove(
-        EntityManagerInterface $em,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    )
-    {
-        $user = $this->getUser();
 
-        $ppFilePath = $uploadDirectory.'/'. $user->getId().'/'.$user->getProfilePictureFilename();
-        if(file_exists($ppFilePath)) {
-            unlink($ppFilePath);
-        }
-
-        $user->setProfilePicture(null);
-        $user->setProfilePictureFilename(null);
-
-        $em->persist($user);
-        $em->flush();
-
-        $this->addFlash('success', 'Profile picture removed successfully.');
-        return $this->redirectToRoute('app_provider_profile');
-    }
+    
 
     #[Route('/cv', name: 'app_provider_profile_cv', methods: ['GET', 'POST'])]
     public function cv(
@@ -372,4 +373,89 @@ class ProfileController extends AbstractController
 
         return new JsonResponse(['message' => 'All preferences updated successfully']);
     }
+
+    public function editProfile(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        $form = $this->createForm(UserProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            /** @var UploadedFile $file */
+            $file = $form->get('profilePictureFilename')->getData();
+
+            if ($file) {
+                // Define upload directory (parameter or hardcoded)
+                $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $user->getId();
+
+                // Create directory if not exists
+                if (!is_dir($uploadsDir)) {
+                    mkdir($uploadsDir, 0777, true);
+                }
+
+                // Generate unique filename
+                $newFilename = uniqid() . '.' . $file->guessExtension();
+
+                // Move file
+                $file->move($uploadsDir, $newFilename);
+
+                // Save in DB (since your column is 'profile_picture')
+                $user->setProfilePicture($newFilename);
+            }
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Profile updated successfully!');
+            return $this->redirectToRoute('profile_edit');
+        }
+
+        return $this->render('provider/profile/profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/cv/upload', name: 'cv_upload')]
+    public function uploadCv(Request $request, SluggerInterface $slugger): Response
+    {
+        $document = new Document();
+        $form = $this->createForm(DocumentType::class, $document);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadedFile = $form['fileName']->getData();
+
+            if ($uploadedFile) {
+                $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+
+                try {
+                    $uploadedFile->move(
+                        $this->getParameter('documents_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Failed to upload file.');
+                    return $this->redirectToRoute('cv_upload');
+                }
+
+                $document->setFileName($newFilename); // Save filename in entity
+            }
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($document);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'CV uploaded successfully!');
+            return $this->redirectToRoute('cv_upload');
+        }
+
+        return $this->render('document/upload.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
 }

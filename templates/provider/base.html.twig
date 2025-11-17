@@ -17,6 +17,45 @@
     <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/css/portal.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
     <style>
+        /* ============================================
+           TOP BAR NAVIGATION - VERTICAL CENTERING & HOVER
+           ============================================ */
+        /* Add padding to header to center navigation items and prevent touching bottom edge */
+        .app-header .app-header-inner .container-fluid {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+        }
+        
+        /* Green background hover for top bar utility items */
+        .app-header .app-utilities .app-utility-item > a:hover,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover {
+            background-color: #e8f5e9 !important;
+            border-radius: 8px !important;
+            transition: background-color 0.3s ease !important;
+        }
+        
+        /* Ensure icons and text remain unchanged on hover */
+        .app-header .app-utilities .app-utility-item > a:hover .icon-image,
+        .app-header .app-utilities .app-utility-item > a:hover svg,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .icon-image,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover svg,
+        .app-header .app-utilities .app-utility-item > a:hover .label-text,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .label-text,
+        .app-header .app-utilities .app-utility-item > a:hover .icon-badge,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .icon-badge {
+            color: inherit !important;
+            fill: inherit !important;
+            stroke: inherit !important;
+        }
+        
+        /* Ensure links have padding for visible hover area */
+        .app-header .app-utilities .app-utility-item > a,
+        .app-header .app-utilities .app-utility-item .dropdown-toggle {
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            transition: background-color 0.3s ease !important;
+        }
+        
         /* Standardize header icon and profile sizes */
         .app-utilities .icon-image { width: 28px; height: 28px; }
         .app-utilities .app-user-dropdown .outer-ring,
@@ -24,6 +63,347 @@
             width: 32px; height: 32px; border-radius: 50%;
         }
         .app-utilities .app-user-dropdown .outer-ring { border: 2px solid #85BB65; display: inline-flex; align-items: center; justify-content: center; }
+        
+        /* Position profile dropdown properly */
+        .app-user-dropdown {
+            margin-left: 10px;
+            position: relative;
+        }
+        
+        .app-user-dropdown .dropdown-menu {
+            right: 0 !important;
+            left: auto !important;
+            min-width: 180px;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-user-dropdown .dropdown-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #121C0C;
+        }
+        
+        .app-user-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Make score field look editable with highlighting - Global styles */
+        .rank-display {
+            cursor: pointer !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+            transition: all 0.2s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 45px !important;
+            text-align: center !important;
+            background-color: #f0f9f0 !important;
+            border: 1px solid #b3e6b3 !important;
+            color: #2d7a2d !important;
+            font-weight: 500 !important;
+            margin: 0 auto !important;
+            white-space: nowrap !important;
+        }
+        
+        /* Prevent any duplication of rank display content */
+        .rank-display::before,
+        .rank-display::after {
+            content: none !important;
+        }
+        
+        .col-rank {
+            position: relative !important;
+        }
+        
+        /* Ensure only one rank display is visible at a time */
+        .col-rank > .rank-display:not(:first-of-type) {
+            display: none !important;
+        }
+        
+        /* Prevent any text duplication in rank display */
+        .col-rank {
+            overflow: hidden !important;
+        }
+        
+        .col-rank > * {
+            position: relative !important;
+        }
+        
+        /* Ensure rank display doesn't duplicate content */
+        .rank-display {
+            word-break: keep-all !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        .rank-display:hover {
+            background-color: #e0f5e0 !important;
+            border-color: #80d980 !important;
+            box-shadow: 0 2px 4px rgba(45, 122, 45, 0.2) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .rank-display:active {
+            background-color: #ccefcc !important;
+            transform: translateY(0) !important;
+        }
+
+        .rank-input-wrapper {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 4px !important;
+            margin: 0 auto !important;
+            min-width: 0 !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .rank-input {
+            background-color: #fff !important;
+            border: 2px solid #85BB65 !important;
+            border-radius: 6px !important;
+            padding: 4px 6px !important;
+            font-weight: 500 !important;
+            color: #2d7a2d !important;
+            box-shadow: 0 2px 8px rgba(133, 187, 101, 0.3) !important;
+            text-align: center !important;
+            width: 50px !important;
+            min-width: 50px !important;
+            max-width: 50px !important;
+            box-sizing: border-box !important;
+            flex-shrink: 0 !important;
+        }
+
+        .rank-input:focus {
+            outline: none !important;
+            border-color: #6fa852 !important;
+            box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
+        }
+        
+        .rank-save-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 24px !important;
+            height: 24px !important;
+            border: none !important;
+            border-radius: 4px !important;
+            background-color: #85BB65 !important;
+            color: white !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            transition: all 0.2s ease !important;
+            flex-shrink: 0 !important;
+        }
+
+        .rank-save-btn:hover {
+            background-color: #6fa852 !important;
+            transform: scale(1.1) !important;
+        }
+
+        .rank-save-btn:active {
+            transform: scale(0.95) !important;
+        }
+
+        .rank-save-btn svg {
+            width: 14px !important;
+            height: 14px !important;
+        }
+        
+        .rank-input.hidden,
+        .rank-save-btn.hidden {
+            display: none !important;
+        }
+        
+        .rank-display.hidden {
+            display: none !important;
+        }
+
+        /* Ensure rank column is properly centered and has enough space */
+        .col-rank {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 100px !important;
+            width: 100px !important;
+            overflow: visible !important;
+            position: relative !important;
+        }
+
+        /* Prevent clipping in rank column cells */
+        .col-rank > * {
+            overflow: visible !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        /* Ensure wrapper doesn't clip */
+        .col-rank .rank-input-wrapper {
+            overflow: visible !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+        
+        .app-user-dropdown .dropdown-divider {
+            margin: 4px 0;
+        }
+
+        /* SweetAlert2 Custom Styling */
+        .swal-popup-custom {
+            border-radius: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 2rem !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #121C0C !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .swal2-content {
+            font-size: 1rem !important;
+            color: #6b7280 !important;
+            line-height: 1.5 !important;
+        }
+
+        .swal2-confirm {
+            background-color: #85BB65 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px 24px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #6fa850 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(133, 187, 101, 0.3) !important;
+        }
+
+        .swal2-cancel {
+            background-color: #6c757d !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px 24px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: #5a6268 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3) !important;
+        }
+
+        .swal2-icon {
+            margin: 0 auto 1.5rem !important;
+        }
+
+        .swal2-icon.swal2-success {
+            border-color: #85BB65 !important;
+            color: #85BB65 !important;
+        }
+
+        .swal2-icon.swal2-error {
+            border-color: #dc3545 !important;
+            color: #dc3545 !important;
+        }
+
+        .swal2-icon.swal2-warning {
+            border-color: #ffc107 !important;
+            color: #ffc107 !important;
+        }
+
+        .swal2-icon.swal2-info {
+            border-color: #17a2b8 !important;
+            color: #17a2b8 !important;
+        }
+
+        .swal2-icon.swal2-question {
+            border-color: #85BB65 !important;
+            color: #85BB65 !important;
+        }
+
+        .swal2-timer-progress-bar {
+            background: #85BB65 !important;
+        }
+
+        /* ============================================
+           SIDEBAR NAVIGATION - GREEN HOVER EFFECT
+           ============================================ */
+        
+        /* Green hover effect for sidebar navigation text and icons */
+        .app-sidepanel .app-nav .nav-link:hover .nav-link-text,
+        .app-sidepanel .app-nav-main .nav-link:hover .nav-link-text,
+        .app-nav .nav-link:hover .nav-link-text {
+            color: #85BB65 !important;
+            transition: color 0.3s ease;
+        }
+        
+        .app-sidepanel .app-nav .nav-link:hover .nav-icon,
+        .app-sidepanel .app-nav .nav-link:hover .nav-icon .icon-image,
+        .app-sidepanel .app-nav-main .nav-link:hover .nav-icon,
+        .app-sidepanel .app-nav-main .nav-link:hover .nav-icon .icon-image,
+        .app-nav .nav-link:hover .nav-icon,
+        .app-nav .nav-link:hover .nav-icon .icon-image {
+            color: #85BB65 !important;
+            fill: #85BB65 !important;
+            transition: color 0.3s ease, fill 0.3s ease;
+        }
+        
+        .app-sidepanel .app-nav .nav-link:hover svg,
+        .app-sidepanel .app-nav-main .nav-link:hover svg,
+        .app-nav .nav-link:hover svg {
+            color: #85BB65 !important;
+            fill: #85BB65 !important;
+            stroke: #85BB65 !important;
+            transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
+        }
+        
+        .app-sidepanel .app-nav .nav-link:hover,
+        .app-sidepanel .app-nav-main .nav-link:hover,
+        .app-nav .nav-link:hover {
+            color: #85BB65 !important;
+            cursor: pointer;
+        }
+        
+        /* Green hover for submenu links */
+        .app-sidepanel .app-nav .submenu-link:hover,
+        .app-sidepanel .app-nav-main .submenu-link:hover,
+        .app-nav .submenu-link:hover {
+            color: #85BB65 !important;
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+        
+        /* Ensure transitions on base elements */
+        .app-sidepanel .app-nav .nav-link .nav-link-text,
+        .app-sidepanel .app-nav-main .nav-link .nav-link-text,
+        .app-nav .nav-link .nav-link-text {
+            transition: color 0.3s ease;
+        }
+        
+        .app-sidepanel .app-nav .nav-link .nav-icon,
+        .app-sidepanel .app-nav .nav-link .nav-icon .icon-image,
+        .app-sidepanel .app-nav-main .nav-link .nav-icon,
+        .app-sidepanel .app-nav-main .nav-link .nav-icon .icon-image,
+        .app-nav .nav-link .nav-icon,
+        .app-nav .nav-link .nav-icon .icon-image {
+            transition: color 0.3s ease, fill 0.3s ease;
+        }
+
     </style>
 
     {% block header_scripts %}{% endblock %}
@@ -460,6 +840,16 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);">
+						        <span class="nav-icon">
+                                <svg fill="currentColor" class="icon-image" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                </svg>
+						         </span>
+                            <span class="nav-link-text">Recruiter Connect</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
     <a class="nav-link" href="javascript:void(0);" id="start-page-tour">
         <span class="nav-icon">
             <svg fill="currentColor" class="icon-image" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -659,6 +1049,7 @@
 
 <!-- CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <!-- Javascript -->
 <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
@@ -666,11 +1057,108 @@
 <script src="{{ asset('assets/admin/plugins/bootstrap/js/bootstrap.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Page Specific JS -->
 <script src="{{ asset('assets/admin/js/app.js') }}"></script>
 
 <script>
+    // SweetAlert2 Configuration - Consistent design across all alerts
+    const SwalConfig = {
+        confirmButtonColor: '#85BB65',
+        cancelButtonColor: '#6c757d',
+        buttonsStyling: true,
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-secondary',
+            popup: 'swal-popup-custom'
+        },
+        allowOutsideClick: false,
+        allowEscapeKey: true
+    };
+
+    // Helper function for success alerts
+    function showSuccessAlert(title, message, callback) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'success',
+            title: title || 'Success!',
+            text: message,
+            confirmButtonText: 'OK',
+            timer: 3000,
+            timerProgressBar: true
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback(result);
+            }
+        });
+    }
+
+    // Helper function for error alerts
+    function showErrorAlert(title, message, callback) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'error',
+            title: title || 'Error!',
+            text: message,
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback(result);
+            }
+        });
+    }
+
+    // Helper function for warning alerts
+    function showWarningAlert(title, message, callback) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'warning',
+            title: title || 'Warning!',
+            text: message,
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback(result);
+            }
+        });
+    }
+
+    // Helper function for info alerts
+    function showInfoAlert(title, message, callback) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'info',
+            title: title || 'Information',
+            text: message,
+            confirmButtonText: 'OK',
+            timer: 3000,
+            timerProgressBar: true
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback(result);
+            }
+        });
+    }
+
+    // Helper function for confirmation dialogs
+    function showConfirmAlert(title, message, confirmText, cancelText, callback) {
+        Swal.fire({
+            ...SwalConfig,
+            icon: 'question',
+            title: title || 'Are you sure?',
+            text: message,
+            showCancelButton: true,
+            confirmButtonText: confirmText || 'Yes',
+            cancelButtonText: cancelText || 'No',
+            reverseButtons: true
+        }).then((result) => {
+            if (callback && typeof callback === 'function') {
+                callback(result.isConfirmed);
+            }
+        });
+    }
+
     function showToast(type, message) {
         console.log(`${type.toUpperCase()}: ${message}`);
         Toastify({
@@ -768,45 +1256,46 @@
                         userDropdownToggle.setAttribute('aria-expanded', 'false');
                         // Stop propagation to prevent any other handlers
                         e.stopPropagation();
-                    });
+                    }, true); // Use capture phase to run early
                 }
             });
             
             // Specifically handle dashboard button click to ensure dropdown is closed
-            const dashboardLink = document.querySelector('a[href*="dashboard"][title="Dashboard"]');
-            if (dashboardLink) {
-                // Use capture phase to run before other handlers
+            // Use capture phase to run BEFORE any other handlers
+            const dashboardLinks = document.querySelectorAll('a[href*="dashboard"][title="Dashboard"], a[href*="app_provider_dashboard"]');
+            dashboardLinks.forEach(dashboardLink => {
                 dashboardLink.addEventListener('click', function(e) {
-                    // Close dropdown immediately
+                    // Close dropdown immediately and prevent it from opening
                     userDropdownMenu.classList.remove('show');
                     userDropdownToggle.setAttribute('aria-expanded', 'false');
-                    // Stop propagation to prevent any dropdown handlers
+                    // Stop propagation to prevent any dropdown handlers from running
                     e.stopPropagation();
                     // Allow navigation to proceed normally (don't prevent default)
-                }, true); // Use capture phase
+                }, true); // Use capture phase to run before other handlers
                 
                 // Also handle clicks on the parent utility item
                 const dashboardItem = dashboardLink.closest('.app-utility-item');
                 if (dashboardItem) {
                     dashboardItem.addEventListener('click', function(e) {
-                        // If clicking on the dashboard item, ensure dropdown is closed
+                        // If clicking anywhere on the dashboard item, ensure dropdown is closed
                         userDropdownMenu.classList.remove('show');
                         userDropdownToggle.setAttribute('aria-expanded', 'false');
-                        // Only stop propagation if not clicking the link itself
-                        if (e.target !== dashboardLink && !dashboardLink.contains(e.target)) {
-                            e.stopPropagation();
-                        }
+                        // Stop propagation to prevent dropdown from opening
+                        e.stopPropagation();
                     }, true); // Use capture phase
                 }
-            }
+            });
             
             // Close dropdown when clicking outside
             document.addEventListener('click', function(e) {
-                // Don't close if clicking on the user dropdown or dashboard link
-                const isDashboardLink = e.target.closest('a[href*="dashboard"][title="Dashboard"]');
+                // Check if clicking on dashboard link or its container
+                const isDashboardLink = e.target.closest('a[href*="dashboard"][title="Dashboard"]') || 
+                                       e.target.closest('a[href*="app_provider_dashboard"]');
                 const isDashboardItem = e.target.closest('.app-utility-item') && 
-                                       e.target.closest('.app-utility-item').querySelector('a[href*="dashboard"][title="Dashboard"]');
+                                       (e.target.closest('.app-utility-item').querySelector('a[href*="dashboard"][title="Dashboard"]') ||
+                                        e.target.closest('.app-utility-item').querySelector('a[href*="app_provider_dashboard"]'));
                 
+                // Close dropdown if clicking outside user dropdown AND not on dashboard
                 if (!userDropdown.contains(e.target) && !isDashboardLink && !isDashboardItem) {
                     userDropdownMenu.classList.remove('show');
                     userDropdownToggle.setAttribute('aria-expanded', 'false');

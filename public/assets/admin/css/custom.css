@@ -269,10 +269,20 @@ label {
 .app-nav .submenu-link {
     background: transparent !important;
     background-color: transparent !important;
+    transition: color 0.3s ease;
 }
 
 /* Ensure inactive submenu links have no background */
 .app-nav .submenu-item .submenu-link:not(.active) {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Green hover effect for submenu links */
+.app-sidepanel .app-nav .submenu-link:hover,
+.app-sidepanel .app-nav-main .submenu-link:hover,
+.app-nav .submenu-link:hover {
+    color: #85BB65 !important;
     background: transparent !important;
     background-color: transparent !important;
 }
@@ -406,9 +416,62 @@ label {
     height: auto;
 }
 
+/* ============================================
+   SIDEBAR NAVIGATION - GREEN HOVER EFFECT
+   ============================================ */
+
+/* Main hover state for sidebar nav links */
+.app-sidepanel .app-nav .nav-link:hover,
+.app-sidepanel .app-nav-main .nav-link:hover,
 .app-nav .nav-link:hover {
-    color: var(--primary-color) !important;
+    color: #85BB65 !important;
     cursor: pointer;
+}
+
+/* Green hover effect for sidebar navigation text */
+.app-sidepanel .app-nav .nav-link:hover .nav-link-text,
+.app-sidepanel .app-nav-main .nav-link:hover .nav-link-text,
+.app-nav .nav-link:hover .nav-link-text {
+    color: #85BB65 !important;
+}
+
+/* Green hover effect for sidebar navigation icons */
+.app-sidepanel .app-nav .nav-link:hover .nav-icon,
+.app-sidepanel .app-nav .nav-link:hover .nav-icon .icon-image,
+.app-sidepanel .app-nav-main .nav-link:hover .nav-icon,
+.app-sidepanel .app-nav-main .nav-link:hover .nav-icon .icon-image,
+.app-nav .nav-link:hover .nav-icon,
+.app-nav .nav-link:hover .nav-icon .icon-image {
+    color: #85BB65 !important;
+    fill: #85BB65 !important;
+}
+
+/* Green hover effect for SVG icons in sidebar */
+.app-sidepanel .app-nav .nav-link:hover svg,
+.app-sidepanel .app-nav-main .nav-link:hover svg,
+.app-nav .nav-link:hover svg {
+    color: #85BB65 !important;
+    fill: #85BB65 !important;
+    stroke: #85BB65 !important;
+}
+
+/* Ensure nav-link-text and icons have transition for smooth hover effect */
+.app-sidepanel .app-nav .nav-link .nav-link-text,
+.app-sidepanel .app-nav-main .nav-link .nav-link-text,
+.app-nav .nav-link .nav-link-text {
+    transition: color 0.3s ease;
+}
+
+.app-sidepanel .app-nav .nav-link .nav-icon,
+.app-sidepanel .app-nav .nav-link .nav-icon .icon-image,
+.app-sidepanel .app-nav-main .nav-link .nav-icon,
+.app-sidepanel .app-nav-main .nav-link .nav-icon .icon-image,
+.app-nav .nav-link .nav-icon,
+.app-nav .nav-link .nav-icon .icon-image,
+.app-sidepanel .app-nav .nav-link svg,
+.app-sidepanel .app-nav-main .nav-link svg,
+.app-nav .nav-link svg {
+    transition: color 0.3s ease, fill 0.3s ease, stroke 0.3s ease;
 }
 
 .app-nav .nav-link {
@@ -468,30 +531,54 @@ a:hover {
 
 
 /* Center app content and fix left spacing - match image layout */
+.app-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+}
+
 .app-content {
     padding-left: 0 !important;
-    padding-right: 25px !important;
+    padding-right: 0 !important;
     padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 1600px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+/* Override Bootstrap padding classes on app-content */
+.app-content.pt-3,
+.app-content.p-md-3,
+.app-content.p-lg-4 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
 }
 
 .app-content .container-xl,
 .container-xl,
 div.container-xl,
 [class*="container-xl"] {
-    margin-left: -100px !important;
-    margin-right: auto;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Remove excessive left padding on dashboard and main content */
 .main-content,
 .dashboard,
 .dashboard .container-xl {
-    padding-left: 0 !important;
-    padding-right: 25px !important;
-    margin-left: -100px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 /* Ensure job pages (saved, applications, etc.) have consistent padding */
@@ -961,35 +1048,89 @@ div.container-xl,
 
 /* Ensure all provider job pages have consistent left padding - target container-xl that contains job-section or application */
 .app-content > .container-xl {
-    padding-left: 0 !important;
-    margin-left: -100px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 /* Override Bootstrap's calc() padding completely */
 .container-xl {
     --bs-gutter-x: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
 }
 
 /* Ensure consistent spacing on all screen sizes */
 @media (min-width: 576px) {
     .app-content {
-        padding-right: 25px !important;
-    }
-    .app-content .container-xl {
         padding-left: 0 !important;
         padding-right: 0 !important;
+        max-width: 1600px;
+    }
+    .app-content.pt-3,
+    .app-content.p-md-3 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .app-content .container-xl {
+        padding-left: 25px !important;
+        padding-right: 25px !important;
+        max-width: 100%;
     }
 }
 
 @media (min-width: 992px) {
     .app-content {
-        padding-right: 30px !important;
-    }
-    .app-content .container-xl {
         padding-left: 0 !important;
         padding-right: 0 !important;
+        max-width: 1600px;
+    }
+    .app-content.pt-3,
+    .app-content.p-md-3,
+    .app-content.p-lg-4 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .app-content .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        max-width: 100%;
+    }
+}
+
+/* On large screens, center content with equal spacing on both sides */
+@media (min-width: 1200px) {
+    .app-wrapper {
+        margin-left: 250px !important;
+        margin-right: 0 !important;
+        width: calc(100% - 250px) !important;
+    }
+    .app-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 1600px !important;
+        width: calc(100% - 80px) !important;
+    }
+    .app-content .container-xl {
+        max-width: 100%;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 40px !important;
+        padding-right: 40px !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    .app-content {
+        max-width: 1600px;
+    }
+    .app-content .container-xl {
+        max-width: 100%;
+        padding-left: 50px !important;
+        padding-right: 50px !important;
     }
 }
 
@@ -1031,7 +1172,13 @@ div.container-xl,
     flex-shrink: 0;
 }
 
-.app-utility-item > a {
+/* ============================================
+   TOP BAR NAVIGATION - LIGHT GREEN BACKGROUND HOVER
+   ============================================ */
+
+/* Base styles for top bar utility items */
+.app-header .app-utilities .app-utility-item > a,
+.app-utilities .app-utility-item > a {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1039,14 +1186,54 @@ div.container-xl,
     text-decoration: none;
     color: #000 !important;
     gap: 4px;
-    padding: 2px 4px;
-    transition: color 0.2s ease;
+    padding: 6px 8px;
+    transition: background-color 0.3s ease, color 0.2s ease;
     min-width: 50px;
+    border-radius: 8px;
 }
 
-.app-utility-item > a:hover {
+/* Light green background hover effect for top bar items */
+.app-header .app-utilities .app-utility-item > a:hover,
+.app-utilities .app-utility-item > a:hover {
     color: #000 !important;
     text-decoration: none;
+    background-color: #f0f9f0 !important;
+}
+
+/* Ensure icons remain unchanged on hover - keep original color */
+.app-header .app-utilities .app-utility-item > a:hover .icon-image,
+.app-header .app-utilities .app-utility-item > a:hover svg,
+.app-utilities .app-utility-item > a:hover .icon-image,
+.app-utilities .app-utility-item > a:hover svg,
+.app-header .app-utilities .app-utility-item .dropdown-toggle:hover .icon-image,
+.app-header .app-utilities .app-utility-item .dropdown-toggle:hover svg,
+.app-utilities .app-utility-item .dropdown-toggle:hover .icon-image,
+.app-utilities .app-utility-item .dropdown-toggle:hover svg {
+    color: currentColor !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* Apply hover background to dropdown toggles as well */
+.app-header .app-utilities .app-utility-item .dropdown-toggle,
+.app-utilities .app-utility-item .dropdown-toggle {
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    padding: 6px 8px;
+}
+
+.app-header .app-utilities .app-utility-item .dropdown-toggle:hover,
+.app-utilities .app-utility-item .dropdown-toggle:hover {
+    background-color: #f0f9f0 !important;
+    color: #000 !important;
+}
+
+/* Ensure label text stays black on hover */
+.app-header .app-utilities .app-utility-item > a:hover .label-text,
+.app-utilities .app-utility-item > a:hover .label-text,
+.app-header .app-utilities .app-utility-item .dropdown-toggle:hover .label-text,
+.app-utilities .app-utility-item .dropdown-toggle:hover .label-text {
+    color: #000 !important;
 }
 
 .app-utility-item .icon-image {
@@ -1192,4 +1379,62 @@ div.container-xl,
 
 .dashboard .app-notifications-dropdown .dropdown-menu {
     z-index: 9999 !important;
+}
+
+/* ============================================
+   FINAL OVERRIDES - ENSURE HOVER EFFECTS WORK EVERYWHERE
+   ============================================ */
+
+/* Force sidebar green hover - override any conflicting styles */
+body .app-sidepanel .app-nav .nav-item .nav-link:hover,
+body .app-sidepanel .app-nav-main .nav-item .nav-link:hover,
+body .app-nav .nav-item .nav-link:hover {
+    color: #85BB65 !important;
+}
+
+body .app-sidepanel .app-nav .nav-item .nav-link:hover .nav-link-text,
+body .app-sidepanel .app-nav-main .nav-item .nav-link:hover .nav-link-text,
+body .app-nav .nav-item .nav-link:hover .nav-link-text {
+    color: #85BB65 !important;
+}
+
+body .app-sidepanel .app-nav .nav-item .nav-link:hover .nav-icon,
+body .app-sidepanel .app-nav .nav-item .nav-link:hover .nav-icon .icon-image,
+body .app-sidepanel .app-nav-main .nav-item .nav-link:hover .nav-icon,
+body .app-sidepanel .app-nav-main .nav-item .nav-link:hover .nav-icon .icon-image,
+body .app-nav .nav-item .nav-link:hover .nav-icon,
+body .app-nav .nav-item .nav-link:hover .nav-icon .icon-image {
+    color: #85BB65 !important;
+    fill: #85BB65 !important;
+}
+
+body .app-sidepanel .app-nav .nav-item .nav-link:hover svg,
+body .app-sidepanel .app-nav-main .nav-item .nav-link:hover svg,
+body .app-nav .nav-item .nav-link:hover svg {
+    color: #85BB65 !important;
+    fill: #85BB65 !important;
+    stroke: #85BB65 !important;
+}
+
+/* Force top bar light green background hover - override any conflicting styles */
+body .app-header .app-utilities .app-utility-item > a:hover,
+body .app-utilities .app-utility-item > a:hover {
+    background-color: #f0f9f0 !important;
+    color: #000 !important;
+}
+
+body .app-header .app-utilities .app-utility-item .dropdown-toggle:hover,
+body .app-utilities .app-utility-item .dropdown-toggle:hover {
+    background-color: #f0f9f0 !important;
+    color: #000 !important;
+}
+
+/* Ensure icons stay unchanged in top bar */
+body .app-header .app-utilities .app-utility-item > a:hover .icon-image,
+body .app-header .app-utilities .app-utility-item > a:hover svg,
+body .app-utilities .app-utility-item > a:hover .icon-image,
+body .app-utilities .app-utility-item > a:hover svg {
+    color: currentColor !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
 }

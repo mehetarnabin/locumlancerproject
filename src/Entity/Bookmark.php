@@ -25,7 +25,7 @@ class Bookmark
     #[ORM\ManyToOne]
     private ?Job $job = null;
 
-    #[ORM\Column(type: 'float', nullable: true)]
+    #[ORM\Column(name: '`rank`', type: 'float', nullable: true)]
     private ?float $rank = null;
 
     // --- Getters & Setters ---

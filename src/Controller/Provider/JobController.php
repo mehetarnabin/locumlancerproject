@@ -14,7 +14,6 @@ use App\Repository\JobRepository;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Service\ApplicationService;
-use App\Service\ProfileAnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -61,10 +60,24 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs/matching', name: 'app_provider_jobs_matching')]
-    public function matchingJobs(JobRepository $jobRepository, ApplicationRepository $applicationRepository): Response
+    public function matchingJobs(
+        Request $request,
+        JobRepository $jobRepository, 
+        ApplicationRepository $applicationRepository,
+        EntityManagerInterface $em
+    ): Response
     {
         $user = $this->getUser();
         $provider = $user->getProvider();
+
+        // -------------------------------
+        // Filter parameters from query string (AJAX or normal)
+        // -------------------------------
+        $location = $request->query->get('location');
+        $salaryMin = $request->query->get('salaryMin');
+        $salaryMax = $request->query->get('salaryMax');
+        $category = $request->query->get('category'); // work_type
+        $days = $request->query->get('days');
 
         $filters['profession'] = $provider->getProfession()?->getId();
         $providerSpecialities = $provider->getSpecialities();
@@ -74,6 +87,23 @@ class JobController extends AbstractController
             }
         }
         $filters['state'] = $provider->getDesiredStates() ? implode(',', $provider->getDesiredStates()) : null;
+
+        // Add filter parameters
+        if ($location) {
+            $filters['location'] = $location;
+        }
+        if ($salaryMin) {
+            $filters['salaryMin'] = $salaryMin;
+        }
+        if ($salaryMax) {
+            $filters['salaryMax'] = $salaryMax;
+        }
+        if ($category) {
+            $filters['category'] = $category;
+        }
+        if ($days) {
+            $filters['days'] = $days;
+        }
 
         $jobs = $jobRepository->getProviderMatchingJobs($filters);
 
@@ -89,27 +119,74 @@ class JobController extends AbstractController
             $appliedJobsIds[] =  (string) $application->getJob()->getId();
         }
 
+        // Get bookmarks for matching jobs to show scores
+        $bookmarkRepository = $em->getRepository(Bookmark::class);
+        $bookmarks = [];
+        if ($jobs) {
+            $jobIds = array_map(fn($job) => $job->getId(), $jobs);
+            $userBookmarks = $bookmarkRepository->findBy([
+                'user' => $user,
+                'job' => $jobIds
+            ]);
+            foreach ($userBookmarks as $bookmark) {
+                $bookmarks[(string)$bookmark->getJob()->getId()] = $bookmark;
+            }
+        }
+
+        // -------------------------------
+        // Handle AJAX request
+        // -------------------------------
+        if ($request->isXmlHttpRequest()) {
+            $html = $this->renderView('provider/job/_matching_job_list.html.twig', [
+                'jobs' => $jobs,
+                'appliedJobsIds' => $appliedJobsIds,
+                'bookmarks' => $bookmarks,
+            ]);
+            return $this->json(['html' => $html]);
+        }
+
         return $this->render('provider/job/matching.html.twig', [
             'jobs' => $jobs,
             'appliedJobsIds' => $appliedJobsIds,
+            'bookmarks' => $bookmarks,
         ]);
     }
 
     #[Route('/jobs/saved', name: 'app_provider_jobs_saved')]
-    public function savedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
+    public function savedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em, Request $request): Response
     {
         $user = $this->getUser();
         $provider = $user->getProvider();
         
-        // $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
+        // -------------------------------
+        // Filter parameters from query string (AJAX or normal)
+        // -------------------------------
+        $location = $request->query->get('location');
+        $salaryMin = $request->query->get('salaryMin');
+        $salaryMax = $request->query->get('salaryMax');
+        $category = $request->query->get('category');
+        $days = $request->query->get('days'); // Posted date filter
+        
+        // Apply filters if provided
+        if ($location || $salaryMin || $salaryMax || $category || $days) {
+            $bookmarks = $bookmarkRepository->findFilteredJobs(
+                $this->getUser()->getId(),
+                $location,
+                $salaryMin,
+                $salaryMax,
+                $category,
+                $days
+            );
+        } else {
+            // No filters - get all bookmarks
         $bookmarks = $bookmarkRepository->createQueryBuilder('b')
             ->join('b.job', 'j')
             ->where('b.user = :user')
-            // Temporarily removed archived filter to avoid column not found error
             ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
             ->orderBy('b.id', 'DESC')
             ->getQuery()
             ->getResult();
+        }
 
         $messages = $em->getRepository(Message::class)->findBy(['receiver' => $user], ['id' => 'DESC'], 10);
         $notifications = $em->getRepository(Notification::class)->findBy(['user' => $user], ['id' => 'DESC'], 5);
@@ -148,6 +225,19 @@ class JobController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
+        // -------------------------------
+        // Handle AJAX requests - return JSON with HTML
+        // -------------------------------
+        if ($request->isXmlHttpRequest()) {
+            // Render only the job list container for AJAX (using partial template)
+            $html = $this->renderView('provider/job/_saved_job_list.html.twig', [
+                'bookmarks' => $bookmarks,
+                'appliedJobsIds' => $appliedJobsIds,
+            ]);
+            
+            return $this->json(['html' => $html]);
+        }
+
         return $this->render('provider/job/saved.html.twig', [
             'bookmarks' => $bookmarks,
             'appliedJobsIds' => $appliedJobsIds,
@@ -172,10 +262,32 @@ class JobController extends AbstractController
         
         $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
 
+        // -------------------------------
+        // Filter parameters from query string (AJAX or normal)
+        // -------------------------------
+        $location = $request->query->get('location');
+        $salaryMin = $request->query->get('salaryMin');
+        $salaryMax = $request->query->get('salaryMax');
+        $days = $request->query->get('days'); // Applied date filter
+
         $offset = $request->query->get('page', 1);
         $perPage = $request->get('per_page', 10);
         $filters = $request->query->all();
         $filters['provider'] = $this->getUser()->getProvider()->getId();
+
+        // Add filter parameters
+        if ($location) {
+            $filters['location'] = $location;
+        }
+        if ($salaryMin) {
+            $filters['salaryMin'] = $salaryMin;
+        }
+        if ($salaryMax) {
+            $filters['salaryMax'] = $salaryMax;
+        }
+        if ($days) {
+            $filters['days'] = $days;
+        }
 
         $applications = $em->getRepository(Application::class)->getAll($offset, $perPage, $filters);
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts( $this->getUser()->getProvider()->getId());
@@ -187,6 +299,17 @@ class JobController extends AbstractController
         $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
+
+        // -------------------------------
+        // Handle AJAX request
+        // -------------------------------
+        if ($request->isXmlHttpRequest()) {
+            $html = $this->renderView('provider/job/_application_list.html.twig', [
+                'applications' => $applications,
+                'status' => $request->query->get('status', ''),
+            ]);
+            return $this->json(['html' => $html]);
+        }
 
         return $this->render('provider/job/applications.html.twig', [
             'applications' => $applications,
@@ -405,33 +528,103 @@ class JobController extends AbstractController
     }
 
     #[Route('/update-rank', name: 'app_update_rank', methods: ['POST'])]
-    public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository): JsonResponse
+    public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository, JobRepository $jobRepository): JsonResponse
     {
+        try {
         // Parse JSON body
         $data = json_decode($request->getContent(), true);
-        $jobId = $data['jobId'] ?? null;
+            $jobIdStr = $data['jobId'] ?? null;
         $rank = $data['rank'] ?? null;
 
-        if (!$jobId || $rank === null) {
+            if (!$jobIdStr || $rank === null) {
             return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
         }
 
-        // Find user's bookmark for this job
+            // Convert jobId string to UUID
+            $jobId = Uuid::fromString($jobIdStr);
+            $job = $jobRepository->find($jobId);
+
+            if (!$job) {
+                return new JsonResponse(['success' => false, 'error' => 'Job not found'], 404);
+            }
+
+            // Find user's bookmark for this job, or create one if it doesn't exist
         $bookmark = $bookmarkRepository->findOneBy([
-            'job' => $jobId,
+                'job' => $job,
             'user' => $this->getUser(),
         ]);
 
         if (!$bookmark) {
-            return new JsonResponse(['success' => false, 'error' => 'Bookmark not found'], 404);
+                // Create a new bookmark if it doesn't exist (for matching jobs)
+                $bookmark = new Bookmark();
+                $bookmark->setJob($job);
+                $bookmark->setUser($this->getUser());
+                $em->persist($bookmark);
+                $em->flush(); // Flush to get the ID
+            }
+
+            // Validate and clamp rank
+            $rank = (float)$rank;
+            if ($rank < 1) $rank = 1;
+            if ($rank > 10) $rank = 10;
+
+            // Use raw SQL to properly escape the rank column name (MySQL reserved keyword)
+            // Detach entity first to prevent Doctrine listeners from interfering
+            $em->detach($bookmark);
+            
+            $connection = $em->getConnection();
+            $now = (new \DateTime())->format('Y-m-d H:i:s');
+            $idBinary = $bookmark->getId()->toBinary();
+            $rankStr = (string)$rank;
+            
+            // Get the actual PDO connection from Doctrine's connection wrapper
+            // We need to go through multiple layers to get the raw PDO instance
+            $wrappedConnection = $connection->getWrappedConnection();
+            
+            // Handle different connection wrapper types
+            if (method_exists($wrappedConnection, 'getWrappedConnection')) {
+                $pdo = $wrappedConnection->getWrappedConnection();
+            } elseif ($wrappedConnection instanceof \PDO) {
+                $pdo = $wrappedConnection;
+            } else {
+                // Fallback: try to get native connection
+                if (method_exists($connection, 'getNativeConnection')) {
+                    $pdo = $connection->getNativeConnection();
+                } else {
+                    // Last resort: use connection params to create new PDO
+                    $params = $connection->getParams();
+                    $dsn = sprintf(
+                        'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                        $params['host'] ?? 'localhost',
+                        $params['port'] ?? 3306,
+                        $params['dbname'] ?? ''
+                    );
+                    $pdo = new \PDO($dsn, $params['user'] ?? '', $params['password'] ?? '');
+                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                }
+            }
+            
+            // Ensure we have a PDO instance
+            if (!$pdo instanceof \PDO) {
+                throw new \RuntimeException('Could not obtain PDO connection');
+            }
+            
+            // Execute raw SQL with backticks using PDO directly
+            // Backticks MUST be preserved - this bypasses all Doctrine processing
+            $sql = "UPDATE `b_bookmark` SET `rank` = :rank_val, `updated_at` = :updated_at WHERE `id` = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':rank_val', $rankStr, \PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', $now, \PDO::PARAM_STR);
+            $stmt->bindValue(':id', $idBinary, \PDO::PARAM_STR);
+            $stmt->execute();
+            
+            // Clear the entity manager to ensure fresh data on next fetch
+            $em->clear();
+
+            return new JsonResponse(['success' => true, 'message' => 'Rank updated successfully']);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'error' => 'Error: ' . $e->getMessage()], 500);
         }
-
-        // Update and save
-        $bookmark->setRank((float)$rank);
-        $em->persist($bookmark);
-        $em->flush();
-
-        return new JsonResponse(['success' => true]);
     }
 
     #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
@@ -503,100 +696,113 @@ class JobController extends AbstractController
     }
     
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
-public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
-{
-    // Temporarily disabled to avoid archived column error
-    return new JsonResponse([
-        'success' => true,
-        'message' => "Archive functionality temporarily disabled."
-    ]);
-    
-    /* Original code - disabled temporarily
-    $data = json_decode($request->getContent(), true);
-    $ids = $data['ids'] ?? [];
-
-    if (empty($ids)) {
+    public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        // Temporarily disabled to avoid archived column error
         return new JsonResponse([
-            'success' => false,
-            'message' => 'No job IDs provided.'
-        ], 400);
-    }
+            'success' => true,
+            'message' => "Archive functionality temporarily disabled."
+        ]);
+        
+        /* Original code - disabled temporarily
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? [];
 
-    $repo = $em->getRepository(Job::class);
-    $updated = 0;
-
-    foreach ($ids as $idStr) {
-        try {
-            $uuid = Uuid::fromString($idStr);
-            $job = $repo->find($uuid);
-            if ($job) {
-                $job->setArchived(true);
-                $updated++;
-            }
-        } catch (\Throwable $e) {
-            // invalid UUID or other issue, skip
-            continue;
+        if (empty($ids)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No job IDs provided.'
+            ], 400);
         }
+
+        $repo = $em->getRepository(Job::class);
+        $updated = 0;
+
+        foreach ($ids as $idStr) {
+            try {
+                $uuid = Uuid::fromString($idStr);
+                $job = $repo->find($uuid);
+                if ($job) {
+                    $job->setArchived(true);
+                    $updated++;
+                }
+            } catch (\Throwable $e) {
+                // invalid UUID or other issue, skip
+                continue;
+            }
+        }
+
+        $em->flush();
+        $em->clear();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => "$updated job(s) archived successfully."
+        ]);
+        */
     }
-
-    $em->flush();
-    $em->clear();
-
-    return new JsonResponse([
-        'success' => true,
-        'message' => "$updated job(s) archived successfully."
-    ]);
-    */
-}
 
     
     #[Route('/jobs/archived', name: 'app_provider_jobs_archived')]
-public function archivedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
-{
-    // Temporarily returning static empty data to avoid archived column error
-    $bookmarks = [];
-    $appliedJobsIds = [];
+    public function archivedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        $provider = $user->getProvider();
+        
+        // Fetch archived applications
+        $archivedApplications = $applicationRepository->findBy([
+            'provider' => $provider,
+            'isArchived' => true
+        ], ['archivedAt' => 'DESC']);
+        
+        // Extract job IDs from archived applications
+        $appliedJobsIds = [];
+        foreach ($archivedApplications as $application) {
+            if ($application->getJob()) {
+                $appliedJobsIds[] = $application->getJob()->getId()->toString();
+            }
+        }
 
-    return $this->render('provider/job/archived.html.twig', [
-        'bookmarks' => $bookmarks,
-        'appliedJobsIds' => $appliedJobsIds,
-    ]);
-}
-
-#[Route('/jobs/export', name: 'app_provider_jobs_export')]
-public function exportJobs(Request $request, BookmarkRepository $bookmarkRepository): Response
-{
-    $page = $request->query->get('page'); // e.g., "archived" or null
-
-    // Temporarily removed archived filter to avoid column not found error
-    $qb = $bookmarkRepository->createQueryBuilder('b')
-        ->join('b.job', 'j')
-        ->where('b.user = :user')
-        ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
-        ->orderBy('b.id', 'DESC');
-
-    $bookmarks = $qb->getQuery()->getResult();
-
-    $csv = "Job,Location,Posted on,Expires on,Salary(Hourly),Rank\n";
-
-    foreach ($bookmarks as $bookmark) {
-        $job = $bookmark->getJob();
-        $csv .= sprintf(
-            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-            $job->getTitle() ?: '',
-            $job->getCity() ?: '',
-            $job->getCreatedAt() ? $job->getCreatedAt()->format('m/d/Y') : '',
-            $job->getExpirationDate() ? $job->getExpirationDate()->format('m/d/Y') : '',
-            $job->getPayRateHourly() ?: '',
-            $bookmark->getRank() ?: ''
-        );
+        return $this->render('provider/job/archived.html.twig', [
+            'archivedApplications' => $archivedApplications,
+            'appliedJobsIds' => $appliedJobsIds,
+        ]);
     }
 
-    return new Response($csv, 200, [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="jobs.csv"',
-    ]);
-}
+    #[Route('/jobs/export', name: 'app_provider_jobs_export')]
+    public function exportJobs(Request $request, BookmarkRepository $bookmarkRepository): Response
+    {
+        $page = $request->query->get('page'); // e.g., "archived" or null
+
+        // Temporarily removed archived filter to avoid column not found error
+        $qb = $bookmarkRepository->createQueryBuilder('b')
+            ->join('b.job', 'j')
+            ->where('b.user = :user')
+            ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
+            ->orderBy('b.id', 'DESC');
+
+        $bookmarks = $qb->getQuery()->getResult();
+
+        $csv = "Job,Location,Posted on,Expires on,Salary(Hourly),Rank\n";
+
+        foreach ($bookmarks as $bookmark) {
+            $job = $bookmark->getJob();
+            $csv .= sprintf(
+                "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                $job->getTitle() ?: '',
+                $job->getCity() ?: '',
+                $job->getCreatedAt() ? $job->getCreatedAt()->format('m/d/Y') : '',
+                $job->getExpirationDate() ? $job->getExpirationDate()->format('m/d/Y') : '',
+                $job->getPayRateHourly() ?: '',
+                $bookmark->getRank() ?: ''
+            );
+        }
+
+        return new Response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="jobs.csv"',
+        ]);
+    }
 
 
     #[Route('/download-data', name: 'app_provider_download_data', methods: ['GET'])]
@@ -617,6 +823,7 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
         $interviewApplications = [];
         $completedApplications = [];
         $matchingJobs = [];
+        $archivedApplications = [];
         
         // Fetch data based on page type
         switch ($type) {
@@ -693,6 +900,14 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
                 }
                 break;
                 
+            case 'archived':
+                // Only archived applications
+                $archivedApplications = $em->getRepository(Application::class)->findBy(
+                    ['provider' => $provider, 'isArchived' => true],
+                    ['archivedAt' => 'DESC']
+                );
+                break;
+                
             default:
                 // All data (backward compatibility)
                 $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
@@ -728,11 +943,12 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
             'user' => $user,
             'type' => $type,
             'statusFilter' => $statusFilter,
-            'bookmarks' => $bookmarks,
-            'appliedApplications' => $appliedApplications,
-            'interviewApplications' => $interviewApplications,
-            'completedApplications' => $completedApplications,
-            'matchingJobs' => $matchingJobs,
+            'bookmarks' => $bookmarks ?? [],
+            'appliedApplications' => $appliedApplications ?? [],
+            'interviewApplications' => $interviewApplications ?? [],
+            'completedApplications' => $completedApplications ?? [],
+            'matchingJobs' => $matchingJobs ?? [],
+            'archivedApplications' => $archivedApplications ?? [],
         ]);
         
         $dompdf->loadHtml($html);
@@ -744,6 +960,7 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
             'saved' => 'saved_jobs',
             'applications' => 'applications',
             'matching' => 'matching_jobs',
+            'archived' => 'archived_jobs',
             default => 'all_data'
         };
         $filename = 'provider_' . $typeLabel . '_' . date('Y-m-d') . '.pdf';
@@ -759,324 +976,325 @@ public function exportJobs(Request $request, BookmarkRepository $bookmarkReposit
         );
     }
 
-     // Add this method to your existing JobController
-
-#[Route('/applications/{id}/hire', name: 'app_provider_application_hire', methods: ['POST'])]
-public function hireApplication(
-    Application $application,
-    Request $request,
-    ApplicationService $applicationService,
-    EntityManagerInterface $em
-): Response {
-    // Check if user has permission to hire for this application
-    $user = $this->getUser();
-    
-    // Check if the current user is the provider in this application
-    if ($application->getProvider()->getUser()->getId() !== $user->getId()) {
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse(['success' => false, 'message' => 'You are not authorized to hire for this application.']);
-        }
-        $this->addFlash('error', 'You are not authorized to hire for this application.');
-        return $this->redirectToRoute('app_provider_jobs_applications');
-    }
-
-    // Check if already hired
-    if ($application->getStatus() === 'accepted') {
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse(['success' => false, 'message' => 'This application has already been marked as hired.']);
-        }
-        $this->addFlash('error', 'This application has already been marked as hired.');
-        return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
-    }
-
-    try {
-        // Mark as hired - this will trigger the notification
-        $applicationService->markAsHired($application);
+    #[Route('/applications/{id}/hire', name: 'app_provider_application_hire', methods: ['POST'])]
+    public function hireApplication(
+        Application $application,
+        Request $request,
+        ApplicationService $applicationService,
+        EntityManagerInterface $em
+    ): Response {
+        // Check if user has permission to hire for this application
+        $user = $this->getUser();
         
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse([
-                'success' => true, 
-                'message' => 'Provider hired successfully! Admin has been notified. The application has been moved to the "accepted" section.'
-            ]);
-        }
-        
-        $this->addFlash('success', 'Provider hired successfully! Admin has been notified.');
-        return $this->redirectToRoute('app_provider_jobs_applications');
-        
-    } catch (\Exception $e) {
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse(['success' => false, 'message' => 'Error hiring provider: ' . $e->getMessage()]);
-        }
-        $this->addFlash('error', 'Error hiring provider: ' . $e->getMessage());
-        return $this->redirectToRoute('app_provider_jobs_applications');
-    }
-}
-
-#[Route('/saved-jobs/notify-hire', name: 'app_provider_saved_jobs_notify_hire', methods: ['POST'])]
-public function notifyHireFromSaved(
-    Request $request,
-    ApplicationService $applicationService,
-    EntityManagerInterface $em,
-    BookmarkRepository $bookmarkRepository,
-    JobRepository $jobRepository,
-    ApplicationRepository $applicationRepository
-): JsonResponse {
-    $user = $this->getUser();
-    $data = json_decode($request->getContent(), true);
-    $jobIds = $data['jobIds'] ?? [];
-
-    if (empty($jobIds)) {
-        return new JsonResponse([
-            'success' => false,
-            'message' => 'No jobs selected.'
-        ], 400);
-    }
-
-    try {
-        $results = [
-            'successful' => [],
-            'failed' => [],
-            'notApplied' => []
-        ];
-
-        foreach ($jobIds as $jobId) {
-            // Validate UUID
-            if (!Uuid::isValid($jobId)) {
-                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Invalid job ID format'];
-                continue;
+        // Check if the current user is the provider in this application
+        if ($application->getProvider()->getUser()->getId() !== $user->getId()) {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'You are not authorized to hire for this application.']);
             }
-
-            // Find the job
-            $job = $jobRepository->find($jobId);
-            if (!$job) {
-                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Job not found'];
-                continue;
-            }
-
-            // Check if user has an application for this job
-            $application = $applicationRepository->findOneBy([
-                'provider' => $user->getProvider(),
-                'job' => $job,
-                'employer' => $job->getEmployer()
-            ]);
-
-            if (!$application) {
-                $results['notApplied'][] = ['jobId' => $jobId, 'jobTitle' => $job->getTitle()];
-                continue;
-            }
-
-            // Check if already hired
-            if ($application->getStatus() === 'accepted') {
-                $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Already hired'];
-                continue;
-            }
-
-            // Mark as hired
-            $applicationService->markAsHired($application);
-
-            // Remove from saved jobs
-            $bookmark = $bookmarkRepository->findOneBy([
-                'user' => $user,
-                'job' => $job
-            ]);
-
-            if ($bookmark) {
-                $em->remove($bookmark);
-            }
-
-            $results['successful'][] = [
-                'jobId' => $jobId,
-                'jobTitle' => $job->getTitle(),
-                'applicationId' => $application->getId()
-            ];
+            $this->addFlash('error', 'You are not authorized to hire for this application.');
+            return $this->redirectToRoute('app_provider_jobs_applications');
         }
 
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Hire notifications processed successfully.',
-            'results' => $results
-        ]);
-
-    } catch (\Exception $e) {
-        return new JsonResponse([
-            'success' => false,
-            'message' => 'Error processing hire notifications: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-#[Route('/saved-jobs/apply', name: 'app_provider_saved_jobs_apply', methods: ['POST'])]
-public function applyToSavedJobs(Request $request, EntityManagerInterface $entityManager): JsonResponse
-{
-    // Start debug logging
-    $debugLog = "=== APPLY JOBS REQUEST START ===\n";
-    $debugLog .= "Time: " . date('Y-m-d H:i:s') . "\n";
-    
-    // Handle both JSON and form data
-    if ($request->headers->get('Content-Type') === 'application/json') {
-        // JSON request
-        $content = $request->getContent();
-        $data = json_decode($content, true);
-        $jobIds = $data['jobIds'] ?? [];
-        $debugLog .= "Request type: JSON\n";
-    } else {
-        // Form data request
-        $jobIdsParam = $request->request->get('job_ids', '[]');
-        if (is_string($jobIdsParam) && str_starts_with($jobIdsParam, '[')) {
-            $jobIds = json_decode($jobIdsParam, true) ?? [];
-        } else {
-            $jobIds = [];
+        // Check if already hired
+        if ($application->getStatus() === 'accepted') {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'This application has already been marked as hired.']);
+            }
+            $this->addFlash('error', 'This application has already been marked as hired.');
+            return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
         }
-        $debugLog .= "Request type: FORM\n";
-    }
-    
-    $debugLog .= "Job IDs received: " . print_r($jobIds, true) . "\n";
-    $debugLog .= "Job IDs count: " . count($jobIds) . "\n";
-    
-    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-    
-    $user = $this->getUser();
-    $debugLog = "User ID: " . ($user ? $user->getId() : 'NO USER') . "\n";
-    
-    if ($user && method_exists($user, 'getProvider')) {
-        $provider = $user->getProvider();
-        $debugLog .= "Provider: " . ($provider ? $provider->getId() : 'NO PROVIDER') . "\n";
-    } else {
-        $debugLog .= "User has no getProvider method or no user\n";
-    }
-    
-    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-    
-    $appliedCount = 0;
-    $alreadyAppliedCount = 0;
-    $appliedJobIds = [];
-    $removedBookmarkIds = [];
-    $alreadyAppliedJobIds = [];
 
-    foreach ($jobIds as $index => $jobId) {
-        $debugLog = "Processing job #$index: " . $jobId . "\n";
-        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
         try {
-            // Find the job
-            $job = $entityManager->getRepository(Job::class)->find($jobId);
+            // Mark as hired - this will trigger the notification
+            $applicationService->markAsHired($application);
             
-            if (!$job) {
-                $debugLog = "❌ Job not found: " . $jobId . "\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-                continue;
-            }
-
-            $debugLog = "✅ Found job: " . $job->getId() . " - " . $job->getTitle() . "\n";
-            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-
-            // Check if already applied
-            $existingApplication = $entityManager->getRepository(Application::class)
-                ->findOneBy([
-                    'provider' => $user->getProvider(), 
-                    'job' => $job, 
-                    'employer' => $job->getEmployer()
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true, 
+                    'message' => 'Provider hired successfully! Admin has been notified. The application has been moved to the "accepted" section.'
                 ]);
-                
-            if ($existingApplication) {
-                $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-                
-                $alreadyAppliedCount++;
-                $alreadyAppliedJobIds[] = $jobId;
-            } else {
-                $debugLog = "✅ No existing application found, creating new one\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-
-                // Create new application
-                $application = new Application();
-                $application->setJob($job);
-                $application->setProvider($user->getProvider());
-                $application->setEmployer($job->getEmployer());
-                $application->setStatus('applied');
-                $application->setAppliedAt(new \DateTime());
-                
-                $entityManager->persist($application);
-                $appliedCount++;
-                $appliedJobIds[] = $jobId;
-                $debugLog = "✅ Created application for job: " . $jobId . "\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
             }
             
-            // Remove from bookmarks REGARDLESS of whether it was just applied or already applied
-            $bookmark = $entityManager->getRepository(Bookmark::class)
-                ->findOneBy(['job' => $job, 'user' => $user]);
-                
-            if ($bookmark) {
-                $removedBookmarkIds[] = $bookmark->getId();
-                $entityManager->remove($bookmark);
-                $debugLog = "✅ Removed bookmark for job: " . $jobId . " (Bookmark ID: " . $bookmark->getId() . ")\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            } else {
-                $debugLog = "❌ No bookmark found for job: " . $jobId . "\n";
-                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            }
-            
-            $debugLog = "✅ Successfully processed job: " . $jobId . "\n";
-            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            $this->addFlash('success', 'Provider hired successfully! Admin has been notified.');
+            return $this->redirectToRoute('app_provider_jobs_applications');
             
         } catch (\Exception $e) {
-            $debugLog = '❌ Error applying to job ' . $jobId . ': ' . $e->getMessage() . "\n";
-            $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'Error hiring provider: ' . $e->getMessage()]);
+            }
+            $this->addFlash('error', 'Error hiring provider: ' . $e->getMessage());
+            return $this->redirectToRoute('app_provider_jobs_applications');
+        }
+    }
+
+    #[Route('/saved-jobs/notify-hire', name: 'app_provider_saved_jobs_notify_hire', methods: ['POST'])]
+    public function notifyHireFromSaved(
+        Request $request,
+        ApplicationService $applicationService,
+        EntityManagerInterface $em,
+        BookmarkRepository $bookmarkRepository,
+        JobRepository $jobRepository,
+        ApplicationRepository $applicationRepository
+    ): JsonResponse {
+        $user = $this->getUser();
+        $data = json_decode($request->getContent(), true);
+        $jobIds = $data['jobIds'] ?? [];
+
+        if (empty($jobIds)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'No jobs selected.'
+            ], 400);
+        }
+
+        try {
+            $results = [
+                'successful' => [],
+                'failed' => [],
+                'notApplied' => []
+            ];
+
+            foreach ($jobIds as $jobId) {
+                // Validate UUID
+                if (!Uuid::isValid($jobId)) {
+                    $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Invalid job ID format'];
+                    continue;
+                }
+
+                // Find the job
+                $job = $jobRepository->find($jobId);
+                if (!$job) {
+                    $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Job not found'];
+                    continue;
+                }
+
+                // Check if user has an application for this job
+                $application = $applicationRepository->findOneBy([
+                    'provider' => $user->getProvider(),
+                    'job' => $job,
+                    'employer' => $job->getEmployer()
+                ]);
+
+                if (!$application) {
+                    $results['notApplied'][] = ['jobId' => $jobId, 'jobTitle' => $job->getTitle()];
+                    continue;
+                }
+
+                // Check if already hired
+                if ($application->getStatus() === 'accepted') {
+                    $results['failed'][] = ['jobId' => $jobId, 'reason' => 'Already hired'];
+                    continue;
+                }
+
+                // Mark as hired
+                $applicationService->markAsHired($application);
+
+                // Remove from saved jobs
+                $bookmark = $bookmarkRepository->findOneBy([
+                    'user' => $user,
+                    'job' => $job
+                ]);
+
+                if ($bookmark) {
+                    $em->remove($bookmark);
+                }
+
+                $results['successful'][] = [
+                    'jobId' => $jobId,
+                    'jobTitle' => $job->getTitle(),
+                    'applicationId' => $application->getId()
+                ];
+            }
+
+            $em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Hire notifications processed successfully.',
+                'results' => $results
+            ]);
+
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Error processing hire notifications: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    #[Route('/saved-jobs/apply', name: 'app_provider_saved_jobs_apply', methods: ['POST'])]
+    public function applyToSavedJobs(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Start debug logging
+        $debugLog = "=== APPLY JOBS REQUEST START ===\n";
+        $debugLog .= "Time: " . date('Y-m-d H:i:s') . "\n";
+        
+        // Handle both JSON and form data
+        if ($request->headers->get('Content-Type') === 'application/json') {
+            // JSON request
+            $content = $request->getContent();
+            $data = json_decode($content, true);
+            $jobIds = $data['jobIds'] ?? [];
+            $debugLog .= "Request type: JSON\n";
+        } else {
+            // Form data request
+            $jobIdsParam = $request->request->get('job_ids', '[]');
+            if (is_string($jobIdsParam) && str_starts_with($jobIdsParam, '[')) {
+                $jobIds = json_decode($jobIdsParam, true) ?? [];
+            } else {
+                $jobIds = [];
+            }
+            $debugLog .= "Request type: FORM\n";
+        }
+        
+        $debugLog .= "Job IDs received: " . print_r($jobIds, true) . "\n";
+        $debugLog .= "Job IDs count: " . count($jobIds) . "\n";
+        
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        $user = $this->getUser();
+        $debugLog = "User ID: " . ($user ? $user->getId() : 'NO USER') . "\n";
+        
+        if ($user && method_exists($user, 'getProvider')) {
+            $provider = $user->getProvider();
+            $debugLog .= "Provider: " . ($provider ? $provider->getId() : 'NO PROVIDER') . "\n";
+        } else {
+            $debugLog .= "User has no getProvider method or no user\n";
+        }
+        
+        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+        
+        $appliedCount = 0;
+        $alreadyAppliedCount = 0;
+        $appliedJobIds = [];
+        $removedBookmarkIds = [];
+        $alreadyAppliedJobIds = [];
+
+        foreach ($jobIds as $index => $jobId) {
+            $debugLog = "Processing job #$index: " . $jobId . "\n";
             file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            continue;
+            
+            try {
+                // Find the job
+                $job = $entityManager->getRepository(Job::class)->find($jobId);
+                
+                if (!$job) {
+                    $debugLog = "❌ Job not found: " . $jobId . "\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                    continue;
+                }
+
+                $debugLog = "✅ Found job: " . $job->getId() . " - " . $job->getTitle() . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+
+                // Check if already applied
+                $existingApplication = $entityManager->getRepository(Application::class)
+                    ->findOneBy([
+                        'provider' => $user->getProvider(), 
+                        'job' => $job, 
+                        'employer' => $job->getEmployer()
+                    ]);
+                    
+                if ($existingApplication) {
+                    $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                    
+                    $alreadyAppliedCount++;
+                    $alreadyAppliedJobIds[] = $jobId;
+                } else {
+                    $debugLog = "✅ No existing application found, creating new one\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+
+                    // Create new application
+                    $application = new Application();
+                    $application->setJob($job);
+                    $application->setProvider($user->getProvider());
+                    $application->setEmployer($job->getEmployer());
+                    $application->setStatus('applied');
+                    $application->setAppliedAt(new \DateTime());
+                    
+                    $entityManager->persist($application);
+                    $appliedCount++;
+                    $appliedJobIds[] = $jobId;
+                    $debugLog = "✅ Created application for job: " . $jobId . "\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                }
+                
+                // Remove from bookmarks REGARDLESS of whether it was just applied or already applied
+                $bookmark = $entityManager->getRepository(Bookmark::class)
+                    ->findOneBy(['job' => $job, 'user' => $user]);
+                    
+                if ($bookmark) {
+                    $removedBookmarkIds[] = $bookmark->getId();
+                    $entityManager->remove($bookmark);
+                    $debugLog = "✅ Removed bookmark for job: " . $jobId . " (Bookmark ID: " . $bookmark->getId() . ")\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                } else {
+                    $debugLog = "❌ No bookmark found for job: " . $jobId . "\n";
+                    file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                }
+                
+                $debugLog = "✅ Successfully processed job: " . $jobId . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                
+            } catch (\Exception $e) {
+                $debugLog = '❌ Error applying to job ' . $jobId . ': ' . $e->getMessage() . "\n";
+                $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
+                file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+                continue;
+            }
+        }
+        
+        try {
+            $debugLog = "Flushing entity manager...\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            
+            $entityManager->flush();
+            
+            $debugLog = "✅ Flush completed\n";
+            $debugLog .= "Final applied count: " . $appliedCount . "\n";
+            $debugLog .= "Already applied count: " . $alreadyAppliedCount . "\n";
+            $debugLog .= "Applied job IDs: " . print_r($appliedJobIds, true) . "\n";
+            $debugLog .= "Already applied job IDs: " . print_r($alreadyAppliedJobIds, true) . "\n";
+            $debugLog .= "Removed bookmark IDs: " . print_r($removedBookmarkIds, true) . "\n";
+            $debugLog .= '=== APPLY JOBS REQUEST END ===' . "\n\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            
+            // Build success message
+            $message = "";
+            if ($appliedCount > 0) {
+                $message .= "Successfully applied to {$appliedCount} job(s). ";
+            }
+            if ($alreadyAppliedCount > 0) {
+                $message .= "Removed {$alreadyAppliedCount} already applied job(s) from saved jobs.";
+            }
+            if ($appliedCount === 0 && $alreadyAppliedCount === 0) {
+                $message = "No jobs were processed.";
+            }
+            
+            return $this->json([
+                'success' => true,
+                'message' => $message,
+                'appliedCount' => $appliedCount,
+                'alreadyAppliedCount' => $alreadyAppliedCount,
+                'appliedJobIds' => $appliedJobIds,
+                'alreadyAppliedJobIds' => $alreadyAppliedJobIds,
+                'removedBookmarkIds' => $removedBookmarkIds
+            ]);
+        } catch (\Exception $e) {
+            $debugLog = "❌ Flush error: " . $e->getMessage() . "\n";
+            $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
+            $debugLog .= '=== APPLY JOBS REQUEST END WITH ERROR ===' . "\n\n";
+            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            
+            return $this->json([
+                'success' => false,
+                'message' => 'Error applying to jobs: ' . $e->getMessage()
+            ], 500);
         }
     }
-    
-    try {
-        $debugLog = "Flushing entity manager...\n";
-        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
-        $entityManager->flush();
-        
-        $debugLog = "✅ Flush completed\n";
-        $debugLog .= "Final applied count: " . $appliedCount . "\n";
-        $debugLog .= "Already applied count: " . $alreadyAppliedCount . "\n";
-        $debugLog .= "Applied job IDs: " . print_r($appliedJobIds, true) . "\n";
-        $debugLog .= "Already applied job IDs: " . print_r($alreadyAppliedJobIds, true) . "\n";
-        $debugLog .= "Removed bookmark IDs: " . print_r($removedBookmarkIds, true) . "\n";
-        $debugLog .= '=== APPLY JOBS REQUEST END ===' . "\n\n";
-        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
-        // Build success message
-        $message = "";
-        if ($appliedCount > 0) {
-            $message .= "Successfully applied to {$appliedCount} job(s). ";
-        }
-        if ($alreadyAppliedCount > 0) {
-            $message .= "Removed {$alreadyAppliedCount} already applied job(s) from saved jobs.";
-        }
-        if ($appliedCount === 0 && $alreadyAppliedCount === 0) {
-            $message = "No jobs were processed.";
-        }
-        
-        return $this->json([
-            'success' => true,
-            'message' => $message,
-            'appliedCount' => $appliedCount,
-            'alreadyAppliedCount' => $alreadyAppliedCount,
-            'appliedJobIds' => $appliedJobIds,
-            'alreadyAppliedJobIds' => $alreadyAppliedJobIds,
-            'removedBookmarkIds' => $removedBookmarkIds
-        ]);
-    } catch (\Exception $e) {
-        $debugLog = "❌ Flush error: " . $e->getMessage() . "\n";
-        $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
-        $debugLog .= '=== APPLY JOBS REQUEST END WITH ERROR ===' . "\n\n";
-        file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
-        return $this->json([
-            'success' => false,
-            'message' => 'Error applying to jobs: ' . $e->getMessage()
-        ], 500);
-    }
-}
+
+
+
     
 }

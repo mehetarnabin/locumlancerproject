@@ -62,7 +62,7 @@ class Application
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Interview $interview = null;
 
-    #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
+    #[ORM\Column(name: '`rank`', type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?string $rank = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -70,9 +70,6 @@ class Application
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isArchived = false;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $appliedAt = null;
 
     public function getId(): ?Uuid
     {
@@ -274,9 +271,9 @@ class Application
     }
 
     public function getAppliedAt(): ?\DateTimeInterface
-{
-    return $this->appliedAt;
-}
+    {
+        return $this->appliedAt;
+    }
 
     public function setAppliedAt(?\DateTimeInterface $appliedAt): self
     {

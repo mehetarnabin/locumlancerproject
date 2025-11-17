@@ -5,6 +5,19 @@
 
 {% block provider_body %}
 <style>
+/* Override container-xl to shift content left and remove left spacing */
+.container-xl {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: 100% !important;
+    transform: translateX(-80px) !important; /* Shift entire container to the left */
+}
+
+/* Override app-content padding from base template to remove left spacing */
+.app-content {
+    padding-left: 0 !important;
+}
+
 /* == Scoped modern card styles (unique class names) == */
 .profile-card, .section-card, .profile-right-card {
   background: #fff;
@@ -53,8 +66,9 @@
 
 /* Info row items */
 .info-item {
-  padding: 14px 0;
+    padding: 10px 0;
   border-bottom: none;
+    margin: 0;
 }
 .info-item:last-child { border-bottom: none; }
 
@@ -90,6 +104,17 @@
 .upload-btn-custom.upload-cv {
   border: 1px solid #e6eef6;
   background: #F4F9F1;
+}
+
+/* Make Documents link visually different - no checkbox, different styling */
+.upload-btn-custom.upload-btn-documents {
+  background: #E8F4FD;
+  border: 2px solid #85BB65;
+  font-weight: 600;
+}
+.upload-btn-custom.upload-btn-documents:hover {
+  background: #D1E9F9;
+  border-color: #6FA050;
 }
 
 /* small badge for ratings etc */
@@ -190,6 +215,18 @@
 }
 .info-item svg {
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+.info-item .d-flex.gap-3 {
+  gap: 16px !important;
+  padding: 0;
+  width: 100%;
+}
+.info-item .form-control {
+  flex: 1;
+  min-width: 0;
 }
 .app-page-title {
     color: #121C0C;
@@ -271,9 +308,19 @@ button.upload-btn-custom:hover span {
 .card.app-card-settings {
   border: none;
   background: #fff;
+  margin-bottom: 0;
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(16,24,40,0.06);
-  padding: 16px;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.card.app-card-settings .card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .list-unstyled label {
   font-style: 400;
@@ -285,6 +332,13 @@ button.upload-btn-custom:hover span {
 .card-header {
   text-align: center;
 }
+.profile-right-card .card-header {
+  text-align: left;
+  margin-bottom: 0;
+}
+.profile-right-card .small-metric {
+  text-align: left;
+}
 .profile-right-card .small-metric .big {
   color: #252930;
 }
@@ -293,10 +347,15 @@ button.upload-btn-custom:hover span {
   border: 2px dashed #85BB65;
   border-radius: 12px;
   background: #F4F9F1;
-  padding: 40px 20px;
+  padding: 30px 20px;
   text-align: center;
   position: relative;
   cursor: pointer;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .upload-dropzone:hover {
   background: #f0f5ec;
@@ -309,7 +368,8 @@ button.upload-btn-custom:hover span {
   height: 100%;
   opacity: 0;
   cursor: pointer;
-  z-index: 2;
+  z-index: 10;
+  pointer-events: auto;
 }
 .dropzone-content {
   position: relative;
@@ -355,6 +415,36 @@ button.upload-btn-custom:hover span {
 .profile-right-card.h-fix-auto {
   height: auto;
 }
+
+/* Match height of Share via Onelink with Your History card */
+.row.mt-4 > .col-lg-8 .row.g-4 > .col-lg-6 {
+  display: flex;
+  flex-direction: column;
+}
+
+.row.mt-4 > .col-lg-4 {
+  display: flex;
+  flex-direction: column;
+}
+
+.row.mt-4 > .col-lg-8 .row.g-4 > .col-lg-6:last-child .profile-right-card,
+.row.mt-4 > .col-lg-4 > .profile-right-card:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add spacing between first row (Personal Info/Your History) and second row (CV Upload/Work Preferences) */
+.row > .col-12.col-lg-6:first-child .profile-card,
+.row > .col-12.col-lg-6:last-child .profile-right-card {
+  margin-bottom: 0;
+}
+
+/* Ensure proper spacing between rows */
+.row > .col-12.mt-5 {
+  margin-top: 3rem !important;
+}
+
 .cstm-toggle-btn {
   background: transparent;
   border: none;
@@ -362,60 +452,46 @@ button.upload-btn-custom:hover span {
 .cstm-toggle-btn:hover svg {
   color: #85BB65;
 }
-input[type="checkbox"] {
+/* Consistent green checkbox styling to match other pages */
+input[type="checkbox"],
+.education-checkbox {
+  -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #bec0c1;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cfd9e3;
   border-radius: 4px;
-  background-color: #fff;
+  background: #fff;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
+/* Hover state - green border */
+input[type="checkbox"]:hover,
+.education-checkbox:hover {
+  border-color: #85BB65;
 }
 
-input[type="checkbox"]:checked::after {
+/* Checked state - green filled with white checkmark */
+input[type="checkbox"]:checked,
+.education-checkbox:checked {
+  background-color: #85BB65;
+  border-color: #85BB65;
+}
+
+input[type="checkbox"]:checked::after,
+.education-checkbox:checked::after {
   content: '';
   position: absolute;
   top: 2px;
-  left: 5px;
+  left: 6px;
   width: 4px;
   height: 8px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-input[type="checkbox"] {
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #bec0c1;
-  border-radius: 4px;
-  background-color: #fff;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-input[type="checkbox"]:checked {
-  background-color: #47ddff; /* Your custom fill color */
-  border-color: #47ddff;
-}
-
-input[type="checkbox"]:checked::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 8px;
-  border: solid white;
+  border: solid #fff;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -455,7 +531,18 @@ input[type="checkbox"]:checked::after {
 }
 /* Reduce gap between elements in edit mode */
 #infoEdit .d-flex.gap-3 {
-    gap: 12px !important;
+    gap: 16px !important;
+    padding: 0;
+    width: 100%;
+}
+#infoEdit .info-item {
+    padding: 10px 0;
+}
+#infoEdit .info-item svg {
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    flex-shrink: 0;
 }
 #infoEdit .d-flex.gap-2 {
     gap: 8px !important;
@@ -510,8 +597,17 @@ input[type="checkbox"]:checked::after {
   border: 1px solid #e6eef6;
   box-shadow: 0 2px 6px rgba(11,22,40,0.03);
 }
-#educationModal { 
-  z-index: 999999;
+#educationModal,
+#licenseModal,
+#insuranceModal,
+#editEducationModal {
+  z-index: 10001 !important;
+}
+.modal-backdrop {
+  z-index: 10000 !important;
+}
+.modal.show {
+  z-index: 10001 !important;
 }
 .popup-close {
   border: none;
@@ -536,7 +632,7 @@ input[type="checkbox"]:checked::after {
 
   <div class="row mt-4">
     <div class="col-12 col-lg-8">
-      <div class="row">
+      <div class="row g-4">
         {# Left: profile card #}
           <div class="col-12 col-lg-6 d-flex flex-column">
               <div id="personalSection" class="profile-card" style="position: relative;">
@@ -557,25 +653,26 @@ input[type="checkbox"]:checked::after {
 
                   <div class="d-flex gap-4 align-items-center" style="margin-bottom: 8px;">
                     <div class="profile-avatar-box">
-                      <div class="profile-icon-box ">
-                      {% if app.user.profilePictureFilename %}
-                        <img src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
-                      {% elseif app.user.profilePicture %}
-                        <img src="{{ app.user.profilePicture }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
-                      {% else %}
-                        <img src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
-                      {% endif %}
-                      </div>
+                        <div class="profile-icon-box">
+                            {% if app.user.profilePictureFilename %}
+                                <img src="{{ asset('uploads/' ~ app.user.id ~ '/' ~ app.user.profilePictureFilename) }}"
+                                    alt="profile"
+                                    style="width:100%;height:100%;object-fit:cover;">
+                            {% else %}
+                                <img src="{{ asset('assets/icons/user-profile.png') }}"
+                                    alt="profile"
+                                    style="width:60%;height:60%;object-fit:contain;">
+                            {% endif %}
+                        </div>
                     </div>
-
                     <div style="flex:1;">
-                      <div class="fw-semibold fs-5">{{ app.user.name }}</div>
+                        <div class="fw-semibold fs-5">{{ app.user.name }}</div>
                     </div>
-                  </div>
+                </div>
 
                   <!-- Removed duplicate name section -->
 
-                  <div style="margin-top:14px;">
+                  <div style="margin-top:14px; padding: 0 8px;">
 
                     <div class="info-item">
                       <div class="d-flex gap-3 align-items-center">
@@ -598,7 +695,9 @@ input[type="checkbox"]:checked::after {
                         <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
                         </svg>
-                        <div>Address</div>
+                        <div>
+                          {{ app.user.getAddress() ?: 'No address provided' }}
+                        </div>
                       </div>
                     </div>
 
@@ -637,7 +736,7 @@ input[type="checkbox"]:checked::after {
                   </div>
                 </div>
                 <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%;">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-3" style="padding: 0 8px;">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons" class="d-flex gap-2">
                         <!-- Save Button -->
@@ -660,18 +759,16 @@ input[type="checkbox"]:checked::after {
                         </button>
                       </div>
                   </div>
-                  {{ form_start(form, {'attr': {'id': 'profileForm', 'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
-                  {{ form_errors(form) }}
-                  <div class="d-flex gap-3 align-items-center mb-3">
+            {{ form_start(profileForm, {'attr': {'id': 'profileForm', 'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+                  {{ form_errors(profileForm) }}
+                  <div class="d-flex gap-3 align-items-center mb-3" style="padding: 0 8px;">
                     <div class="position-relative profile-avatar-box">
                       <div class="profile-icon-box">
-                      {% if app.user.profilePictureFilename %}
-                        <img id="editProfileImage" src="{{ '/uploads/' ~ app.user.id ~'/'~ app.user.profilePictureFilename }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
-                      {% elseif app.user.profilePicture %}
-                        <img id="editProfileImage" src="{{ app.user.profilePicture }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
-                      {% else %}
-                        <img id="editProfileImage" src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
-                      {% endif %}
+                          {% if app.user.profilePicture %}
+                              <img src="{{ asset('uploads/' ~ app.user.id ~ '/' ~ app.user.profilePicture) }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                          {% else %}
+                              <img src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
+                          {% endif %}
                       </div>
 
                       <!-- Camera Icon Overlay -->
@@ -682,16 +779,16 @@ input[type="checkbox"]:checked::after {
                         <path d="M19 10H18" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                       </label>
-                      <input type="file" id="profileImageInput" name="profilePictureFilename" accept="image/*" class="file d-none">
+                      {{ form_widget(profileForm.profilePictureFilename, {'attr': {'id': 'profileImageInput', 'accept': 'image/*', 'class': 'd-none'}}) }}
                     </div>
 
                     <div style="flex:1;">
-                      {{ form_widget(form.name, {'attr': {'class': 'form-control fw-semibold'}}) }}
-                      {{ form_errors(form.name) }}
+                      {{ form_widget(profileForm.name, {'attr': {'class': 'form-control fw-semibold'}}) }}
+                      {{ form_errors(profileForm.name) }}
                     </div>
                   </div>
 
-                  <div style="margin-top:14px;">
+                  <div style="margin-top:14px; padding: 0 8px;">
                     <!-- Email -->
                     <div class="info-item">
                       <div class="d-flex gap-3 align-items-center">
@@ -703,23 +800,23 @@ input[type="checkbox"]:checked::after {
                             </g>
                           </g>
                         </svg>
-                        <input type="email" name="email" class="form-control" value="{{ app.user.email }}">
+                          {{ form_row(profileForm.email, {'attr': {'class': 'form-control'}}) }}
                       </div>
                     </div>
 
                     <!-- Address -->
-                    <div class="info-item mt-3">
+                    <div class="info-item mt-2">
                       <div class="d-flex gap-3 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
                           <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
                         </svg>
-                        <input type="text" name="address" class="form-control" value="Address">
+                          {{ form_row(profileForm.address, {'attr': {'class': 'form-control'}}) }}
                       </div>
                     </div>
 
                     <!-- Phone -->
-                    <div class="info-item mt-3">
+                    <div class="info-item mt-2">
                       <div class="d-flex gap-3 align-items-center">
                       <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -727,104 +824,155 @@ input[type="checkbox"]:checked::after {
                         <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
                         </svg>
-                        {{ form_widget(form.phone1, {'attr':{'class': 'form-control'}}) }}
-                        {{ form_errors(form.phone1) }}
+                          {{ form_row(profileForm.phone1, {'attr': {'class': 'form-control'}}) }}
                         </div>
                     </div>
                   </div>
                   {# Do NOT render these fields #}
-                  {# form_widget(form.gender) #}
-                  {# form_widget(form.phone2) #}
-                  {# form_widget(form.profilePictureFilename) #}
+                  {# form_widget(profileForm.gender) #}
+                  {# form_widget(profileForm.phone2) #}
+                  {# profilePictureFilename is already rendered above #}
 
-                  {{ form_end(form, {'render_rest': false}) }}
+                  {{ form_end(profileForm, {'render_rest': false}) }}
                 </div>
               </div>
           </div>
 
           {# Center: assignment column #}
           <div class="col-12 col-lg-6 d-flex flex-column">
-            <div class="profile-right-card">
-              <h6 class="app-card-title text-center mb-4">Your History</h6>
-              <div class="small-metric mb-4">
-                <h6 class="app-card-title">Your Average Rating</h6>
-                <div class="big fw-normal">3.72/5</div>
+            <div class="profile-right-card h-fix-auto">
+              <div class="card-header-row d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Your History</h5>
               </div>
-              <div class="card-header mb-4">
-                <h6 class="app-card-title mb-1">Locum Assignments : </h6>
-                <h4 class="fw-normal">10</h4>
+              <div class="card-body" style="padding: 12px 16px;">
+                <div class="mb-2" style="text-align: left;">
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Your Average Rating</h6>
+                  <div class="d-flex align-items-center" style="margin-top: 2px;">
+                    <div class="d-flex align-items-center" style="gap: 2px;">
+                      {% set rating = 3.72 %}
+                      {% set fullStars = (rating // 1)|number_format(0, '.', '') %}
+                      {% set partialStar = rating - fullStars %}
+                      {% for i in 1..5 %}
+                        {% if i <= fullStars %}
+                          {# Filled star (golden yellow) #}
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFD700" stroke="#FFD700" stroke-width="1" style="display: block; flex-shrink: 0;">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        {% elseif i == fullStars + 1 and partialStar > 0 %}
+                          {# Half-filled star #}
+                          <svg width="14" height="14" viewBox="0 0 24 24" style="display: block; flex-shrink: 0; position: relative;">
+                            <defs>
+                              <clipPath id="half-star-clip-{{ i }}">
+                                <rect x="0" y="0" width="12" height="24"/>
+                              </clipPath>
+                            </defs>
+                            {# Empty star outline (full) #}
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="#D1D5DB" stroke-width="1"/>
+                            {# Filled portion (clipped to left half) #}
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFD700" stroke="#FFD700" stroke-width="1" clip-path="url(#half-star-clip-{{ i }})"/>
+                          </svg>
+                        {% else %}
+                          {# Empty star (grey outline) #}
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1" style="display: block; flex-shrink: 0;">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                        {% endif %}
+                      {% endfor %}
               </div>
-              <div class="card-header">
-                <h6 class="app-card-title mb-1">Years Active : </h6>
-                <h4 class="fw-normal">15 years</h4>
+                  </div>
+                </div>
+                <div class="mb-2" style="text-align: left;">
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Locum Assignments : </h6>
+                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 600; color: #252930; line-height: 1.2;">10</h4>
+                </div>
+                <div style="text-align: left;">
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Years Active : </h6>
+                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 600; color: #252930; line-height: 1.2;">15 years</h4>
+                </div>
                 </div>
             </div>
           </div>
 
-          <div class="col-12 mt-3">
-            <div class="card app-card-settings">
-              <div class="card-body">
-                <h5 class="card-title mb-3">{{ editMode is defined ? 'Edit Document' : 'CV Upload' }}</h5>
-                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+          <div class="col-12 mt-5">
+            <div class="row g-4">
+              <div class="col-12 col-md-6">
+                <div class="card app-card-settings h-100">
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-3">{{ editMode is defined ? 'Edit Document' : 'CV Upload' }}</h5>
 
-                <div class="upload-dropzone mb-4" onclick="document.getElementById('dropzoneInput').click();">
-                  {{ form_widget(documentForm.fileName, {
-                    'attr': {
-                      'class': 'dropzone-input',
-                      'id': 'dropzoneInput',
-                      'onchange': 'handleFileChange(this)'
-                    }
-                  }) }}
+                    {{ form_start(documentForm, {
+                'attr': {
+                    'class': 'needs-validation',
+                    'novalidate': 'novalidate',
+                    'enctype': 'multipart/form-data'
+                }
+            }) }}
+            <div class="upload-dropzone position-relative mb-3 flex-grow-1"
+                style="display:flex; align-items:center; justify-content:center; min-height:180px; border:1px dashed #D1D5DB; border-radius:8px; background:#F9FAFB; cursor:pointer;">
+              {{ form_widget(documentForm.fileName, {
+                'attr': {
+                  'class': 'dropzone-input position-absolute top-0 start-0 w-100 h-100',
+                  'id': 'dropzoneInput',
+                  'accept': '.pdf,.csv,.xls,.xlsx',
+                  'style': 'opacity:0; cursor:pointer;',
+                  'onchange': 'handleFileChange(this)'
+                }
+              }) }}
 
-                  <!-- Filename badge inside dropzone -->
-                  <div id="fileBadge" class="file-badge" style="display:none;">
-                    <span id="fileNameText"></span>
-                    <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
-                  </div>
+              <!-- Filename badge -->
+              <div id="fileBadge" class="file-badge position-absolute top-2 end-2 bg-white px-2 py-1 rounded shadow-sm" style="display:none;">
+                <span id="fileNameText" class="small text-muted"></span>
+                <button type="button" class="file-remove-btn btn btn-sm btn-light ms-1" onclick="clearFile()">×</button>
+              </div>
 
-                  <div class="dropzone-content pointer-events-none">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                      <line x1="16" y1="13" x2="8" y2="13"/>
-                      <line x1="16" y1="17" x2="8" y2="17"/>
-                      <line x1="10" y1="9" x2="8" y2="9"/>
-                    </svg>
+              <div class="dropzone-content text-center pointer-events-none">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <line x1="10" y1="9" x2="8" y2="9"/>
+                </svg>
 
-                    <p class="upload-text">Drag and drop or click to upload</p>
-                    <p class="upload-subtext">Supported formats: CSV, XLS, PDF. Max size: 25MB</p>
-                  </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-3">
-                  <a href="javascript:void(0);" class="upload-btn-custom" onclick="clearFile()">Cancel</a>
-                  <button type="submit" class="upload-btn-custom upload-cv">
-                    {{ editMode is defined ? 'Update' : 'CV Upload' }}
-                    <span>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.625 15C5.625 14.5858 5.28921 14.25 4.875 14.25C4.46079 14.25 4.125 14.5858 4.125 15H5.625ZM4.875 16H4.125H4.875ZM19.275 15C19.275 14.5858 18.9392 14.25 18.525 14.25C18.1108 14.25 17.775 14.5858 17.775 15H19.275ZM12.2914 5.46127C12.5461 5.13467 12.4879 4.66338 12.1613 4.40862C11.8347 4.15387 11.3634 4.21212 11.1086 4.53873L12.2914 5.46127ZM7.20862 9.53873C6.95387 9.86533 7.01212 10.3366 7.33873 10.5914C7.66533 10.8461 8.13662 10.7879 8.39138 10.4613L7.20862 9.53873ZM12.2914 4.53873C12.0366 4.21212 11.5653 4.15387 11.2387 4.40862C10.9121 4.66338 10.8539 5.13467 11.1086 5.46127L12.2914 4.53873ZM15.0086 10.4613C15.2634 10.7879 15.7347 10.8461 16.0613 10.5914C16.3879 10.3366 16.4461 9.86533 16.1914 9.53873L15.0086 10.4613ZM12.45 5C12.45 4.58579 12.1142 4.25 11.7 4.25C11.2858 4.25 10.95 4.58579 10.95 5H12.45ZM10.95 16C10.95 16.4142 11.2858 16.75 11.7 16.75C12.1142 16.75 12.45 16.4142 12.45 16H10.95ZM4.125 15V16H5.625V15H4.125ZM4.125 16C4.125 18.0531 5.75257 19.75 7.8 19.75V18.25C6.61657 18.25 5.625 17.2607 5.625 16H4.125ZM7.8 19.75H15.6V18.25H7.8V19.75ZM15.6 19.75C17.6474 19.75 19.275 18.0531 19.275 16H17.775C17.775 17.2607 16.7834 18.25 15.6 18.25V19.75ZM19.275 16V15H17.775V16H19.275ZM11.1086 4.53873L7.20862 9.53873L8.39138 10.4613L12.2914 5.46127L11.1086 4.53873ZM11.1086 5.46127L15.0086 10.4613L16.1914 9.53873L12.2914 4.53873L11.1086 5.46127ZM10.95 5V16H12.45V5H10.95Z" fill="currentcolor"/>
-                    </span>
-                    </svg>
-                  </button>
-                </div>
-
-                {{ form_end(form, {'render_rest': false}) }}
+                <p class="mb-1" style="font-size: 0.95rem; color: #252930; font-weight: 500;">Drag and drop or click to upload</p>
+                <p class="mb-0 text-muted" style="font-size: 0.85rem;">Supported formats: PDF, CSV, XLS (Max 25MB)</p>
               </div>
             </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <a href="javascript:void(0);" class="upload-btn-custom" onclick="clearFile()" style="padding: 8px 16px; font-size: 0.9rem;">Cancel</a>
+              <button type="submit" class="upload-btn-custom upload-cv" style="padding: 8px 16px; font-size: 0.9rem;">
+                {{ editMode is defined ? 'Update' : 'Upload CV' }}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="ms-1">
+                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            {{ form_end(documentForm, {'render_rest': false}) }}
           </div>
-          <div class="col-12 mt-3">
-            <div class="card app-card-settings">
+        </div>
+      </div>
+      <!-- Right column -->
+      <div class="col-12 col-md-6">
+        <div class="card app-card-settings h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
               <h5 class="card-title mb-0">Work Preferences</h5>
-              <div class="work-preferences" style="height: 150px;">
-              </div>
+            </div>
+            <div class="work-preferences flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 200px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB;">
+              <p class="text-muted mb-0" style="font-size: 0.9rem;">Work preferences content will appear here</p>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+        </div>
+      </div>
 
     {# Right: narrow column for upload buttons and quick links - col-lg-2 #}
-    <div class="col-12 col-lg-4 d-flex flex-column">
-      <div class="profile-right-card h-fix-auto">
+    <div class="col-12 col-lg-4 d-flex flex-column" style="align-self: flex-start;">
+      <div class="profile-right-card h-fix-auto" style="margin-top: -24px;">
           <div class="card-header-row d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Share via Onelink</h5>
             <button id="toggle-checkmarks" class="cstm-toggle-btn" title="Toggle Checkmarks">
@@ -841,22 +989,6 @@ input[type="checkbox"]:checked::after {
               <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="max-width: 300px;">
             </div>
 
-            <h6 class="mt-4">Doc Shared</h6>
-            <ul class="list-unstyled">
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc1">
-                <label class="form-check-label" for="doc1">Document 1.pdf</label>
-              </li>
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc2">
-                <label class="form-check-label" for="doc2">Document 2.docx</label>
-              </li>
-              <li class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="doc3">
-                <label class="form-check-label" for="doc3">Document 3.xlsx</label>
-              </li>
-            </ul>
-
             <div class="d-flex justify-content-end mt-3">
               <button type="button" class="upload-btn-custom">Share</button>
             </div>
@@ -865,7 +997,6 @@ input[type="checkbox"]:checked::after {
       <div class="profile-right-card mt-4 h-fix-auto">
         <div class="card-header-row d-flex justify-content-between">
             <h5 class="card-title mb-0">Quick Links</h5>
-            <h5 class="card-title mb-0">Share</h5>
         </div>
 
         <div class="upload-list mt-2">
@@ -947,10 +1078,7 @@ input[type="checkbox"]:checked::after {
           </span>
           </a>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">Documents</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
+          <div class="upload-btn-custom upload-btn-documents"><span class="cstm-btn-text">Documents</span>
           <a href="/provider/documents" role="link">
           <span class="cstm-btn-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -979,7 +1107,7 @@ input[type="checkbox"]:checked::after {
 <div id="popup-education" class="popup-overlay d-none">
   <div class="popup-content shadow-lg p-3 rounded-3">
     <div class="popup-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-4">Education & Training</h5>
+      <h5>Education & Training</h5>
       <button id="popupClose" class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -994,63 +1122,15 @@ input[type="checkbox"]:checked::after {
               Add New
             </a>
 
-            <div class="row mb-4 mt-4">
-              <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">Kathmandu University</h5>
-                      <p><strong>Degree Name:</strong> Bachelor of Engineering</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Nepal, Bagmati, Dhulikhel</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-education" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
-                        </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
-                        </a>
-                      </div>
+            <div id="educationListContainer" class="row g-3 mt-2">
+              <!-- Education entries will be loaded here dynamically -->
                     </div>
 
-                    <div class="ms-auto">
-                      <p><strong>Start Date:</strong> 08/01/2015</p>
-                      <p><strong>End Date:</strong> 06/30/2019</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">Tribhuvan University</h5>
-                      <p><strong>Degree Name:</strong> Master of Science</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Nepal, Bagmati, Kirtipur</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-education" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
-                        </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
-                        </a>
-                      </div>
-                    </div>
-
-                    <div class="ms-auto">
-                      <p><strong>Start Date:</strong> 09/01/2020</p>
-                      <p><strong>End Date:</strong> 07/30/2022</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <a href="#" class="cstm-btn-style">
+            <div class="d-flex justify-content-end mt-4">
+              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-education').classList.add('d-none'); return false;">
               Continue
             </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1061,7 +1141,7 @@ input[type="checkbox"]:checked::after {
 <div id="popup-license" class="popup-overlay d-none">
   <div class="popup-content shadow-lg p-3 rounded-3">
     <div class="popup-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-4">License & Certificate</h5>
+      <h5>License & Certificate</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1076,65 +1156,75 @@ input[type="checkbox"]:checked::after {
               Add New
             </a>
 
-            <div class="row mt-4 mb-4">
+            <div class="row g-3 mt-2">
               <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">Registered Nurse License</h5>
-                      <p><strong>Employment Type:</strong> Full-Time</p>
-                      <p><strong>Company:</strong> HealthCare Nepal</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Kathmandu, Nepal</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-experience" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                <div class="card ed-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h5 class="card-title mb-0">Registered Nurse License</h5>
+                      <div class="d-flex gap-2">
+                        <a href="#" class="edit-experience" title="Edit" style="padding: 4px;">
+                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-
-                    <div class="ms-auto">
-                      <p><strong>Start Date:</strong> 01/01/2020</p>
-                      <p><strong>End Date:</strong> 12/31/2025</p>
+                    <p><strong>Employment Type:</strong> Full-Time</p>
+                    <p><strong>Company:</strong> HealthCare Nepal</p>
+                    <p><i class="fa fa-map-marker-alt"></i> Kathmandu, Nepal</p>
+                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Start Date</p>
+                        <p class="mb-0"><strong>01/01/2020</strong></p>
+                      </div>
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">End Date</p>
+                        <p class="mb-0"><strong>12/31/2025</strong></p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">CPR Certification</h5>
-                      <p><strong>Employment Type:</strong> Part-Time</p>
-                      <p><strong>Company:</strong> Red Cross Nepal</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Lalitpur, Nepal</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-experience" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                <div class="card ed-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h5 class="card-title mb-0">CPR Certification</h5>
+                      <div class="d-flex gap-2">
+                        <a href="#" class="edit-experience" title="Edit" style="padding: 4px;">
+                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-
-                    <div class="ms-auto">
-                      <p><strong>Start Date:</strong> 03/15/2021</p>
-                      <p><strong>End Date:</strong> 03/15/2024</p>
+                    <p><strong>Employment Type:</strong> Part-Time</p>
+                    <p><strong>Company:</strong> Red Cross Nepal</p>
+                    <p><i class="fa fa-map-marker-alt"></i> Lalitpur, Nepal</p>
+                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Start Date</p>
+                        <p class="mb-0"><strong>03/15/2021</strong></p>
+                      </div>
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">End Date</p>
+                        <p class="mb-0"><strong>03/15/2024</strong></p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <a href="#" class="cstm-btn-style">
+            <div class="d-flex justify-content-end mt-4">
+              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-license').classList.add('d-none'); return false;">
               Continue
             </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1145,7 +1235,7 @@ input[type="checkbox"]:checked::after {
 <div id="popup-insurance" class="popup-overlay d-none">
   <div class="popup-content shadow-lg p-3 rounded-3">
     <div class="popup-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-4">Insurance</h5>
+      <h5>Insurance</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1160,65 +1250,75 @@ input[type="checkbox"]:checked::after {
               Add New
             </a>
 
-            <div class="row mt-4 mb-4">
+            <div class="row g-3 mt-2">
               <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">Everest Insurance Co.</h5>
-                      <p><strong>Policy Number:</strong> EVR-2023-001</p>
-                      <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 500,000 / NPR 2,000,000</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Bagmati, Kathmandu</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-insurance" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                <div class="card ed-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h5 class="card-title mb-0">Everest Insurance Co.</h5>
+                      <div class="d-flex gap-2">
+                        <a href="#" class="edit-insurance" title="Edit" style="padding: 4px;">
+                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-
-                    <div class="ms-auto">
-                      <p><strong>Effective Date:</strong> 01/01/2023</p>
-                      <p><strong>Expiration Date:</strong> 12/31/2025</p>
+                    <p><strong>Policy Number:</strong> EVR-2023-001</p>
+                    <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 500,000 / NPR 2,000,000</p>
+                    <p><i class="fa fa-map-marker-alt"></i> Bagmati, Kathmandu</p>
+                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>
+                        <p class="mb-0"><strong>01/01/2023</strong></p>
+                      </div>
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p>
+                        <p class="mb-0"><strong>12/31/2025</strong></p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div class="col-md-6">
-                <div class="card ed-card mb-2">
-                  <div class="card-body d-flex align-items-start">
-                    <div class="me-4">
-                      <h5 class="card-title">Himalayan General Insurance</h5>
-                      <p><strong>Policy Number:</strong> HGI-2022-045</p>
-                      <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 300,000 / NPR 1,000,000</p>
-                      <p><strong><i class="fa fa-map-marker-alt"></i></strong> Province 1, Biratnagar</p>
-
-                      <div class="mt-3">
-                        <a href="#" class="edit-insurance" title="Edit">
-                          <img src="/assets/icons/compose.png" class="icon-image" /> &nbsp; &nbsp;
+                <div class="card ed-card">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <h5 class="card-title mb-0">Himalayan General Insurance</h5>
+                      <div class="d-flex gap-2">
+                        <a href="#" class="edit-insurance" title="Edit" style="padding: 4px;">
+                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" />
+                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
+                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-
-                    <div class="ms-auto">
-                      <p><strong>Effective Date:</strong> 06/15/2022</p>
-                      <p><strong>Expiration Date:</strong> 06/14/2024</p>
+                    <p><strong>Policy Number:</strong> HGI-2022-045</p>
+                    <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 300,000 / NPR 1,000,000</p>
+                    <p><i class="fa fa-map-marker-alt"></i> Province 1, Biratnagar</p>
+                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>
+                        <p class="mb-0"><strong>06/15/2022</strong></p>
+                      </div>
+                      <div>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p>
+                        <p class="mb-0"><strong>06/14/2024</strong></p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <a href="#" class="cstm-btn-style">
+            <div class="d-flex justify-content-end mt-4">
+              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-insurance').classList.add('d-none'); return false;">
               Continue
             </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1540,7 +1640,9 @@ input[type="checkbox"]:checked::after {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    
+                    <div id="addEducationFormContainer">
+                        <!-- Form will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -1562,84 +1664,602 @@ input[type="checkbox"]:checked::after {
             </div>
         </div>
     </div>
+
+    <!-- Add License Modal -->
+    <div class="modal fade" id="licenseModal" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="licenseModalLabel">Add License & Certificate</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addLicenseForm" action="#" method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="license_name" class="form-label">License/Certificate Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="license_name" name="license[name]" required>
+                                <div class="invalid-feedback">Please provide license name.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="license_employmentType" class="form-label">Employment Type <span class="text-danger">*</span></label>
+                                <select class="form-control" id="license_employmentType" name="license[employmentType]" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Full-Time">Full-Time</option>
+                                    <option value="Part-Time">Part-Time</option>
+                                    <option value="Contract">Contract</option>
+                                </select>
+                                <div class="invalid-feedback">Please select employment type.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="license_company" class="form-label">Company <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="license_company" name="license[company]" required>
+                                <div class="invalid-feedback">Please provide company name.</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="license_location" class="form-label">Location <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="license_location" name="license[location]" placeholder="City, Country" required>
+                            <div class="invalid-feedback">Please provide location.</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="license_startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control js-datepicker" id="license_startDate" name="license[startDate]" required>
+                                <div class="invalid-feedback">Please provide start date.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="license_endDate" class="form-label">End Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control js-datepicker" id="license_endDate" name="license[endDate]" required>
+                                <div class="invalid-feedback">Please provide end date.</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Insurance Modal -->
+    <div class="modal fade" id="insuranceModal" tabindex="-1" aria-labelledby="insuranceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="insuranceModalLabel">Add Insurance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addInsuranceForm" action="#" method="POST" class="needs-validation" novalidate>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="insurance_company" class="form-label">Insurance Company <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="insurance_company" name="insurance[company]" required>
+                                <div class="invalid-feedback">Please provide insurance company name.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_policyNumber" class="form-label">Policy Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="insurance_policyNumber" name="insurance[policyNumber]" required>
+                                <div class="invalid-feedback">Please provide policy number.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_location" class="form-label">Location <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="insurance_location" name="insurance[location]" placeholder="State, City" required>
+                                <div class="invalid-feedback">Please provide location.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_perClaim" class="form-label">Amount Per Claim <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="insurance_perClaim" name="insurance[perClaim]" placeholder="NPR 500,000" required>
+                                <div class="invalid-feedback">Please provide per claim amount.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_aggregate" class="form-label">Aggregate Amount <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="insurance_aggregate" name="insurance[aggregate]" placeholder="NPR 2,000,000" required>
+                                <div class="invalid-feedback">Please provide aggregate amount.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_effectiveDate" class="form-label">Effective Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control js-datepicker" id="insurance_effectiveDate" name="insurance[effectiveDate]" required>
+                                <div class="invalid-feedback">Please provide effective date.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="insurance_expirationDate" class="form-label">Expiration Date <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control js-datepicker" id="insurance_expirationDate" name="insurance[expirationDate]" required>
+                                <div class="invalid-feedback">Please provide expiration date.</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
+    // Initialize flatpickr for existing date pickers
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('.js-datepicker').forEach(function(input) {
+                if (!input._flatpickr) {
+                    flatpickr(input, {
+                        dateFormat: "Y-m-d"
+                    });
+                }
+            });
+        } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
     $(".js-datepicker").flatpickr();
+        }
+    });
 </script>
 
 <script>
     let clickedButton = null;
-    $(document).ready(function () {
+    // Wait for both DOM and jQuery to be ready
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded');
+    } else {
+        jQuery(document).ready(function ($) {
         // Track which submit button was clicked
-        $('#educationModal button[type=submit]').on('click', function () {
+            const educationModal = $('#educationModal');
+            if (educationModal.length === 0) {
+                console.warn('Education modal not found');
+                return;
+            }
+            
+            educationModal.find('button[type=submit]').on('click', function () {
             clickedButton = $(this);
         });
 
-        $('#educationModal form').submit(function (e) {
-            var form = $(this)[0]; // Get the native form element
-            if (!form.checkValidity()) {
+        // Load education form when modal opens
+            educationModal.on('show.bs.modal', function () {
+            // Always reload the form to get fresh CSRF token
+            fetch('{{ path('app_provider_education_new') }}', {
+                headers: { 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Check if response contains a form
+                if (!html || html.trim().length === 0) {
+                    throw new Error('Empty response from server');
+                }
+                
+                console.log('Form HTML received:', html.substring(0, 200)); // Debug log
+                
+                // The form template already includes form_start and form_end, so it's a complete form
+                // We just need to extract it and add the modal footer
+                let formHtml = html.trim();
+                
+                // If the response is wrapped in a form tag, extract the inner content
+                if (formHtml.includes('<form')) {
+                    // Try to parse and extract form
+                    const parser = new DOMParser();
+                    // Wrap in a container for parsing
+                    const wrappedHtml = '<div>' + formHtml + '</div>';
+                    const doc = parser.parseFromString(wrappedHtml, 'text/html');
+                    const form = doc.querySelector('form');
+                    
+                    if (form) {
+                        // Get the form's inner HTML (fields) but keep the form tag
+                        const formInnerHTML = form.innerHTML;
+                        const formAction = form.getAttribute('action') || '{{ path('app_provider_education_new') }}';
+                        const formMethod = form.getAttribute('method') || 'POST';
+                        const formId = form.getAttribute('id') || 'addEducationForm';
+                        const formClass = form.getAttribute('class') || 'needs-validation';
+                        
+                        // Replace the submit button with modal footer
+                        formHtml = formInnerHTML.replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
+                        
+                        $('#addEducationFormContainer').html(`
+                            <form id="${formId}" action="${formAction}" method="${formMethod}" class="${formClass}" novalidate>
+                                ${formHtml}
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                            </form>
+                        `);
+                    } else {
+                        // If parsing failed, try regex extraction
+                        const formMatch = formHtml.match(/<form[^>]*>([\s\S]*?)<\/form>/i);
+                        if (formMatch) {
+                            const formInnerHTML = formMatch[1].replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
+                            const actionMatch = formHtml.match(/action=["']([^"']+)["']/i);
+                            const methodMatch = formHtml.match(/method=["']([^"']+)["']/i);
+                            const idMatch = formHtml.match(/id=["']([^"']+)["']/i);
+                            const classMatch = formHtml.match(/class=["']([^"']+)["']/i);
+                            
+                            $('#addEducationFormContainer').html(`
+                                <form id="${idMatch ? idMatch[1] : 'addEducationForm'}" 
+                                      action="${actionMatch ? actionMatch[1] : '{{ path('app_provider_education_new') }}'}" 
+                                      method="${methodMatch ? methodMatch[1] : 'POST'}" 
+                                      class="${classMatch ? classMatch[1] : 'needs-validation'}" 
+                                      novalidate>
+                                    ${formInnerHTML}
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            `);
+                        } else {
+                            // Use HTML as-is and wrap in form
+                            $('#addEducationFormContainer').html(`
+                                <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
+                                    ${formHtml}
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                </form>
+                            `);
+                        }
+                    }
+                } else {
+                    // No form tag found, wrap the content in a form
+                    $('#addEducationFormContainer').html(`
+                        <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
+                            ${formHtml}
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    `);
+                }
+                
+                // Re-initialize flatpickr for date fields after a small delay to ensure DOM is ready
+                setTimeout(function() {
+                    // Check if flatpickr is available
+                    if (typeof flatpickr !== 'undefined') {
+                        // Use native flatpickr API
+                        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+                            if (!input._flatpickr) { // Only initialize if not already initialized
+                                flatpickr(input, {
+                                    dateFormat: "Y-m-d"
+                                });
+                            }
+                        });
+                    } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
+                        // Fallback to jQuery plugin if available
+                        $('#addEducationFormContainer .js-datepicker').flatpickr();
+                    }
+                }, 100);
+            })
+            .catch(error => {
+                console.error('Error loading form:', error);
+                $('#addEducationFormContainer').html(`<div class="alert alert-danger">Error loading form: ${error.message}. Please refresh the page and try again.</div>`);
+            });
+        });
+
+        // Handle form submission with event delegation
+        $(document).on('submit', '#educationModal form', function (e) {
+                e.preventDefault();
+            var formElement = $(this)[0];
+            var form = $(this);
+            
+            // Validate dates
+            var startDateVal = $('#education_startDate').val();
+            var endDateVal = $('#education_endDate').val();
+            if (startDateVal && endDateVal) {
+                var startDate = new Date(startDateVal);
+                var endDate = new Date(endDateVal);
+                if (endDate < startDate) {
+                    showErrorAlert('Invalid Date', 'End date must be after start date.');
+                    formElement.classList.add('was-validated');
+                    return false;
+                }
+            }
+            
+            // Client-side validation
+            if (!formElement.checkValidity()) {
+                e.stopPropagation();
+                formElement.classList.add('was-validated');
+                return false;
+            }
+
+            // Show alert instead of submitting
+            showInfoAlert('Notice', 'Backend route implementation pending.');
+            return false;
+
+            // Show loading state
+            var submitBtn = form.find('button[type="submit"]');
+            var originalText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+
+            var formData = form.serialize();
+            
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    // Check if response is JSON (success) or HTML (form with errors)
+                    if (typeof response === 'object' && response.status === 'success') {
+                    $('#educationModal').modal('hide');
+                        location.reload();
+                    } else if (typeof response === 'string') {
+                        // Try to parse as JSON first
+                        try {
+                            var jsonResponse = JSON.parse(response);
+                        if (jsonResponse.status === 'success') {
+                            $('#educationModal').modal('hide');
+                            // Refresh education list instead of reloading page
+                            loadEducationList();
+                    } else {
+                                // Show form with errors
+                                $('#addEducationFormContainer').html(response);
+                                setTimeout(function() {
+                                    if (typeof flatpickr !== 'undefined') {
+                                        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+                                            if (!input._flatpickr) {
+                                                flatpickr(input, { dateFormat: "Y-m-d" });
+                                            }
+                                        });
+                                    }
+                                }, 100);
+                                submitBtn.prop('disabled', false).html(originalText);
+                            }
+                        } catch (e) {
+                            // If it's HTML, it might be a form with errors
+                            if (response.includes('<form') || response.includes('form')) {
+                                $('#addEducationFormContainer').html(response);
+                                setTimeout(function() {
+                                    if (typeof flatpickr !== 'undefined') {
+                                        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+                                            if (!input._flatpickr) {
+                                                flatpickr(input, { dateFormat: "Y-m-d" });
+                                            }
+                                        });
+                                    }
+                                }, 100);
+                                submitBtn.prop('disabled', false).html(originalText);
+                            } else {
+                                // Success - refresh education list
+                                $('#educationModal').modal('hide');
+                                loadEducationList();
+                            }
+                        }
+                    } else {
+                        // Success - refresh education list
+                        $('#educationModal').modal('hide');
+                        loadEducationList();
+                    }
+                },
+                error: function (xhr) {
+                    submitBtn.prop('disabled', false).html(originalText);
+                    
+                    if (xhr.status === 422 || xhr.status === 400) {
+                        // Try to extract error message from response
+                        try {
+                            var errorData = JSON.parse(xhr.responseText);
+                            showErrorAlert('Validation Error', errorData.message || "Validation error. Please check all required fields.");
+                        } catch (e) {
+                            // If response is HTML with form errors, display it
+                            if (xhr.responseText && (xhr.responseText.includes('<form') || xhr.responseText.includes('form'))) {
+                                $('#addEducationFormContainer').html(xhr.responseText);
+                                setTimeout(function() {
+                                    if (typeof flatpickr !== 'undefined') {
+                                        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+                                            if (!input._flatpickr) {
+                                                flatpickr(input, { dateFormat: "Y-m-d" });
+                                            }
+                                        });
+                                    }
+                                }, 100);
+                            } else {
+                                showErrorAlert('Validation Error', "Validation error. Please check all required fields and ensure end date is after start date.");
+                            }
+                        }
+                    } else {
+                        showErrorAlert('Save Error', "Error occurred while saving. Please try again.");
+                    }
+                }
+    });
+
+        // License form submission
+            const licenseModal = $('#licenseModal');
+            if (licenseModal.length > 0) {
+                licenseModal.find('form').on('submit', function (e) {
+            var formElement = $(this)[0];
+            if (!formElement.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();
-                form.classList.add('was-validated'); // Apply Bootstrap validation styles
+                formElement.classList.add('was-validated');
                 return false;
             }
 
             e.preventDefault();
-
-            var form = $(this);
-            $.ajax({
-                type: 'POST',
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function () {
-                    $('#educationModal').modal('hide');
-
-                    // If save_continue button was clicked and has redirect URL, redirect
-                    if (clickedButton && clickedButton.attr('name') === 'save_continue' && clickedButton.data('redirect-url')) {
-                        window.location.href = clickedButton.data('redirect-url');
-                    } else {
-                        location.reload(); // Normal Save just reloads the page
-                    }
-                },
-                error: function () {
-                    alert("Error occurred while saving.");
-                }
-            });
+            showInfoAlert('Notice', 'License form submission - backend route implementation pending.');
+                    licenseModal.modal('hide');
         });
-    });
+            }
 
-    document.querySelectorAll('.edit-education').forEach(button => {
-      button.addEventListener('click', function (event) {
+        // Insurance form submission
+            const insuranceModal = $('#insuranceModal');
+            if (insuranceModal.length > 0) {
+                insuranceModal.find('form').on('submit', function (e) {
+            var formElement = $(this)[0];
+            if (!formElement.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+                formElement.classList.add('was-validated');
+                return false;
+            }
+
+            e.preventDefault();
+            showInfoAlert('Notice', 'Insurance form submission - backend route implementation pending.');
+                    insuranceModal.modal('hide');
+        });
+            }
+    });
+    }
+
+    // Handle edit education buttons with event delegation
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).ready(function($) {
+    $(document).on('click', '.edit-education', function(event) {
         event.preventDefault();
         let educationId = this.dataset.id;
+      
+      if (!educationId) {
+        showErrorAlert('Error', 'Education ID not found. Please refresh the page.');
+        return;
+      }
 
         fetch(`/provider/application/education/${educationId}/edit`, {
           headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
           .then(response => response.json())
           .then(data => {
+          if (data.form) {
             document.getElementById('editEducationFormContainer').innerHTML = data.form;
 
             // Re-initialize flatpickr for dynamically added date fields
-            $(".js-datepicker").flatpickr();
+            setTimeout(function() {
+              if (typeof flatpickr !== 'undefined') {
+                document.querySelectorAll('#editEducationFormContainer .js-datepicker').forEach(function(input) {
+                  if (!input._flatpickr) {
+                    flatpickr(input, { dateFormat: "Y-m-d" });
+                  }
+                });
+              }
+            }, 100);
 
-            // ✅ Show the modal after content is loaded
+            // Show the modal after content is loaded
             const modal = new bootstrap.Modal(document.getElementById('editEducationModal'));
             modal.show();
-          })
-          .catch(error => console.error('Error loading form:', error));
+          } else {
+            showErrorAlert('Error', 'Error loading edit form. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error loading form:', error);
+          showErrorAlert('Error', 'Error loading edit form. Please try again.');
+        });
+    });
+
+    // Handle edit form submission to refresh list
+    $(document).on('submit', '#editEducationModal form', function(e) {
+      e.preventDefault();
+      var form = $(this);
+      var formData = form.serialize();
+      
+      $.ajax({
+        type: 'POST',
+        url: form.attr('action'),
+        data: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(response) {
+          try {
+            var jsonResponse = typeof response === 'string' ? JSON.parse(response) : response;
+            if (jsonResponse.status === 'success') {
+              $('#editEducationModal').modal('hide');
+              loadEducationList();
+            }
+          } catch(e) {
+            $('#editEducationModal').modal('hide');
+            loadEducationList();
+          }
+        },
+        error: function() {
+          showErrorAlert('Update Error', 'Error updating education. Please try again.');
+        }
       });
     });
+
+    // Handle delete education
+    $(document).on('click', '.delete-education', function(e) {
+      e.preventDefault();
+      if (!confirm('Are you sure? Do you want to remove this item?')) {
+        return;
+      }
+      
+      var educationId = $(this).data('id');
+      if (!educationId) return;
+      
+      fetch(`/provider/application/education/${educationId}/delete`, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          loadEducationList();
+        } else {
+          showErrorAlert('Delete Error', 'Error deleting education entry. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showErrorAlert('Delete Error', 'Error deleting education entry. Please try again.');
+      });
+    });
+        });
+    }
 </script>
 <script>
-document.getElementById('openAddEducationModal')?.addEventListener('click', function (e) {
+document.addEventListener('DOMContentLoaded', function() {
+  const openAddEducationModal = document.getElementById('openAddEducationModal');
+  if (openAddEducationModal) {
+    openAddEducationModal.addEventListener('click', function (e) {
   e.preventDefault();
   const modal = new bootstrap.Modal(document.getElementById('educationModal'));
   modal.show();
+});
+  }
+
+// License Modal
+  const openLicenseModal = document.getElementById('openLicenseModal');
+  if (openLicenseModal) {
+    openLicenseModal.addEventListener('click', function (e) {
+  e.preventDefault();
+  const modal = new bootstrap.Modal(document.getElementById('licenseModal'));
+  modal.show();
+});
+  }
+
+// Insurance Modal
+  const openInsuranceModal = document.getElementById('openInsuranceModal');
+  if (openInsuranceModal) {
+    openInsuranceModal.addEventListener('click', function (e) {
+  e.preventDefault();
+  const modal = new bootstrap.Modal(document.getElementById('insuranceModal'));
+  modal.show();
+    });
+  }
 });
 </script>
 
@@ -1678,40 +2298,77 @@ document.addEventListener('DOMContentLoaded', function () {
       return response.text();
     })
     .then(() => {
-      alert('Document has been successfully uploaded.');
+      showSuccessAlert('Upload Success', 'Document has been successfully uploaded.');
       const modalEl = document.getElementById('uploadModal');
       const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
       modal.hide();
       form.reset();
     })
     .catch(error => {
-      alert('Something went wrong: ' + error.message);
+      showErrorAlert('Upload Error', 'Something went wrong: ' + error.message);
     });
   });
 });
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const dropzone = document.querySelector('.upload-dropzone');
-  const input = document.getElementById('dropzoneInput');
+  // Make all dropzones clickable
+  document.querySelectorAll('.upload-dropzone').forEach(function(dropzone) {
+    const input = dropzone.querySelector('input[type="file"]') || document.getElementById('dropzoneInput');
 
-  // Make entire dropzone clickable
   if (dropzone && input) {
-    dropzone.addEventListener('click', function () {
+      // Remove any existing click handlers
+      dropzone.onclick = null;
+      
+      // Add click handler to open file picker
+      dropzone.addEventListener('click', function (e) {
+        // Don't trigger if clicking on the remove button or badge
+        if (e.target.closest('.file-badge') || e.target.closest('.file-remove-btn')) {
+          return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+        if (input) {
       input.click();
-    });
-  }
+        }
+      });
+      
+      // Also handle drag and drop
+      dropzone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.style.background = '#e8f4e8';
+      });
+      
+      dropzone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.style.background = '#F4F9F1';
+      });
+      
+      dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.style.background = '#F4F9F1';
+        
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          input.files = e.dataTransfer.files;
+          handleFileChange(input);
+        }
+      });
+    }
+  });
 });
 
 function handleFileChange(input) {
   const badge = document.getElementById('fileBadge');
   const nameText = document.getElementById('fileNameText');
 
-  if (input && input.files.length > 0) {
-    nameText.textContent = input.files[0].name;
-    badge.style.display = 'flex';
+  if (input && input.files && input.files.length > 0) {
+    if (nameText) nameText.textContent = input.files[0].name;
+    if (badge) badge.style.display = 'flex';
   } else {
-    badge.style.display = 'none';
+    if (badge) badge.style.display = 'none';
   }
 }
 
@@ -1719,23 +2376,40 @@ function clearFile() {
   const input = document.getElementById('dropzoneInput');
   const badge = document.getElementById('fileBadge');
 
-  if (input) input.value = '';
+  if (input) {
+    input.value = '';
+    // Trigger change event to update UI
+    const event = new Event('change', { bubbles: true });
+    input.dispatchEvent(event);
+  }
   if (badge) badge.style.display = 'none';
 }
 </script>
 <script>
-  document.getElementById('toggle-checkmarks').addEventListener('click', function () {
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleCheckmarks = document.getElementById('toggle-checkmarks');
+    if (toggleCheckmarks) {
+      toggleCheckmarks.addEventListener('click', function () {
     document.querySelectorAll('.upload-check').forEach(checkbox => {
       checkbox.classList.toggle('d-none');
     });
+      });
+    }
   });
 </script>
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
   const infoView = document.getElementById('infoView');
   const infoEdit = document.getElementById('infoEdit');
   const cancelBtn = document.getElementById('cancelBtn');
   const imageInput = document.getElementById('profileImageInput');
   const imagePreview = document.getElementById('editProfileImage');
+    const actionIcons = document.getElementById('actionIcons');
+
+    if (!infoView || !infoEdit) {
+      console.warn('Profile edit elements not found');
+      return;
+    }
 
   let originalData = {};
 
@@ -1744,13 +2418,27 @@ function clearFile() {
     originalData[el.name] = el.value;
   });
 
-  // Cancel button logic - maintain layout position
-  cancelBtn?.addEventListener('click', () => {
-    document.querySelectorAll('#infoEdit input, #infoEdit select, #infoEdit textarea').forEach(el => {
-      el.value = originalData[el.name] || '';
-    });
-    
-    // Restore view mode
+    // Edit toggle logic - maintain layout position without moving flexbox
+    function switchToEditMode(e) {
+      if (e) e.preventDefault();
+      if (!infoView || !infoEdit) return;
+      // Hide view, show edit in same position
+      const viewHeight = infoView.offsetHeight;
+      infoView.style.visibility = 'hidden';
+      infoView.style.opacity = '0';
+      infoView.style.height = viewHeight + 'px';
+      infoView.style.overflow = 'hidden';
+      
+      infoEdit.style.display = 'block';
+      infoEdit.style.visibility = 'visible';
+      infoEdit.style.opacity = '1';
+      infoEdit.style.height = 'auto';
+    }
+
+    // Function to switch back to view mode
+    function switchToViewMode() {
+      if (!infoView || !infoEdit) return;
+      // Hide edit, show view
     infoEdit.style.display = 'none';
     infoEdit.style.visibility = 'hidden';
     infoEdit.style.opacity = '0';
@@ -1761,7 +2449,9 @@ function clearFile() {
     infoView.style.height = 'auto';
     infoView.style.overflow = 'visible';
 
-    document.getElementById('actionIcons').innerHTML = `
+      // Restore edit button
+      if (actionIcons) {
+        actionIcons.innerHTML = `
       <a href="javascript:void(0);" id="editToggle" class="link-plain" title="Edit">
         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1770,40 +2460,117 @@ function clearFile() {
         </svg>
       </a>
     `;
-    document.getElementById('editToggle')?.addEventListener('click', switchToEditMode);
-  });
+      }
+    }
+
+    // Use event delegation on actionIcons container to handle clicks on editToggle
+    // This way we don't need to re-attach listeners when HTML is replaced
+    if (actionIcons) {
+      actionIcons.addEventListener('click', function(e) {
+        if (e.target.closest('#editToggle')) {
+          switchToEditMode(e);
+        }
+      });
+    }
+
+    // Cancel button logic - maintain layout position
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        document.querySelectorAll('#infoEdit input, #infoEdit select, #infoEdit textarea').forEach(el => {
+          el.value = originalData[el.name] || '';
+        });
+        
+        // Restore view mode
+        switchToViewMode();
+      });
+    }
 
   // Image preview logic
-  imageInput?.addEventListener('change', function () {
+    if (imageInput) {
+      imageInput.addEventListener('change', function () {
     const file = this.files[0];
     if (file && file.type.startsWith('image/')) {
+      // Validate file size (8MB max)
+      if (file.size > 8 * 1024 * 1024) {
+        showErrorAlert('File Size Error', 'Image size must be less than 8MB');
+        this.value = '';
+        return;
+      }
+      
+      // Validate file type
+      const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+      if (!validTypes.includes(file.type)) {
+        showErrorAlert('Invalid File Type', 'Please upload a valid image file (PNG, JPG, or JPEG)');
+        this.value = '';
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = function (e) {
+        // Update edit mode preview
+        if (imagePreview) {
         imagePreview.src = e.target.result;
+        }
+        // Also update view mode preview if visible
+        const viewModeImage = document.querySelector('#infoView .profile-icon-box img');
+        if (viewModeImage) {
+          viewModeImage.src = e.target.result;
+        }
       };
       reader.readAsDataURL(file);
+    } else if (file) {
+      showErrorAlert('No File Selected', 'Please select a valid image file');
+      this.value = '';
     }
   });
-
-  // Edit toggle logic - maintain layout position without moving flexbox
-  function switchToEditMode() {
-    // Hide view, show edit in same position
-    const viewHeight = infoView.offsetHeight;
-    infoView.style.visibility = 'hidden';
-    infoView.style.opacity = '0';
-    infoView.style.height = viewHeight + 'px';
-    infoView.style.overflow = 'hidden';
-    
-    infoEdit.style.display = 'block';
-    infoEdit.style.visibility = 'visible';
-    infoEdit.style.opacity = '1';
-    infoEdit.style.height = 'auto';
   }
 
-  document.getElementById('editToggle')?.addEventListener('click', switchToEditMode);
+  // Handle form submission
+  const profileForm = document.getElementById('profileForm');
+  if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+      // Validate form
+      if (!profileForm.checkValidity()) {
+        e.preventDefault();
+        profileForm.classList.add('was-validated');
+        return false;
+      }
+      
+      // Show loading state
+      const saveBtn = document.getElementById('saveBtn');
+      if (saveBtn) {
+        const originalBtnText = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span>Saving...</span>';
+      }
+      
+      // Let the form submit normally - it will redirect after save
+      // The page will reload and show updated data
+    });
+  }
+  });
 </script>
 <script>
+  // Function to load education list
+  function loadEducationList() {
+    const container = document.getElementById('educationListContainer');
+    if (!container) return;
+    
+    fetch('{{ path('app_provider_education_list') }}', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.text())
+    .then(html => {
+      container.innerHTML = html;
+    })
+    .catch(error => {
+      console.error('Error loading education list:', error);
+      container.innerHTML = '<div class="col-12"><p class="text-danger">Error loading education entries. Please refresh the page.</p></div>';
+    });
+  }
+
   // Open popup based on data-popup attribute
+  document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.open-popup').forEach(button => {
     button.addEventListener('click', function (e) {
       e.preventDefault();
@@ -1811,6 +2578,10 @@ function clearFile() {
       const popup = document.getElementById(`popup-${popupId}`);
       if (popup) {
         popup.classList.remove('d-none');
+        // Load education list when education popup opens
+        if (popupId === 'education') {
+          loadEducationList();
+        }
       }
     });
   });
@@ -1818,7 +2589,11 @@ function clearFile() {
   // Close popup for any .popup-close button
   document.querySelectorAll('.popup-close').forEach(closeBtn => {
     closeBtn.addEventListener('click', function () {
-      this.closest('.popup-overlay').classList.add('d-none');
+        const overlay = this.closest('.popup-overlay');
+        if (overlay) {
+          overlay.classList.add('d-none');
+        }
+      });
     });
   });
 </script>
@@ -1839,5 +2614,39 @@ function clearFile() {
     });
   });
 </script>
+
+<!-- JS Preview for Profile Picture -->
+<script>
+    const input = document.getElementById('profileImageInput');
+    const img = document.getElementById('editProfileImage');
+
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function handleFileChange(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    document.getElementById('fileBadge').style.display = 'inline-flex';
+    document.getElementById('fileNameText').textContent = file.name;
+}
+
+function clearFile() {
+    const input = document.getElementById('dropzoneInput');
+    input.value = '';
+    document.getElementById('fileBadge').style.display = 'none';
+}
+
+</script>
+
+
 
 {% endblock %}

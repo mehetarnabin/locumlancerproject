@@ -4,6 +4,164 @@
 
 {% block provider_body %}
 <style>
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match dashboard */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
+.app-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching dashboard */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        position: relative !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
 .job-header, .job-row {
     display: flex;
     align-items: center;
@@ -290,8 +448,45 @@
     text-align: center;
 }
 .col-rank {
-    min-width: 55px;
-    max-width: 55px;
+    min-width: 100px !important;
+    max-width: none !important;
+    width: 100px !important;
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* Prevent score duplication - ensure only one rank display is visible */
+.col-rank .rank-display {
+    display: inline-flex !important;
+}
+
+.col-rank .rank-display.hidden {
+    display: none !important;
+}
+
+.col-rank .rank-display::before,
+.col-rank .rank-display::after {
+    content: none !important;
+}
+
+/* Hide any duplicate rank displays */
+.col-rank > .rank-display:not(:first-of-type) {
+    display: none !important;
+}
+
+/* Ensure rank input wrapper is hidden by default, but can be shown when not hidden */
+.col-rank .rank-input-wrapper.hidden {
+    display: none !important;
+}
+
+.col-rank .rank-input-wrapper:not(.hidden) {
+    display: inline-flex !important;
+}
+
+/* Critical: When wrapper is visible, ensure the display that comes before it is hidden */
+/* Since display comes before wrapper, we need to hide display when wrapper is visible */
+.col-rank:has(.rank-input-wrapper:not(.hidden)) .rank-display:not(.hidden) {
+    display: none !important;
 }
 .application .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
@@ -532,49 +727,296 @@
 
 <div class="container-xl">
     <div class="job-section shadow-lg p-3 rounded-3">
-
-        <div class="application">
-            <div class="row g-2">
-                <div class="col">
-                    <div class="card is-card mb-3 is-applied active">
-                        <div class="card-body">
-                            <h6 class="card-title">Archived</h6>
-                            <p class="card-text">0</p>
-                        </div>
-                    </div>
+        <div class="d-flex justify-content-between align-items-center ml-15-px" style="margin-bottom:30px;">
+            <h6 class="app-card-title mb-0">Archived Jobs</h6>
+            <div class="col-dropdowns d-flex gap-2">
+              <!-- Menu Dropdown -->
+              <div class="menu-dropdown position-relative">
+                <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
+                <div class="dropdown-panel menu-panel custom-dropdown hidden">
+                  <a href="{{ path('app_provider_download_data', {'type': 'archived'}) }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> Export Report</a>
                 </div>
+              </div>
             </div>
         </div>
 
-        <div class="job-list-container bg-light p-3 rounded-3">
-            <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
-                <div class="d-flex align-items-center job-lists">
-                    <div class="d-flex align-items-center flex-grow-1" style="min-width: 1320px;">
-                        <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1" style="min-width: 1320px;">
-                            <div class="col-check" style="width: 30px; flex-shrink: 0;">
-                                <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
-                            </div>
-                            <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-start col-center sortable" data-sort="posted" style="width: 100px; flex-shrink: 0;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-expiry col-center sortable" data-sort="expires" style="width: 100px; flex-shrink: 0;">Expires on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-start col-center sortable" data-sort="salary" style="width: 80px; flex-shrink: 0;">Salary(Hourly)<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                            <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 70px; flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;"><span style="font-size: 16px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {% if archivedApplications is defined and archivedApplications|length > 0 %}
+            {% set applications = archivedApplications %}
+            {% set status = 'archived' %}
+            {% include 'provider/job/_application_list.html.twig' %}
+        {% else %}
+            <p class="mb-0 ml-15-px mt-3" style="font-size: 18px; color: #121C0C;">No archived jobs right now.</p>
+        {% endif %}                                                  
     </div>
 </div>
+{% endblock %}
 
-        <p class="mb-0 ml-15-px mt-3" style="font-size: 18px; color: #121C0C;">No archived jobs right now.</p>
-    </div>
-</div>
+{% block footer_scripts %}
+<script>
+// Force apply styles via JavaScript - COMPLETE OVERRIDE - Run multiple times to ensure it sticks
+function applySpacingStyles() {
+    // Reset and apply container-xl styles
+    const container = document.querySelector('.container-xl');
+    if (container) {
+        container.style.setProperty('position', 'relative', 'important');
+        container.style.setProperty('padding-left', '0', 'important');
+        container.style.setProperty('padding-right', '30px', 'important');
+        container.style.setProperty('margin-left', '0', 'important');
+        container.style.setProperty('margin-right', '0', 'important');
+        container.style.setProperty('transform', 'none', 'important');
+        container.style.setProperty('max-width', '100%', 'important');
+        container.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-content
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+        appContent.style.setProperty('position', 'relative', 'important');
+        appContent.style.setProperty('padding-left', '0', 'important');
+        appContent.style.setProperty('padding-right', '0', 'important');
+        appContent.style.setProperty('margin-left', '0', 'important');
+        appContent.style.setProperty('margin-right', '0', 'important');
+        appContent.style.setProperty('max-width', '100%', 'important');
+        appContent.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-wrapper
+    const appWrapper = document.querySelector('.app-wrapper');
+    if (appWrapper) {
+        appWrapper.style.setProperty('position', 'relative', 'important');
+        if (window.innerWidth >= 1200) {
+            appWrapper.style.setProperty('margin-left', '250px', 'important');
+            appWrapper.style.setProperty('transform', 'translateX(-150px)', 'important');
+            appWrapper.style.setProperty('width', 'calc(100% - 250px + 150px)', 'important');
+        } else {
+            appWrapper.style.setProperty('margin-left', '0', 'important');
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', '100%', 'important');
+        }
+        appWrapper.style.setProperty('margin-right', '0', 'important');
+        appWrapper.style.setProperty('padding-left', '0', 'important');
+        appWrapper.style.setProperty('padding-right', '0', 'important');
+    }
+}
+
+// Run immediately
+document.addEventListener('DOMContentLoaded', applySpacingStyles);
+
+// Run after a short delay to override any late-loading styles
+setTimeout(applySpacingStyles, 100);
+setTimeout(applySpacingStyles, 500);
+
+// Re-apply on window resize to override any responsive changes
+window.addEventListener('resize', function() {
+    setTimeout(applySpacingStyles, 50);
+});
+</script>
+
+<script>
+// Rank editing functionality for archived applications
+document.addEventListener('DOMContentLoaded', function () {
+    const rankDisplays = document.querySelectorAll('.rank-display');
+    const rankInputs = document.querySelectorAll('.rank-input');
+
+    function saveRank(input) {
+        let value = parseFloat(input.value);
+        const applicationId = input.dataset.applicationId;
+        const wrapper = input.closest('.rank-input-wrapper');
+        const display = wrapper ? wrapper.previousElementSibling : input.previousElementSibling;
+
+        if (isNaN(value)) {
+            showErrorAlert('Invalid Score', 'Score must be a number between 1 and 10.');
+            input.value = input.dataset.originalValue || '';
+            return;
+        }
+
+        // Clamp and round to nearest 0.5
+        if (value < 1) value = 1;
+        if (value > 10) value = 10;
+        value = Math.round(value * 2) / 2;
+
+        if (value === parseFloat(input.dataset.originalValue)) {
+            if (wrapper) {
+                wrapper.classList.add('hidden');
+            } else {
+                input.classList.add('hidden');
+            }
+            if (display) display.classList.remove('hidden');
+            return;
+        }
+
+        // AJAX request
+        fetch('{{ path("app_update_application_rank") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ applicationId, rank: value })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (display) {
+                    // Format the value to 1 decimal place
+                    const formattedValue = parseFloat(value).toFixed(1);
+                    display.textContent = formattedValue + '/10';
+                    display.classList.remove('hidden');
+                }
+                input.dataset.originalValue = value;
+                if (wrapper) {
+                    wrapper.classList.add('hidden');
+                } else {
+                    input.classList.add('hidden');
+                }
+                // Show toast
+                let msg = document.getElementById('rank-success-msg');
+                if (!msg) {
+                    msg = document.createElement('div');
+                    msg.id = 'rank-success-msg';
+                    msg.style.position = 'fixed';
+                    msg.style.top = '20px';
+                    msg.style.right = '20px';
+                    msg.style.backgroundColor = '#4CAF50';
+                    msg.style.color = 'white';
+                    msg.style.padding = '10px 15px';
+                    msg.style.borderRadius = '5px';
+                    msg.style.zIndex = '9999';
+                    document.body.appendChild(msg);
+                }
+                msg.textContent = 'Score updated successfully!';
+                msg.style.display = 'block';
+                if (msg.timeoutId) clearTimeout(msg.timeoutId);
+                msg.timeoutId = setTimeout(() => { msg.style.display = 'none'; }, 2000);
+            } else {
+                showErrorAlert('Update Failed', 'Failed to update score: ' + (data.message || 'Unknown error'));
+                input.value = input.dataset.originalValue || '';
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error:', err);
+            showErrorAlert('Server Error', 'Server error while updating score.');
+            input.value = input.dataset.originalValue || '';
+        });
+    }
+
+    // Initialize original values
+    rankInputs.forEach(input => input.dataset.originalValue = input.value || '');
+
+    // Click to edit
+    rankDisplays.forEach(display => {
+        display.addEventListener('click', function () {
+            // Hide this display first
+            this.classList.add('hidden');
+            
+            // Find and show the wrapper
+            const wrapper = this.nextElementSibling;
+            if (wrapper && wrapper.classList.contains('rank-input-wrapper')) {
+                wrapper.classList.remove('hidden');
+                const input = wrapper.querySelector('.rank-input');
+                if (input) {
+                    // Small delay to ensure CSS has applied
+                    setTimeout(() => {
+                        input.focus();
+                        input.select();
+                    }, 10);
+                }
+            }
+        });
+    });
+
+    // Tick button click handlers
+    document.querySelectorAll('.rank-save-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const applicationId = this.dataset.applicationId;
+            const wrapper = this.closest('.rank-input-wrapper');
+            const input = wrapper ? wrapper.querySelector('.rank-input') : null;
+            if (input && input.dataset.applicationId === applicationId) {
+                saveRank(input);
+            }
+        });
+    });
+
+    // Blur & key events
+    rankInputs.forEach(input => {
+        // Don't save on blur - only on tick button or Enter key
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveRank(input);
+            }
+            if (e.key === 'Escape') {
+                const wrapper = input.closest('.rank-input-wrapper');
+                const display = wrapper ? wrapper.previousElementSibling : input.previousElementSibling;
+                input.value = input.dataset.originalValue || '';
+                if (wrapper) {
+                    wrapper.classList.add('hidden');
+                } else {
+                    input.classList.add('hidden');
+                }
+                if (display) display.classList.remove('hidden');
+            }
+        });
+    });
+});
+
+  // Single-selection feature: prevent multiple checkboxes from being selected
+  document.addEventListener('DOMContentLoaded', function() {
+    // Delegated change listener to catch any checkbox state changes reliably
+    document.addEventListener('change', (e) => {
+      const target = e.target;
+      if (!target) return;
+      if (target.classList && (target.classList.contains('job-checkbox') || target.classList.contains('job-check'))) {
+        // Enforce single selection
+        if (target.checked) {
+          // Get all checkboxes (including split view ones)
+          const allCheckboxes = document.querySelectorAll('.job-checkbox, .job-check');
+          const otherChecked = Array.from(allCheckboxes).find(cb => cb !== target && cb.checked);
+          if (otherChecked) {
+            // Prevent this checkbox from being checked and show alert
+            target.checked = false;
+            showWarningAlert('Multiple Selection', 'You cannot select multiple values');
+            return;
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<script>
+// Menu dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const menuBtn = document.querySelector('.menu-dropdown-btn');
+    const menuPanel = document.querySelector('.menu-panel');
+
+    function toggleDropdown(panel, btn) {
+        const isOpen = !panel.classList.contains('hidden');
+        closeAllDropdowns();
+        if (!isOpen) panel.classList.remove('hidden');
+    }
+
+    function closeAllDropdowns() {
+        if (menuPanel) menuPanel.classList.add('hidden');
+    }
+
+    if (menuBtn && menuPanel) {
+        menuBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleDropdown(menuPanel, menuBtn);
+        });
+
+        document.addEventListener('click', e => {
+            if (!menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+                closeAllDropdowns();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

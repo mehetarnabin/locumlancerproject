@@ -69,7 +69,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $oauthId = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
     private ?string $profilePicture = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -144,13 +143,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getEmail(): ?string
     {
         return $this->email;
-    }
-
-    public function setEmail(string $email): static
-    {
-        $this->email = $email;
-
-        return $this;
     }
 
     public function getUserType(): ?string
@@ -362,4 +354,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->blocked = $blocked;
     }
+
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private ?string $address = null;
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+
+    
 }

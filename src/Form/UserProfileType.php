@@ -16,16 +16,37 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['required' => true])
-            ->add('gender', ChoiceType::class, ['required' => false, 'choices' => ['Male' => 'M', 'Female' => 'F', 'Other' => 'O']])
-            ->add('phone1')
-            ->add('phone2')
-//            ->add('dob', null, [
-//                'widget' => 'single_text',
-//            ])
+            ->add('name', TextType::class, [
+                'required' => true,
+            ])
+            ->add('gender', ChoiceType::class, [
+                'required' => false,
+                'choices' => [
+                    'Male' => 'M',
+                    'Female' => 'F',
+                    'Other' => 'O',
+                ],
+            ])
+            ->add('phone1', TextType::class, [
+                'required' => false,
+            ])
+            ->add('phone2', TextType::class, [
+                'required' => false,
+            ])
+            ->add('address', TextType::class, [
+                'required' => false,
+                'label' => 'Address',
+            ])
+
+            ->add('email', TextType::class, [
+                'required' => true,
+                'label' => 'Email',
+            ])
+            
+
             ->add('profilePictureFilename', FileType::class, [
                 'label' => 'Profile Picture',
-                'mapped' => false,
+                'mapped' => false, // handled manually in controller
                 'required' => false,
                 'constraints' => [
                     new File([
@@ -36,10 +57,12 @@ class UserProfileType extends AbstractType
                             'image/jpeg',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image file.',
-                    ])
+                    ]),
+                ],
+                'attr' => [
+                    'class' => 'form-control',
                 ],
             ]);
-        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -17,7 +17,6 @@ use App\Form\JobType;
 use App\Repository\ApplicationRepository;
 use App\Repository\EmployerRepository;
 use App\Repository\JobRepository;
-use App\Service\ProfileAnalyticsService;;
 use App\Service\JobIdGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -125,8 +124,7 @@ class JobController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         Registry $workflowRegistry,
-        WorkflowInterface $jobApplicationWorkflow,
-        ProfileAnalyticsService $analyticsService
+        WorkflowInterface $jobApplicationWorkflow
     ): Response
     {
         $currentEmployer = $this->getUser()->getEmployer();
@@ -160,9 +158,6 @@ class JobController extends AbstractController
         }
 
         $provider = $application->getProvider();
-
-        $analyticsService->recordProfileView($provider, $this->getUser());
-
 
         $user = $provider->getUser();
 
@@ -305,35 +300,5 @@ class JobController extends AbstractController
         }
 
         return $this->redirectToRoute('app_employer_job_applications', ['id' => $job->getId(), 'applicationId' => $application->getId()]);
-    }
-
-    #[Route('/application/{id}/download-resume', name: 'app_employer_application_download_resume', methods: ['GET'])]
-    public function downloadResume(
-        Application $application,
-        ProfileAnalyticsService $analyticsService,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response {
-        $currentEmployer = $this->getUser()->getEmployer();
-
-        // Check if employer has access to this application
-        if($application->getJob()->getEmployer() !== $currentEmployer) {
-            $this->addFlash('error', "You don't have access to this resume.");
-            return $this->redirectToRoute('app_employer_jobs');
-        }
-
-        $provider = $application->getProvider();
-        $user = $provider->getUser();
-        
-        // 🎯 COUNT BUTTON - Record resume download
-        $analyticsService->recordResumeDownload($provider, $this->getUser());
-        
-        $cvFilePath = $uploadDirectory.'/'. $user->getId().'/'.$provider->getCvFilename();
-        
-        if(!file_exists($cvFilePath)) {
-            $this->addFlash('error', 'CV file not found.');
-            return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId()]);
-        }
-        
-        return $this->file($cvFilePath);
     }
 }

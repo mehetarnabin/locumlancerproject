@@ -45,6 +45,31 @@ class EducationController extends AbstractController
         ]);
     }
 
+    #[Route('/list', name: 'app_provider_education_list', methods: ['GET'])]
+    public function list(EducationRepository $educationRepository, Request $request): Response
+    {
+        $educations = $educationRepository->findBy(['user' => $this->getUser()], ['startDate' => 'DESC']);
+        
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('provider/profile/_education_list.html.twig', [
+                'educations' => $educations
+            ]);
+        }
+        
+        return $this->json(['educations' => array_map(function($edu) {
+            return [
+                'id' => $edu->getId(),
+                'school' => $edu->getSchool(),
+                'degree' => $edu->getDegree(),
+                'country' => $edu->getCountry(),
+                'state' => $edu->getState(),
+                'city' => $edu->getCity(),
+                'startDate' => $edu->getStartDate()?->format('m/d/Y'),
+                'endDate' => $edu->getEndDate()?->format('m/d/Y'),
+            ];
+        }, $educations)]);
+    }
+
     #[Route('/new', name: 'app_provider_education_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -57,8 +82,26 @@ class EducationController extends AbstractController
             $entityManager->persist($education);
             $entityManager->flush();
 
+            if ($request->isXmlHttpRequest()) {
+                return $this->json(['status' => 'success']);
+            }
+
             $this->addFlash('success', 'Education & training added successfully');
             return $this->redirectToRoute('app_provider_education_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        // For AJAX requests, return just the form HTML
+        if ($request->isXmlHttpRequest()) {
+            if ($form->isSubmitted() && !$form->isValid()) {
+                // Return form with validation errors
+                return $this->render('provider/education/_form.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
+            // Return empty form for GET requests
+            return $this->render('provider/education/_form.html.twig', [
+                'form' => $form->createView(),
+            ]);
         }
 
         return $this->render('provider/education/new.html.twig', [
@@ -135,6 +178,10 @@ class EducationController extends AbstractController
     {
         $entityManager->remove($education);
         $entityManager->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->json(['status' => 'success']);
+        }
 
         $this->addFlash('success', 'Education & training deleted successfully');
         return $this->redirectToRoute('app_provider_education_index', [], Response::HTTP_SEE_OTHER);

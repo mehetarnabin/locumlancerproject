@@ -11,7 +11,6 @@ use App\Entity\License;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Service\OnboardingService;
-use App\Service\ProfileAnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\BookmarkRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -28,24 +27,11 @@ class DashboardController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         OnboardingService $onboardingService,
-        BookmarkRepository $bookmarkRepository,
-        ProfileAnalyticsService $analyticsService
+        BookmarkRepository $bookmarkRepository
     ): Response
     {
         $user = $this->getUser();
-        
-        // Debug: Check if user exists and has provider
-        if (!$user) {
-            throw new \Exception('User not found');
-        }
-        
         $provider = $user->getProvider();
-        
-        // Debug: Check if provider exists
-        if (!$provider) {
-            // You might want to redirect to profile setup or show a message
-            $this->addFlash('warning', 'Please complete your provider profile setup.');
-        }
 
         $isOnboardingCompleted = $onboardingService->isProviderOnboardingCompleted($user);
 
@@ -53,34 +39,23 @@ class DashboardController extends AbstractController
             return $this->render('provider/onboard.html.twig', []);
         }
 
-        // Get analytics data - this will handle null provider gracefully
-        $analytics = $analyticsService->getProfileAnalytics($user);
-
         $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
         $messages = $em->getRepository(Message::class)->findBy(['receiver' => $user], ['id' => 'DESC'], 10);
         $notifications = $em->getRepository(Notification::class)->findBy(['user' => $user], ['id' => 'DESC'], 5);
 
-        // Only get matching jobs if provider exists and has necessary data
-        $matchingJobs = null;
-        if ($provider) {
-            $filters['profession'] = $provider->getProfession()?->getId();
-            $filters['specialities'] = $provider->getSpecialities();
-            $filters['state'] = $provider->getDesiredStates() ? implode(',', $provider->getDesiredStates()) : null;
-            $filters['limit'] = 5;
+        $filters['profession'] = $provider->getProfession()?->getId();
+        $filters['specialities'] = $provider->getSpecialities();
+        $filters['state'] = $provider->getDesiredStates() ? implode(',', $provider->getDesiredStates()) : null;
+        $filters['limit'] = 5;
 
-            $matchingJobs = $em->getRepository(Job::class)->getProviderMatchingJobs($filters);
+        $matchingJobs = $em->getRepository(Job::class)->getProviderMatchingJobs($filters);
 
-            if(empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
-                $matchingJobs = null;
-            }
+        if(empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
+            $matchingJobs = null;
         }
 
         $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
-        
-        $statusCounts = [];
-        if ($provider) {
-            $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
-        }
+        $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
         $statusCounts[] = [
             'status' => 'saved',
             'count' => count($bookmarks),
@@ -90,9 +65,6 @@ class DashboardController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
-        $analytics = $analyticsService->getProfileAnalytics($user);
-
-
         return $this->render('provider/dashboard.html.twig', [
             'bookmarks' => $bookmarks,
             'matchingJobs' => $matchingJobs,
@@ -101,8 +73,6 @@ class DashboardController extends AbstractController
             'messages' => $messages,
             'notifications' => $notifications,
             'totalApplications' => $totalApplications,
-            'analytics' => $analytics,
-            'hasProvider' => $provider !== null, // Pass this to template for conditional rendering
         ]);
     }
 

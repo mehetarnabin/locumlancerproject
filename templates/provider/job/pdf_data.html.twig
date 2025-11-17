@@ -146,65 +146,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>Provider Data Report{% if type == 'saved' %} - Saved Jobs{% elseif type == 'applications' %}{% if statusFilter %} - {{ statusFilter|title }} Jobs{% else %} - Applications{% endif %}{% elseif type == 'matching' %} - Matching Jobs{% endif %}</h1>
+        <h1>Provider Data Report{% if type == 'saved' %} - Saved Jobs{% elseif type == 'applications' %}{% if statusFilter %} - {{ statusFilter|title }} Jobs{% else %} - Applications{% endif %}{% elseif type == 'matching' %} - Matching Jobs{% elseif type == 'archived' %} - Archived Jobs{% endif %}</h1>
         <p>Generated on {{ "now"|date("F d, Y") }}</p>
     </div>
     
-    <!-- Profile Section -->
-    <div class="section">
-        <div class="section-title">Profile Information</div>
-        <div class="profile-grid">
-            <div class="profile-row">
-                <div class="profile-label">Name</div>
-                <div class="profile-value">{{ provider.name ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Email</div>
-                <div class="profile-value">{{ user.email ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Title</div>
-                <div class="profile-value">{{ provider.title ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">NPI Number</div>
-                <div class="profile-value">{{ provider.npiNumber ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Phone (Mobile)</div>
-                <div class="profile-value">{{ provider.phoneMobile ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Phone (Home)</div>
-                <div class="profile-value">{{ provider.phoneHome ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Phone (Work)</div>
-                <div class="profile-value">{{ provider.phoneWork ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Address</div>
-                <div class="profile-value">
-                    {{ provider.streetAddress ?? '' }}
-                    {% if provider.city %} {{ provider.city }}{% endif %}
-                    {% if provider.state %}, {{ provider.state }}{% endif %}
-                    {% if provider.zipCode %} {{ provider.zipCode }}{% endif %}
-                    {% if provider.country %} {{ provider.country }}{% endif %}
-                    {% if not provider.streetAddress and not provider.city %}-{% endif %}
-                </div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Desired Pay Rate (Hourly)</div>
-                <div class="profile-value">{{ provider.payRateHourly ?? 'N/A' }}</div>
-            </div>
-            <div class="profile-row">
-                <div class="profile-label">Desired Pay Rate (Daily)</div>
-                <div class="profile-value">{{ provider.payRateDaily ?? 'N/A' }}</div>
-            </div>
-        </div>
-    </div>
-    
-    {% if type == 'saved' or type == 'all' %}
+    {% if type == 'saved' %}
     <!-- Saved Jobs Section -->
     <div class="section">
         <div class="section-title">Saved Jobs ({{ bookmarks|length }})</div>
@@ -225,7 +171,7 @@
                 <tr>
                     <td>{{ job.title ?? 'N/A' }}</td>
                     <td>{{ job.state ?? 'N/A' }}</td>
-                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
                     <td>{{ job.startDate ? job.startDate|date('m/d/Y') : 'N/A' }}</td>
                     <td>{{ bookmark.rank ?? '—' }}/10</td>
                 </tr>
@@ -238,7 +184,7 @@
     </div>
     {% endif %}
     
-    {% if type == 'applications' or type == 'all' %}
+    {% if type == 'applications' %}
     {% if not statusFilter or statusFilter == 'applied' %}
     <!-- Applied Jobs Section -->
     <div class="section">
@@ -260,7 +206,7 @@
                 <tr>
                     <td>{{ job.title ?? 'N/A' }}</td>
                     <td>{{ job.state ?? 'N/A' }}</td>
-                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
                     <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
                     <td><span class="badge badge-applied">{{ application.status|title }}</span></td>
                 </tr>
@@ -294,7 +240,7 @@
                 <tr>
                     <td>{{ job.title ?? 'N/A' }}</td>
                     <td>{{ job.state ?? 'N/A' }}</td>
-                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
                     <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
                     <td><span class="badge badge-interview">{{ application.status|title }}</span></td>
                 </tr>
@@ -328,7 +274,7 @@
                 <tr>
                     <td>{{ job.title ?? 'N/A' }}</td>
                     <td>{{ job.state ?? 'N/A' }}</td>
-                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
                     <td>{{ application.createdAt ? application.createdAt|date('m/d/Y') : 'N/A' }}</td>
                     <td><span class="badge badge-completed">{{ application.status|title }}</span></td>
                 </tr>
@@ -340,6 +286,40 @@
         {% endif %}
     </div>
     {% endif %}
+    {% endif %}
+    
+    {% if type == 'archived' %}
+    <!-- Archived Jobs Section -->
+    <div class="section">
+        <div class="section-title">Archived Jobs ({{ archivedApplications|length }})</div>
+        {% if archivedApplications|length > 0 %}
+        <table class="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Location</th>
+                    <th>Salary/Hour</th>
+                    <th>Archived Date</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in archivedApplications %}
+                {% set job = application.job %}
+                <tr>
+                    <td>{{ job.title ?? 'N/A' }}</td>
+                    <td>{{ job.state ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
+                    <td>{{ application.archivedAt ? application.archivedAt|date('m/d/Y') : 'N/A' }}</td>
+                    <td>{{ application.rank ?? '—' }}/10</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">No archived jobs found.</div>
+        {% endif %}
+    </div>
     {% endif %}
     
     {% if type == 'matching' %}
@@ -355,7 +335,6 @@
                     <th>Salary</th>
                     <th>Posted Date</th>
                     <th>Expires Date</th>
-                    <th>Match %</th>
                 </tr>
             </thead>
             <tbody>
@@ -363,10 +342,9 @@
                 <tr>
                     <td>{{ job.title ?? 'N/A' }}</td>
                     <td>{{ job.state ?? 'N/A' }}</td>
-                    <td>{{ job.payRateHourly ?? 'N/A' }}</td>
+                    <td>{{ job.formattedHourlyRate ?? 'N/A' }}</td>
                     <td>{{ job.startDate ? job.startDate|date('m/d/Y') : 'N/A' }}</td>
                     <td>{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : 'N/A' }}</td>
-                    <td>50%</td>
                 </tr>
                 {% endfor %}
             </tbody>

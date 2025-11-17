@@ -19,62 +19,36 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/provider')]
 class MessageController extends AbstractController
 {
-    
     #[Route('/messages', name: 'app_provider_messages')]
     public function index(Request $request, EntityManagerInterface $em)
     {
         $user = $this->getUser();
         $type = $request->query->get('type', 'inbox');
-        $offset = $request->query->get('page', 1);
-        $perPage = $request->get('per_page', 10);
-        $filters = [];
+        $page = $request->query->get('page', 1);
+        $perPage = $request->query->get('per_page', 10);
         $filters['keyword'] = $request->query->get('keyword');
         
         if($type == 'inbox') {
             $filters = [
-                'receiver' => $user->getId()
+                'receiver' => $user->getId(),
+                'type' => 'inbox'
             ];
         }
         if($type == 'sent') {
             $filters = [
-                'sender' => $user->getId()
-            ];
-        }
-        // Handle drafts
-        if($type == 'drafts') {
-            $filters = [
                 'sender' => $user->getId(),
-                'drafts_only' => true
-            ];
-        }
-        // Handle trash
-        if($type == 'trash') {
-            $filters = [
-                'deleted' => true,
-                'user' => $user->getId()
+                'type' => 'sent'
             ];
         }
 
-        $messages = $em->getRepository(Message::class)->getAll($offset, $perPage, $filters);
-
-        // Get draft count for badge
-        $draftCount = $em->getRepository(Message::class)->getDraftCount($user);
-        
-        // ADD THIS: Get trash count for badge
-        $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
-
-        // Get employers for compose modal
-        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+        $messages = $em->getRepository(Message::class)->getAll($page, $perPage, $filters);
 
         return $this->render('provider/message/index.html.twig', [
             'messages' => $messages,
-            'draft_count' => $draftCount,
-            'trash_count' => $trashCount, // ADD THIS LINE
             'current_type' => $type,
-            'employers' => $employers,
         ]);
     }
-    
+
     #[Route('/messages/new', name: 'app_provider_messages_new')]
     public function new(
         Request $request,
@@ -87,75 +61,85 @@ class MessageController extends AbstractController
         $user = $this->getUser();
 
         if($request->isMethod('POST')) {
-            $receiverId = $request->get('receiver');
-            $text = $request->get('message');
-            $saveAsDraft = $request->get('save_as_draft', false);
-            $draftId = $request->get('draft_id');
+            $receiverId = $request->request->get('receiver');
+            $text = $request->request->get('message');
 
-            // For drafts, only text is required
-            if(!$saveAsDraft && (empty($receiverId) || empty(trim($text)))) {
+            // Remove debug logging from production code
+            // error_log('Receiver ID: ' . $request->request->get('receiver'));
+            // error_log('Message: ' . $request->request->get('message'));
+            // error_log('Files: ' . print_r($request->files->all(), true));
+
+            if(empty($receiverId) || empty(trim($text))) {
                 $this->addFlash('error', 'Receiver and message are required');
-                return $this->redirectToRoute('app_provider_messages');
+                return $this->redirectToRoute('app_provider_messages_new');
             }
 
-            // For saving as draft, find existing or create new
-            if ($draftId) {
-                $message = $em->getRepository(Message::class)->findDraft($draftId, $user);
-                if (!$message) {
-                    $this->addFlash('error', 'Draft not found');
-                    return $this->redirectToRoute('app_provider_messages');
-                }
-            } else {
-                $message = new Message();
+            $message = new Message();
+            $employerUser = $em->getRepository(User::class)->find($receiverId);
+            
+            if (!$employerUser) {
+                $this->addFlash('error', 'Invalid receiver selected');
+                return $this->redirectToRoute('app_provider_messages_new');
             }
+            
+            $employer = $employerUser->getEmployer();
 
-            if ($receiverId) {
-                $employerUser = $em->getRepository(User::class)->find($receiverId);
-                if ($employerUser) {
-                    $employer = $employerUser->getEmployer();
-                    $message->setEmployer($employer);
-                    $message->setReceiver($employerUser);
-                }
-            }
-
+            $message->setEmployer($employer);
+            $message->setReceiver($employerUser);
             $message->setSender($user);
             $message->setText($text);
+            $message->markAsSent(); // Mark as sent message
 
-            // Handle draft vs send
-            if ($saveAsDraft) {
-                $message->setIsDraft(true);
-                $successMessage = 'Message saved as draft successfully';
-                $redirectParams = ['type' => 'drafts'];
-            } else {
-                $message->setIsDraft(false);
-                $successMessage = 'Message has been sent successfully';
-                $redirectParams = [];
-                
-                // Only dispatch event for actual sent messages
-                $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
-            }
-
-            // Handle file upload
             if($request->files->get('attachment')) {
                 $file = $request->files->get('attachment');
+
+                // Validate file
+                $allowedMimeTypes = [
+                    'image/jpeg', 
+                    'image/png', 
+                    'image/gif', 
+                    'application/pdf', 
+                    'application/msword', 
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
+                $maxFileSize = 5 * 1024 * 1024; // 5MB
+                
+                if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+                    $this->addFlash('error', 'Invalid file type. Allowed: images, PDF, Word documents');
+                    return $this->redirectToRoute('app_provider_messages_new');
+                }
+                
+                if ($file->getSize() > $maxFileSize) {
+                    $this->addFlash('error', 'File too large. Maximum size: 5MB');
+                    return $this->redirectToRoute('app_provider_messages_new');
+                }
 
                 $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
 
+                // Create user directory if it doesn't exist
+                $userUploadDir = $uploadDirectory . '/' . $user->getId();
+                if (!is_dir($userUploadDir)) {
+                    mkdir($userUploadDir, 0755, true);
+                }
+
                 try {
-                    $file->move($uploadDirectory. '/' . $user->getId(), $newFilename);
+                    $file->move($userUploadDir, $newFilename);
                     $message->setAttachment($newFilename);
                 } catch (FileException $e) {
-                    $this->addFlash('warning', 'Message saved but file upload failed');
+                    $this->addFlash('error', 'Failed to upload file');
+                    // Continue without attachment rather than failing completely
                 }
             }
 
             $em->persist($message);
             $em->flush();
 
-            $this->addFlash('success', $successMessage);
-            return $this->redirectToRoute('app_provider_messages', $redirectParams);
+            $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
+
+            $this->addFlash('success', 'Message has been sent successfully');
+            return $this->redirectToRoute('app_provider_messages', ['type' => 'sent']);
         }
 
         $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
@@ -165,177 +149,25 @@ class MessageController extends AbstractController
         ]);
     }
 
-    // NEW: Save draft via AJAX (for auto-saving)
-    #[Route('/messages/draft/save', name: 'app_provider_draft_save', methods: ['POST'])]
-    public function saveDraft(
-        Request $request,
-        EntityManagerInterface $em,
-        SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): JsonResponse {
-        $user = $this->getUser();
-        
-        $data = json_decode($request->getContent(), true);
-        $draftId = $data['id'] ?? null;
-        $receiverId = $data['receiver_id'] ?? null;
-        $messageText = $data['message'] ?? '';
-
-        // If no content, don't save
-        if (empty(trim($messageText))) {
-            return new JsonResponse(['success' => true, 'empty' => true]);
-        }
-
-        // Find existing draft or create new one
-        if ($draftId) {
-            $message = $em->getRepository(Message::class)->findDraft($draftId, $user);
-            if (!$message) {
-                return new JsonResponse(['error' => 'Draft not found'], 404);
-            }
-        } else {
-            $message = new Message();
-            $message->setSender($user);
-            $message->setIsDraft(true);
-        }
-
-        // Set receiver if provided
-        if ($receiverId) {
-            $receiver = $em->getRepository(User::class)->find($receiverId);
-            if ($receiver) {
-                $message->setReceiver($receiver);
-                $message->setEmployer($receiver->getEmployer());
-            }
-        }
-
-        $message->setText($messageText);
-        $message->setSavedAt(new \DateTime());
-
-        $em->persist($message);
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'draft' => [
-                'id' => $message->getId(),
-                'receiver_id' => $message->getReceiver() ? $message->getReceiver()->getId() : null,
-                'message' => $message->getText(),
-                'savedAt' => $message->getSavedAt()->format('Y-m-d H:i:s'),
-            ]
-        ]);
-    }
-
-    // NEW: Load draft via AJAX
-    #[Route('/messages/draft/{id}', name: 'app_provider_draft_load', methods: ['GET'])]
-    public function loadDraft(Message $message, EntityManagerInterface $em): JsonResponse
-    {
-        $user = $this->getUser();
-        
-        // Security check - user can only load their own drafts
-        if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        return new JsonResponse([
-            'success' => true,
-            'draft' => [
-                'id' => $message->getId(),
-                'receiver_id' => $message->getReceiver() ? $message->getReceiver()->getId() : null,
-                'message' => $message->getText(),
-                'attachment' => $message->getAttachment(),
-                'savedAt' => $message->getSavedAt()->format('Y-m-d H:i:s'),
-            ]
-        ]);
-    }
-
-    // NEW: Send draft (convert draft to actual message)
-    #[Route('/messages/draft/{id}/send', name: 'app_provider_draft_send', methods: ['POST'])]
-    public function sendDraft(
-        Message $message,
-        Request $request,
-        EntityManagerInterface $em,
-        EventDispatcherInterface $dispatcher,
-        SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): JsonResponse {
-        $user = $this->getUser();
-        
-        // Security check
-        if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        // Check if draft can be sent
-        if (!$message->canBeSent()) {
-            return new JsonResponse(['error' => 'Cannot send draft: receiver and message are required'], 400);
-        }
-
-        // Handle file upload if provided in the request
-        if ($request->files->get('attachment')) {
-            $file = $request->files->get('attachment');
-            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
-
-            try {
-                $file->move($uploadDirectory. '/' . $user->getId(), $newFilename);
-                $message->setAttachment($newFilename);
-            } catch (FileException $e) {
-                // Continue without attachment if upload fails
-            }
-        }
-
-        // Convert draft to actual message
-        $message->send();
-
-        $em->persist($message);
-        $em->flush();
-
-        // Dispatch message event
-        $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Draft sent successfully',
-            'message_id' => $message->getId()
-        ]);
-    }
-
-    // NEW: Delete draft
-    #[Route('/messages/draft/{id}', name: 'app_provider_draft_delete', methods: ['DELETE'])]
-    public function deleteDraft(Message $message, EntityManagerInterface $em): JsonResponse
-    {
-        $user = $this->getUser();
-        
-        // Security check
-        if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        $em->remove($message);
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true, 
-            'message' => 'Draft deleted successfully'
-        ]);
-    }
-
-    // NEW: Get draft count for badge
-    #[Route('/messages/drafts/count', name: 'app_provider_drafts_count', methods: ['GET'])]
-    public function getDraftCount(EntityManagerInterface $em): JsonResponse
-    {
-        $user = $this->getUser();
-        $count = $em->getRepository(Message::class)->getDraftCount($user);
-
-        return new JsonResponse(['count' => $count]);
-    }
-
-    // Your existing methods...
     #[Route('/{id}/show', name: 'app_provider_message_show', methods: ['GET'])]
     public function show(Message $message, EntityManagerInterface $em)
     {
+        $user = $this->getUser();
+        
+        // Authorization check
+        if ($message->getSender() !== $user && $message->getReceiver() !== $user) {
+            throw $this->createAccessDeniedException('You cannot view this message');
+        }
+
+        // Mark as read if user is receiver
+        if ($message->getReceiver() === $user && !$message->isSeen()) {
+            $message->setSeen(true);
+            $em->flush();
+        }
+
         return $this->render('provider/message/show.html.twig', [
             'message' => $message,
-            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $message]),
+            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $message], ['createdAt' => 'ASC']),
         ]);
     }
 
@@ -350,19 +182,55 @@ class MessageController extends AbstractController
     ): JsonResponse {
         $user = $this->getUser();
 
+        // Authorization check
+        if ($message->getSender() !== $user && $message->getReceiver() !== $user) {
+            return new JsonResponse(['error' => 'Access denied.'], 403);
+        }
+
+        $replyText = $request->request->get('message');
+        if (empty(trim($replyText))) {
+            return new JsonResponse(['error' => 'Message cannot be empty.'], 400);
+        }
+
         $reply = new Message();
         $reply->setParent($message);
         $reply->setEmployer($message->getEmployer());
         $reply->setSender($user);
-        $reply->setReceiver($message->getSender());
-        $reply->setText($request->request->get('message'));
+        $reply->setReceiver($message->getSender() === $user ? $message->getReceiver() : $message->getSender());
+        $reply->setText($replyText);
+        $reply->markAsSent(); // Mark reply as sent
 
         if ($file = $request->files->get('attachment')) {
+            // Validate file for reply
+            $allowedMimeTypes = [
+                'image/jpeg', 
+                'image/png', 
+                'image/gif', 
+                'application/pdf', 
+                'application/msword', 
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            $maxFileSize = 5 * 1024 * 1024;
+
+            if (!in_array($file->getMimeType(), $allowedMimeTypes)) {
+                return new JsonResponse(['error' => 'Invalid file type. Allowed: images, PDF, Word documents'], 400);
+            }
+
+            if ($file->getSize() > $maxFileSize) {
+                return new JsonResponse(['error' => 'File too large. Maximum size: 5MB'], 400);
+            }
+
             $safeFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
             $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
+            // Create user directory if it doesn't exist
+            $userUploadDir = $uploadDirectory . '/' . $user->getId();
+            if (!is_dir($userUploadDir)) {
+                mkdir($userUploadDir, 0755, true);
+            }
+
             try {
-                $file->move($uploadDirectory . '/' . $user->getId(), $newFilename);
+                $file->move($userUploadDir, $newFilename);
                 $reply->setAttachment($newFilename);
             } catch (FileException $e) {
                 return new JsonResponse(['error' => 'File upload failed.'], 500);
@@ -376,98 +244,89 @@ class MessageController extends AbstractController
 
         return new JsonResponse([
             'success' => true,
+            'replyId' => $reply->getId(),
             'replyHtml' => $this->renderView('provider/message/_reply_item.html.twig', ['reply' => $reply])
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_provider_message_delete', methods: ['GET'])]
-    public function delete(Message $message, EntityManagerInterface $entityManager)
-    {
-        // Instead of removing, move to trash
-        $message->setDeleted(true);
-        $message->setDeletedAt(new \DateTime());
-        
-        $entityManager->persist($message);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Message has been moved to trash');
-        return $this->redirectToRoute('app_provider_messages');
-    }
-
-    // NEW: Get trash count for badge
-    #[Route('/messages/trash/count', name: 'app_provider_trash_count', methods: ['GET'])]
-    public function getTrashCount(EntityManagerInterface $em): JsonResponse
-    {
-        $user = $this->getUser();
-        $count = $em->getRepository(Message::class)->getTrashCount($user);
-
-        return new JsonResponse(['count' => $count]);
-    }
-
-    // NEW: Restore message from trash
-    #[Route('/messages/restore/{id}', name: 'app_provider_message_restore', methods: ['POST'])]
-    public function restoreMessage(Message $message, EntityManagerInterface $em): JsonResponse
+    #[Route('/{id}/delete', name: 'app_provider_message_delete', methods: ['POST'])]
+    public function delete(Message $message, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $this->getUser();
         
-        // Security check - user can only restore their own messages
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+        // Authorization check
+        if ($message->getSender() !== $user && $message->getReceiver() !== $user) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'You can only delete your own messages'
+            ], 403);
         }
 
-        $message->setDeleted(false);
-        $message->setDeletedAt(null);
-        
-        $em->persist($message);
-        $em->flush();
+        // CSRF protection
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete'.$message->getId(), $submittedToken)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Invalid security token'
+            ], 400);
+        }
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Message restored successfully'
-        ]);
+        try {
+            $messageId = $message->getId();
+            $entityManager->remove($message);
+            $entityManager->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Message deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Failed to delete message'
+            ], 500);
+        }
     }
 
-    // NEW: Permanently delete message
-    #[Route('/messages/permanent-delete/{id}', name: 'app_provider_message_permanent_delete', methods: ['DELETE'])]
-    public function permanentDelete(Message $message, EntityManagerInterface $em): JsonResponse
+    #[Route('/{id}/mark-read', name: 'app_provider_message_mark_read', methods: ['POST'])]
+    public function markAsRead(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
         
-        // Security check - user can only delete their own messages
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+        if ($message->getReceiver() === $user && !$message->isSeen()) {
+            $message->setSeen(true);
+            $em->flush();
         }
-
-        $em->remove($message);
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Message permanently deleted'
-        ]);
+        
+        return new JsonResponse(['success' => true]);
     }
 
-    // NEW: Empty trash
-    #[Route('/messages/empty-trash', name: 'app_provider_empty_trash', methods: ['DELETE'])]
-    public function emptyTrash(EntityManagerInterface $em): JsonResponse
+    #[Route('/{id}/download', name: 'app_provider_message_download', methods: ['GET'])]
+    public function downloadAttachment(Message $message, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         
-        $messages = $em->getRepository(Message::class)->findBy([
-            'deleted' => true,
-            'user' => $user->getId()
-        ]);
-
-        foreach ($messages as $message) {
-            $em->remove($message);
+        // Check if user has permission to download this attachment
+        if ($message->getSender() !== $user && $message->getReceiver() !== $user) {
+            throw $this->createAccessDeniedException('You cannot download this attachment');
         }
         
-        $em->flush();
-
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Trash emptied successfully',
-            'deleted_count' => count($messages)
-        ]);
+        if (!$message->getAttachment()) {
+            throw $this->createNotFoundException('Attachment not found');
+        }
+        
+        $uploadDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads';
+        $filePath = $uploadDirectory . '/' . $message->getSender()->getId() . '/' . $message->getAttachment();
+        
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('File not found');
+        }
+        
+        $response = new Response(file_get_contents($filePath));
+        $response->headers->set('Content-Type', mime_content_type($filePath) ?: 'application/octet-stream');
+        $response->headers->set('Content-Disposition', 
+            'attachment; filename="' . $message->getAttachment() . '"');
+        
+        return $response;
     }
 }

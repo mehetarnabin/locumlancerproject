@@ -3,17 +3,205 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match image */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching image */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+.dashboard .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove left padding from application status tracker to match image */
+.container-xl .application {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Adjust column widths to better fill space - match reference image */
+.container-xl .row.g-2 > .col-12.col-lg-7 {
+    flex: 0 0 58.333333% !important;
+    max-width: 58.333333% !important;
+}
+
+.container-xl .row.g-2 > .col-12.col-lg-5 {
+    flex: 0 0 41.666667% !important;
+    max-width: 41.666667% !important;
+}
+
+/* Ensure rows fill the container width */
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Remove left padding from first column only - keep gaps between columns */
+.container-xl .row > [class*="col-"]:first-child {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Adjust gap between columns */
+.container-xl .row.g-2 {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        position: relative !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 </style>
 {#<style>
@@ -356,110 +544,63 @@
                 </div>
 
                 <!-- Custom Dropdown -->
-        <div class="dropdown-lite mb-3">
-            <button class="dl-toggle" type="button" id="analyticsDropdown">
-                <span class="dl-label">Application to Interview Ratio</span>
-                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L11.7874 14.7874V14.7874C11.9048 14.9048 12.0952 14.9048 12.2126 14.7874V14.7874L18 9" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            <div class="dl-menu d-none">
-                <button class="dl-item" data-chart="ratio">Application to Interview Ratio</button>
-                <button class="dl-item" data-chart="skills">Top Skills in Demand</button>
-                <button class="dl-item" data-chart="resume">Resume Insight</button>
-            </div>
-        </div>
-
-        <!-- Chart Container -->
-        <div class="analytics-chart flex-grow-1 d-flex justify-content-center align-items-center">
-            <!-- Application to Interview Ratio Chart -->
-            <div class="chart-content" id="chart-ratio">
-                {% set ratioData = analytics.ratio %}
-                {% set appliedCount = ratioData.totalApplications %}
-                {% set interviewCount = ratioData.totalInterviews %}
-                {% set interviewRate = ratioData.interviewRate %}
-                
-                {% if appliedCount > 0 %}
-                    {% set interviewPercentage = (interviewCount / appliedCount) * 100 %}
-                    {% set appliedPercentage = 100 - interviewPercentage %}
-                {% else %}
-                    {% set interviewPercentage = 0 %}
-                    {% set appliedPercentage = 100 %}
-                {% endif %}
-                
-                <svg viewBox="0 0 160 160" width="150" height="150">
-                    <g transform="rotate(-90 80 80)">
-                        <!-- Applied portion -->
-                        <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
-                                stroke-dasharray="{{ appliedPercentage * 3.51 }}, 351"
-                                stroke-dashoffset="0"/>
-                        <!-- Interview portion -->
-                        <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
-                                stroke-dasharray="{{ interviewPercentage * 3.51 }}, 351"
-                                stroke-dashoffset="{{ -appliedPercentage * 3.51 }}"/>
-                    </g>
-                </svg>
-                <div class="donut-center">
-                    <div class="donut-number">{{ interviewRate|round(1) }}%</div>
-                    <div class="donut-sub">Interview Rate</div>
+                <div class="dropdown-lite mb-3">
+                    <button class="dl-toggle" type="button" id="analyticsDropdown">
+                        <span class="dl-label">Application to Interview Ratio</span>
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L11.7874 14.7874V14.7874C11.9048 14.9048 12.0952 14.9048 12.2126 14.7874V14.7874L18 9" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="dl-menu d-none">
+                        <button class="dl-item" data-chart="ratio">Application to Interview Ratio</button>
+                        <button class="dl-item" data-chart="skills">Top Skills in Demand</button>
+                        <button class="dl-item" data-chart="resume">Resume Insight</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Top Skills Chart -->
-<div class="chart-content d-none" id="chart-skills">
-    <div class="skills-chart w-100">
-        {% if analytics.skills is defined and analytics.skills|length > 0 %}
-            {% for skill in analytics.skills|slice(0, 4) %}
-                <div class="skill-item mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="skill-name fw-medium" style="font-size: 12px; color: #121C0C;">{{ skill.name }}</span>
-                        <span class="skill-percent fw-bold" style="font-size: 11px; color: #85BB65;">{{ skill.percentage }}%</span>
-                    </div>
-                    <div class="skill-progress" style="height: 6px; background: #F4F9F1; border-radius: 3px; overflow: hidden;">
-                        <div class="skill-progress-bar" style="height: 100%; width: {{ skill.percentage }}%; background: {{ skill.color }}; border-radius: 3px;"></div>
-                    </div>
-                    {% if skill.hasSkill is defined %}
-                        <div class="skill-status mt-1" style="font-size: 10px; color: {% if skill.hasSkill %}#10b981{% else %}#6b7280{% endif %};">
-                            {% if skill.hasSkill %}✓ You have this skill{% else %}Consider adding{% endif %}
+                <!-- Chart Container -->
+                <div class="analytics-chart flex-grow-1 d-flex justify-content-center align-items-center">
+                    <!-- Initial Chart -->
+                    <div class="chart-content" id="chart-ratio">
+                        <svg viewBox="0 0 160 160" width="150" height="150">
+                            <g transform="rotate(-90 80 80)">
+                                <circle cx="80" cy="80" r="56" stroke="#10b981" stroke-width="14" fill="none"
+                                        stroke-dasharray="120, 350"/>
+                                <circle cx="80" cy="80" r="56" stroke="#22c55e" stroke-width="14" fill="none"
+                                        stroke-dasharray="90, 350" stroke-dashoffset="130"/>
+                                <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
+                                        stroke-dasharray="70, 350" stroke-dashoffset="220"/>
+                            </g>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-number">218</div>
+                            <div class="donut-sub">impressions</div>
                         </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center text-muted py-4">
-                <small>No skills data available</small>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-            <!-- Resume Insight Chart -->
-            <div class="chart-content d-none" id="chart-resume">
-                {% set resumeData = analytics.resume %}
-                <div class="resume-metric text-center">
-                    <div class="resume-circle" style="border-color: {% if resumeData.profileCompleteness >= 80 %}#10b981{% elseif resumeData.profileCompleteness >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
-                        <span>{{ resumeData.profileCompleteness }}%</span>
                     </div>
-                    <p class="mt-2 mb-0">Profile Completeness</p>
-                    
-                    {% if resumeData.missingFields|length > 0 %}
-                        <div class="mt-2">
-                            <small class="text-muted">Missing:</small>
-                            <div class="small">
-                                {% for field in resumeData.missingFields|slice(0, 2) %}
-                                    <span class="badge bg-warning text-dark me-1">{{ field }}</span>
-                                {% endfor %}
-                                {% if resumeData.missingFields|length > 2 %}
-                                    <small class="text-muted">+{{ resumeData.missingFields|length - 2 }} more</small>
-                                {% endif %}
+
+                    <!-- Top Skills Chart -->
+                    <div class="chart-content d-none" id="chart-skills">
+                        <div class="bar-chart w-100">
+                            <div class="bar-item"><span>JavaScript</span><div class="bar-fill" style="width: 80%;"></div></div>
+                            <div class="bar-item"><span>React</span><div class="bar-fill" style="width: 65%;"></div></div>
+                            <div class="bar-item"><span>Node.js</span><div class="bar-fill" style="width: 50%;"></div></div>
+                            <div class="bar-item"><span>Laravel</span><div class="bar-fill" style="width: 40%;"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Resume Insight Chart -->
+                    <div class="chart-content d-none" id="chart-resume">
+                        <div class="resume-metric text-center">
+                            <div class="resume-circle">
+                                <span>85%</span>
                             </div>
+                            <p class="mt-2 mb-0">Profile Completeness</p>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+
         <!-- Interview Schedule -->
         <div class="col-12 col-lg-4">
             <div class="interview-card shadow-lg rounded-3 p-3 h-100 d-flex flex-column">
@@ -591,84 +732,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-/* Analytics Chart Improvements */
-.analytics-chart {
-    min-height: 200px;
-    padding: 10px;
-}
-
-.bar-chart .bar-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-size: 12px;
-}
-
-.bar-chart .bar-item span {
-    min-width: 80px;
-    font-weight: 500;
-}
-
-.bar-chart .bar-fill {
-    height: 10px;
-    border-radius: 5px;
-    transition: width 0.5s ease;
-    flex-grow: 1;
-}
-
-.bar-chart .bar-item small {
-    min-width: 35px;
-    text-align: right;
-    font-weight: 600;
-}
-
-.resume-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 8px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin: 0 auto;
-    transition: border-color 0.3s ease;
-}
-
-/* Badge styling for missing fields */
-.badge.bg-warning {
-    font-size: 9px;
-    padding: 2px 6px;
-}
-
-/* Donut chart improvements */
-.donut-center {
-    position: absolute;
-    text-align: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.donut-number {
-    font-weight: 800;
-    font-size: 24px;
-    line-height: 1;
-    color: #111827;
-}
-
-.donut-sub {
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 4px;
 }
 .donut-number { font-weight: 800; font-size: 32px; line-height: 1; color: #111827; }
 .donut-sub { font-size: 14px; color: rgb(37, 41, 48); margin-top: 4px; }
@@ -1043,7 +1106,8 @@
 }
 .application {
     margin-top: 12px;
-    padding-left: 12px;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
 }
 .application .row .col a, .application .row .col a .card {
     margin-bottom: 0!important;
@@ -1302,6 +1366,537 @@ document.addEventListener('DOMContentLoaded', () => {
             menu.classList.add('d-none');
         }
     });
+});
+</script>
+
+{# Intro.js CSS & JS for Quick Tour #}
+<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+<script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+
+<style>
+/* Enhanced Custom styling for Intro.js tour - Dashboard */
+.introjs-tooltip {
+    max-width: 420px !important;
+    min-width: 380px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e6eef6 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-tooltipReferenceLayer {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-tooltipHeader {
+    padding: 0 !important;
+}
+
+.introjs-tooltipTitle {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #121C0C !important;
+    margin: 0 !important;
+    padding: 20px 24px 16px 24px !important;
+    line-height: 1.4 !important;
+    background: #F4F9F1 !important;
+    border-bottom: 1px solid #e6eef6 !important;
+}
+
+.introjs-tooltipContent {
+    padding: 20px 24px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #374151 !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+}
+
+.introjs-tooltipContent p {
+    margin: 0 !important;
+    color: #374151 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+/* Progress bar */
+.introjs-progress {
+    background: #e6eef6 !important;
+    height: 3px !important;
+    border-radius: 0 !important;
+}
+
+.introjs-progressbar {
+    background: linear-gradient(90deg, #85BB65 0%, #6fa850 100%) !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+}
+
+/* Bullets */
+.introjs-bullets {
+    padding: 0 24px 16px 24px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e6eef6 !important;
+}
+
+.introjs-bullets ul {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+.introjs-bullets ul li {
+    width: 8px !important;
+    height: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.introjs-bullets ul li a {
+    width: 100% !important;
+    height: 100% !important;
+    background: #d1d5db !important;
+    border-radius: 50% !important;
+    border: none !important;
+    display: block !important;
+}
+
+.introjs-bullets ul li a.active {
+    background: #85BB65 !important;
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.2) !important;
+}
+
+/* Buttons */
+.introjs-tooltipbuttons {
+    padding: 16px 24px 20px 24px !important;
+    border-top: 1px solid #e6eef6 !important;
+    background: #fafbfc !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.introjs-button {
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 100px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-button.introjs-nextbutton,
+.introjs-button.introjs-donebutton {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+    margin-left: auto !important;
+}
+
+.introjs-button.introjs-nextbutton:hover,
+.introjs-button.introjs-donebutton:hover {
+    background: #6fa850 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3) !important;
+}
+
+.introjs-button.introjs-nextbutton:active,
+.introjs-button.introjs-donebutton:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+}
+
+.introjs-button.introjs-prevbutton {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e6eef6 !important;
+    margin-right: auto !important;
+}
+
+.introjs-button.introjs-prevbutton:hover {
+    background: #F4F9F1 !important;
+    color: #121C0C !important;
+    border-color: #85BB65 !important;
+}
+
+.introjs-button.introjs-skipbutton {
+    color: #6b7280 !important;
+    background: transparent !important;
+    border: none !important;
+    font-weight: 500 !important;
+    padding: 6px 12px !important;
+    min-width: auto !important;
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    font-size: 13px !important;
+    transition: all 0.2s ease !important;
+    z-index: 10 !important;
+}
+
+.introjs-button.introjs-skipbutton:hover {
+    color: #121C0C !important;
+    background: #f1f3f4 !important;
+    border-radius: 6px !important;
+}
+
+/* Overlay */
+.introjs-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease !important;
+}
+
+/* Helper layer (highlight) */
+.introjs-helperLayer {
+    box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2), 0 0 0 8px rgba(133, 187, 101, 0.1) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Arrow */
+.introjs-arrow {
+    border: 8px solid transparent !important;
+}
+
+.introjs-arrow.top {
+    border-bottom-color: #ffffff !important;
+    top: -16px !important;
+}
+
+.introjs-arrow.bottom {
+    border-top-color: #ffffff !important;
+    bottom: -16px !important;
+}
+
+.introjs-arrow.left {
+    border-right-color: #ffffff !important;
+    left: -16px !important;
+}
+
+.introjs-arrow.right {
+    border-left-color: #ffffff !important;
+    right: -16px !important;
+}
+</style>
+
+<script>
+function startDashboardTour() {
+    introJs().setOptions({
+        steps: [
+            { intro: "Welcome to your Provider Dashboard! Let's take a quick tour." },
+            { element: document.querySelector('.applications-card'), intro: "This card shows the total number of applications you've received." },
+            { element: document.querySelector('.matched-jobs-card'), intro: "See jobs that match your skills here." },
+            { element: document.querySelector('.messages-card'), intro: "Check your messages here to communicate with job seekers." },
+            { element: document.querySelector('.todo-card'), intro: "Keep track of your tasks and pending actions here." },
+            { element: document.querySelector('.saved-jobs-card'), intro: "Access your bookmarked jobs for easy reference." },
+            { intro: "That's it! You're ready to explore your dashboard." }
+        ],
+        showProgress: true,
+        showBullets: true,
+        exitOnOverlayClick: false
+    }).start();
+}
+
+// Initialize tour when Quick Tour button is clicked
+document.addEventListener('DOMContentLoaded', function() {
+    const quickTourBtn = document.getElementById('start-page-tour');
+    if (quickTourBtn) {
+        quickTourBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            startDashboardTour();
+        });
+    }
+});
+</script>
+
+<!-- FINAL OVERRIDE - Force spacing styles to load last and override all other CSS -->
+<style>
+/* COMPLETE RESET - Final override at end of page */
+body.app .app-wrapper {
+    position: relative !important;
+    display: block !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+}
+
+body.app .app-wrapper .app-content {
+    position: relative !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+.dashboard .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove left padding from application status tracker */
+.container-xl .application {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Column width adjustments to fill space better */
+.container-xl .row.g-2 > .col-12.col-lg-7 {
+    flex: 0 0 58.333333% !important;
+    max-width: 58.333333% !important;
+}
+
+.container-xl .row.g-2 > .col-12.col-lg-5 {
+    flex: 0 0 41.666667% !important;
+    max-width: 41.666667% !important;
+}
+
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    .container-xl .application {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* CRITICAL: Override custom.css media queries with maximum specificity - FINAL OVERRIDE */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+</style>
+
+<script>
+// Force apply styles via JavaScript - COMPLETE OVERRIDE - Run multiple times to ensure it sticks
+function applySpacingStyles() {
+    // Reset and apply container-xl styles
+    const container = document.querySelector('.container-xl');
+    if (container) {
+        container.style.setProperty('position', 'relative', 'important');
+        container.style.setProperty('padding-left', '0', 'important');
+        container.style.setProperty('padding-right', '30px', 'important');
+        container.style.setProperty('margin-left', '0', 'important');
+        container.style.setProperty('margin-right', '0', 'important');
+        container.style.setProperty('transform', 'none', 'important');
+        container.style.setProperty('max-width', '100%', 'important');
+        container.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Remove left padding from application status tracker
+    const application = document.querySelector('.application');
+    if (application) {
+        application.style.setProperty('padding-left', '0', 'important');
+        application.style.setProperty('margin-left', '0', 'important');
+    }
+    
+    // Reset app-content
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+        appContent.style.setProperty('position', 'relative', 'important');
+        appContent.style.setProperty('padding-left', '0', 'important');
+        appContent.style.setProperty('padding-right', '0', 'important');
+        appContent.style.setProperty('margin-left', '0', 'important');
+        appContent.style.setProperty('margin-right', '0', 'important');
+        appContent.style.setProperty('max-width', '100%', 'important');
+        appContent.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-wrapper
+    const appWrapper = document.querySelector('.app-wrapper');
+    if (appWrapper) {
+        appWrapper.style.setProperty('position', 'relative', 'important');
+        if (window.innerWidth >= 1200) {
+            appWrapper.style.setProperty('margin-left', '250px', 'important');
+            appWrapper.style.setProperty('transform', 'translateX(-150px)', 'important');
+            appWrapper.style.setProperty('width', 'calc(100% - 250px + 150px)', 'important');
+        } else {
+            appWrapper.style.setProperty('margin-left', '0', 'important');
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', '100%', 'important');
+        }
+        appWrapper.style.setProperty('margin-right', '0', 'important');
+        appWrapper.style.setProperty('padding-left', '0', 'important');
+        appWrapper.style.setProperty('padding-right', '0', 'important');
+    }
+    
+    // Remove padding from all rows and first columns
+    const rows = document.querySelectorAll('.container-xl .row');
+    rows.forEach(row => {
+        row.style.setProperty('margin-left', '0', 'important');
+        row.style.setProperty('padding-left', '0', 'important');
+    });
+    
+    const firstCols = document.querySelectorAll('.container-xl .row > [class*="col-"]:first-child');
+    firstCols.forEach(col => {
+        col.style.setProperty('padding-left', '0', 'important');
+        col.style.setProperty('margin-left', '0', 'important');
+    });
+    
+    // Adjust column widths
+    const col7 = document.querySelector('.col-12.col-lg-7');
+    const col5 = document.querySelector('.col-12.col-lg-5');
+    if (col7) {
+        col7.style.setProperty('flex', '0 0 58.333333%', 'important');
+        col7.style.setProperty('max-width', '58.333333%', 'important');
+    }
+    if (col5) {
+        col5.style.setProperty('flex', '0 0 41.666667%', 'important');
+        col5.style.setProperty('max-width', '41.666667%', 'important');
+    }
+}
+
+// Run immediately
+document.addEventListener('DOMContentLoaded', applySpacingStyles);
+
+// Run after a short delay to override any late-loading styles
+setTimeout(applySpacingStyles, 100);
+setTimeout(applySpacingStyles, 500);
+
+// Re-apply on window resize to override any responsive changes
+window.addEventListener('resize', function() {
+    setTimeout(applySpacingStyles, 50);
 });
 </script>
 {% endblock %}

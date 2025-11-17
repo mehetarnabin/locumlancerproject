@@ -128,6 +128,35 @@ class DocumentController extends AbstractController
         ]);
     }
 
+    #[Route('/documents/view/{id}', name: 'app_provider_document_view')]
+    public function view(
+        Document $document,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): Response
+    {
+        $user = $this->getUser();
+        
+        // Verify the document belongs to the current user
+        if ($document->getUser()->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You do not have permission to view this document.');
+            return $this->redirectToRoute('app_provider_documents');
+        }
+
+        $documentPath = $uploadDirectory.'/'.$user->getId().'/'.$document->getFileName();
+        $documentUrl = '/uploads/'.$user->getId().'/'.$document->getFileName();
+        
+        if (!file_exists($documentPath)) {
+            $this->addFlash('error', 'Document file not found.');
+            return $this->redirectToRoute('app_provider_documents');
+        }
+
+        return $this->render('provider/document/view.html.twig', [
+            'document' => $document,
+            'documentUrl' => $documentUrl,
+            'documentPath' => $documentPath,
+        ]);
+    }
+
     #[Route('/documents/delete/{id}', name: 'app_provider_document_delete', methods: ['GET'])]
     public function delete(
         Document $document,
@@ -181,4 +210,45 @@ class DocumentController extends AbstractController
             'providedAtFormatted' => $documentRequest->getProvidedAt()->format('m/d/Y')
         ]);
     }
+
+
+    #[Route('/profile/upload-cv', name: 'profile_upload_cv')]
+    public function upload(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
+        $document = new Document();
+        $document->setUser($this->getUser());
+        $form = $this->createForm(DocumentType::class, $document);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadedFile = $form['fileName']->getData();
+
+            if ($uploadedFile) {
+                $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+
+                // Move file to documents directory
+                $uploadedFile->move(
+                    $this->getParameter('documents_directory'),
+                    $newFilename
+                );
+
+                $document->setFileName($newFilename);
+                $document->setMimeType($uploadedFile->getMimeType());
+            }
+
+            $em->persist($document);
+            $em->flush();
+
+            $this->addFlash('success', 'CV uploaded successfully!');
+            return $this->redirectToRoute('profile_upload_cv');
+        }
+
+        return $this->render('provider/profile/upload_cv.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+
 }
