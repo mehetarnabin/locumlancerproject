@@ -1,22 +1,128 @@
 {% set applicationsList = applications is iterable ? applications : applications.currentPageResults %}
 {% if applicationsList|length > 0 %}
+<style>
+/* Todo Icon Styles */
+.todo-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #85BB65;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
+    animation: pulse-glow 2s ease-in-out infinite;
+    pointer-events: auto;
+}
+
+.todo-icon * {
+    pointer-events: none;
+}
+
+.todo-icon:hover {
+    box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
+    animation: none;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
+    }
+}
+
+.todo-icon svg {
+    width: 12px;
+    height: 12px;
+    fill: white;
+}
+
+.todo-popup {
+    position: fixed;
+    background: #121C0C;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 99999;
+    max-width: 250px;
+    display: none;
+    pointer-events: none;
+}
+
+.todo-popup.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.todo-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.todo-popup-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.todo-popup-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.todo-popup-close:hover {
+    opacity: 1;
+}
+
+.todo-popup-content {
+    line-height: 1.5;
+}
+
+.todo-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
 <div class="job-list-container bg-light p-3 rounded-3">
 <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
 <div class="d-flex align-items-center job-lists">
     <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
         <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-            <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+              <input type="checkbox" id="select-all-checkbox" title="Select All" />
+            </div>
+            <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
             <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary/Hour<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            {% if status not in ['interview', 'hired', 'completed'] or status == 'archived' %}
-            <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Applied on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;"><span style="font-size: 13px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            {% endif %}
-            {% if status not in ['applied', 'hired', 'completed'] or status == 'archived' %}
-            <div class="col-start col-center sortable" data-sort="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            <div class="col-start col-center sortable" data-sort="interview" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer;">Interview date<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-          {% endif %}
-            <div class="col-start col-center sortable" data-sort="status" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Employer</div>
+            <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category</div>
+            <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
+            <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+            <div class="col-start col-center sortable" data-sort="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
         </div>
     </div>
 </div>
@@ -26,7 +132,7 @@
   <div class="d-flex align-items-center job-lists">
     <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; min-width: 0; width: 100%;">
       <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
-          <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ application.id }}" data-application-id="{{ application.id }}" data-status="{{ application.status }}" />
+          <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-status="{{ application.status }}" />
       </div>
       <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 4px; box-sizing: border-box; min-width: 0; overflow: hidden;">
           <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
@@ -42,74 +148,69 @@
       </div>
       <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
       <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
-      {% if status not in ['interview', 'hired', 'completed'] or status == 'archived' %}
+      <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.employer|default(job.companyName|default('—')) }}</div>
       <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ application.createdAt|date('m/d/Y') }}</div>
+      <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
+        {% if job.workType == 'locums' %}
+            Locums
+        {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
+            Parttime
+        {% elseif job.workType == 'fulltime' or job.workType == 'full-time' %}
+            Full time
+        {% else %}
+            {{ job.workType|default('—')|replace({'_': ' '})|title }}
+        {% endif %}
+      </div>
+      <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+          {% set todoTask = null %}
+          {% if application.documentRequestedAt and not application.documentProvidedAt %}
+              {% set todoTask = 'Provide requested documents' %}
+          {% elseif application.contractSentAt and not application.contractSignedAt %}
+              {% set todoTask = 'Sign and return contract' %}
+          {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
+              {% set todoTask = 'Provide OneFile documents' %}
+          {% elseif application.status == 'interview' %}
+              {% set todoTask = 'Prepare for interview' %}
+          {% elseif application.status == 'negotiating' %}
+              {% set todoTask = 'Review and respond to offer' %}
           {% endif %}
-      {% if status not in ['interview', 'hired', 'completed'] or status == 'archived' %}
-      <div class="col-start col-center col-rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
-          {% if application.rank is not null %}
-          <span class="rank-display" data-application-id="{{ application.id }}">
-              {{ application.rank|number_format(1, '.', '') }}/10
-          </span>
-            <div class="rank-input-wrapper hidden">
-              <input type="number"
-                    class="rank-input"
-                    value="{{ application.rank }}"
-                    min="1"
-                    max="10"
-                    step="0.5"
-                    data-application-id="{{ application.id }}"
-                    data-original-value="{{ application.rank }}"
-                    oninput="if(this.value>10) this.value=10; if(this.value<1)this.value=1;" />
-              <button type="button" class="rank-save-btn" data-application-id="{{ application.id }}" title="Save">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
+          
+          {% if todoTask %}
+              <div class="todo-icon-wrapper">
+                  <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application">
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                  </div>
+              </div>
           {% else %}
-            <span class="rank-display" data-application-id="{{ application.id }}">—</span>
-            <div class="rank-input-wrapper hidden">
+              —
+          {% endif %}
+      </div>
+      <div class="col-start col-center col-rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+          <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 13px;">
+            {{ application.rank is not null ? application.rank : '—' }}
+          </span>
+          <div class="rank-input-wrapper hidden">
           <input type="number"
-                    class="rank-input"
-                    value=""
+                  class="rank-input"
+                value="{{ application.rank is not null ? application.rank : '' }}"
                 min="1"
                 max="10"
                 step="0.5"
                 data-application-id="{{ application.id }}"
-                    data-original-value=""
+                data-original-value="{{ application.rank is not null ? application.rank : '' }}"
                 oninput="if(this.value>10) this.value=10; if(this.value<1)this.value=1;" />
-              <button type="button" class="rank-save-btn" data-application-id="{{ application.id }}" title="Save">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-          {% endif %}
-      </div>
-          {% endif %}
-      {% if status not in ['applied', 'hired', 'completed'] or status == 'archived' %}
-      <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-          {% if application.status == 'interview' %}
-          <span class="badge badge-pill">
-          To Do Actions
-          </span>
-              {% else %}
-          —
-              {% endif %}
-      </div>
-      <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-          {% if application.status == 'interview' %}
-          06/14/2025
-              {% else %}
-          —
-              {% endif %}
-      </div>
-            {% endif %}
-      <div class="col-start col-center" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-          <span class="badge badge-pill" style="background-color: {% if application.status == 'applied' %}#E3F2FD{% elseif application.status == 'interview' %}#FFF3E0{% elseif application.status == 'negotiating' %}#F3E5F5{% elseif application.status == 'accepted' %}#E8F5E9{% elseif application.status == 'completed' %}#F1F8E9{% else %}#FFEBEE{% endif %}; color: {% if application.status == 'applied' %}#1976D2{% elseif application.status == 'interview' %}#F57C00{% elseif application.status == 'negotiating' %}#7B1FA2{% elseif application.status == 'accepted' %}#388E3C{% elseif application.status == 'completed' %}#689F38{% else %}#C62828{% endif %};">
-              {{ application.status|replace({'_': ' '})|title }}
-          </span>
+            <button type="button" class="rank-save-btn" data-application-id="{{ application.id }}" title="Save">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
+          {{ application.status | replace({'_': ' '}) | title }}
       </div>
     </div>
   </div>

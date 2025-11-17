@@ -20,13 +20,61 @@ showjobSidebar =()=> {
   })
 }
 userDropdown = ()=> {
-  $('.logged-in-user').on('click', function(e) {
-    e.stopPropagation();
-    $('.main-header').toggleClass('dropdown-show'); // Make sure this class is consistent
+  // Dashboard Button Handler - Only navigates, no dropdown
+  $('.dashboard-icon').on('click', function(e) {
+    // Close any open dropdown if exists
+    $('.main-header').removeClass('dropdown-show');
+    // Allow navigation to proceed normally - don't prevent default or stop propagation
+    // The href will handle navigation
   });
   
-  $(document).on('click', function () {
-    $('.main-header').removeClass('dropdown-show');
+  // Avatar Button Handler - For non-home pages (shows dropdown)
+  $('.avatar-button').not('.home-avatar-btn').on('click', function(e) {
+    // Don't toggle if clicking on a link inside the dropdown
+    if ($(e.target).closest('.user-dropdown a').length) {
+      return; // Let the link navigate normally
+    }
+    
+    e.stopPropagation();
+    e.preventDefault();
+    // Toggle dropdown for avatar button on non-home pages
+    $('.main-header').toggleClass('dropdown-show');
+  });
+  
+  // Home Avatar Button Handler - Currently no dropdown (removed per user request)
+  // This is prepared for future dropdown implementation
+  $('.home-avatar-btn').on('click', function(e) {
+    // Currently does nothing - dropdown removed from home page
+    // When dropdown is re-implemented, uncomment below:
+    /*
+    if ($(e.target).closest('.user-dropdown a, .home-user-dropdown a').length) {
+      return;
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    $('.main-header').toggleClass('dropdown-show');
+    */
+  });
+  
+  // Close dropdown when clicking outside
+  $(document).on('click', function (e) {
+    // Close if clicking on dashboard button or its container
+    if ($(e.target).closest('.dashboard-icon, .dashboard-icon-container').length) {
+      $('.main-header').removeClass('dropdown-show');
+      return;
+    }
+    // Don't close if clicking on the avatar button or dropdown itself
+    if (!$(e.target).closest('.avatar-button, .user-dropdown, .home-user-dropdown').length) {
+      $('.main-header').removeClass('dropdown-show');
+    }
+  });
+  
+  // Prevent dropdown from closing when clicking inside it (but allow links to work)
+  $('.user-dropdown, .home-user-dropdown').on('click', function(e) {
+    // Only stop propagation if not clicking on a link
+    if (!$(e.target).is('a')) {
+      e.stopPropagation();
+    }
   });
   
 }

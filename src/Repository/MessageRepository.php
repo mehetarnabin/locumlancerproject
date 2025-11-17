@@ -35,8 +35,11 @@ class MessageRepository extends ServiceEntityRepository
             if(array_key_exists('sender', $filters)){
                 $qb->andWhere('m.sender = :sender')->setParameter('sender', $filters['sender'], UuidType::NAME);
             }
+            if(array_key_exists('type', $filters)){
+                $qb->andWhere('m.type = :type')->setParameter('type', $filters['type']);
+            }
             if(array_key_exists('keyword', $filters)){
-                $qb->andWhere('m.message LIKE :keyword')->setParameter('keyword', '%'.$filters['keyword'].'%');
+                $qb->andWhere('m.text LIKE :keyword')->setParameter('keyword', '%'.$filters['keyword'].'%');
             }
         }
 

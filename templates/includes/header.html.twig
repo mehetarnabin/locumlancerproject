@@ -62,7 +62,7 @@
                         <span class="dashboard-label">Dashboard</span>
                     </a>
                     </div>
-                    <a href="javascript:void(0)" class="logged-in-user profile-icon">
+                    <a href="javascript:void(0)" class="logged-in-user profile-icon avatar-button {% if app.request.get('_route') == 'app_home' %}home-avatar-btn{% endif %}">
                         {% if app.user.profilePictureFilename %}
                             <img src="{{ '/uploads/' ~ app.user.id ~ '/' ~ app.user.profilePictureFilename }}" alt="user">
                         {% elseif app.user.profilePicture %}
@@ -71,11 +71,12 @@
                             <img src="{{ asset('assets/frontend/img/user-image.png') }}" alt="user">
                         {% endif %}
                         <span class="username">Hi {{ app.user.name|split(' ')[0] }}!</span>
-
                     </a>
+                    {% if app.request.get('_route') != 'app_home' %}
                     <span class="user-dropdown">
                         <a href="{{ path('app_logout') }}">Logout</a>
                     </span>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>

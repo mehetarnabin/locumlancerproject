@@ -95,6 +95,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $bio = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nickname = null;
+
     #[ORM\Column(type: 'boolean', nullable: true)]
     private $blocked = false;
 
@@ -343,6 +346,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBio(?string $bio): void
     {
         $this->bio = $bio;
+    }
+
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setNickname(?string $nickname): void
+    {
+        $this->nickname = $nickname;
     }
 
     public function isBlocked(): ?bool

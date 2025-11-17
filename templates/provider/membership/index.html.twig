@@ -1,0 +1,367 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Membership{% endblock %}
+
+{% block provider_body %}
+<style>
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+body.app .app-wrapper .app-content,
+.app-content {
+    padding: 72px 0 64px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+body.app .app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+.container-xl {
+    padding-left: 0 !important;
+    padding-right: 32px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+}
+
+@media (max-width: 1199.98px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .container-xl {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+.membership-page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.membership-hero {
+    background: #0f172a;
+    color: #fff;
+    border-radius: 18px;
+    padding: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
+}
+
+.membership-hero h1 {
+    font-size: 2.25rem;
+    margin: 0 0 12px 0;
+    font-weight: 600;
+}
+
+.membership-hero p {
+    color: rgba(255,255,255,0.8);
+    max-width: 520px;
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+.membership-hero .hero-metrics {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.hero-metric {
+    background: rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 18px 24px;
+    min-width: 180px;
+}
+
+.hero-metric span {
+    display: block;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.hero-metric small {
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.plan-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 32px 28px;
+    background: #fff;
+    box-shadow: 0 20px 35px rgba(15, 23, 42, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.plan-card.popular {
+    border: 2px solid #85BB65;
+    box-shadow: 0 25px 40px rgba(133, 187, 101, 0.15);
+}
+
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #DCFCE7;
+    color: #166534;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.plan-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+}
+
+.plan-price {
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.plan-price small {
+    font-size: 0.85rem;
+    color: #475467;
+    margin-left: 6px;
+}
+
+.plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.plan-features li svg {
+    color: #85BB65;
+    flex-shrink: 0;
+}
+
+.plan-card button {
+    margin-top: auto;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.plan-card button.primary {
+    background: #0f172a;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+}
+
+.plan-card button.outline {
+    background: #fff;
+    color: #0f172a;
+    border: 1px solid #cbd5f5;
+}
+
+.perks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+}
+
+.perk-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    gap: 16px;
+}
+
+.perk-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #ecfdf3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #22c55e;
+    font-size: 1.3rem;
+}
+
+.faq-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    background: #fff;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.faq-card {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 18px;
+}
+
+.faq-card:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.faq-card h4 {
+    font-size: 1rem;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.faq-card p {
+    margin: 0;
+    color: #475467;
+    line-height: 1.6;
+}
+</style>
+
+<div class="container-xl membership-page">
+    <div class="membership-hero">
+        <div>
+            <h1>Locumlancer Membership</h1>
+            <p>Fuel your locum journey with curated perks, faster credentialing, and hands-on support designed for the modern clinician. Pick a plan that grows with your availability.</p>
+        </div>
+        <div class="hero-metrics">
+            <div class="hero-metric">
+                <span>4.9★</span>
+                <small>Member rating</small>
+            </div>
+            <div class="hero-metric">
+                <span>22K+</span>
+                <small>Assignments filled</small>
+            </div>
+            <div class="hero-metric">
+                <span>72 hrs</span>
+                <small>Avg. credentialing boost</small>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h2 class="mb-1" style="font-size:1.5rem;color:#0f172a;">Choose your plan</h2>
+                <p class="text-muted mb-0">Simple memberships built for every stage of your locum career.</p>
+            </div>
+            <span class="badge bg-light text-dark px-3 py-2" style="border-radius:999px;">Dummy preview · Not billed</span>
+        </div>
+        <div class="plan-grid">
+            {% for plan in plans %}
+                <div class="plan-card {{ plan.popular ? 'popular' }}">
+                    {% if plan.popular %}
+                        <div class="plan-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                            Most popular
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h3>{{ plan.name }}</h3>
+                        <p class="mb-2 text-muted">{{ plan.tagline }}</p>
+                    </div>
+                    <div class="plan-price">
+                        {{ plan.price }}
+                        <small>/ month</small>
+                    </div>
+                    <ul class="plan-features">
+                        {% for feature in plan.features %}
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                {{ feature }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <button class="{{ plan.popular ? 'primary' : 'outline' }}">{{ plan.cta }}</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div>
+        <h2 style="font-size:1.5rem;color:#0f172a;margin-bottom:16px;">Membership perks</h2>
+        <div class="perks-grid">
+            {% for perk in perks %}
+                <div class="perk-card">
+                    <div class="perk-icon">
+                        {% if perk.icon == 'document' %}
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        {% elseif perk.icon == 'sparkle' %}
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3m0 12v3m9-9h-3M6 12H3m12.95-5.95l-2.12 2.12M8.17 15.83l-2.12 2.12m0-12.02l2.12 2.12m7.66 7.66l2.12 2.12"/></svg>
+                        {% else %}
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 style="margin:0 0 4px 0;color:#0f172a;">{{ perk.title }}</h4>
+                        <p class="mb-0 text-muted">{{ perk.description }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2 style="font-size:1.5rem;color:#0f172a;margin-bottom:4px;">Membership FAQs</h2>
+        <p class="text-muted mb-4">Answers to the most common questions from providers.</p>
+        {% for faq in faqs %}
+            <div class="faq-card">
+                <h4>{{ faq.question }}</h4>
+                <p>{{ faq.answer }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

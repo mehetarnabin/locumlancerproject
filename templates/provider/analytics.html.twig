@@ -261,7 +261,6 @@
 <div class="container-xl">
     <h6 class="app-card-title mb-4">Profile Analytics</h6>
     
-   
     <!-- Key Metrics Row -->
     <div class="row g-4 mb-4">
         <!-- Impressions Card -->
@@ -282,11 +281,7 @@
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
                         <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
                     </svg>
-                    {% if trends.total_impressions > 0 %}
-                        +{{ trends.total_impressions|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
+                    +12% from last month
                 </div>
             </div>
         </div>
@@ -309,11 +304,7 @@
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
                         <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
                     </svg>
-                    {% if trends.profile_views > 0 %}
-                        +{{ trends.profile_views|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
+                    +8% from last month
                 </div>
             </div>
         </div>
@@ -330,18 +321,13 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#85BB65"/>
                         </svg>
-                        
                     </div>
                 </div>
                 <div class="metric-change text-success small">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
                         <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
                     </svg>
-                    {% if trends.resume_downloads > 0 %}
-                        +{{ trends.resume_downloads|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
+                    +15% from last month
                 </div>
             </div>
         </div>
@@ -364,16 +350,11 @@
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
                         <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
                     </svg>
-                    {% if trends.response_rate is defined and trends.response_rate > 0 %}
-                        +{{ trends.response_rate|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
+                    +5% from last month
                 </div>
             </div>
         </div>
     </div>
-    
     
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
@@ -415,26 +396,14 @@
             <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h6 class="mb-0 fw-semibold">Monthly Application Trends</h6>
-                    <form method="get" class="d-inline">
-                        <select class="form-select form-select-sm" 
-                                style="width: auto; max-width: 150px;" 
-                                name="trend_timeframe" 
-                                onchange="this.form.submit()">
-                            <option value="6" {% if currentTimeframe == 6 %}selected{% endif %}>Last 6 Months</option>
-                            <option value="12" {% if currentTimeframe == 12 %}selected{% endif %}>Last 12 Months</option>
-                            <option value="24" {% if currentTimeframe == 24 %}selected{% endif %}>Last 2 Years</option>
-                        </select>
-                    </form>
+                    <select class="form-select form-select-sm" style="width: auto; max-width: 150px;" id="trendTimeframe">
+                        <option value="6">Last 6 Months</option>
+                        <option value="12">Last 12 Months</option>
+                    </select>
                 </div>
                 <div class="chart-container" style="height: 300px; position: relative;">
                     <canvas id="trendChart"></canvas>
                 </div>
-                
-                {% if monthlyData is empty %}
-                    <div class="text-center text-muted py-4">
-                        <p>No application data available for the selected period.</p>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -503,71 +472,52 @@
         </div>
         
         <!-- Performance Metrics -->
-<div class="col-12 col-lg-6">
-    <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
-        <h6 class="mb-4 fw-semibold">Performance Metrics</h6>
-        <div class="performance-metrics">
-            <!-- Profile Completion - ACTUAL DATA -->
-            <div class="metric-bar mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Profile Completion</span>
-                    <span class="fw-bold" style="color: #85BB65;">{{ profileCompleteness }}%</span>
-                </div>
-                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: {{ profileCompleteness }}%; background-color: #85BB65; border-radius: 5px;" 
-                         aria-valuenow="{{ profileCompleteness }}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-            
-            <!-- Response Rate - ACTUAL DATA -->
-            <div class="metric-bar mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Response Rate</span>
-                    <span class="fw-bold" style="color: #85BB65;">{{ responseRate }}%</span>
-                </div>
-                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: {{ responseRate }}%; background-color: #06b6d4; border-radius: 5px;" 
-                         aria-valuenow="{{ responseRate }}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-            
-            <!-- Interview Success Rate - ACTUAL DATA -->
-            <div class="metric-bar mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Interview Success Rate</span>
-                    <span class="fw-bold" style="color: #85BB65;">{{ ratio }}%</span>
-                </div>
-                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: {{ ratio }}%; background-color: #85BB65; border-radius: 5px;" 
-                         aria-valuenow="{{ ratio }}" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-            </div>
-            
-            <!-- Application to Interview Ratio - ACTUAL DATA -->
-            <div class="metric-bar mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Application to Interview</span>
-                    <span class="fw-bold" style="color: #85BB65;">
-                        {% if totalApplications > 0 %}
-                            {{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}%
-                        {% else %}
-                            0%
-                        {% endif %}
-                    </span>
-                </div>
-                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
-                    <div class="progress-bar" role="progressbar" 
-                         style="width: {% if totalApplications > 0 %}{{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}{% else %}0{% endif %}%; background-color: #10b981; border-radius: 5px;" 
-                         aria-valuenow="{% if totalApplications > 0 %}{{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}{% else %}0{% endif %}" 
-                         aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <h6 class="mb-4 fw-semibold">Performance Metrics</h6>
+                <div class="performance-metrics">
+                    <div class="metric-bar mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Profile Completion</span>
+                            <span class="fw-bold" style="color: #85BB65;">92%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: 92%; background-color: #85BB65; border-radius: 5px;" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="metric-bar mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Response Time</span>
+                            <span class="fw-bold" style="color: #85BB65;">2.4 hrs</span>
+                        </div>
+                        <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: 78%; background-color: #06b6d4; border-radius: 5px;" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="metric-bar mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Interview Success Rate</span>
+                            <span class="fw-bold" style="color: #85BB65;">{{ ratio }}%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ ratio }}%; background-color: #85BB65; border-radius: 5px;" aria-valuenow="{{ ratio }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="metric-bar mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Job Match Score</span>
+                            <span class="fw-bold" style="color: #85BB65;">87%</span>
+                        </div>
+                        <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                            <div class="progress-bar" role="progressbar" style="width: 87%; background-color: #85BB65; border-radius: 5px;" aria-valuenow="87" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -677,86 +627,83 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Monthly Application Trends - Line Chart
-const trendCtx = document.getElementById('trendChart').getContext('2d');
-const monthlyLabels = {{ monthlyData|map(m => m.month)|json_encode|raw }};
-const monthlyCounts = {{ monthlyData|map(m => m.count)|json_encode|raw }};
-
-// Check if we have data
-const hasData = monthlyCounts.some(count => count > 0);
-
-const trendChart = new Chart(trendCtx, {
-    type: 'line',
-    data: {
-        labels: monthlyLabels,
-        datasets: [{
-            label: 'Applications',
-            data: monthlyCounts,
-            borderColor: '#85BB65',
-            backgroundColor: hasData ? 'rgba(133, 187, 101, 0.1)' : 'rgba(133, 187, 101, 0.05)',
-            borderWidth: hasData ? 3 : 1,
-            fill: true,
-            tension: 0.4,
-            pointRadius: hasData ? 5 : 0,
-            pointHoverRadius: hasData ? 7 : 0,
-            pointBackgroundColor: '#85BB65',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const monthlyLabels = {{ monthlyData|map(m => m.month)|json_encode|raw }};
+    const monthlyCounts = {{ monthlyData|map(m => m.count)|json_encode|raw }};
+    
+    const trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Applications',
+                data: monthlyCounts,
+                borderColor: '#85BB65',
+                backgroundColor: 'rgba(133, 187, 101, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: '#85BB65',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        family: 'Lexend',
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: 'Urbanist',
+                        size: 12
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return 'Applications: ' + context.parsed.y;
+                        }
+                    }
+                }
             },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                padding: 12,
-                titleFont: {
-                    family: 'Lexend',
-                    size: 14
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: {
+                            family: 'Urbanist',
+                            size: 12
+                        },
+                        color: '#6b7280'
+                    },
+                    grid: {
+                        color: '#e6eef6'
+                    }
                 },
-                bodyFont: {
-                    family: 'Urbanist',
-                    size: 12
-                },
-                callbacks: {
-                    label: function(context) {
-                        return 'Applications: ' + context.parsed.y;
+                x: {
+                    ticks: {
+                        font: {
+                            family: 'Urbanist',
+                            size: 12
+                        },
+                        color: '#6b7280'
+                    },
+                    grid: {
+                        display: false
                     }
                 }
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    font: {
-                        family: 'Urbanist',
-                        size: 12
-                    },
-                    color: '#6b7280'
-                },
-                grid: {
-                    color: '#e6eef6'
-                }
-            },
-            x: {
-                ticks: {
-                    font: {
-                        family: 'Urbanist',
-                        size: 12
-                    },
-                    color: '#6b7280'
-                },
-                grid: {
-                    display: false
-                }
-            }
         }
-    }
-});
+    });
 });
 </script>
 {% endblock %}

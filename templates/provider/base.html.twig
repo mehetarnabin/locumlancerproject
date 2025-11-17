@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
     <style>
         /* ============================================
-           TOP BAR NAVIGATION - VERTICAL CENTERING & HOVER
+           TOP BAR NAVIGATION - VERTICAL CENTERING & ALIGNMENT
            ============================================ */
         /* Add padding to header to center navigation items and prevent touching bottom edge */
         .app-header .app-header-inner .container-fluid {
@@ -26,34 +26,29 @@
             padding-bottom: 12px !important;
         }
         
-        /* Green background hover for top bar utility items */
-        .app-header .app-utilities .app-utility-item > a:hover,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover {
-            background-color: #e8f5e9 !important;
-            border-radius: 8px !important;
-            transition: background-color 0.3s ease !important;
-        }
-        
-        /* Ensure icons and text remain unchanged on hover */
-        .app-header .app-utilities .app-utility-item > a:hover .icon-image,
-        .app-header .app-utilities .app-utility-item > a:hover svg,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .icon-image,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover svg,
-        .app-header .app-utilities .app-utility-item > a:hover .label-text,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .label-text,
-        .app-header .app-utilities .app-utility-item > a:hover .icon-badge,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle:hover .icon-badge {
-            color: inherit !important;
-            fill: inherit !important;
-            stroke: inherit !important;
-        }
-        
-        /* Ensure links have padding for visible hover area */
+        /* Ensure links have proper alignment */
         .app-header .app-utilities .app-utility-item > a,
         .app-header .app-utilities .app-utility-item .dropdown-toggle {
-            padding: 8px 12px !important;
-            border-radius: 8px !important;
-            transition: background-color 0.3s ease !important;
+            padding: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+        }
+        
+        /* Fix icon alignment - ensure all icons are properly aligned */
+        .app-header .app-utilities .app-utility-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        .app-header .app-utilities .app-utility-item .icon-image,
+        .app-header .app-utilities .app-utility-item svg {
+            display: block !important;
+            margin: 0 auto !important;
         }
         
         /* Standardize header icon and profile sizes */
@@ -701,7 +696,7 @@
             <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
                 <ul class="app-menu list-unstyled accordion" id="menu-accordion">
                     <li class="nav-item">
-                        <a class="nav-link #">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'app_provider_membership' %}active{% endif %}" href="{{ path('app_provider_membership') }}">
 						        <span class="nav-icon">
                                 <svg fill="currentColor" class="icon-image" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:serif="http://www.serif.com/" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M9.733,14.107c-1.387,0.252 -2.676,0.921 -3.687,1.932c-1.309,1.309 -2.044,3.084 -2.044,4.935l0,4.039c0,1.657 1.343,3 3,3c4.184,-0 13.816,-0 18,-0c1.657,-0 3,-1.343 3,-3l0,-4.039c0,-1.851 -0.735,-3.626 -2.044,-4.935c-1.011,-1.011 -2.3,-1.68 -3.687,-1.932c0.468,-0.939 0.731,-1.997 0.731,-3.117c0,-3.863 -3.137,-7 -7,-7c-3.863,0 -7,3.137 -7,7c0,1.12 0.263,2.178 0.731,3.117Zm12.263,1.984l-0,2.079c1.164,0.412 2,1.524 2,2.83c0,1.101 0.004,1.995 0.004,1.995c0.003,0.552 -0.443,1.002 -0.995,1.005c-0.552,0.002 -1.002,-0.444 -1.005,-0.995c0,-0 -0.004,-0.899 -0.004,-2.005c0,-0.552 -0.446,-1 -0.997,-1c-0.551,-0 -0.997,0.448 -0.997,1l-0.002,2.001c-0.001,0.552 -0.449,1 -1.001,0.999c-0.552,-0.001 -1,-0.449 -0.999,-1.001c-0,-0 0.002,-2 0.002,-1.999c0,-1.304 0.833,-2.414 1.994,-2.828l-0,-1.433c-1.133,0.789 -2.51,1.251 -3.994,1.251c-1.489,0 -2.871,-0.466 -4.006,-1.26l-0,1.441c1.165,0.412 2,1.524 2,2.829c0,1.656 -1.344,3 -3,3c-1.656,-0 -3,-1.344 -3,-3c-0,-1.305 0.835,-2.417 2,-2.829l-0,-2.078c-0.954,0.193 -1.837,0.662 -2.535,1.36c-0.934,0.934 -1.459,2.201 -1.459,3.521c0,0 0,4.039 0,4.039c0,0.552 0.448,1 1,1l18,-0c0.552,-0 1,-0.448 1,-1c0,-0 0,-4.039 0,-4.039c0,-1.32 -0.525,-2.587 -1.458,-3.521c-0.701,-0.701 -1.59,-1.171 -2.548,-1.362Zm-11,3.909c0.552,-0 1,0.448 1,1c0,0.552 -0.448,1 -1,1c-0.552,-0 -1,-0.448 -1,-1c-0,-0.552 0.448,-1 1,-1Zm5.006,-14.01c2.76,0 5,2.241 5,5c0,2.76 -2.24,5 -5,5c-2.76,0 -5,-2.24 -5,-5c0,-2.759 2.24,-5 5,-5Z"/></svg>
 						         </span>

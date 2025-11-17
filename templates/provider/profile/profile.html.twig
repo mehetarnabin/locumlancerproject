@@ -5,17 +5,164 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match dashboard */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    overflow: visible; /* Allow dropdowns to extend beyond content */
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+.app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply equal left and right spacing */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    overflow: visible; /* Allow dropdowns to extend beyond container */
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        position: relative !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 
 /* == Scoped modern card styles (unique class names) == */
@@ -115,6 +262,51 @@
 .upload-btn-custom.upload-btn-documents:hover {
   background: #D1E9F9;
   border-color: #6FA050;
+}
+
+/* Documents card button styling */
+.documents-view-btn {
+  background: #E8F4FD !important;
+  border: 2px solid #85BB65 !important;
+  color: #121C0C !important;
+  padding: 14px 28px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  min-width: 180px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.documents-view-btn:hover {
+  background: #D1E9F9 !important;
+  border-color: #6FA050 !important;
+  color: #121C0C !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(133, 187, 101, 0.2) !important;
+}
+
+/* Ensure proper flex layout for three-column cards */
+.row.g-4 > .col-12.col-md-4 {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.row.g-4 > .col-12.col-md-4 > .card {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  height: 100% !important;
+}
+
+.row.g-4 > .col-12.col-md-4 > .card > .card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
 }
 
 /* small badge for ratings etc */
@@ -677,6 +869,16 @@ input[type="checkbox"]:checked::after,
                     <div class="info-item">
                       <div class="d-flex gap-3 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="text-muted small">{{ app.user.nickname ?: 'No nickname provided' }}</div>
+                      </div>
+                    </div>
+
+                    <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="style=stroke">
                         <g id="email">
                         <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#121C0C"></path>
@@ -690,12 +892,12 @@ input[type="checkbox"]:checked::after,
 
                     <div class="info-item">
                       <div class="d-flex gap-3 align-items-center">
-                        <!-- Email Icon -->
+                        <!-- Address Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
                         </svg>
-                        <div>
+                        <div class="text-muted small">
                           {{ app.user.getAddress() ?: 'No address provided' }}
                         </div>
                       </div>
@@ -789,8 +991,24 @@ input[type="checkbox"]:checked::after,
                   </div>
 
                   <div style="margin-top:14px; padding: 0 8px;">
-                    <!-- Email -->
+                    <!-- Nickname -->
                     <div class="info-item">
+                      <div class="d-flex gap-3 align-items-center">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {% if profileForm.nickname is defined %}
+                          {{ form_widget(profileForm.nickname, {'attr': {'class': 'form-control', 'placeholder': 'Enter your preferred nickname or display name here'}}) }}
+                          {{ form_errors(profileForm.nickname) }}
+                        {% else %}
+                          <input type="text" class="form-control" placeholder="Enter your preferred nickname or display name here" disabled style="background: #f9fafb;">
+                        {% endif %}
+                      </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="info-item mt-2">
                       <div class="d-flex gap-3 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <g id="style=stroke">
@@ -883,21 +1101,21 @@ input[type="checkbox"]:checked::after,
                 </div>
                 <div class="mb-2" style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Locum Assignments : </h6>
-                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 600; color: #252930; line-height: 1.2;">10</h4>
+                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 500; color: #252930; line-height: 1.2;">10</h4>
                 </div>
                 <div style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Years Active : </h6>
-                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 600; color: #252930; line-height: 1.2;">15 years</h4>
+                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 500; color: #252930; line-height: 1.2;">15 years</h4>
                 </div>
                 </div>
             </div>
           </div>
 
           <div class="col-12 mt-5">
-            <div class="row g-4">
-              <div class="col-12 col-md-6">
-                <div class="card app-card-settings h-100">
-                  <div class="card-body d-flex flex-column">
+            <div class="row g-4" style="display: flex; flex-wrap: wrap; margin-left: 0; margin-right: 0;">
+              <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
+                <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
+                  <div class="card-body d-flex flex-column" style="flex: 1;">
                     <h5 class="card-title mb-3">{{ editMode is defined ? 'Edit Document' : 'CV Upload' }}</h5>
 
                     {{ form_start(documentForm, {
@@ -951,15 +1169,33 @@ input[type="checkbox"]:checked::after,
           </div>
         </div>
       </div>
-      <!-- Right column -->
-      <div class="col-12 col-md-6">
-        <div class="card app-card-settings h-100">
-          <div class="card-body d-flex flex-column">
+      <!-- Work Preferences column -->
+      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
+        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
+          <div class="card-body d-flex flex-column" style="flex: 1;">
             <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
               <h5 class="card-title mb-0">Work Preferences</h5>
             </div>
             <div class="work-preferences flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 200px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB;">
               <p class="text-muted mb-0" style="font-size: 0.9rem;">Work preferences content will appear here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Documents column -->
+      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
+        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
+          <div class="card-body d-flex flex-column" style="flex: 1;">
+            <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title mb-0">Documents</h5>
+            </div>
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 200px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB; padding: 20px;">
+              <a href="{{ path('app_provider_documents') }}" class="documents-view-btn">
+                <span>View Documents</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
+                  <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -970,11 +1206,11 @@ input[type="checkbox"]:checked::after,
         </div>
       </div>
 
-    {# Right: narrow column for upload buttons and quick links - col-lg-2 #}
+    {# Right: narrow column for share and quick links - col-lg-4 #}
     <div class="col-12 col-lg-4 d-flex flex-column" style="align-self: flex-start;">
       <div class="profile-right-card h-fix-auto" style="margin-top: -24px;">
           <div class="card-header-row d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Share via Onelink</h5>
+            <h5 class="card-title mb-0">Share & Quick Links</h5>
             <button id="toggle-checkmarks" class="cstm-toggle-btn" title="Toggle Checkmarks">
               <svg icon-image width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <g id="Communication / Share_iOS_Export">
@@ -985,20 +1221,16 @@ input[type="checkbox"]:checked::after,
           </div>
 
           <div class="card-body">
-            <div class="mb-3 ">
-              <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="max-width: 300px;">
+            <div class="mb-4">
+              <label class="form-label small text-muted mb-2">Share via Onelink</label>
+              <div class="d-flex gap-2">
+                <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="flex: 1; font-size: 0.875rem;">
+                <button type="button" class="upload-btn-custom" style="white-space: nowrap;">Share</button>
             </div>
-
-            <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="upload-btn-custom">Share</button>
-            </div>
-          </div>
-        </div>
-      <div class="profile-right-card mt-4 h-fix-auto">
-        <div class="card-header-row d-flex justify-content-between">
-            <h5 class="card-title mb-0">Quick Links</h5>
         </div>
 
+            <div class="pt-0">
+              <label class="form-label small text-muted mb-2">Quick Links</label>
         <div class="upload-list mt-2">
           {# Other items as links to specific pages (you can replace '#' with real routes) #}
            <div class="upload-btn-custom"><span class="cstm-btn-text">Education & Training</span>
@@ -1025,11 +1257,6 @@ input[type="checkbox"]:checked::after,
           </span>
           </a>
           </div>
-          {#<a class="upload-btn-custom" href="/provider/profile/work-preferences" role="link">Work Preference<span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span></a>#}
           <div class="upload-btn-custom"><span class="cstm-btn-text">Insurance</span>
           <span class="cstm-btn-checkmark">
           <input type="checkbox" class="upload-check d-none ms-2">
@@ -1078,14 +1305,8 @@ input[type="checkbox"]:checked::after,
           </span>
           </a>
           </div>
-          <div class="upload-btn-custom upload-btn-documents"><span class="cstm-btn-text">Documents</span>
-          <a href="/provider/documents" role="link">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+              </div>
+            </div>
           </div>
       </div>
       {#<div class="profile-right-card mg-btm-18">

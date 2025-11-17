@@ -62,6 +62,28 @@ class DocumentController extends AbstractController
                 }
 
                 $document->setUser($user);
+                
+                // Set name from category if name is not set
+                if (!$document->getName() && $document->getCategory()) {
+                    $document->setName($document->getCategory());
+                }
+
+                // Handle auto-expiry for documents with 1-year auto-expiry
+                $autoExpiryDocuments = [
+                    'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
+                    'Influenza vaccine proof',
+                    'COVID-19 vaccine proof',
+                    'Mask fit testing'
+                ];
+
+                if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
+                    if ($document->getIssueDate() && !$document->getExpirationDate()) {
+                        // Set expiration date to 1 year from issue date
+                        $expirationDate = clone $document->getIssueDate();
+                        $expirationDate->modify('+1 year');
+                        $document->setExpirationDate($expirationDate);
+                    }
+                }
 
                 $em->persist($document);
                 $em->flush();
@@ -111,6 +133,28 @@ class DocumentController extends AbstractController
 
                 $document->setFileName($newFilename);
                 $document->setMimeType($file->getClientMimeType());
+            }
+            
+            // Set name from category if name is not set
+            if (!$document->getName() && $document->getCategory()) {
+                $document->setName($document->getCategory());
+            }
+
+            // Handle auto-expiry for documents with 1-year auto-expiry
+            $autoExpiryDocuments = [
+                'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
+                'Influenza vaccine proof',
+                'COVID-19 vaccine proof',
+                'Mask fit testing'
+            ];
+
+            if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
+                if ($document->getIssueDate() && !$document->getExpirationDate()) {
+                    // Set expiration date to 1 year from issue date
+                    $expirationDate = clone $document->getIssueDate();
+                    $expirationDate->modify('+1 year');
+                    $document->setExpirationDate($expirationDate);
+                }
             }
 
             $em->flush();

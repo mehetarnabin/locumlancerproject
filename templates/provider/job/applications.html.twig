@@ -164,6 +164,111 @@ div.container-xl,
 }
 
 /* Make score field look editable with highlighting */
+/* Todo Icon Styles */
+.todo-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #85BB65;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
+    animation: pulse-glow 2s ease-in-out infinite;
+    pointer-events: auto;
+}
+
+.todo-icon * {
+    pointer-events: none;
+}
+
+.todo-icon:hover {
+    box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
+    animation: none;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
+    }
+}
+
+.todo-icon svg {
+    width: 12px;
+    height: 12px;
+    fill: white;
+}
+
+.todo-popup {
+    position: fixed;
+    background: #121C0C;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 99999;
+    max-width: 250px;
+    display: none;
+    pointer-events: none;
+}
+
+.todo-popup.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.todo-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.todo-popup-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.todo-popup-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.todo-popup-close:hover {
+    opacity: 1;
+}
+
+.todo-popup-content {
+    line-height: 1.5;
+}
+
+.todo-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .rank-display {
     cursor: pointer !important;
     padding: 4px 8px !important;
@@ -1421,18 +1526,18 @@ window.addEventListener('resize', function() {
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
                     <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-                        <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary/Hour<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        {% if app.request.get('status') not in ['interview', 'hired', 'completed'] %}
-                        <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Applied on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;"><span style="font-size: 13px; font-weight: bold; line-height: 1.2;">Score</span><span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        {% endif %}
-                        {% if app.request.get('status') not in ['applied', 'hired', 'completed'] %}
-                        <div class="col-start col-center sortable" data-sort="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="interview" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer;">Interview date<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        {% endif %}            
-                        <div class="col-start col-center sortable" data-sort="status" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                          <input type="checkbox" id="select-all-checkbox" title="Select All" />
+                        </div>
+                        <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Employer</div>
+                        <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category</div>
+                        <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
+                        <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center sortable" data-sort="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     </div>
                 </div>
             </div>
@@ -1458,13 +1563,49 @@ window.addEventListener('resize', function() {
                   </div>
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
-                  {% if app.request.get('status') not in ['interview', 'hired', 'completed'] %}
+                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.employer|default(job.companyName|default('—')) }}</div>
                   <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ application.createdAt|date('m/d/Y') }}</div>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['interview', 'hired', 'completed'] %}
+                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
+                    {% if job.workType == 'locums' %}
+                        Locums
+                    {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
+                        Parttime
+                    {% elseif job.workType == 'fulltime' or job.workType == 'full-time' %}
+                        Full time
+                    {% else %}
+                        {{ job.workType|default('—')|replace({'_': ' '})|title }}
+                    {% endif %}
+                  </div>
+                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+                      {% set todoTask = null %}
+                      {% if application.documentRequestedAt and not application.documentProvidedAt %}
+                          {% set todoTask = 'Provide requested documents' %}
+                      {% elseif application.contractSentAt and not application.contractSignedAt %}
+                          {% set todoTask = 'Sign and return contract' %}
+                      {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
+                          {% set todoTask = 'Provide OneFile documents' %}
+                      {% elseif application.status == 'interview' %}
+                          {% set todoTask = 'Prepare for interview' %}
+                      {% elseif application.status == 'negotiating' %}
+                          {% set todoTask = 'Review and respond to offer' %}
+                      {% endif %}
+                      
+                      {% if todoTask %}
+                          <div class="todo-icon-wrapper">
+                              <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application">
+                                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  </svg>
+                              </div>
+                          </div>
+                      {% else %}
+                          —
+                      {% endif %}
+                  </div>
                   <div class="col-start col-center col-rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
-                      <span class="rank-display" data-application-id="{{ application.id }}">
-                        {{ application.rank is not null ? application.rank ~ '/10' : '—' }}
+                      <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 13px;">
+                        {{ application.rank is not null ? application.rank : '—' }}
                       </span>
                       <div class="rank-input-wrapper hidden">
                       <input type="number"
@@ -1483,26 +1624,7 @@ window.addEventListener('resize', function() {
                         </button>
                       </div>
                     </div>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'hired', 'completed'] %}
-                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                      {% if application.status == 'interview' %}
-                      <span class="badge badge-pill">
-                      To Do Actions
-                      </span>
-                      {% else %}
-                      —
-                      {% endif %}
-                  </div>
-                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                      {% if application.status == 'interview' %}
-                      06/14/2025
-                      {% else %}
-                      —
-                      {% endif %}
-                  </div>
-                  {% endif %}
-                  <div class="col-start col-center" style="width: 140px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
                       {{ application.status | replace({'_': ' '}) | title }}
                   </div>
                 </div>
@@ -2998,7 +3120,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+// Make rank editing initialization reusable
+function initializeRankEditing() {
     const rankDisplays = document.querySelectorAll('.rank-display');
     const rankInputs = document.querySelectorAll('.rank-input');
 
@@ -3042,7 +3165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 if (display) {
-                display.textContent = value + '/10';
+                display.textContent = value;
                     display.classList.remove('hidden');
                 }
                 input.dataset.originalValue = value;
@@ -3134,6 +3257,119 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+}
+
+// Initialize todo popup functionality - runs immediately and on DOM ready
+(function() {
+    // Create popup element if it doesn't exist
+    function createTodoPopup() {
+        if (!window.todoPopup) {
+            window.todoPopup = document.getElementById('todo-popup');
+        }
+        if (!window.todoPopup) {
+            window.todoPopup = document.createElement('div');
+            window.todoPopup.id = 'todo-popup';
+            window.todoPopup.className = 'todo-popup';
+            window.todoPopup.innerHTML = `
+                <div class="todo-popup-header">
+                    <div class="todo-popup-title">To Do Action</div>
+                    <button class="todo-popup-close" type="button">&times;</button>
+                </div>
+                <div class="todo-popup-content"></div>
+            `;
+            if (document.body) {
+                document.body.appendChild(window.todoPopup);
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.appendChild(window.todoPopup);
+                });
+            }
+            
+            // Close button handler
+            const closeBtn = window.todoPopup.querySelector('.todo-popup-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    window.todoPopup.classList.remove('show');
+                });
+            }
+        }
+    }
+    
+    // Initialize popup click handler using event delegation
+    function initTodoPopupHandler() {
+        if (window.todoPopupHandlerInitialized) {
+            return;
+        }
+        
+        // Use event delegation on document to catch all clicks
+        document.addEventListener('click', function(e) {
+            // Check if click is on todo icon or its children
+            const todoIcon = e.target.closest('.todo-icon');
+            if (todoIcon) {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                // Ensure popup exists
+                if (!window.todoPopup) {
+                    createTodoPopup();
+                }
+                
+                const action = todoIcon.dataset.todoAction;
+                if (action && window.todoPopup) {
+                    const content = window.todoPopup.querySelector('.todo-popup-content');
+                    if (content) {
+                        content.textContent = action;
+                        
+                        // Position popup near the icon
+                        const rect = todoIcon.getBoundingClientRect();
+                        const popupWidth = 250;
+                        const popupHeight = 100;
+                        let left = rect.left + (rect.width / 2) - (popupWidth / 2);
+                        let top = rect.top - popupHeight - 10;
+                        
+                        // Adjust if popup goes off screen
+                        if (left < 10) left = 10;
+                        if (left + popupWidth > window.innerWidth - 10) {
+                            left = window.innerWidth - popupWidth - 10;
+                        }
+                        if (top < 10) {
+                            top = rect.bottom + 10;
+                        }
+                        
+                        window.todoPopup.style.left = left + 'px';
+                        window.todoPopup.style.top = top + 'px';
+                        window.todoPopup.classList.add('show');
+                    }
+                }
+                return;
+            }
+            
+            // Close popup if clicking outside
+            if (window.todoPopup && window.todoPopup.classList.contains('show') && 
+                !window.todoPopup.contains(e.target) && 
+                !e.target.closest('.todo-icon')) {
+                window.todoPopup.classList.remove('show');
+            }
+        });
+        
+        window.todoPopupHandlerInitialized = true;
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            createTodoPopup();
+            initTodoPopupHandler();
+        });
+    } else {
+        createTodoPopup();
+        initTodoPopupHandler();
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', function () {
+    initializeRankEditing();
 });
 
 <script>
@@ -3477,6 +3713,44 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
         filterPanel.classList.add('hidden');
+        
+        // Use setTimeout to ensure DOM is fully updated
+        setTimeout(function() {
+          // Re-initialize rank editing after AJAX update
+          if (typeof initializeRankEditing === 'function') {
+            initializeRankEditing();
+          }
+          
+          // Ensure todo popup is initialized after AJAX update
+          // Since we use event delegation, we just need to ensure the popup element exists
+          if (!window.todoPopup) {
+            window.todoPopup = document.getElementById('todo-popup');
+          }
+          if (!window.todoPopup) {
+            window.todoPopup = document.createElement('div');
+            window.todoPopup.id = 'todo-popup';
+            window.todoPopup.className = 'todo-popup';
+            window.todoPopup.innerHTML = `
+                <div class="todo-popup-header">
+                    <div class="todo-popup-title">To Do Action</div>
+                    <button class="todo-popup-close" type="button">&times;</button>
+                </div>
+                <div class="todo-popup-content"></div>
+            `;
+            document.body.appendChild(window.todoPopup);
+            
+            const closeBtn = window.todoPopup.querySelector('.todo-popup-close');
+            if (closeBtn) {
+              closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                window.todoPopup.classList.remove('show');
+              });
+            }
+          }
+          
+          // Event delegation handler should already be set up from main initialization
+          // No need to re-initialize as it's attached to document and works for all elements
+        }, 50);
       })
       .catch(err => {
         console.error('Filter error:', err);

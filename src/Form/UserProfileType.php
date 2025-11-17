@@ -43,6 +43,13 @@ class UserProfileType extends AbstractType
                 'label' => 'Email',
             ])
             
+            ->add('nickname', TextType::class, [
+                'required' => false,
+                'label' => 'Nickname',
+                'attr' => [
+                    'placeholder' => 'Enter your preferred nickname or display name here',
+                ],
+            ])
 
             ->add('profilePictureFilename', FileType::class, [
                 'label' => 'Profile Picture',

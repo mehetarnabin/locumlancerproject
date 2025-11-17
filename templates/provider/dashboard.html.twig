@@ -248,6 +248,7 @@ div.container-xl,
 
     {% set allStatuses = ['saved', 'applied', 'interview', 'negotiating', 'accepted', 'completed'] %}
 
+    <div class="application-wrapper">
     <div class="application">
         <div class="row g-2">
             <div class="col">
@@ -297,11 +298,13 @@ div.container-xl,
         </div>
     </div>
 
+    </div>
+    
     <!-- Row 1 -->
     <div class="row g-2 mt-4">
         <!-- Matched / Saved Jobs -->
-        <div class="col-12 col-lg-7">
-            <div class="job-section shadow-lg p-3">
+        <div class="col-12 col-lg-6">
+            <div class="job-section shadow-lg p-3 rounded-3 h-100">
 
                 <!-- Top Tabs as Button Boxes -->
                 <div class="d-flex justify-content-between align-items-center mb-10-px">
@@ -332,10 +335,7 @@ div.container-xl,
                             {% set logo = job.companyLogo|default(job.employerLogo|default(job.employer.logo|default(asset('assets/icons/job.png')))) %}
                             {% set salary = job.salary|default(job.salaryText|default(null)) %}
                             {% set percent = job.matchingPercent|default(job.matchPercent|default(job.score|default(job.matchScore|default(null)))) %}
-                            {% set r = 18 %}
-                            {% set c = (2 * 3.1416 * r) %}
                             {% set p = percent is not null ? percent : 0 %}
-                            {% set offset = c - (c * (p / 100)) %}
                             {% set hasExpiry = job.expirationDate is defined and job.expirationDate %}
                             {% set daysLeft = hasExpiry
                                 ? (date(job.expirationDate) > date('now') ? date(job.expirationDate).diff(date('now')).days : 0)
@@ -358,19 +358,10 @@ div.container-xl,
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center gap-2 flex-shrink-0 text-end">
-                                        <div class="progress-circle">
-                                            <svg viewBox="0 0 44 44" width="36" height="36" aria-hidden="true">
-                                                <circle cx="22" cy="22" r="{{ r }}" class="pc-bg"
-                                                        stroke-width="4" fill="none"></circle>
-                                                <circle cx="22" cy="22" r="{{ r }}" class="pc-fg"
-                                                        stroke-width="4" fill="none"
-                                                        stroke-dasharray="{{ c }}, {{ c }}"
-                                                        stroke-dashoffset="{{ offset }}"></circle>
-                                            </svg>
-                                            <span class="pc-label">+{{ p }}%</span>
-                                        </div>
-
+                                    <div class="d-flex align-items-center gap-3 flex-shrink-0 text-end">
+                                        {% if p %}
+                                        <span class="match-pill">+{{ p }}%</span>
+                                        {% endif %}
                                         <div class="apply-within text-nowrap">
                                             <div class="apply-text small">Apply by</div>
                                             <div class="fw-semibold">
@@ -432,7 +423,7 @@ div.container-xl,
         </div>
 
         <!-- Messages -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-6">
     <div class="job-section shadow-lg p-3 rounded-3 h-100">
 
         <!-- Header -->
@@ -512,15 +503,15 @@ div.container-xl,
                                 <path d="M5.25 3C4.00736 3 3 4.00736 3 5.25V18.75C3 19.9926 4.00736 21 5.25 21H18.75C19.9926 21 21 19.9926 21 18.75V5.25C21 4.00736 19.9926 3 18.75 3H5.25ZM4.5 5.25C4.5 4.83579 4.83579 4.5 5.25 4.5H18.75C19.1642 4.5 19.5 4.83579 19.5 5.25V18.75C19.5 19.1642 19.1642 19.5 18.75 19.5H5.25C4.83579 19.5 4.5 19.1642 4.5 18.75V5.25Z" fill="#121C0C"/>
                                 </svg>
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
                                     <div class="schedule-left">
                                         <div class="fw-semibold">Task Title {{ i }}</div>
                                         <div class="small">Helpful short description for the task.</div>
                                     </div>
-                                    <div class="schedule-right">
-                                        <div class="small" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
-                                        <div class="small" style="font-size:12px;">10:00 AM</div>
+                                    <div class="schedule-right text-end">
+                                        <div class="small fw-semibold" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
+                                        <div class="small text-muted" style="font-size:12px;">10:00 AM</div>
                                     </div>
                                 </div>
                             </div>
@@ -1109,6 +1100,19 @@ div.container-xl,
     padding-left: 0 !important;
     margin-left: 0 !important;
 }
+.application .row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0;
+    scrollbar-width: none;
+}
+.application .row::-webkit-scrollbar {
+    display: none;
+}
+.application .row .col {
+    flex: 1 0 150px;
+    max-width: 100%;
+}
 .application .row .col a, .application .row .col a .card {
     margin-bottom: 0!important;
 }
@@ -1137,7 +1141,7 @@ div.container-xl,
     justify-content: center;
 }
 .application .col:first-child {
-    max-width: 80px;
+    max-width: none;
 }
 .application .col .card-body {
     display: flex;
