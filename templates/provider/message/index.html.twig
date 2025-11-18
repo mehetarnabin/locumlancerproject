@@ -572,6 +572,25 @@ body {
     color: #121C0C;
 }
 
+/* Special message item types */
+.message-item.draft-item {
+    background: #f8f9fa !important;
+    border-left: 3px solid #85BB65;
+}
+
+.message-item.draft-item:hover {
+    background: #e8f5e9 !important;
+}
+
+.message-item.draft-item .message-sender {
+    color: #85BB65 !important;
+    font-weight: 600;
+}
+
+.message-item.draft-item .message-text {
+    color: #5f6368 !important;
+}
+
 .message-item .message-checkbox {
     width: 18px;
     height: 18px;
@@ -664,6 +683,10 @@ body {
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+}
+
+.draft-badge {
+    background: #85BB65 !important;
 }
 
 .message-time {
@@ -894,6 +917,7 @@ body {
 .compose-footer-left {
     display: flex;
     align-items: center;
+    gap: 8px;
 }
 
 .compose-send-btn {
@@ -915,6 +939,27 @@ body {
 .compose-send-btn:hover {
     background: #6fa050;
     box-shadow: 0 2px 4px rgba(133, 187, 101, 0.3);
+}
+
+.compose-save-draft-btn {
+    background: transparent;
+    color: #5f6368;
+    border: 1px solid #e6eef6;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.compose-save-draft-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    color: #85BB65;
 }
 
 .compose-footer-right {
@@ -944,6 +989,24 @@ body {
 
 .compose-toolbar-btn:active {
     transform: scale(0.95);
+}
+
+/* Draft indicator */
+.compose-draft-indicator {
+    background: #e8f5e9;
+    border-left: 3px solid #85BB65;
+    padding: 8px 12px;
+    margin: 0 16px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #2e7d32;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-draft-indicator.visible {
+    display: flex;
 }
 
 /* Templates Dropdown Styling */
@@ -1036,313 +1099,680 @@ body {
 .templates-dropdown-menu::-webkit-scrollbar-track {
     background: transparent;
 }
+
+/* Toast notifications */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-left: 4px solid #85BB65;
+    z-index: 10000;
+    max-width: 300px;
+    animation: slideIn 0.3s ease;
+}
+
+.toast-error { border-left-color: #dc3545; }
+.toast-success { border-left-color: #85BB65; }
+.toast-warning { border-left-color: #ffc107; }
+
+.toast-content {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: #121C0C;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 10px;
+    color: #6b7280;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 6px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.page-item {
+    margin: 0;
+}
+
+.page-link {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #85BB65;
+    background: white;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+.page-link:hover {
+    background: #85BB65;
+    color: white;
+    border-color: #85BB65;
+}
+
+.page-item.active .page-link {
+    background: #85BB65;
+    color: white;
+    border-color: #85BB65;
+}
+
+.page-item.disabled .page-link {
+    color: #9ca3af;
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    text-align: center;
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 14px;
+}
 </style>
 
 <div class="email-app-wrapper">
     <div class="email-app-container">
         <!-- Messages Page -->
         <div class="messages-page">
-    <div class="messages-header">
-        <h6>Messages</h6>
-    </div>
+            <div class="messages-header">
+                <h6>
+                    {% if current_type == 'drafts' %}
+                        Drafts ({{ draft_count }})
+                    {% elseif current_type == 'sent' %}
+                        Sent Messages
+                    {% elseif current_type == 'trash' %}
+                        Trash ({{ trash_count }})
+                    {% else %}
+                        Inbox
+                    {% endif %}
+                </h6>
+            </div>
 
-    <div class="messages-container">
-        <!-- Sidebar -->
-        <div class="messages-sidebar">
-            <button type="button" class="new-message-btn" onclick="openComposeModal()">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span>Compose</span>
-            </button>
-            
-            <ul class="folder-list">
-                <li class="folder-item">
-                    <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" 
-                       class="folder-link {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
+            <div class="messages-container">
+                <!-- Sidebar -->
+                <div class="messages-sidebar">
+                    <button type="button" class="new-message-btn" onclick="openComposeModal()">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
-                        <span>Inbox</span>
-                        <span class="badge">3</span>
-                    </a>
-                </li>
-                <li class="folder-item">
-                    <a href="{{ path('app_provider_messages', {'type': 'sent'}) }}" 
-                       class="folder-link {% if app.request.get('type') == 'sent' %}active{% endif %}">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Sent</span>
-                    </a>
-                </li>
-                <li class="folder-item">
-                    <a href="{{ path('app_provider_messages', {'type': 'drafts'}) }}" 
-                       class="folder-link {% if app.request.get('type') == 'drafts' %}active{% endif %}" onclick="showDrafts(event)">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Drafts</span>
-                        <span class="badge" id="drafts-count" style="display: none;">0</span>
-                    </a>
-                </li>
-                <li class="folder-item">
-                    <a href="{{ path('app_provider_messages', {'type': 'trash'}) }}" 
-                       class="folder-link {% if app.request.get('type') == 'trash' %}active{% endif %}" onclick="showTrash(event)">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Trash</span>
-                        <span class="badge" id="trash-count" style="display: none;">0</span>
-                    </a>
-                </li>
-            </ul>
-
-            <!-- Email Templates Dropdown -->
-            <div class="templates-dropdown-wrapper">
-                <div class="templates-dropdown-container">
-                    <button class="folder-link templates-dropdown-btn" type="button" id="templatesDropdownBtn">
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;">
-                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            <span>Email Templates</span>
-                        </div>
-                        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px; margin-left: auto; transition: transform 0.2s ease;">
-                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <span>Compose</span>
                     </button>
-                    <ul class="templates-dropdown-menu" id="templatesDropdownMenu" style="display: none;">
-                        <li>
-                            <a class="template-item" href="javascript:void(0);" data-template="request">
-                                <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Quick Check-in</div>
-                                <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Follow up on opportunity</div>
+                    
+                    <ul class="folder-list">
+                        <li class="folder-item">
+                            <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" 
+                            class="folder-link {% if current_type == 'inbox' or current_type is empty %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                <span>Inbox</span>
                             </a>
                         </li>
-                        <li>
-                            <a class="template-item" href="javascript:void(0);" data-template="thank">
-                                <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Thank You</div>
-                                <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Thank for conversation</div>
+                        <li class="folder-item">
+                            <a href="{{ path('app_provider_messages', {'type': 'sent'}) }}" 
+                               class="folder-link {% if current_type == 'sent' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Sent</span>
                             </a>
                         </li>
-                        <li>
-                            <a class="template-item" href="javascript:void(0);" data-template="follow">
-                                <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Follow Up</div>
-                                <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Following up on role</div>
+                        <li class="folder-item">
+                            <a href="{{ path('app_provider_messages', {'type': 'drafts'}) }}" 
+                               class="folder-link {% if current_type == 'drafts' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Drafts</span>
+                                {% if draft_count > 0 %}
+                                    <span class="badge draft-badge" id="drafts-count">{{ draft_count }}</span>
+                                {% endif %}
                             </a>
                         </li>
-                        <li>
-                            <a class="template-item" href="javascript:void(0);" data-template="details">
-                                <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Request Details</div>
-                                <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Request additional info</div>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="template-item" href="javascript:void(0);" data-template="review">
-                                <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Feedback</div>
-                                <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Share process feedback</div>
+                        <li class="folder-item">
+                            <a href="{{ path('app_provider_messages', {'type': 'trash'}) }}" 
+                               class="folder-link {% if current_type == 'trash' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Trash</span>
+                                {% if trash_count > 0 %}
+                                    <span class="badge trash-badge" id="trash-count">{{ trash_count }}</span>
+                                {% endif %}
                             </a>
                         </li>
                     </ul>
+
+                    <!-- Email Templates Dropdown -->
+                    <div class="templates-dropdown-wrapper">
+                        <div class="templates-dropdown-container">
+                            <button class="folder-link templates-dropdown-btn" type="button" id="templatesDropdownBtn">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span>Email Templates</span>
+                                </div>
+                                <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px; margin-left: auto; transition: transform 0.2s ease;">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <ul class="templates-dropdown-menu" id="templatesDropdownMenu" style="display: none;">
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="request">
+                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Quick Check-in</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Follow up on opportunity</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="thank">
+                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Thank You</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Thank for conversation</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="follow">
+                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Follow Up</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Following up on role</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="details">
+                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Request Details</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Request additional info</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="review">
+                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Feedback</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Share process feedback</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Content -->
+                <div class="messages-content">
+                    <!-- Search - Hide for trash -->
+                    {% if current_type != 'trash' %}
+                    <div class="messages-search">
+                        <form action="" method="get" class="input-group">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <input type="text" name="keyword" class="form-control" 
+                                   placeholder="Search in messages" 
+                                   value="{{ app.request.get('keyword') }}">
+                            {% if current_type %}
+                                <input type="hidden" name="type" value="{{ current_type }}">
+                            {% endif %}
+                            <button type="submit" class="btn">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Content Header - Hide for trash -->
+                    {% if current_type != 'trash' %}
+                    <div class="messages-content-header">
+                        <div class="select-all">
+                            <input type="checkbox" id="select-all-checkbox">
+                            <label for="select-all-checkbox">Select all</label>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Messages List -->
+                    <div class="messages-content-body">
+                        {% if messages|length > 0 %}
+                            <div class="messages-list">
+                                {% for message in messages %}
+                                    {% if current_type == 'drafts' %}
+                                        {# Draft item template #}
+                                        {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
+                                        {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
+                                        
+                                        <div class="message-item draft-item" data-draft-id="{{ message.id }}">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="loadDraftFromServer('{{ message.id }}')">
+                                                <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">To: {{ receiverName }}</div>
+                                                    <div class="message-text">{{ message.text|striptags|slice(0, 100) }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="message-actions">
+                                                <button class="message-delete-btn" onclick="event.stopPropagation(); deleteDraftFromServer('{{ message.id }}')" title="Delete draft">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {# Regular message item template #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}">
+                                            <a href="{{ path('app_provider_message_show', {'id': message.id}) }}" style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit;">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    {% if not isRead and current_type != 'sent' %}
+                                                        <span class="message-badge">New</span>
+                                                    {% endif %}
+                                                    <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                </div>
+                                            </a>
+                                            <div class="message-actions">
+                                                <button type="button" 
+                                                        onclick="deleteMessage('{{ message.id }}', this)"
+                                                        class="message-delete-btn"
+                                                        data-csrf="{{ csrf_token('delete' ~ message.id) }}"
+                                                        title="Delete message">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if pagination.total_pages > 1 %}
+                                <div class="pagination-wrapper">
+                                    <nav aria-label="Message pagination">
+                                        <ul class="pagination">
+                                            {# Previous page #}
+                                            <li class="page-item {% if not pagination.has_previous %}disabled{% endif %}">
+                                                <a class="page-link" 
+                                                   href="{% if pagination.has_previous %}{{ path('app_provider_messages', app.request.query.all|merge({page: pagination.previous_page})) }}{% else %}#{% endif %}"
+                                                   aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            {# Page numbers #}
+                                            {% for i in 1..pagination.total_pages %}
+                                                <li class="page-item {% if i == pagination.current_page %}active{% endif %}">
+                                                    <a class="page-link" 
+                                                       href="{{ path('app_provider_messages', app.request.query.all|merge({page: i})) }}">
+                                                        {{ i }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+
+                                            {# Next page #}
+                                            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                                <a class="page-link" 
+                                                   href="{% if pagination.has_next %}{{ path('app_provider_messages', app.request.query.all|merge({page: pagination.next_page})) }}{% else %}#{% endif %}"
+                                                   aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    
+                                    {# Optional: Show page info #}
+                                    <div class="pagination-info">
+                                        Page {{ pagination.current_page }} of {{ pagination.total_pages }} 
+                                        ({{ pagination.total_items }} total messages)
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="empty-messages">
+                                <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {% if current_type == 'drafts' %}
+                                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% elseif current_type == 'trash' %}
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% else %}
+                                        <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% endif %}
+                                </svg>
+                                <p>
+                                    {% if current_type == 'drafts' %}
+                                        No drafts found.
+                                    {% elseif current_type == 'sent' %}
+                                        No sent messages found.
+                                    {% elseif current_type == 'trash' %}
+                                        Trash is empty.
+                                    {% else %}
+                                        No messages found.
+                                    {% endif %}
+                                </p>
+                                {# REMOVED: Create New Message button from drafts empty state #}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right Sidebar -->
+                <div class="right-sidebar">
+                    <a href="{{ path('app_provider_interview_calendar') }}" 
+                       class="sidebar-icon calendar {% if app.request.get('_route') == 'app_provider_interview_calendar' %}active{% endif %}" 
+                       data-tooltip="Calendar"
+                       onmouseover="this.setAttribute('title', '');"
+                       onmouseout="this.setAttribute('title', 'Calendar');">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="{{ path('app_provider_jobs_applications') }}?status=interview" 
+                       class="sidebar-icon interview {% if app.request.get('status') == 'interview' %}active{% endif %}" 
+                       data-tooltip="Interview Links"
+                       onmouseover="this.setAttribute('title', '');"
+                       onmouseout="this.setAttribute('title', 'Interview Links');">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 15.2386 14.7614 13 12 13C9.23858 13 7 15.2386 7 18V20M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="{{ path('app_provider_documents') }}" 
+                       class="sidebar-icon document {% if app.request.get('_route') == 'app_provider_documents' %}active{% endif %}" 
+                       data-tooltip="Document Center"
+                       onmouseover="this.setAttribute('title', '');"
+                       onmouseout="this.setAttribute('title', 'Document Center');">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Messages Content -->
-        <div class="messages-content">
-            <!-- Search -->
-            <div class="messages-search">
-                <form action="" method="get" class="input-group">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <input type="text" name="keyword" class="form-control" 
-                           placeholder="Search in messages" 
-                           value="{{ app.request.get('keyword') }}">
-                    {% if app.request.get('type') %}
-                        <input type="hidden" name="type" value="{{ app.request.get('type') }}">
-                    {% endif %}
-                    <button type="submit" class="btn">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <!-- COMPOSE MODAL -->
+        <div id="compose-modal" class="compose-modal hidden">
+            <div class="compose-modal-header">
+                <span class="compose-modal-title">New Message</span>
+                <div class="compose-modal-actions">
+                    <button type="button" class="compose-modal-btn" onclick="minimizeComposeModal()" title="Minimize">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </button>
-                </form>
-            </div>
-            
-            <!-- Content Header -->
-            <div class="messages-content-header">
-                <div class="select-all">
-                    <input type="checkbox" id="select-all-checkbox">
-                    <label for="select-all-checkbox">Select all</label>
+                    <button type="button" class="compose-modal-btn" onclick="closeComposeModal()" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
-            
-            <!-- Messages List -->
-            <div class="messages-content-body">
-
-                {% if messages|length > 0 %}
-                    <div class="messages-list">
-                        {% for message in messages %}
-                            {% set senderName = app.request.get('type') == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                            {% set senderAvatar = app.request.get('type') == 'sent' 
-                                ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                            {% set isRead = message.seen|default(false) %}
-                            {% set messageText = message.text|striptags|slice(0, 100) %}
-                            
-                            <div class="message-item {% if not isRead %}unread{% else %}read{% endif %}">
-                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}">
-                                <a href="{{ path('app_provider_message_show', {'id': message.id}) }}" style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit;">
-                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                    <div class="message-content">
-                                        <div class="message-sender">{{ senderName }}</div>
-                                        <div class="message-text">{{ messageText|raw }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                    </div>
-                                    <div class="message-meta">
-                                        {% if not isRead and app.request.get('type') != 'sent' %}
-                                            <span class="message-badge">New</span>
-                                        {% endif %}
-                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
-                                    </div>
-                                </a>
-                                <div class="message-actions">
-                                    <button type="button" 
-                                            onclick="deleteMessage('{{ message.id }}', this)"
-                                            class="message-delete-btn"
-                                            data-csrf="{{ csrf_token('delete' ~ message.id) }}"
-                                            title="Delete message">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+            <form id="compose-form" action="{{ path('app_provider_messages_new') }}" method="post" enctype="multipart/form-data" class="compose-modal-body">
+                <input type="hidden" name="draft_id" id="compose-draft-id">
+                <div class="compose-draft-indicator" id="draft-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Editing draft</span>
+                </div>
+                <div class="compose-field">
+                    <select name="receiver" id="compose-receiver" class="compose-select" required>
+                        <option value="">-- Select Employer --</option>
+                        {% for employer in employers %}
+                            <option value="{{ employer.id }}">{{ employer.name }} {% if employer.email %}[{{ employer.email }}]{% endif %}</option>
                         {% endfor %}
+                    </select>
+                </div>
+                <div class="compose-field">
+                    <input type="text" name="subject" id="compose-subject" placeholder="Subject">
+                </div>
+                <div class="compose-editor">
+                    <textarea name="message" id="compose-message" placeholder="Compose your message..." required></textarea>
+                </div>
+                <div class="compose-footer">
+                    <div class="compose-footer-left">
+                        <button type="button" id="save-draft-btn" class="compose-save-draft-btn" onclick="saveAsDraft()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Save Draft
+                        </button>
+                        <button type="submit" class="compose-send-btn" id="send-message-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Send
+                        </button>
                     </div>
-
-                    <!-- Pagination -->
-                    {% if messages.nbPages > 1 %}
-                        <div class="pagination-wrapper">
-                            {{ pagerfanta(messages, 'twitter_bootstrap5') }}
-                        </div>
-                    {% endif %}
-                {% else %}
-                    <div class="empty-messages">
-                        <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <p>No messages found.</p>
+                    <div class="compose-footer-right">
+                        <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <input type="file" id="compose-attachment" name="attachment" style="display: none;" multiple>
+                        <button type="button" class="compose-toolbar-btn" title="More options">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="compose-toolbar-btn" onclick="deleteCurrentDraft()" title="Delete draft">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Right Sidebar -->
-        <div class="right-sidebar">
-            <a href="{{ path('app_provider_interview_calendar') }}" 
-               class="sidebar-icon calendar {% if app.request.get('_route') == 'app_provider_interview_calendar' %}active{% endif %}" 
-               data-tooltip="Calendar"
-               onmouseover="this.setAttribute('title', '');"
-               onmouseout="this.setAttribute('title', 'Calendar');">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                    <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </a>
-            <a href="{{ path('app_provider_jobs_applications') }}?status=interview" 
-               class="sidebar-icon interview {% if app.request.get('status') == 'interview' %}active{% endif %}" 
-               data-tooltip="Interview Links"
-               onmouseover="this.setAttribute('title', '');"
-               onmouseout="this.setAttribute('title', 'Interview Links');">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 15.2386 14.7614 13 12 13C9.23858 13 7 15.2386 7 18V20M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </a>
-            <a href="{{ path('app_provider_documents') }}" 
-               class="sidebar-icon document {% if app.request.get('_route') == 'app_provider_documents' %}active{% endif %}" 
-               data-tooltip="Document Center"
-               onmouseover="this.setAttribute('title', '');"
-               onmouseout="this.setAttribute('title', 'Document Center');">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-<!-- Compose Modal -->
-<div id="compose-modal" class="compose-modal hidden">
-        <div class="compose-modal-header">
-            <span class="compose-modal-title">New Message</span>
-            <div class="compose-modal-actions">
-                <button type="button" class="compose-modal-btn" onclick="minimizeComposeModal()" title="Minimize">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-                <button type="button" class="compose-modal-btn" onclick="closeComposeModal()" title="Close">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <form id="compose-form" action="{{ path('app_provider_messages_new') }}" method="post" enctype="multipart/form-data" class="compose-modal-body">
-            <div class="compose-field">
-                <select name="receiver" id="compose-receiver" class="compose-select" required>
-                    <option value="">-- Select Employer --</option>
-                </select>
-            </div>
-            <div class="compose-field">
-                <input type="text" name="subject" id="compose-subject" placeholder="Subject">
-            </div>
-            <div class="compose-editor">
-                <textarea name="message" id="compose-message" placeholder="Compose email" required></textarea>
-            </div>
-            <div class="compose-footer">
-                <div class="compose-footer-left">
-                    <button type="submit" class="compose-send-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Send
-                    </button>
-                </div>
-                <div class="compose-footer-right">
-                    <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <input type="file" id="compose-attachment" name="attachment" style="display: none;" multiple>
-                    <button type="button" class="compose-toolbar-btn" title="More options">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <button type="button" class="compose-toolbar-btn" onclick="deleteCurrentDraft()" title="Delete draft">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
 {% endblock %}
 
 {% block footer_scripts %}
 <script>
+// ============================================================================
+// MESSAGES SYSTEM - MANUAL DRAFT SAVING ONLY
+// ============================================================================
+
+// Draft functionality
+let currentDraftId = null;
+
+// Email Templates Configuration
+const emailTemplates = {
+    request: {
+        subject: () => 'Quick check-in on this opportunity',
+        message: () => `Hi there,\n\nI hope you're doing well. I'm reaching out to check in on this opportunity. I'm still very interested and would be happy to provide any additional information you might need from me.\n\nThanks so much for your time!\n\nBest,\n[YOUR NAME]`
+    },
+    thank: {
+        subject: () => 'Thank you for the conversation',
+        message: () => `Hi there,\n\nThank you again for the time you spent discussing this position. I appreciated the conversation and learning more about the team.\n\nIf there's anything else you need from me, please let me know—I'm excited about the opportunity.\n\nWarm regards,\n[YOUR NAME]`
+    },
+    follow: {
+        subject: () => 'Following up on this opportunity',
+        message: () => `Hi there,\n\nI wanted to follow up regarding this role. I'm still very enthusiastic about the opportunity and happy to share any additional information that would be helpful.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`
+    },
+    details: {
+        subject: () => 'Request for additional details',
+        message: () => `Hi there,\n\nThanks for the update on this role. Could you share any additional details or next steps so I can prepare accordingly?\n\nI appreciate the guidance and look forward to hearing from you.\n\nBest regards,\n[YOUR NAME]`
+    },
+    review: {
+        subject: () => 'Feedback on the process',
+        message: () => `Hi there,\n\nI wanted to share feedback on the recent process. Below are a few notes that might be helpful. Please feel free to edit or add your own comments.\n\n[Add your review or feedback here]\n\nThank you for the experience!\n\nBest,\n[YOUR NAME]`
+    }
+};
+
+// Save as draft explicitly - ONLY when button is clicked
+function saveAsDraft() {
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
+    
+    // Don't save if no content
+    if (!message.trim() && !receiver && !subject.trim()) {
+        showToast('error', 'Cannot save empty draft');
+        return;
+    }
+    
+    const form = document.getElementById('compose-form');
+    const draftInput = document.createElement('input');
+    draftInput.type = 'hidden';
+    draftInput.name = 'save_as_draft';
+    draftInput.value = '1';
+    form.appendChild(draftInput);
+    
+    // Show loading state
+    const button = document.getElementById('save-draft-btn');
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span> Saving...';
+    
+    // Submit the form
+    form.submit();
+}
+
+// Load draft from server
+async function loadDraftFromServer(draftId) {
+    try {
+        const response = await fetch(`/provider/messages/draft/${draftId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const draft = result.draft;
+            document.getElementById('compose-receiver').value = draft.receiver_id || '';
+            document.getElementById('compose-subject').value = draft.subject || '';
+            document.getElementById('compose-message').value = draft.message || '';
+            document.getElementById('compose-draft-id').value = draftId;
+            currentDraftId = draftId;
+            
+            document.getElementById('draft-indicator').classList.add('visible');
+            openComposeModal();
+            
+            // Auto-resize textarea
+            setTimeout(() => {
+                autoResizeTextarea(document.getElementById('compose-message'));
+            }, 100);
+        }
+    } catch (error) {
+        console.error('Error loading draft:', error);
+        showToast('error', 'Error loading draft');
+    }
+}
+
+// Delete draft from server
+async function deleteDraftFromServer(draftId) {
+    if (!confirm('Are you sure you want to delete this draft?')) return;
+    
+    try {
+        const response = await fetch(`/provider/messages/draft/${draftId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Remove the draft item from UI
+            const draftItem = document.querySelector(`[data-draft-id="${draftId}"]`);
+            if (draftItem) {
+                draftItem.style.transition = 'all 0.3s ease';
+                draftItem.style.opacity = '0';
+                draftItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => draftItem.remove(), 300);
+            }
+            
+            updateDraftsCount();
+            showToast('success', 'Draft deleted successfully');
+        }
+    } catch (error) {
+        console.error('Error deleting draft:', error);
+        showToast('error', 'Error deleting draft');
+    }
+}
+
+// Update drafts count
+async function updateDraftsCount() {
+    try {
+        const response = await fetch('{{ path('app_provider_drafts_count') }}');
+        const result = await response.json();
+        
+        const draftsBadge = document.getElementById('drafts-count');
+        if (draftsBadge && result.count > 0) {
+            draftsBadge.textContent = result.count;
+            draftsBadge.style.display = 'block';
+        } else if (draftsBadge && result.count === 0) {
+            draftsBadge.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error updating drafts count:', error);
+    }
+}
+
+// Modal functionality
 let isDragging = false;
 let currentX;
 let currentY;
@@ -1364,7 +1794,7 @@ function autoResizeTextarea(textarea) {
     // Calculate new height based on content
     const scrollHeight = textarea.scrollHeight;
     const minHeight = 200;
-    const maxHeight = window.innerHeight * 0.5; // Max 50% of viewport height
+    const maxHeight = window.innerHeight * 0.5;
     const newHeight = Math.min(Math.max(scrollHeight + 10, minHeight), maxHeight);
     
     // Set new height
@@ -1404,24 +1834,19 @@ function openComposeModal() {
     }
 }
 
-function closeComposeModal(skipAutoSave = false) {
+function closeComposeModal() {
     const modal = document.getElementById('compose-modal');
     const form = document.getElementById('compose-form');
-    const receiver = document.getElementById('compose-receiver')?.value || '';
-    const subject = document.getElementById('compose-subject')?.value || '';
-    const message = document.getElementById('compose-message')?.value || '';
-    
-    // Auto-save to drafts if there's content (unless explicitly skipped)
-    if (!skipAutoSave && (receiver || subject || message)) {
-        saveDraft(receiver, subject, message);
-    }
     
     modal.classList.add('hidden');
-    // Reset form
+    
+    // Reset form and state
     if (form) {
         form.reset();
     }
-    updateDraftsCount();
+    currentDraftId = null;
+    document.getElementById('compose-draft-id').value = '';
+    document.getElementById('draft-indicator').classList.remove('visible');
 }
 
 function minimizeComposeModal() {
@@ -1443,7 +1868,7 @@ if (composeHeader) {
 
 function dragStart(e) {
     if (e.target.closest('.compose-modal-btn')) {
-        return; // Don't drag if clicking on buttons
+        return;
     }
     
     initialX = e.clientX - xOffset;
@@ -1477,89 +1902,6 @@ function setTranslate(xPos, yPos, el) {
     el.style.transform = `translate(${xPos}px, ${yPos}px)`;
 }
 
-// Handle form submission
-document.getElementById('compose-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    const button = this.querySelector('.compose-send-btn');
-    const originalText = button.innerHTML;
-    
-    // Clear draft when sending
-    const receiver = document.getElementById('compose-receiver').value;
-    const subject = document.getElementById('compose-subject').value;
-    const message = document.getElementById('compose-message').value;
-    clearCurrentDraft(receiver, subject, message);
-    
-    button.disabled = true;
-    button.innerHTML = '<span>Sending...</span>';
-    
-    try {
-        const response = await fetch(this.action, {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (response.ok) {
-            // Check if response is JSON or HTML redirect
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const result = await response.json();
-                if (result.success) {
-                    closeComposeModal();
-                    if (typeof showToast === 'function') {
-                        showToast('success', 'Message sent successfully');
-                    } else {
-                        alert('Message sent successfully');
-                    }
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    alert(result.error || 'Failed to send message');
-                }
-            } else {
-                // HTML response - likely a redirect, reload the page
-                closeComposeModal();
-                if (typeof showToast === 'function') {
-                    showToast('success', 'Message sent successfully');
-                }
-                setTimeout(() => window.location.reload(), 1000);
-            }
-        } else {
-            alert('Failed to send message');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while sending the message');
-    } finally {
-        button.disabled = false;
-        button.innerHTML = originalText;
-    }
-});
-
-function clearCurrentDraft(receiver, subject, message) {
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const filtered = drafts.filter(d => 
-        !(d.receiver === receiver && d.subject === subject && d.message === message)
-    );
-    localStorage.setItem('message_drafts', JSON.stringify(filtered));
-    updateDraftsCount();
-}
-
-function deleteCurrentDraft() {
-    const receiver = document.getElementById('compose-receiver')?.value || '';
-    const subject = document.getElementById('compose-subject')?.value || '';
-    const message = document.getElementById('compose-message')?.value || '';
-    
-    if (receiver || subject || message) {
-        if (confirm('Delete this draft?')) {
-            clearCurrentDraft(receiver, subject, message);
-            closeComposeModal(true); // Skip auto-save when deleting
-        }
-    } else {
-        closeComposeModal(true);
-    }
-}
-
 // Load employers when modal opens
 async function loadEmployers() {
     try {
@@ -1578,204 +1920,49 @@ async function loadEmployers() {
     }
 }
 
-// Drafts and Trash functionality
-function saveDraft(receiver, subject, message) {
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const draft = {
-        id: Date.now(),
-        receiver: receiver || '',
-        subject: subject || '',
-        message: message || '',
-        timestamp: new Date().toISOString()
-    };
-    drafts.unshift(draft);
-    // Keep only last 50 drafts
-    if (drafts.length > 50) {
-        drafts.pop();
-    }
-    localStorage.setItem('message_drafts', JSON.stringify(drafts));
-    updateDraftsCount();
-}
-
-function loadDraft(draftId) {
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const draft = drafts.find(d => d.id === draftId);
-    if (draft) {
-        document.getElementById('compose-receiver').value = draft.receiver || '';
-        document.getElementById('compose-subject').value = draft.subject || '';
-        document.getElementById('compose-message').value = draft.message || '';
-        openComposeModal();
-    }
-}
-
-function deleteDraft(draftId) {
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const filtered = drafts.filter(d => d.id !== draftId);
-    localStorage.setItem('message_drafts', JSON.stringify(filtered));
-    updateDraftsCount();
-    if (document.getElementById('drafts-container')) {
-        showDrafts();
-    }
-}
-
-function showDrafts(event) {
-    if (event) {
-        event.preventDefault();
-    }
-    // Update URL without reload
-    const url = new URL(window.location);
-    url.searchParams.set('type', 'drafts');
-    window.history.pushState({}, '', url);
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const container = document.querySelector('.messages-content-body');
+// Delete current draft
+function deleteCurrentDraft() {
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
     
-    // Hide search and select all when showing drafts
-    document.querySelector('.messages-search')?.style.setProperty('display', 'none');
-    document.querySelector('.messages-content-header')?.style.setProperty('display', 'none');
-    
-    if (drafts.length === 0) {
-        container.innerHTML = `
-            <div class="empty-messages">
-                <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <p>No drafts found.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '<div class="messages-list">';
-    drafts.forEach(draft => {
-        const date = new Date(draft.timestamp);
-        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        html += `
-            <div class="message-item">
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;" onclick="loadDraft(${draft.id})">
-                    <div class="message-content" style="flex: 1;">
-                        <div class="message-sender">${escapeHtml(draft.subject) || '(No subject)'}</div>
-                        <div class="message-text">${escapeHtml(draft.message.substring(0, 100))}${draft.message.length > 100 ? '...' : ''}</div>
-                    </div>
-                    <div class="message-meta">
-                        <div class="message-time">${dateStr}</div>
-                    </div>
-                </div>
-                <div class="message-actions">
-                    <button class="message-delete-btn" onclick="event.stopPropagation(); deleteDraft(${draft.id})" title="Delete draft">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function showTrash(event) {
-    if (event) {
-        event.preventDefault();
-    }
-    // Update URL without reload
-    const url = new URL(window.location);
-    url.searchParams.set('type', 'trash');
-    window.history.pushState({}, '', url);
-    const trash = JSON.parse(localStorage.getItem('message_trash') || '[]');
-    const container = document.querySelector('.messages-content-body');
-    
-    // Hide search and select all when showing trash
-    document.querySelector('.messages-search')?.style.setProperty('display', 'none');
-    document.querySelector('.messages-content-header')?.style.setProperty('display', 'none');
-    
-    if (trash.length === 0) {
-        container.innerHTML = `
-            <div class="empty-messages">
-                <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <p>Trash is empty.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    let html = '<div class="messages-list">';
-    trash.forEach(item => {
-        const date = new Date(item.timestamp);
-        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        html += `
-            <div class="message-item">
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
-                    <div class="message-content" style="flex: 1;">
-                        <div class="message-sender">${escapeHtml(item.subject || item.sender || 'Deleted Message')}</div>
-                        <div class="message-text">${item.message ? escapeHtml(item.message.substring(0, 100)) + (item.message.length > 100 ? '...' : '') : ''}</div>
-                    </div>
-                    <div class="message-meta">
-                        <div class="message-time">${dateStr}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function updateDraftsCount() {
-    const drafts = JSON.parse(localStorage.getItem('message_drafts') || '[]');
-    const trash = JSON.parse(localStorage.getItem('message_trash') || '[]');
-    const draftsBadge = document.getElementById('drafts-count');
-    const trashBadge = document.getElementById('trash-count');
-    
-    if (draftsBadge) {
-        if (drafts.length > 0) {
-            draftsBadge.textContent = drafts.length;
-            draftsBadge.style.display = 'block';
-        } else {
-            draftsBadge.style.display = 'none';
+    if (receiver || subject || message) {
+        if (confirm('Delete this draft?')) {
+            // Clear draft data
+            if (currentDraftId) {
+                deleteDraftFromServer(currentDraftId);
+            }
+            closeComposeModal();
         }
-    }
-    
-    if (trashBadge) {
-        if (trash.length > 0) {
-            trashBadge.textContent = trash.length;
-            trashBadge.style.display = 'block';
-        } else {
-            trashBadge.style.display = 'none';
-        }
+    } else {
+        closeComposeModal();
     }
 }
 
-// Auto-save draft every 30 seconds
-let draftAutoSaveInterval;
-['compose-receiver', 'compose-subject', 'compose-message'].forEach(id => {
-    const element = document.getElementById(id);
-    if (element) {
-        element.addEventListener('input', function() {
-            clearTimeout(draftAutoSaveInterval);
-            draftAutoSaveInterval = setTimeout(() => {
-                const receiver = document.getElementById('compose-receiver')?.value || '';
-                const subject = document.getElementById('compose-subject')?.value || '';
-                const message = document.getElementById('compose-message')?.value || '';
-                if (receiver || subject || message) {
-                    saveDraft(receiver, subject, message);
-                }
-            }, 30000); // Auto-save after 30 seconds of inactivity
-        });
+// Handle form submission
+document.getElementById('compose-form')?.addEventListener('submit', async function(e) {
+    const button = this.querySelector('.compose-send-btn');
+    const originalText = button.innerHTML;
+    
+    // Check if this is a draft save or send action
+    const formData = new FormData(this);
+    const isDraftAction = formData.get('save_as_draft') === '1';
+    
+    if (!isDraftAction) {
+        // For sending, validate required fields
+        const receiver = document.getElementById('compose-receiver')?.value;
+        const message = document.getElementById('compose-message')?.value;
+        
+        if (!receiver || !message.trim()) {
+            e.preventDefault();
+            showToast('error', 'Receiver and message are required to send');
+            return;
+        }
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="loading-spinner"></span> Sending...';
     }
 });
-
-// ============================================================================
-// UPDATED: AJAX DELETE FUNCTIONALITY AND BULK ACTIONS
-// ============================================================================
 
 // Single message delete function (AJAX)
 async function deleteMessage(messageId, button) {
@@ -1799,7 +1986,7 @@ async function deleteMessage(messageId, button) {
         const formData = new FormData();
         formData.append('_token', csrfToken);
 
-        const response = await fetch(`/provider/${messageId}/delete`, {
+        const response = await fetch(`/provider/message/${messageId}/delete`, {
             method: 'POST',
             body: formData
         });
@@ -1816,13 +2003,8 @@ async function deleteMessage(messageId, button) {
             // Remove from DOM after animation
             setTimeout(() => {
                 messageItem.remove();
-                
-                // Show success message
                 showToast('success', result.message || 'Message deleted successfully');
-                
-                // Update message count if needed
                 updateMessageCount();
-                
             }, 300);
         } else {
             showToast('error', result.message || 'Failed to delete message');
@@ -1837,260 +2019,9 @@ async function deleteMessage(messageId, button) {
     }
 }
 
-// Bulk delete function
-async function deleteMessageBulk(messageId) {
-    try {
-        const csrfToken = document.querySelector(`[data-message-id="${messageId}"]`)?.closest('.message-item')
-            .querySelector('.message-delete-btn')?.getAttribute('data-csrf');
-        
-        if (!csrfToken) {
-            console.error('CSRF token not found for message:', messageId);
-            return false;
-        }
-
-        const formData = new FormData();
-        formData.append('_token', csrfToken);
-
-        const response = await fetch(`/provider/${messageId}/delete`, {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Find and remove the message item with animation
-            const messageItem = document.querySelector(`[data-message-id="${messageId}"]`)?.closest('.message-item');
-            if (messageItem) {
-                messageItem.style.transition = 'all 0.3s ease';
-                messageItem.style.opacity = '0';
-                messageItem.style.transform = 'translateX(-20px)';
-                
-                setTimeout(() => {
-                    if (messageItem.parentElement) {
-                        messageItem.remove();
-                    }
-                }, 300);
-            }
-            return true;
-        } else {
-            console.error('Delete failed for message:', messageId, result.message);
-            return false;
-        }
-    } catch (error) {
-        console.error('Error deleting message:', messageId, error);
-        return false;
-    }
-}
-
-// Bulk mark as read function
-async function markAsReadBulk(messageId) {
-    try {
-        const response = await fetch(`/provider/${messageId}/mark-read`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Update UI
-            const messageItem = document.querySelector(`[data-message-id="${messageId}"]`)?.closest('.message-item');
-            if (messageItem) {
-                messageItem.classList.remove('unread');
-                messageItem.classList.add('read');
-                
-                // Remove "New" badge if present
-                const badge = messageItem.querySelector('.message-badge');
-                if (badge) {
-                    badge.remove();
-                }
-            }
-            return true;
-        } else {
-            console.error('Mark as read failed for message:', messageId);
-            return false;
-        }
-    } catch (error) {
-        console.error('Error marking message as read:', messageId, error);
-        return false;
-    }
-}
-
-// UPDATED: Bulk action buttons functionality
-document.getElementById('delete-btn')?.addEventListener('click', async function() {
-    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked')).map(cb => cb.dataset.messageId);
-    if (selected.length === 0) {
-        showToast('error', 'Please select at least one message');
-        return;
-    }
-    
-    if (confirm(`Are you sure you want to delete ${selected.length} message(s)?`)) {
-        const button = this;
-        const originalText = button.innerHTML;
-        
-        // Show loading state
-        button.disabled = true;
-        button.innerHTML = '<span class="loading-spinner"></span> Deleting...';
-        
-        try {
-            // Delete messages sequentially to avoid overwhelming the server
-            let successCount = 0;
-            for (const messageId of selected) {
-                const success = await deleteMessageBulk(messageId);
-                if (success) successCount++;
-            }
-            
-            if (successCount > 0) {
-                showToast('success', `Successfully deleted ${successCount} message(s)`);
-                updateMessageCount();
-            }
-            
-            if (successCount < selected.length) {
-                showToast('warning', `${selected.length - successCount} message(s) could not be deleted`);
-            }
-            
-        } catch (error) {
-            console.error('Error deleting messages:', error);
-            showToast('error', 'Some messages could not be deleted');
-        } finally {
-            button.disabled = false;
-            button.innerHTML = originalText;
-            
-            // Uncheck select all checkbox
-            const selectAllCheckbox = document.getElementById('select-all-checkbox');
-            if (selectAllCheckbox) {
-                selectAllCheckbox.checked = false;
-            }
-            
-            // Hide bulk actions
-            toggleBulkActions(false);
-        }
-    }
-});
-
-document.getElementById('mark-read-btn')?.addEventListener('click', async function() {
-    const selected = Array.from(document.querySelectorAll('.message-checkbox:checked')).map(cb => cb.dataset.messageId);
-    if (selected.length === 0) {
-        showToast('error', 'Please select at least one message');
-        return;
-    }
-    
-    const button = this;
-    const originalText = button.innerHTML;
-    
-    // Show loading state
-    button.disabled = true;
-    button.innerHTML = '<span class="loading-spinner"></span> Marking...';
-    
-    try {
-        // Mark messages as read sequentially
-        const results = await Promise.allSettled(
-            selected.map(messageId => markAsReadBulk(messageId))
-        );
-        
-        const successful = results.filter(result => result.status === 'fulfilled').length;
-        
-        if (successful > 0) {
-            showToast('success', `Marked ${successful} message(s) as read`);
-        }
-        
-        if (successful < selected.length) {
-            showToast('warning', `${selected.length - successful} message(s) could not be marked as read`);
-        }
-        
-    } catch (error) {
-        console.error('Error marking messages as read:', error);
-        showToast('error', 'An error occurred while marking messages as read');
-    } finally {
-        button.disabled = false;
-        button.innerHTML = originalText;
-        
-        // Uncheck select all checkbox
-        const selectAllCheckbox = document.getElementById('select-all-checkbox');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = false;
-        }
-        
-        // Hide bulk actions
-        toggleBulkActions(false);
-    }
-});
-
-// Update select all checkbox functionality
-document.getElementById('select-all-checkbox')?.addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.message-checkbox');
-    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-    
-    checkboxes.forEach(cb => cb.checked = this.checked);
-    
-    // Show/hide bulk action buttons based on selection
-    toggleBulkActions(anyChecked || this.checked);
-});
-
-// Individual checkbox change handler
-document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('message-checkbox')) {
-        const anyChecked = Array.from(document.querySelectorAll('.message-checkbox')).some(cb => cb.checked);
-        toggleBulkActions(anyChecked);
-        
-        // Update select all checkbox state
-        const selectAllCheckbox = document.getElementById('select-all-checkbox');
-        if (selectAllCheckbox) {
-            const allCheckboxes = document.querySelectorAll('.message-checkbox');
-            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
-            const someChecked = Array.from(allCheckboxes).some(cb => cb.checked);
-            
-            selectAllCheckbox.checked = allChecked;
-            selectAllCheckbox.indeterminate = someChecked && !allChecked;
-        }
-    }
-});
-
-// Toggle bulk action buttons visibility
-function toggleBulkActions(show) {
-    const deleteBtn = document.getElementById('delete-btn');
-    const markReadBtn = document.getElementById('mark-read-btn');
-    
-    if (deleteBtn) {
-        deleteBtn.style.display = show ? 'inline-block' : 'none';
-    }
-    if (markReadBtn) {
-        markReadBtn.style.display = show ? 'inline-block' : 'none';
-    }
-}
-
-// Update message count (optional)
-function updateMessageCount() {
-    const messageItems = document.querySelectorAll('.message-item');
-    const emptyState = document.querySelector('.empty-messages');
-    
-    if (messageItems.length === 0 && emptyState) {
-        emptyState.style.display = 'block';
-    }
-    
-    // Update badge counts if you have them
-    const inboxBadge = document.querySelector('.folder-link[href*="inbox"] .badge');
-    if (inboxBadge) {
-        const currentCount = parseInt(inboxBadge.textContent) || 0;
-        if (currentCount > 0) {
-            inboxBadge.textContent = currentCount - 1;
-        }
-    }
-}
-
 // Toast notification function
 function showToast(type, message) {
-    // If you have an existing toast system, use it
-    if (typeof window.showToast === 'function') {
-        window.showToast(type, message);
-        return;
-    }
-    
-    // Simple toast implementation
+    // Create toast element
     const toast = document.createElement('div');
     toast.className = `toast-notification toast-${type}`;
     toast.innerHTML = `
@@ -2099,68 +2030,6 @@ function showToast(type, message) {
             <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
         </div>
     `;
-    
-    // Add styles if not already present
-    if (!document.querySelector('#toast-styles')) {
-        const styles = document.createElement('style');
-        styles.id = 'toast-styles';
-        styles.textContent = `
-            .toast-notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                border-left: 4px solid #85BB65;
-                z-index: 10000;
-                max-width: 300px;
-                animation: slideIn 0.3s ease;
-            }
-            .toast-error { border-left-color: #dc3545; }
-            .toast-success { border-left-color: #85BB65; }
-            .toast-warning { border-left-color: #ffc107; }
-            .toast-content {
-                padding: 12px 16px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            .toast-message {
-                font-size: 14px;
-                color: #121C0C;
-            }
-            .toast-close {
-                background: none;
-                border: none;
-                font-size: 18px;
-                cursor: pointer;
-                margin-left: 10px;
-                color: #6b7280;
-            }
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            .loading-spinner {
-                display: inline-block;
-                width: 14px;
-                height: 14px;
-                border: 2px solid currentColor;
-                border-radius: 50%;
-                border-top-color: transparent;
-                animation: spin 1s ease-in-out infinite;
-                margin-right: 6px;
-            }
-            .spinner {
-                animation: spin 1s linear infinite;
-            }
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(styles);
-    }
     
     document.body.appendChild(toast);
     
@@ -2172,48 +2041,9 @@ function showToast(type, message) {
     }, 5000);
 }
 
-// Initialize - hide bulk actions by default
-document.addEventListener('DOMContentLoaded', function() {
-    toggleBulkActions(false);
-});
-
 // ============================================================================
-// END OF UPDATED FUNCTIONALITY
+// TEMPLATES DROPDOWN FUNCTIONALITY
 // ============================================================================
-
-// Email Templates Configuration
-const emailTemplates = {
-    request: {
-        subject: () => 'Quick check-in on this opportunity',
-        message: () => `Hi there,\n\nI hope you're doing well. I'm reaching out to check in on this opportunity. I'm still very interested and would be happy to provide any additional information you might need from me.\n\nThanks so much for your time!\n\nBest,\n[YOUR NAME]`
-    },
-    thank: {
-        subject: () => 'Thank you for the conversation',
-        message: () => `Hi there,\n\nThank you again for the time you spent discussing this position. I appreciated the conversation and learning more about the team.\n\nIf there's anything else you need from me, please let me know—I'm excited about the opportunity.\n\nWarm regards,\n[YOUR NAME]`
-    },
-    follow: {
-        subject: () => 'Following up on this opportunity',
-        message: () => `Hi there,\n\nI wanted to follow up regarding this role. I'm still very enthusiastic about the opportunity and happy to share any additional information that would be helpful.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`
-    },
-    details: {
-        subject: () => 'Request for additional details',
-        message: () => `Hi there,\n\nThanks for the update on this role. Could you share any additional details or next steps so I can prepare accordingly?\n\nI appreciate the guidance and look forward to hearing from you.\n\nBest regards,\n[YOUR NAME]`
-    },
-    review: {
-        subject: () => 'Feedback on the process',
-        message: () => `Hi there,\n\nI wanted to share feedback on the recent process. Below are a few notes that might be helpful. Please feel free to edit or add your own comments.\n\n[Add your review or feedback here]\n\nThank you for the experience!\n\nBest,\n[YOUR NAME]`
-    }
-};
-
-// Auto-resize textarea on input
-document.addEventListener('DOMContentLoaded', function() {
-    const messageTextarea = document.getElementById('compose-message');
-    if (messageTextarea) {
-        messageTextarea.addEventListener('input', function() {
-            autoResizeTextarea(this);
-        });
-    }
-});
 
 // Handle template dropdown toggle
 document.addEventListener('DOMContentLoaded', function() {
@@ -2305,29 +2135,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-});
 
-// Handle drafts/trash navigation
-if (window.location.search.includes('type=drafts')) {
-    showDrafts();
-} else if (window.location.search.includes('type=trash')) {
-    showTrash();
-} else {
-    // Show search and header for inbox/sent
-    document.querySelector('.messages-search')?.style.setProperty('display', 'block');
-    document.querySelector('.messages-content-header')?.style.setProperty('display', 'flex');
-}
-
-// Restore search/header when navigating back to inbox/sent
-document.querySelectorAll('.folder-link').forEach(link => {
-    if (link.href && (link.href.includes('type=inbox') || link.href.includes('type=sent') || (!link.href.includes('type=')))) {
-        link.addEventListener('click', function() {
-            setTimeout(() => {
-                document.querySelector('.messages-search')?.style.setProperty('display', 'block');
-                document.querySelector('.messages-content-header')?.style.setProperty('display', 'flex');
-            }, 100);
+    // Auto-resize textarea on input
+    const messageTextarea = document.getElementById('compose-message');
+    if (messageTextarea) {
+        messageTextarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
         });
     }
+});
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize counts
+    updateDraftsCount();
 });
 </script>
 {% endblock %}

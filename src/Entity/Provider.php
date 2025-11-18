@@ -20,7 +20,8 @@ class Provider
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\OneToOne]
+    #[ORM\OneToOne(inversedBy: 'provider', targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     private ?User $user = null;
 
     #[ORM\Column(length: 255, nullable: true)]

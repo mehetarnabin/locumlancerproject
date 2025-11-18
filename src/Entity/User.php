@@ -36,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne]
     private ?Employer $employer = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: Provider::class)]
     private ?Provider $provider = null;
 
     #[ORM\Column(length: 255, nullable: true)]
