@@ -546,4 +546,37 @@ public function getMonthlyApplicationTrends(Provider $provider, int $months = 6)
         
         return $monthlyData;
     }
+
+    private function calculateAverageResponseTime(Provider $provider): float
+{
+    try {
+        $applications = $this->applicationRepo->findBy(['provider' => $provider]);
+        
+        if (empty($applications)) {
+            return 0.0;
+        }
+
+        $totalResponseTime = 0;
+        $respondedApplications = 0;
+
+        foreach ($applications as $application) {
+            $appliedDate = $application->getCreatedAt();
+            $statusUpdatedAt = $application->getUpdatedAt(); // When status was changed
+            
+            if ($statusUpdatedAt && $appliedDate) {
+                $responseTime = $statusUpdatedAt->getTimestamp() - $appliedDate->getTimestamp();
+                $responseTimeHours = $responseTime / 3600; // Convert to hours
+                
+                if ($responseTimeHours > 0 && $responseTimeHours < 720) { // Reasonable range: 0-30 days
+                    $totalResponseTime += $responseTimeHours;
+                    $respondedApplications++;
+                }
+            }
+        }
+
+        return $respondedApplications > 0 ? round($totalResponseTime / $respondedApplications, 1) : 0.0;
+    } catch (\Exception $e) {
+        return 0.0;
+    }
+}
 }
