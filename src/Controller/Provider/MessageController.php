@@ -100,7 +100,7 @@ class MessageController extends AbstractController
         EventDispatcherInterface $dispatcher,
         MailerInterface $mailer,
         SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+        #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
     ) {
         $user = $this->getUser();
         
@@ -203,6 +203,41 @@ class MessageController extends AbstractController
             $message->setSubject($subject);
             $message->setText($text);
 
+            // Handle file upload BEFORE deciding to send or save draft
+            if($request->files->get('attachment')) {
+                $file = $request->files->get('attachment');
+                error_log("📎 ATTACHMENT FOUND: " . $file->getClientOriginalName());
+
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+
+                try {
+                    // Ensure directory exists
+                    if (!is_dir($uploadDirectory)) {
+                        mkdir($uploadDirectory, 0755, true);
+                        error_log("📁 CREATED MESSAGES UPLOAD DIRECTORY: " . $uploadDirectory);
+                    }
+                    
+                    $file->move($uploadDirectory, $newFilename);
+                    $message->setAttachment($newFilename);
+                    error_log("✅ ATTACHMENT UPLOADED: " . $newFilename);
+                    error_log("📁 STORED AT: " . $uploadDirectory . '/' . $newFilename);
+                    
+                    // Verify the file was actually saved
+                    if (file_exists($uploadDirectory . '/' . $newFilename)) {
+                        error_log("✅ FILE VERIFICATION: File exists after upload");
+                    } else {
+                        error_log("❌ FILE VERIFICATION: File NOT found after upload!");
+                    }
+                } catch (FileException $e) {
+                    error_log("❌ ATTACHMENT UPLOAD FAILED: " . $e->getMessage());
+                    $this->addFlash('warning', 'Message saved but file upload failed');
+                }
+            } else {
+                error_log("📎 NO ATTACHMENT FILE IN REQUEST");
+            }
+
             // CRITICAL FIX: Clear draft/sent logic
             if ($isDraftAction) {
                 // SAVE AS DRAFT
@@ -226,36 +261,39 @@ class MessageController extends AbstractController
                 // Only dispatch event and send email for actual sent messages
                 if ($message->getReceiver()) {
                     $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
+                    
+                    // ✅ DEBUG: Check if attachment exists before sending email
+                    if ($message->getAttachment()) {
+                        $filePath = $uploadDirectory . '/' . $message->getAttachment();
+                        
+                        error_log("🔍 PRE-EMAIL ATTACHMENT CHECK:");
+                        error_log("  - Attachment: " . $message->getAttachment());
+                        error_log("  - File path: " . $filePath);
+                        error_log("  - Exists: " . (file_exists($filePath) ? 'YES' : 'NO'));
+                        error_log("  - Readable: " . (is_readable($filePath) ? 'YES' : 'NO'));
+                        
+                        if (file_exists($filePath)) {
+                            $originalFilename = $this->getOriginalFilename($message->getAttachment());
+                            error_log("  - Original filename: " . $originalFilename);
+                            error_log("  - File size: " . filesize($filePath) . " bytes");
+                        }
+                    } else {
+                        error_log("ℹ️ NO ATTACHMENT TO CHECK");
+                    }
+                    
                     $this->sendEmailToReceiver($message, $mailer);
                 } else {
                     error_log("⚠️ NO RECEIVER - CANNOT SEND EMAIL");
                 }
             }
 
-            // Handle file upload
-            if($request->files->get('attachment')) {
-                $file = $request->files->get('attachment');
-                error_log("📎 ATTACHMENT FOUND: " . $file->getClientOriginalName());
-
-                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
-
-                try {
-                    $file->move($uploadDirectory. '/' . $user->getId(), $newFilename);
-                    $message->setAttachment($newFilename);
-                    error_log("✅ ATTACHMENT UPLOADED: " . $newFilename);
-                } catch (FileException $e) {
-                    error_log("❌ ATTACHMENT UPLOAD FAILED: " . $e->getMessage());
-                    $this->addFlash('warning', 'Message saved but file upload failed');
-                }
-            }
 
             $em->persist($message);
             $em->flush();
             error_log("✅ MESSAGE SAVED TO DATABASE WITH ID: " . $message->getId());
             error_log("🎯 FINAL DRAFT STATUS: " . ($message->isDraft() ? 'YES (Draft)' : 'NO (Sent)'));
             error_log("🎯 FINAL RECEIVER: " . ($message->getReceiver() ? $message->getReceiver()->getEmail() : 'NONE'));
+            error_log("🎯 FINAL ATTACHMENT: " . ($message->getAttachment() ? $message->getAttachment() : 'NONE'));
 
             $this->addFlash('success', $successMessage);
             return $this->redirectToRoute('app_provider_messages', $redirectParams);
@@ -411,7 +449,7 @@ class MessageController extends AbstractController
         EntityManagerInterface $em,
         EventDispatcherInterface $dispatcher,
         SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+        #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
     ): JsonResponse {
         $user = $this->getUser();
 
@@ -439,7 +477,7 @@ class MessageController extends AbstractController
             $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
             try {
-                $file->move($uploadDirectory . '/' . $user->getId(), $newFilename);
+                $file->move($uploadDirectory, $newFilename);
                 $reply->setAttachment($newFilename);
             } catch (FileException $e) {
                 return new JsonResponse(['error' => 'File upload failed.'], 500);
@@ -609,6 +647,121 @@ class MessageController extends AbstractController
         ]);
     }
 
+    // FORWARD FUNCTIONALITY - RENAMED TO AVOID CONFLICT
+    #[Route('/messages/{id}/forward-message', name: 'app_provider_message_forward', methods: ['GET', 'POST'])]
+    public function forwardMessage(
+        Message $message,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher,
+        MailerInterface $mailer,
+        SluggerInterface $slugger,
+        #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
+    ) {
+        $user = $this->getUser();
+        
+        // Security check - user can only forward messages they have access to
+        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You cannot forward this message.');
+            return $this->redirectToRoute('app_provider_messages');
+        }
+
+        // Get employers for the forward modal
+        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+
+        // Handle POST request (actual forwarding)
+        if ($request->isMethod('POST')) {
+            $receiverId = $request->get('receiver');
+            $forwardText = $request->get('forward_message');
+            $subject = $request->get('subject');
+
+            // Validation
+            if (empty($receiverId) || empty(trim($forwardText))) {
+                $this->addFlash('error', 'Receiver and message are required to forward');
+                return $this->redirectToRoute('app_provider_messages');
+            }
+
+            // Create forwarded message
+            $forwardedMessage = new Message();
+            $forwardedMessage->setSender($user);
+            $forwardedMessage->setIsForwarded(true);
+            $forwardedMessage->setOriginalSubject($message->getSubject());
+            
+            // Set receiver
+            $receiverUser = $em->getRepository(User::class)->find($receiverId);
+            if ($receiverUser) {
+                $forwardedMessage->setReceiver($receiverUser);
+                $forwardedMessage->setEmployer($receiverUser->getEmployer());
+            } else {
+                $this->addFlash('error', 'Receiver not found');
+                return $this->redirectToRoute('app_provider_messages');
+            }
+
+            // Build the forwarded message content
+            $forwardedContent = $this->buildForwardedContent($message, $forwardText);
+            $forwardedMessage->setText($forwardedContent);
+            $forwardedMessage->setSubject($subject ?: $this->buildForwardSubject($message->getSubject()));
+            $forwardedMessage->setSentAt(new \DateTime());
+
+            // Handle file upload for new attachment
+            if ($request->files->get('attachment')) {
+                $file = $request->files->get('attachment');
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+                try {
+                    if (!is_dir($uploadDirectory)) {
+                        mkdir($uploadDirectory, 0755, true);
+                    }
+                    
+                    $file->move($uploadDirectory, $newFilename);
+                    $forwardedMessage->setAttachment($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('warning', 'Message forwarded but file upload failed');
+                }
+            }
+
+            $em->persist($forwardedMessage);
+            $em->flush();
+
+            // Send email notification
+            $dispatcher->dispatch(new MessageEvent($forwardedMessage), MessageEvent::MESSAGE_CREATED);
+            $this->sendEmailToReceiver($forwardedMessage, $mailer);
+
+            $this->addFlash('success', 'Message has been forwarded successfully');
+            return $this->redirectToRoute('app_provider_messages', ['type' => 'sent']);
+        }
+
+        // For GET request, show the forward form
+        return $this->render('provider/message/forward.html.twig', [
+            'message' => $message,
+            'employers' => $employers,
+        ]);
+    }
+
+    private function buildForwardedContent(Message $originalMessage, string $forwardText): string
+    {
+        $originalSender = $originalMessage->getSender()->getName() ?: $originalMessage->getSender()->getEmail();
+        $originalDate = $originalMessage->getCreatedAt()->format('F j, Y \\a\\t g:i A');
+        
+        $content = "---------- Forwarded message ---------\n";
+        $content .= "From: {$originalSender}\n";
+        $content .= "Date: {$originalDate}\n";
+        $content .= "Subject: {$originalMessage->getSubject()}\n";
+        $content .= "To: " . ($originalMessage->getReceiver() ? $originalMessage->getReceiver()->getEmail() : 'Unknown') . "\n\n";
+        $content .= $originalMessage->getText() . "\n\n";
+        $content .= "----------\n\n";
+        $content .= $forwardText;
+        
+        return $content;
+    }
+
+    private function buildForwardSubject(string $originalSubject): string
+    {
+        return "Fwd: " . $originalSubject;
+    }
+
     private function sendEmailToReceiver(Message $message, MailerInterface $mailer): void
     {
         // Don't send emails for drafts
@@ -618,6 +771,10 @@ class MessageController extends AbstractController
         }
         
         try {
+            error_log("📧📧📧 SEND EMAIL DEBUG START 📧📧📧");
+            error_log("📧 Message ID: " . $message->getId());
+            error_log("📧 Attachment from message: " . ($message->getAttachment() ?: 'NONE'));
+            
             $receiver = $message->getReceiver();
             $sender = $message->getSender();
             
@@ -636,50 +793,122 @@ class MessageController extends AbstractController
             
             $subject = $message->getSubject() ?: "New message from {$senderName}";
             
+            // Create the email
             $email = (new Email())
-                ->from('notifications@locumlancer.com') // Your system email
-                ->replyTo($senderEmail) // Replies go directly to the provider
+                ->from('notifications@locumlancer.com')
+                ->replyTo($senderEmail)
                 ->to($receiver->getEmail())
                 ->subject($subject . ' - LocumLancer')
                 ->html($this->getProviderMessageTemplate($message, $senderName, $senderEmail));
 
+            // Attachment handling
+            if ($message->getAttachment()) {
+                $uploadDirectory = $this->getParameter('messages_attachments_directory');
+                $filePath = $uploadDirectory . '/' . $message->getAttachment();
+                $originalFilename = $this->getOriginalFilename($message->getAttachment());
+                
+                error_log("📧 ATTACHMENT DEBUG IN EMAIL SEND:");
+                error_log("  - Attachment: " . $message->getAttachment());
+                error_log("  - Full path: " . $filePath);
+                error_log("  - File exists: " . (file_exists($filePath) ? 'YES' : 'NO'));
+                error_log("  - File readable: " . (is_readable($filePath) ? 'YES' : 'NO'));
+                
+                if (file_exists($filePath) && is_readable($filePath)) {
+                    try {
+                        $email->attachFromPath($filePath, $originalFilename);
+                        error_log("✅ FILE ATTACHED TO EMAIL: " . $originalFilename);
+                    } catch (\Exception $e) {
+                        error_log("❌ FAILED TO ATTACH FILE: " . $e->getMessage());
+                    }
+                } else {
+                    error_log("❌ ATTACHMENT FILE NOT FOUND OR NOT READABLE: " . $filePath);
+                }
+            } else {
+                error_log("ℹ️ NO ATTACHMENT TO ATTACH IN EMAIL SEND");
+            }
+
+            // Send the email
             $mailer->send($email);
-            error_log("✅ EMAIL SENT: Message sent from provider {$senderName} to: " . $receiver->getEmail());
+            error_log("✅ EMAIL SENT TO: " . $receiver->getEmail());
+            error_log("📧📧📧 SEND EMAIL DEBUG END 📧📧📧");
             
         } catch (\Exception $e) {
             error_log("❌ EMAIL SENDING FAILED: " . $e->getMessage());
-            error_log("❌ STACK TRACE: " . $e->getTraceAsString());
-            
-            // You might want to log this to a file or database for debugging
-            file_put_contents(
-                __DIR__ . '/../../var/log/email_errors.log',
-                date('Y-m-d H:i:s') . " - Error: " . $e->getMessage() . "\n",
-                FILE_APPEND
-            );
         }
     }
 
-    private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
+    // Add this helper method to extract original filename
+    private function getOriginalFilename(string $storedFilename): string
     {
-        $subject = $message->getSubject() ?: "New message";
+        // Remove the unique ID part to get original filename
+        // Format: original-name-uniqid.extension
+        $parts = explode('-', $storedFilename);
+        $extension = pathinfo($storedFilename, PATHINFO_EXTENSION);
         
+        // Remove the last part (uniqid) and reconstruct
+        array_pop($parts);
+        $originalName = implode('-', $parts) . '.' . $extension;
+        
+        return $originalName;
+    }
+
+  private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
+{
+    $subject = $message->getSubject() ?: "New message";
+    
+    $attachmentHtml = '';
+    $attachment = $message->getAttachment();
+    
+    // FORCE CHECK - Always show if file exists on disk
+    if ($attachment) {
+        $uploadDirectory = $this->getParameter('messages_attachments_directory');
+        $filePath = $uploadDirectory . '/' . $attachment;
+        
+        if (file_exists($filePath)) {
+            $originalFilename = $this->getOriginalFilename($attachment);
+            $attachmentHtml = "
+                <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #85BB65;'>
+                    <strong>📎 Attachment:</strong> {$originalFilename}
+                    <br>
+                    <small style='color: #28a745;'>
+                        The file is attached to this email.
+                    </small>
+                </div>
+            ";
+            error_log("✅✅✅ FORCING ATTACHMENT DISPLAY: " . $originalFilename);
+        }
+    }
+    
+    if (empty($attachmentHtml)) {
+        $attachmentHtml = "
+            <div style='background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #6c757d;'>
+                <small style='color: #6c757d;'>No attachment included with this message.</small>
+            </div>
+        ";
+    }
+    
+    // Rest of template remains the same...
+
+        // Rest of your template code remains the same...
         return "
             <!DOCTYPE html>
             <html>
             <head>
                 <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
-                    .message-box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
-                    .sender-info { background: #e9ecef; padding: 10px; border-radius: 5px; margin: 10px 0; }
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f6f6f6; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; border-bottom: 3px solid #007bff; }
+                    .message-box { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #007bff; }
+                    .sender-info { background: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; font-size: 14px; }
+                    .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; text-align: center; color: #6c757d; font-size: 12px; }
                 </style>
             </head>
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <h2>📬 {$subject}</h2>
+                        <h2 style='margin: 0; color: #333;'>📬 {$subject}</h2>
                     </div>
+                    
                     <div class='content'>
                         <p>Hello,</p>
                         
@@ -689,11 +918,20 @@ class MessageController extends AbstractController
                         </div>
                         
                         <div class='message-box'>
-                            <strong>Message:</strong>
-                            <p>{$message->getText()}</p>
+                            <strong style='display: block; margin-bottom: 10px;'>Message:</strong>
+                            <p style='margin: 0; white-space: pre-wrap;'>{$message->getText()}</p>
                         </div>
                         
-                        <p><em>When you reply, your response will go directly to {$senderName} at {$senderEmail}</em></p>
+                        {$attachmentHtml}
+                        
+                        <p style='font-style: italic; color: #6c757d;'>
+                            When you reply, your response will go directly to {$senderName} at {$senderEmail}
+                        </p>
+                    </div>
+                    
+                    <div class='footer'>
+                        <p>This message was sent via LocumLancer Platform</p>
+                        <p>&copy; " . date('Y') . " LocumLancer. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -737,39 +975,36 @@ class MessageController extends AbstractController
         }
     }
 
-    #[Route('/messages/debug-uuid', name: 'app_provider_messages_debug_uuid', methods: ['GET'])]
-    public function debugUuid(EntityManagerInterface $em): JsonResponse
+    #[Route('/debug-message/{id}', name: 'debug_message')]
+    public function debugMessage(Message $message): JsonResponse
     {
         $user = $this->getUser();
+        $uploadDirectory = $this->getParameter('messages_attachments_directory');
         
-        // Check UUID formats
-        $userStringUuid = $user->getId()->toString(); // "0194c15b-acf9-7ec9-9288-85d1a158e91b"
-        $userBinaryUuid = $user->getId()->toBinary(); // Binary format
+        $attachmentInfo = null;
+        if ($message->getAttachment()) {
+            $filePath = $uploadDirectory . '/' . $message->getAttachment();
+            $attachmentInfo = [
+                'attachment_name' => $message->getAttachment(),
+                'file_path' => $filePath,
+                'file_exists' => file_exists($filePath),
+                'is_readable' => is_readable($filePath),
+                'file_size' => file_exists($filePath) ? filesize($filePath) : 0,
+                'original_filename' => $this->getOriginalFilename($message->getAttachment())
+            ];
+        }
         
-        // Check what messages exist with different UUID formats
-        $messagesWithString = $em->createQueryBuilder()
-            ->select('m.id, m.subject')
-            ->from(Message::class, 'm')
-            ->where('m.sender = :user_string')
-            ->setParameter('user_string', $userStringUuid)
-            ->getQuery()
-            ->getArrayResult();
-
-        $messagesWithBinary = $em->createQueryBuilder()
-            ->select('m.id, m.subject')
-            ->from(Message::class, 'm')
-            ->where('m.sender = :user_binary')
-            ->setParameter('user_binary', $userBinaryUuid)
-            ->getQuery()
-            ->getArrayResult();
-
         return new JsonResponse([
-            'user_string_uuid' => $userStringUuid,
-            'user_binary_uuid' => bin2hex($userBinaryUuid),
-            'messages_with_string' => $messagesWithString,
-            'messages_with_binary' => $messagesWithBinary,
-            'count_string' => count($messagesWithString),
-            'count_binary' => count($messagesWithBinary)
+            'message_id' => $message->getId(),
+            'subject' => $message->getSubject(),
+            'text' => $message->getText(),
+            'is_draft' => $message->isDraft(),
+            'has_attachment' => (bool)$message->getAttachment(),
+            'attachment_info' => $attachmentInfo,
+            'sender' => $message->getSender()->getEmail(),
+            'receiver' => $message->getReceiver() ? $message->getReceiver()->getEmail() : null,
+            'upload_directory' => $uploadDirectory,
+            'directory_exists' => is_dir($uploadDirectory)
         ]);
     }
 }

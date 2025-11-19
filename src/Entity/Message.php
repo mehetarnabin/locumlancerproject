@@ -62,6 +62,13 @@ class Message
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $deletedAt = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isForwarded = false;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $originalSubject = null;
+
+
     public function __construct()
     {
         $this->id = Uuid::v4();
@@ -247,4 +254,28 @@ class Message
         $this->subject = $subject;
         return $this;
     }
+
+   
+
+public function isForwarded(): bool
+{
+    return $this->isForwarded;
+}
+
+public function setIsForwarded(bool $isForwarded): self
+{
+    $this->isForwarded = $isForwarded;
+    return $this;
+}
+
+public function getOriginalSubject(): ?string
+{
+    return $this->originalSubject;
+}
+
+public function setOriginalSubject(?string $originalSubject): self
+{
+    $this->originalSubject = $originalSubject;
+    return $this;
+}
 }

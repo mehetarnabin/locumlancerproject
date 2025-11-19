@@ -9,13 +9,12 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-
 #[AsMessageHandler]
 class SendEmailMessageHandler
 {
     public function __construct(
         private MailerInterface $mailer,
-        private readonly ParameterBagInterface  $params,
+        private readonly ParameterBagInterface $params,
     ) {}
 
     public function __invoke(SendEmailMessage $message)

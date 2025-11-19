@@ -2705,7 +2705,7 @@ function deleteCurrentDraft() {
 }
 
 // Handle form submission
-document.getElementById('compose-form')?.addEventListener('submit', async function(e) {
+document.getElementById('compose-form')?.addEventListener('submit', function(e) {
     const button = this.querySelector('.compose-send-btn');
     const originalText = button.innerHTML;
     
@@ -2722,6 +2722,29 @@ document.getElementById('compose-form')?.addEventListener('submit', async functi
             e.preventDefault();
             showToast('error', 'Receiver and message are required to send');
             return;
+        }
+        
+        // CRITICAL FIX: Handle file attachments for form submission
+        console.log('=== FORM SUBMISSION DEBUG ===');
+        console.log('Selected files:', selectedFiles);
+        
+        if (selectedFiles.length > 0) {
+            const fileInput = document.getElementById('compose-attachment');
+            
+            // Clear existing files in the input
+            const dt = new DataTransfer();
+            
+            // Add all selected files to the DataTransfer object
+            selectedFiles.forEach(file => {
+                console.log('Adding file to form:', file.name, file.size, file.type);
+                dt.items.add(file);
+            });
+            
+            // Update the file input with the files
+            fileInput.files = dt.files;
+            console.log('File input now has:', fileInput.files.length, 'files');
+        } else {
+            console.log('No files to attach');
         }
         
         button.disabled = true;

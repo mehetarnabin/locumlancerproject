@@ -122,4 +122,17 @@ class MessageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+        // In MessageRepository
+    public function getForwardedCount(User $user): int
+    {
+        return $this->createQueryBuilder('m')
+            ->select('COUNT(m.id)')
+            ->andWhere('m.sender = :user')
+            ->andWhere('m.isForwarded = true')
+            ->andWhere('m.deleted = false')
+            ->setParameter('user', $user->getId()->toBinary())
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
