@@ -23,70 +23,75 @@ use Symfony\Component\Mime\Email;
 class MessageController extends AbstractController
 {
     
-#[Route('/messages', name: 'app_provider_messages')]
-public function index(Request $request, EntityManagerInterface $em)
-{
-    $user = $this->getUser();
-    $type = $request->query->get('type', 'inbox');
-    $page = $request->query->get('page', 1);
-    $perPage = 10;
-    $offset = ($page - 1) * $perPage;
-    $filters = [];
-    $filters['keyword'] = $request->query->get('keyword');
-    
-    // CRITICAL FIX: Proper filtering based on type
-    switch ($type) {
-        case 'inbox':
-            $filters['receiver'] = $user->getId();
-            break;
-        case 'sent':
-            $filters['sender'] = $user->getId();
-            break;
-        case 'drafts':
-            $filters['sender'] = $user->getId();
-            $filters['drafts_only'] = true;
-            break;
-        case 'trash':
-            $filters['deleted'] = true;
-            $filters['user'] = $user->getId();
-            break;
-        default:
-            $filters['receiver'] = $user->getId();
-            break;
+    #[Route('/messages', name: 'app_provider_messages')]
+    public function index(Request $request, EntityManagerInterface $em)
+    {
+        $user = $this->getUser();
+        $type = $request->query->get('type', 'inbox');
+        $page = $request->query->get('page', 1);
+        $perPage = 10;
+        $offset = ($page - 1) * $perPage;
+        $filters = [];
+        $filters['keyword'] = $request->query->get('keyword');
+        
+        // CRITICAL FIX: Proper filtering based on type
+        switch ($type) {
+            case 'inbox':
+                $filters['receiver'] = $user->getId();
+                $filters['deleted'] = false; // Don't show deleted messages in inbox
+                break;
+            case 'sent':
+                $filters['sender'] = $user->getId();
+                $filters['drafts_only'] = false;
+                $filters['deleted'] = false; // Don't show deleted messages in sent
+                break;
+            case 'drafts':
+                $filters['sender'] = $user->getId();
+                $filters['drafts_only'] = true;
+                $filters['deleted'] = false; // Don't show deleted drafts
+                break;
+            case 'trash':
+                $filters['deleted'] = true;
+                $filters['user'] = $user->getId();
+                break;
+            default:
+                $filters['receiver'] = $user->getId();
+                $filters['deleted'] = false;
+                break;
+        }
+
+        // Get messages with pagination
+        $messages = $em->getRepository(Message::class)->getAll($offset, $perPage, $filters);
+        
+        // Get total count for pagination
+        $totalMessages = $em->getRepository(Message::class)->getCount($filters);
+        $totalPages = ceil($totalMessages / $perPage);
+
+        // Get counts for badges
+        $draftCount = $em->getRepository(Message::class)->getDraftCount($user);
+        $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
+
+        // Get employers for compose modal
+        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+
+        return $this->render('provider/message/index.html.twig', [
+            'messages' => $messages,
+            'draft_count' => $draftCount,
+            'trash_count' => $trashCount,
+            'current_type' => $type,
+            'employers' => $employers,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'per_page' => $perPage,
+                'total_items' => $totalMessages,
+                'has_previous' => $page > 1,
+                'has_next' => $page < $totalPages,
+                'previous_page' => $page - 1,
+                'next_page' => $page + 1,
+            ]
+        ]);
     }
-
-    // Get messages with pagination
-    $messages = $em->getRepository(Message::class)->getAll($offset, $perPage, $filters);
-    
-    // Get total count for pagination
-    $totalMessages = $em->getRepository(Message::class)->getCount($filters);
-    $totalPages = ceil($totalMessages / $perPage);
-
-    // Get counts for badges
-    $draftCount = $em->getRepository(Message::class)->getDraftCount($user);
-    $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
-
-    // Get employers for compose modal
-    $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
-
-    return $this->render('provider/message/index.html.twig', [
-        'messages' => $messages,
-        'draft_count' => $draftCount,
-        'trash_count' => $trashCount,
-        'current_type' => $type,
-        'employers' => $employers,
-        'pagination' => [
-            'current_page' => $page,
-            'total_pages' => $totalPages,
-            'per_page' => $perPage,
-            'total_items' => $totalMessages,
-            'has_previous' => $page > 1,
-            'has_next' => $page < $totalPages,
-            'previous_page' => $page - 1,
-            'next_page' => $page + 1,
-        ]
-    ]);
-}
     
     #[Route('/messages/new', name: 'app_provider_messages_new')]
     public function new(
@@ -103,7 +108,6 @@ public function index(Request $request, EntityManagerInterface $em)
         $provider = $em->getRepository(Provider::class)->findOneBy(['user' => $user]);
         
         if (!$provider) {
-            // If this is an AJAX request, return JSON error
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['error' => 'No provider profile found'], 400);
             }
@@ -115,7 +119,6 @@ public function index(Request $request, EntityManagerInterface $em)
         try {
             $employers = $em->getRepository(User::class)->getEmployersForMessage($provider->getId());
         } catch (\Exception $e) {
-            // Fallback if method doesn't exist
             $employers = $em->getRepository(User::class)->createQueryBuilder('u')
                 ->andWhere('u.userType = :userType')
                 ->setParameter('userType', User::TYPE_EMPLOYER)
@@ -123,7 +126,7 @@ public function index(Request $request, EntityManagerInterface $em)
                 ->getResult();
         }
 
-        // Handle POST requests (both regular and AJAX)
+        // Handle POST requests
         if ($request->isMethod('POST')) {
             error_log("=== MESSAGE SUBMISSION DEBUG ===");
             error_log("Receiver ID: " . $request->get('receiver'));
@@ -135,22 +138,22 @@ public function index(Request $request, EntityManagerInterface $em)
             $receiverId = $request->get('receiver');
             $subject = $request->get('subject');
             $text = $request->get('message');
-            $saveAsDraft = $request->get('save_as_draft', false);
+            $saveAsDraft = (bool) $request->get('save_as_draft', false);
             $draftId = $request->get('draft_id');
 
-            // CRITICAL FIX: Check if this is a SEND action (not draft)
-            $isSendAction = !$saveAsDraft;
+            // CRITICAL FIX: Clear logic for draft vs send
+            $isDraftAction = $saveAsDraft;
 
-            // FIXED VALIDATION: Different rules for sending vs drafting
-            if ($isSendAction) {
-                // VALIDATION: For sending, both receiver and text are required
+            // VALIDATION: Different rules for sending vs drafting
+            if (!$isDraftAction) {
+                // For sending, both receiver and text are required
                 if (empty($receiverId) || empty(trim($text))) {
                     error_log("❌ SEND VALIDATION FAILED: Receiver or message empty");
                     $this->addFlash('error', 'Receiver and message are required to send');
                     return $this->redirectToRoute('app_provider_messages');
                 }
             } else {
-                // For drafts, only text is required (receiver can be empty)
+                // For drafts, only text is required
                 if (empty(trim($text))) {
                     error_log("❌ DRAFT VALIDATION FAILED: Message text is empty");
                     $this->addFlash('error', 'Message text is required for draft');
@@ -187,7 +190,7 @@ public function index(Request $request, EntityManagerInterface $em)
                     error_log("✅ RECEIVER SET: " . $employerUser->getEmail());
                 } else {
                     error_log("❌ RECEIVER USER NOT FOUND WITH ID: " . $receiverId);
-                    if ($isSendAction) {
+                    if (!$isDraftAction) {
                         $this->addFlash('error', 'Receiver not found');
                         return $this->redirectToRoute('app_provider_messages');
                     }
@@ -200,8 +203,16 @@ public function index(Request $request, EntityManagerInterface $em)
             $message->setSubject($subject);
             $message->setText($text);
 
-            // CRITICAL FIX: Set draft status based on action
-            if ($isSendAction) {
+            // CRITICAL FIX: Clear draft/sent logic
+            if ($isDraftAction) {
+                // SAVE AS DRAFT
+                $message->setIsDraft(true);
+                $message->setSavedAt(new \DateTime());
+                $message->setSeen(true); // Drafts are always "seen" by sender
+                $successMessage = 'Message saved as draft successfully';
+                $redirectParams = ['type' => 'drafts'];
+                error_log("💾 SAVING AS DRAFT");
+            } else {
                 // SEND MESSAGE
                 $message->setIsDraft(false);
                 $message->setSentAt(new \DateTime());
@@ -212,23 +223,13 @@ public function index(Request $request, EntityManagerInterface $em)
                 error_log("📤 SENDING MESSAGE");
                 error_log("📧 RECEIVER EMAIL: " . ($message->getReceiver() ? $message->getReceiver()->getEmail() : 'NO EMAIL'));
                 
-                // Only dispatch event for actual sent messages
-                $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
-                
-                // Only send email for actual sent messages, not drafts
+                // Only dispatch event and send email for actual sent messages
                 if ($message->getReceiver()) {
+                    $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
                     $this->sendEmailToReceiver($message, $mailer);
                 } else {
                     error_log("⚠️ NO RECEIVER - CANNOT SEND EMAIL");
                 }
-            } else {
-                // SAVE AS DRAFT
-                $message->setIsDraft(true);
-                $message->setSavedAt(new \DateTime());
-                $message->setSeen(true); // Drafts are always "seen" by sender
-                $successMessage = 'Message saved as draft successfully';
-                $redirectParams = ['type' => 'drafts'];
-                error_log("💾 SAVING AS DRAFT");
             }
 
             // Handle file upload
@@ -260,7 +261,6 @@ public function index(Request $request, EntityManagerInterface $em)
             return $this->redirectToRoute('app_provider_messages', $redirectParams);
         }
 
-        // If it's a regular request, render the template
         return $this->render('provider/message/new.html.twig', [
             'employers' => $employers,
         ]);
@@ -384,8 +384,9 @@ public function index(Request $request, EntityManagerInterface $em)
     #[Route('/message/{id}/show', name: 'app_provider_message_show', methods: ['GET'])]
     public function show(Message $message, EntityManagerInterface $em)
     {
-        // Security check - user can only view their own messages
         $user = $this->getUser();
+        
+        // Security check - user can only view their own messages
         if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You cannot access this message.');
         }
@@ -456,7 +457,7 @@ public function index(Request $request, EntityManagerInterface $em)
         ]);
     }
 
-    #[Route('/message/{id}/delete', name: 'app_provider_message_delete', methods: ['POST'])]
+    #[Route('/message/{id}/delete', name: 'app_provider_message_delete', methods: ['POST', 'DELETE'])]
     public function delete(Message $message, EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -466,22 +467,24 @@ public function index(Request $request, EntityManagerInterface $em)
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        // Instead of removing, move to trash
-        $message->setDeleted(true);
-        $message->setDeletedAt(new \DateTime());
-        
-        $entityManager->persist($message);
-        $entityManager->flush();
+        try {
+            // Instead of removing, move to trash
+            $message->setDeleted(true);
+            $message->setDeletedAt(new \DateTime());
+            
+            $entityManager->persist($message);
+            $entityManager->flush();
 
-        if ($request->isXmlHttpRequest()) {
             return new JsonResponse([
                 'success' => true,
                 'message' => 'Message has been moved to trash'
             ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to delete message: ' . $e->getMessage()
+            ], 500);
         }
-
-        $this->addFlash('success', 'Message has been moved to trash');
-        return $this->redirectToRoute('app_provider_messages');
     }
 
     // Get trash count for badge
@@ -505,19 +508,31 @@ public function index(Request $request, EntityManagerInterface $em)
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $message->setDeleted(false);
-        $message->setDeletedAt(null);
-        
-        $em->persist($message);
-        $em->flush();
+        // Additional check: message must be in trash
+        if (!$message->isDeleted()) {
+            return new JsonResponse(['error' => 'Message is not in trash'], 400);
+        }
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Message restored successfully'
-        ]);
+        try {
+            $message->setDeleted(false);
+            $message->setDeletedAt(null);
+            
+            $em->persist($message);
+            $em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Message restored successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to restore message: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Permanently delete message
+    // Permanently delete message from trash
     #[Route('/messages/permanent-delete/{id}', name: 'app_provider_message_permanent_delete', methods: ['DELETE'])]
     public function permanentDelete(Message $message, EntityManagerInterface $em): JsonResponse
     {
@@ -528,13 +543,25 @@ public function index(Request $request, EntityManagerInterface $em)
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $em->remove($message);
-        $em->flush();
+        // Additional check: message must be in trash
+        if (!$message->isDeleted()) {
+            return new JsonResponse(['error' => 'Message is not in trash'], 400);
+        }
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Message permanently deleted'
-        ]);
+        try {
+            $em->remove($message);
+            $em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Message permanently deleted'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to permanently delete message: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // Empty trash
@@ -583,54 +610,54 @@ public function index(Request $request, EntityManagerInterface $em)
     }
 
     private function sendEmailToReceiver(Message $message, MailerInterface $mailer): void
-{
-    // Don't send emails for drafts
-    if ($message->isDraft()) {
-        error_log("🚫 NOT SENDING EMAIL - THIS IS A DRAFT");
-        return;
-    }
-    
-    try {
-        $receiver = $message->getReceiver();
-        $sender = $message->getSender();
-        
-        if (!$receiver || !$receiver->getEmail()) {
-            error_log("❌ No email found for receiver: " . ($receiver ? $receiver->getId() : 'null'));
+    {
+        // Don't send emails for drafts
+        if ($message->isDraft()) {
+            error_log("🚫 NOT SENDING EMAIL - THIS IS A DRAFT");
             return;
         }
         
-        $senderName = $sender->getName() ?: $sender->getEmail();
-        $senderEmail = $sender->getEmail();
-        
-        if (!$senderEmail) {
-            error_log("❌ Provider has no email: " . $sender->getId());
-            return;
-        }
-        
-        $subject = $message->getSubject() ?: "New message from {$senderName}";
-        
-        $email = (new Email())
-            ->from('notifications@locumlancer.com') // Your system email
-            ->replyTo($senderEmail) // Replies go directly to the provider
-            ->to($receiver->getEmail())
-            ->subject($subject . ' - LocumLancer')
-            ->html($this->getProviderMessageTemplate($message, $senderName, $senderEmail));
+        try {
+            $receiver = $message->getReceiver();
+            $sender = $message->getSender();
+            
+            if (!$receiver || !$receiver->getEmail()) {
+                error_log("❌ No email found for receiver: " . ($receiver ? $receiver->getId() : 'null'));
+                return;
+            }
+            
+            $senderName = $sender->getName() ?: $sender->getEmail();
+            $senderEmail = $sender->getEmail();
+            
+            if (!$senderEmail) {
+                error_log("❌ Provider has no email: " . $sender->getId());
+                return;
+            }
+            
+            $subject = $message->getSubject() ?: "New message from {$senderName}";
+            
+            $email = (new Email())
+                ->from('notifications@locumlancer.com') // Your system email
+                ->replyTo($senderEmail) // Replies go directly to the provider
+                ->to($receiver->getEmail())
+                ->subject($subject . ' - LocumLancer')
+                ->html($this->getProviderMessageTemplate($message, $senderName, $senderEmail));
 
-        $mailer->send($email);
-        error_log("✅ EMAIL SENT: Message sent from provider {$senderName} to: " . $receiver->getEmail());
-        
-    } catch (\Exception $e) {
-        error_log("❌ EMAIL SENDING FAILED: " . $e->getMessage());
-        error_log("❌ STACK TRACE: " . $e->getTraceAsString());
-        
-        // You might want to log this to a file or database for debugging
-        file_put_contents(
-            __DIR__ . '/../../var/log/email_errors.log',
-            date('Y-m-d H:i:s') . " - Error: " . $e->getMessage() . "\n",
-            FILE_APPEND
-        );
+            $mailer->send($email);
+            error_log("✅ EMAIL SENT: Message sent from provider {$senderName} to: " . $receiver->getEmail());
+            
+        } catch (\Exception $e) {
+            error_log("❌ EMAIL SENDING FAILED: " . $e->getMessage());
+            error_log("❌ STACK TRACE: " . $e->getTraceAsString());
+            
+            // You might want to log this to a file or database for debugging
+            file_put_contents(
+                __DIR__ . '/../../var/log/email_errors.log',
+                date('Y-m-d H:i:s') . " - Error: " . $e->getMessage() . "\n",
+                FILE_APPEND
+            );
+        }
     }
-}
 
     private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
     {
@@ -694,7 +721,7 @@ public function index(Request $request, EntityManagerInterface $em)
             $email = (new Email())
                 ->from('notifications@locumlancer.com') // System email
                 ->replyTo($senderEmail, $senderName) // Provider's actual email for replies
-                ->to('nirutabishwas77@gmail.com') // Test receiver
+                ->to('rnabin20@gmail.com') // Test receiver
                 ->subject("Test message from {$senderName} - LocumLancer")
                 ->text("This is a test message sent by {$senderName} ({$senderEmail}) through LocumLancer")
                 ->html("<p>This is a test message sent by <strong>{$senderName}</strong> ({$senderEmail}) through LocumLancer</p>");
@@ -708,5 +735,41 @@ public function index(Request $request, EntityManagerInterface $em)
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
+    }
+
+    #[Route('/messages/debug-uuid', name: 'app_provider_messages_debug_uuid', methods: ['GET'])]
+    public function debugUuid(EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        // Check UUID formats
+        $userStringUuid = $user->getId()->toString(); // "0194c15b-acf9-7ec9-9288-85d1a158e91b"
+        $userBinaryUuid = $user->getId()->toBinary(); // Binary format
+        
+        // Check what messages exist with different UUID formats
+        $messagesWithString = $em->createQueryBuilder()
+            ->select('m.id, m.subject')
+            ->from(Message::class, 'm')
+            ->where('m.sender = :user_string')
+            ->setParameter('user_string', $userStringUuid)
+            ->getQuery()
+            ->getArrayResult();
+
+        $messagesWithBinary = $em->createQueryBuilder()
+            ->select('m.id, m.subject')
+            ->from(Message::class, 'm')
+            ->where('m.sender = :user_binary')
+            ->setParameter('user_binary', $userBinaryUuid)
+            ->getQuery()
+            ->getArrayResult();
+
+        return new JsonResponse([
+            'user_string_uuid' => $userStringUuid,
+            'user_binary_uuid' => bin2hex($userBinaryUuid),
+            'messages_with_string' => $messagesWithString,
+            'messages_with_binary' => $messagesWithBinary,
+            'count_string' => count($messagesWithString),
+            'count_binary' => count($messagesWithBinary)
+        ]);
     }
 }

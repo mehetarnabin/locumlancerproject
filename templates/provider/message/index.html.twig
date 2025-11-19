@@ -739,6 +739,169 @@ body {
     justify-content: center;
 }
 
+/* Trash specific styles */
+.trash-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+}
+
+.empty-trash-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.empty-trash-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.empty-trash-btn:active {
+    transform: translateY(0);
+}
+
+.permanent-delete-btn {
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.permanent-delete-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.restore-btn {
+    background: transparent;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.restore-btn:hover {
+    background: #85BB65;
+    color: white;
+}
+
+/* File attachment display styles */
+.file-attachment-display {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #f8f9fa;
+    display: none;
+    flex-shrink: 0;
+}
+
+.file-attachment-display.visible {
+    display: block;
+}
+
+.file-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.file-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e6eef6;
+    font-size: 14px;
+}
+
+.file-attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-attachment-icon {
+    width: 16px;
+    height: 16px;
+    color: #5f6368;
+    flex-shrink: 0;
+}
+
+.file-attachment-name {
+    color: #121C0C;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-attachment-size {
+    color: #6b7280;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.file-attachment-remove {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.file-attachment-remove:hover {
+    background: #fee;
+    transform: scale(1.1);
+}
+
+.file-attachment-remove:active {
+    transform: scale(0.95);
+}
+
+/* Attachment button active state */
+.compose-toolbar-btn.has-attachment {
+    background: #e8f5e9;
+    color: #85BB65;
+}
+
+.compose-toolbar-btn.has-attachment:hover {
+    background: #d4edda;
+}
+
 /* Compose Modal Styles */
 .compose-modal {
     position: fixed;
@@ -1232,6 +1395,18 @@ body {
                         Inbox
                     {% endif %}
                 </h6>
+                
+                <!-- Trash Actions -->
+                {% if current_type == 'trash' and messages|length > 0 %}
+                <div class="trash-actions">
+                    <button type="button" class="empty-trash-btn" onclick="emptyTrash()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Empty Trash
+                    </button>
+                </div>
+                {% endif %}
             </div>
 
             <div class="messages-container">
@@ -1366,15 +1541,35 @@ body {
                     </div>
                     {% endif %}
                     
-                    <!-- Content Header - Hide for trash -->
-                    {% if current_type != 'trash' %}
+                    <!-- Content Header - Show different actions for trash -->
                     <div class="messages-content-header">
-                        <div class="select-all">
-                            <input type="checkbox" id="select-all-checkbox">
-                            <label for="select-all-checkbox">Select all</label>
-                        </div>
+                        {% if current_type == 'trash' %}
+                            <div class="select-all">
+                                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
+                                <label for="select-all-checkbox">Select all</label>
+                            </div>
+                            <div class="trash-actions">
+                                <button type="button" class="restore-btn" onclick="restoreSelectedMessages()" id="restore-selected-btn" disabled>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    Restore Selected
+                                </button>
+                                <button type="button" class="permanent-delete-btn" onclick="permanentlyDeleteSelectedMessages()" id="delete-selected-btn" disabled>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Delete Selected
+                                </button>
+                            </div>
+                        {% else %}
+                            <div class="select-all">
+                                <input type="checkbox" id="select-all-checkbox">
+                                <label for="select-all-checkbox">Select all</label>
+                            </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                     
                     <!-- Messages List -->
                     <div class="messages-content-body">
@@ -1401,6 +1596,47 @@ body {
                                             <div class="message-actions">
                                                 <button class="message-delete-btn" onclick="event.stopPropagation(); deleteDraftFromServer('{{ message.id }}')" title="Delete draft">
                                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% elseif current_type == 'trash' %}
+                                        {# Trash item template with restore and permanent delete options #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-item read" data-message-id="{{ message.id }}">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons()">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="event.stopPropagation();">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="message-actions">
+                                                <button type="button" 
+                                                        onclick="restoreMessage('{{ message.id }}', this)"
+                                                        class="restore-btn"
+                                                        title="Restore message">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
+                                                        <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2"/>
+                                                    </svg>
+                                                </button>
+                                                <button type="button" 
+                                                        onclick="permanentlyDeleteMessage('{{ message.id }}', this)"
+                                                        class="permanent-delete-btn"
+                                                        title="Permanently delete">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                         <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
                                                 </button>
@@ -1510,7 +1746,6 @@ body {
                                         No messages found.
                                     {% endif %}
                                 </p>
-                                {# REMOVED: Create New Message button from drafts empty state #}
                             </div>
                         {% endif %}
                     </div>
@@ -1592,6 +1827,14 @@ body {
                 <div class="compose-editor">
                     <textarea name="message" id="compose-message" placeholder="Compose your message..." required></textarea>
                 </div>
+                
+                <!-- File Attachment Display -->
+                <div class="file-attachment-display" id="file-attachment-display">
+                    <ul class="file-attachment-list" id="file-attachment-list">
+                        <!-- Files will be dynamically added here -->
+                    </ul>
+                </div>
+                
                 <div class="compose-footer">
                     <div class="compose-footer-left">
                         <button type="button" id="save-draft-btn" class="compose-save-draft-btn" onclick="saveAsDraft()">
@@ -1608,7 +1851,7 @@ body {
                         </button>
                     </div>
                     <div class="compose-footer-right">
-                        <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files">
+                        <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files" id="attachment-btn">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
@@ -1637,11 +1880,14 @@ body {
 {% block footer_scripts %}
 <script>
 // ============================================================================
-// MESSAGES SYSTEM - MANUAL DRAFT SAVING ONLY
+// MESSAGES SYSTEM - TRASH MANAGEMENT
 // ============================================================================
 
 // Draft functionality
 let currentDraftId = null;
+
+// File attachment management
+let selectedFiles = [];
 
 // Email Templates Configuration
 const emailTemplates = {
@@ -1666,6 +1912,514 @@ const emailTemplates = {
         message: () => `Hi there,\n\nI wanted to share feedback on the recent process. Below are a few notes that might be helpful. Please feel free to edit or add your own comments.\n\n[Add your review or feedback here]\n\nThank you for the experience!\n\nBest,\n[YOUR NAME]`
     }
 };
+
+// ============================================================================
+// FILE ATTACHMENT MANAGEMENT
+// ============================================================================
+
+// Initialize file attachment handling
+function initializeFileAttachments() {
+    const fileInput = document.getElementById('compose-attachment');
+    const attachmentBtn = document.getElementById('attachment-btn');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFileSelection(e.target.files);
+        });
+    }
+}
+
+// Handle file selection
+function handleFileSelection(files) {
+    if (!files || files.length === 0) return;
+
+    // Convert FileList to array and add to selectedFiles
+    const newFiles = Array.from(files);
+    selectedFiles = [...selectedFiles, ...newFiles];
+    
+    updateFileDisplay();
+    updateAttachmentButton();
+}
+
+// Update file display UI
+function updateFileDisplay() {
+    const attachmentDisplay = document.getElementById('file-attachment-display');
+    const attachmentList = document.getElementById('file-attachment-list');
+    
+    if (!attachmentDisplay || !attachmentList) return;
+
+    // Clear current list
+    attachmentList.innerHTML = '';
+
+    if (selectedFiles.length === 0) {
+        attachmentDisplay.classList.remove('visible');
+        return;
+    }
+
+    // Add each file to the display
+    selectedFiles.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'file-attachment-item';
+        listItem.innerHTML = `
+            <div class="file-attachment-info">
+                <svg class="file-attachment-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="file-attachment-name" title="${file.name}">${file.name}</span>
+                <span class="file-attachment-size">${formatFileSize(file.size)}</span>
+            </div>
+            <button type="button" class="file-attachment-remove" onclick="removeSelectedFile(${index})" title="Remove file">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        `;
+        attachmentList.appendChild(listItem);
+    });
+
+    attachmentDisplay.classList.add('visible');
+}
+
+// Update attachment button state
+function updateAttachmentButton() {
+    const attachmentBtn = document.getElementById('attachment-btn');
+    if (attachmentBtn) {
+        if (selectedFiles.length > 0) {
+            attachmentBtn.classList.add('has-attachment');
+            attachmentBtn.title = `${selectedFiles.length} file(s) attached`;
+        } else {
+            attachmentBtn.classList.remove('has-attachment');
+            attachmentBtn.title = 'Attach files';
+        }
+    }
+}
+
+// Remove selected file
+function removeSelectedFile(index) {
+    if (index >= 0 && index < selectedFiles.length) {
+        selectedFiles.splice(index, 1);
+        updateFileDisplay();
+        updateAttachmentButton();
+        updateFileInput();
+    }
+}
+
+// Update the actual file input (since we can't directly set files for security reasons)
+function updateFileInput() {
+    const fileInput = document.getElementById('compose-attachment');
+    if (!fileInput) return;
+
+    // Clear the file input
+    fileInput.value = '';
+    
+    // Note: We can't programmatically set files due to browser security
+    // The files are stored in selectedFiles array and will be handled during form submission
+}
+
+// Format file size to human readable format
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Clear all attachments when modal closes
+function clearAttachments() {
+    selectedFiles = [];
+    updateFileDisplay();
+    updateAttachmentButton();
+    
+    const fileInput = document.getElementById('compose-attachment');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+// ============================================================================
+// TRASH MANAGEMENT FUNCTIONS
+// ============================================================================
+
+// Restore message from trash
+async function restoreMessage(messageId, button) {
+    if (!confirm('Are you sure you want to restore this message?')) return;
+
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span>';
+
+    try {
+        const response = await fetch(`/provider/messages/restore/${messageId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove the message item from UI
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                messageItem.remove();
+                updateTrashCount();
+                showToast('success', result.message || 'Message restored successfully');
+                
+                // If no more messages, show empty state
+                if (document.querySelectorAll('.message-item').length === 0) {
+                    showEmptyState();
+                }
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to restore message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error restoring message:', error);
+        showToast('error', 'An error occurred while restoring the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
+
+// Permanently delete message from trash
+async function permanentlyDeleteMessage(messageId, button) {
+    if (!confirm('Are you sure you want to permanently delete this message? This action cannot be undone.')) return;
+
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span>';
+
+    try {
+        const response = await fetch(`/provider/messages/permanent-delete/${messageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove the message item from UI
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(20px)';
+            
+            setTimeout(() => {
+                messageItem.remove();
+                updateTrashCount();
+                showToast('success', result.message || 'Message permanently deleted');
+                
+                // If no more messages, show empty state
+                if (document.querySelectorAll('.message-item').length === 0) {
+                    showEmptyState();
+                }
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to delete message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error permanently deleting message:', error);
+        showToast('error', 'An error occurred while deleting the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
+
+// Empty entire trash
+async function emptyTrash() {
+    if (!confirm('Are you sure you want to empty the entire trash? This action cannot be undone.')) return;
+
+    try {
+        const response = await fetch('/provider/messages/empty-trash', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove all message items from UI
+            const messageItems = document.querySelectorAll('.message-item');
+            messageItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                    
+                    setTimeout(() => item.remove(), 300);
+                }, index * 100);
+            });
+
+            // Show empty state after animation
+            setTimeout(() => {
+                updateTrashCount();
+                showEmptyState();
+                showToast('success', `Trash emptied successfully (${result.deleted_count || 0} messages deleted)`);
+            }, (messageItems.length * 100) + 300);
+        } else {
+            showToast('error', result.message || 'Failed to empty trash');
+        }
+    } catch (error) {
+        console.error('Error emptying trash:', error);
+        showToast('error', 'An error occurred while emptying trash');
+    }
+}
+
+// Restore selected messages
+async function restoreSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    if (selectedIds.length === 0) return;
+
+    if (!confirm(`Are you sure you want to restore ${selectedIds.length} selected message(s)?`)) return;
+
+    try {
+        const restoreBtn = document.getElementById('restore-selected-btn');
+        const originalContent = restoreBtn.innerHTML;
+        restoreBtn.disabled = true;
+        restoreBtn.innerHTML = '<span class="loading-spinner"></span> Restoring...';
+
+        // Restore each selected message
+        const promises = selectedIds.map(id => 
+            fetch(`/provider/messages/restore/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+        );
+
+        const results = await Promise.all(promises);
+        const successCount = results.filter(result => result.success).length;
+
+        // Remove successfully restored messages from UI
+        selectedIds.forEach(id => {
+            const messageItem = document.querySelector(`[data-message-id="${id}"]`);
+            if (messageItem) {
+                messageItem.style.transition = 'all 0.3s ease';
+                messageItem.style.opacity = '0';
+                messageItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => messageItem.remove(), 300);
+            }
+        });
+
+        // Update UI
+        setTimeout(() => {
+            updateTrashCount();
+            updateTrashActionButtons();
+            
+            if (document.querySelectorAll('.message-item').length === 0) {
+                showEmptyState();
+            }
+            
+            showToast('success', `${successCount} message(s) restored successfully`);
+        }, 300);
+
+    } catch (error) {
+        console.error('Error restoring selected messages:', error);
+        showToast('error', 'An error occurred while restoring messages');
+    }
+}
+
+// Permanently delete selected messages
+async function permanentlyDeleteSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    if (selectedIds.length === 0) return;
+
+    if (!confirm(`Are you sure you want to permanently delete ${selectedIds.length} selected message(s)? This action cannot be undone.`)) return;
+
+    try {
+        const deleteBtn = document.getElementById('delete-selected-btn');
+        const originalContent = deleteBtn.innerHTML;
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span class="loading-spinner"></span> Deleting...';
+
+        // Delete each selected message
+        const promises = selectedIds.map(id => 
+            fetch(`/provider/messages/permanent-delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+        );
+
+        const results = await Promise.all(promises);
+        const successCount = results.filter(result => result.success).length;
+
+        // Remove successfully deleted messages from UI
+        selectedIds.forEach(id => {
+            const messageItem = document.querySelector(`[data-message-id="${id}"]`);
+            if (messageItem) {
+                messageItem.style.transition = 'all 0.3s ease';
+                messageItem.style.opacity = '0';
+                messageItem.style.transform = 'translateX(20px)';
+                setTimeout(() => messageItem.remove(), 300);
+            }
+        });
+
+        // Update UI
+        setTimeout(() => {
+            updateTrashCount();
+            updateTrashActionButtons();
+            
+            if (document.querySelectorAll('.message-item').length === 0) {
+                showEmptyState();
+            }
+            
+            showToast('success', `${successCount} message(s) permanently deleted`);
+        }, 300);
+
+    } catch (error) {
+        console.error('Error deleting selected messages:', error);
+        showToast('error', 'An error occurred while deleting messages');
+    }
+}
+
+// Get selected message IDs
+function getSelectedMessageIds() {
+    const checkboxes = document.querySelectorAll('.message-checkbox:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.getAttribute('data-message-id'));
+}
+
+// Toggle select all checkboxes
+function toggleSelectAll(selectAllCheckbox) {
+    const checkboxes = document.querySelectorAll('.message-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+    updateTrashActionButtons();
+}
+
+// Update trash action buttons state
+function updateTrashActionButtons() {
+    const selectedCount = getSelectedMessageIds().length;
+    const restoreBtn = document.getElementById('restore-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    
+    if (restoreBtn) {
+        restoreBtn.disabled = selectedCount === 0;
+        restoreBtn.textContent = selectedCount > 0 ? 
+            `Restore Selected (${selectedCount})` : 'Restore Selected';
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.disabled = selectedCount === 0;
+        deleteBtn.textContent = selectedCount > 0 ? 
+            `Delete Selected (${selectedCount})` : 'Delete Selected';
+    }
+}
+
+// Show empty state when no messages
+function showEmptyState() {
+    const messagesList = document.querySelector('.messages-list');
+    const messagesContentBody = document.querySelector('.messages-content-body');
+    
+    if (messagesList && messagesContentBody && messagesList.children.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-messages';
+        emptyState.innerHTML = `
+            <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>Trash is empty.</p>
+        `;
+        messagesContentBody.appendChild(emptyState);
+    }
+}
+
+// Update trash count badge
+async function updateTrashCount() {
+    try {
+        const response = await fetch('{{ path('app_provider_trash_count') }}');
+        const result = await response.json();
+        
+        const trashBadge = document.getElementById('trash-count');
+        if (trashBadge && result.count > 0) {
+            trashBadge.textContent = result.count;
+            trashBadge.style.display = 'block';
+        } else if (trashBadge && result.count === 0) {
+            trashBadge.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error updating trash count:', error);
+    }
+}
+
+// ============================================================================
+// EXISTING MESSAGE FUNCTIONS (with trash support)
+// ============================================================================
+
+// Single message delete function (AJAX) - moves to trash
+async function deleteMessage(messageId, button) {
+    if (!confirm('Are you sure you want to delete this message?')) {
+        return;
+    }
+
+    const originalContent = button.innerHTML;
+    const csrfToken = button.getAttribute('data-csrf');
+    
+    // Show loading state
+    button.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="spinner">
+            <path d="M12 2V6M12 18V22M6 12H2M22 12H18M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M19.07 19.07L16.24 16.24M7.76 7.76L4.93 4.93" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    `;
+    button.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('_token', csrfToken);
+
+        const response = await fetch(`/provider/message/${messageId}/delete`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Find the message item and remove it with animation
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(-20px)';
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                messageItem.remove();
+                showToast('success', result.message || 'Message moved to trash successfully');
+                updateTrashCount();
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to delete message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        showToast('error', 'An error occurred while deleting the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
 
 // Save as draft explicitly - ONLY when button is clicked
 function saveAsDraft() {
@@ -1772,6 +2526,10 @@ async function updateDraftsCount() {
     }
 }
 
+// ============================================================================
+// MODAL AND UI FUNCTIONS
+// ============================================================================
+
 // Modal functionality
 let isDragging = false;
 let currentX;
@@ -1825,6 +2583,9 @@ function openComposeModal() {
     // Load employers
     loadEmployers();
     
+    // Initialize file attachments
+    initializeFileAttachments();
+    
     // Auto-resize textarea if it has content
     const messageTextarea = document.getElementById('compose-message');
     if (messageTextarea && messageTextarea.value) {
@@ -1844,6 +2605,10 @@ function closeComposeModal() {
     if (form) {
         form.reset();
     }
+    
+    // Clear attachments
+    clearAttachments();
+    
     currentDraftId = null;
     document.getElementById('compose-draft-id').value = '';
     document.getElementById('draft-indicator').classList.remove('visible');
@@ -1963,61 +2728,6 @@ document.getElementById('compose-form')?.addEventListener('submit', async functi
         button.innerHTML = '<span class="loading-spinner"></span> Sending...';
     }
 });
-
-// Single message delete function (AJAX)
-async function deleteMessage(messageId, button) {
-    if (!confirm('Are you sure you want to delete this message?')) {
-        return;
-    }
-
-    const originalContent = button.innerHTML;
-    const csrfToken = button.getAttribute('data-csrf');
-    
-    // Show loading state
-    button.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="spinner">
-            <path d="M12 2V6M12 18V22M6 12H2M22 12H18M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M19.07 19.07L16.24 16.24M7.76 7.76L4.93 4.93" 
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-    `;
-    button.disabled = true;
-
-    try {
-        const formData = new FormData();
-        formData.append('_token', csrfToken);
-
-        const response = await fetch(`/provider/message/${messageId}/delete`, {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Find the message item and remove it with animation
-            const messageItem = button.closest('.message-item');
-            messageItem.style.transition = 'all 0.3s ease';
-            messageItem.style.opacity = '0';
-            messageItem.style.transform = 'translateX(-20px)';
-            
-            // Remove from DOM after animation
-            setTimeout(() => {
-                messageItem.remove();
-                showToast('success', result.message || 'Message deleted successfully');
-                updateMessageCount();
-            }, 300);
-        } else {
-            showToast('error', result.message || 'Failed to delete message');
-            button.innerHTML = originalContent;
-            button.disabled = false;
-        }
-    } catch (error) {
-        console.error('Error deleting message:', error);
-        showToast('error', 'An error occurred while deleting the message');
-        button.innerHTML = originalContent;
-        button.disabled = false;
-    }
-}
 
 // Toast notification function
 function showToast(type, message) {
@@ -2143,15 +2853,15 @@ document.addEventListener('DOMContentLoaded', function() {
             autoResizeTextarea(this);
         });
     }
-});
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
-
-document.addEventListener('DOMContentLoaded', function() {
     // Initialize counts
     updateDraftsCount();
+    updateTrashCount();
+    
+    // Initialize trash action buttons if in trash view
+    if (window.location.href.includes('type=trash')) {
+        updateTrashActionButtons();
+    }
 });
 </script>
 {% endblock %}

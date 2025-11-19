@@ -46,8 +46,7 @@ class Message
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $subject = null;
 
-
-    // NEW: Draft functionality fields
+    // Draft functionality fields
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private ?bool $isDraft = false;
 
@@ -57,7 +56,7 @@ class Message
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $sentAt = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private ?bool $deleted = false;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -68,6 +67,7 @@ class Message
         $this->id = Uuid::v4();
         $this->isDraft = false;
         $this->seen = false;
+        $this->deleted = false;
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
     }
@@ -154,7 +154,6 @@ class Message
         return $this;
     }
 
-    // NEW: Draft-related methods
     public function isDraft(): bool
     {
         return $this->isDraft;
@@ -169,7 +168,7 @@ class Message
             $this->sentAt = null;
             $this->seen = true; // Drafts are always "seen" by sender
         } else {
-            $this->sentAt = new \DateTime();
+            $this->sentAt = $this->sentAt ?: new \DateTime();
             $this->seen = false;
         }
         
@@ -211,42 +210,41 @@ class Message
         return $this->getReceiver() !== null && !empty(trim($this->getText()));
     }
 
-
     public function isDeleted(): ?bool
-{
-    return $this->deleted;
-}
-
-public function setDeleted(?bool $deleted): static
-{
-    $this->deleted = $deleted;
-    if ($deleted) {
-        $this->deletedAt = new \DateTime();
-    } else {
-        $this->deletedAt = null;
+    {
+        return $this->deleted;
     }
-    return $this;
-}
 
-public function getDeletedAt(): ?\DateTimeInterface
-{
-    return $this->deletedAt;
-}
+    public function setDeleted(?bool $deleted): static
+    {
+        $this->deleted = $deleted;
+        if ($deleted) {
+            $this->deletedAt = new \DateTime();
+        } else {
+            $this->deletedAt = null;
+        }
+        return $this;
+    }
 
-public function setDeletedAt(?\DateTimeInterface $deletedAt): static
-{
-    $this->deletedAt = $deletedAt;
-    return $this;
-}
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
 
-public function getSubject(): ?string
-{
-    return $this->subject;
-}
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
+        return $this;
+    }
 
-public function setSubject(?string $subject): static
-{
-    $this->subject = $subject;
-    return $this;
-}
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(?string $subject): static
+    {
+        $this->subject = $subject;
+        return $this;
+    }
 }
