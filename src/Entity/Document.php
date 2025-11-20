@@ -21,7 +21,7 @@ class Document
     #[ORM\ManyToOne]
     private ?User $user = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)] // Make name nullable
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
@@ -36,7 +36,6 @@ class Document
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expirationDate = null;
 
-
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $category = null;
 
@@ -44,7 +43,7 @@ class Document
 
     public function __toString(): string
     {
-        return $this->name;
+        return $this->getName() ?? $this->getCategory() ?? 'Unnamed Document';
     }
 
     public function getId(): ?Uuid
@@ -62,12 +61,12 @@ class Document
         $this->user = $user;
     }
 
-    public function getName(): string
+    public function getName(): ?string // Return type can be null
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(?string $name): void // Allow null
     {
         $this->name = $name;
     }
@@ -123,9 +122,15 @@ class Document
         return $this->category;
     }
 
-    public function setCategory(string $category): self
+    public function setCategory(?string $category): self
     {
         $this->category = $category;
         return $this;
+    }
+
+    // Add a helper method to get display name
+    public function getDisplayName(): string
+    {
+        return $this->category ?: $this->name ?: 'Unnamed Document';
     }
 }

@@ -11,6 +11,7 @@ use App\Event\ReviewEvent;
 use App\Repository\ApplicationRepository;
 use App\Repository\BookmarkRepository;
 use App\Repository\JobRepository;
+use App\Repository\ToDoRepository;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Service\ApplicationService;
@@ -1293,6 +1294,121 @@ class JobController extends AbstractController
             ], 500);
         }
     }
+
+    #[Route('/{id}/todos', name: 'app_provider_jobs_todos_list', methods: ['GET'])]
+public function getTodos($id, BookmarkRepository $bookmarkRepo, ToDoRepository $todoRepo, Request $request): JsonResponse
+{
+    $provider = $this->getUser()->getProvider();
+    
+    // Find the bookmark
+    $bookmark = $bookmarkRepo->findOneBy([
+        'id' => $id,
+        'provider' => $provider
+    ]);
+
+    if (!$bookmark) {
+        return new JsonResponse(['success' => false, 'message' => 'Bookmark not found'], 404);
+    }
+
+    $todos = $todoRepo->findByBookmark($bookmark->getId());
+    
+    $todoData = [];
+    foreach ($todos as $todo) {
+        $todoData[] = [
+            'id' => $todo->getId(),
+            'text' => $todo->getText(),
+            'done' => $todo->isDone(),
+            'createdAt' => $todo->getCreatedAt()->format('Y-m-d H:i:s')
+        ];
+    }
+
+    return new JsonResponse([
+        'success' => true,
+        'items' => $todoData
+    ]);
+}
+
+#[Route('/{id}/todos/add', name: 'app_provider_jobs_todos_add', methods: ['POST'])]
+public function addTodo($id, BookmarkRepository $bookmarkRepo, EntityManagerInterface $em, Request $request): JsonResponse
+{
+    $provider = $this->getUser()->getProvider();
+    
+    // Find the bookmark
+    $bookmark = $bookmarkRepo->findOneBy([
+        'id' => $id,
+        'provider' => $provider
+    ]);
+
+    if (!$bookmark) {
+        return new JsonResponse(['success' => false, 'message' => 'Bookmark not found'], 404);
+    }
+
+    $data = json_decode($request->getContent(), true);
+    $text = $data['text'] ?? '';
+
+    if (empty($text)) {
+        return new JsonResponse(['success' => false, 'message' => 'Todo text cannot be empty'], 400);
+    }
+
+    $todo = new ToDo();
+    $todo->setProvider($provider);
+    $todo->setBookmark($bookmark);
+    $todo->setJob($bookmark->getJob());
+    $todo->setText($text);
+
+    $em->persist($todo);
+    $em->flush();
+
+    return new JsonResponse([
+        'success' => true,
+        'item' => [
+            'id' => $todo->getId(),
+            'text' => $todo->getText(),
+            'done' => $todo->isDone(),
+            'createdAt' => $todo->getCreatedAt()->format('Y-m-d H:i:s')
+        ]
+    ]);
+}
+
+#[Route('/todos/{id}/toggle', name: 'app_provider_jobs_todos_toggle', methods: ['POST'])]
+public function toggleTodo($id, ToDoRepository $todoRepo, EntityManagerInterface $em): JsonResponse
+{
+    $provider = $this->getUser()->getProvider();
+    
+    $todo = $todoRepo->findOneBy([
+        'id' => $id,
+        'provider' => $provider
+    ]);
+
+    if (!$todo) {
+        return new JsonResponse(['success' => false, 'message' => 'Todo not found'], 404);
+    }
+
+    $todo->setDone(!$todo->isDone());
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
+}
+
+#[Route('/todos/{id}/delete', name: 'app_provider_jobs_todos_delete', methods: ['DELETE'])]
+public function deleteTodo($id, ToDoRepository $todoRepo, EntityManagerInterface $em): JsonResponse
+{
+    $provider = $this->getUser()->getProvider();
+    
+    $todo = $todoRepo->findOneBy([
+        'id' => $id,
+        'provider' => $provider
+    ]);
+
+    if (!$todo) {
+        return new JsonResponse(['success' => false, 'message' => 'Todo not found'], 404);
+    }
+
+    $em->remove($todo);
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
+}
 
 
 

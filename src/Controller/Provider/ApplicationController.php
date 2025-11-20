@@ -511,15 +511,43 @@ class ApplicationController extends AbstractController
         $debugLog = "=== DELETE BOOKMARKS DEBUG ===\n";
         $debugLog .= "Time: " . date('Y-m-d H:i:s') . "\n";
 
-        $bookmarkIdsJson = $request->request->get('bookmark_ids');
-        $debugLog .= "Raw bookmark_ids: " . $bookmarkIdsJson . "\n";
-        
-        $bookmarkIds = json_decode($bookmarkIdsJson, true);
-        $debugLog .= "Decoded bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
+        // Accept both form-encoded (comma-separated or JSON string) and raw JSON body
+        $bookmarkIdsRaw = $request->request->get('bookmark_ids');
+        $debugLog .= "Raw bookmark_ids (form): " . ($bookmarkIdsRaw ?? 'null') . "\n";
+
+        $bookmarkIds = [];
+        if ($bookmarkIdsRaw !== null) {
+            $decoded = json_decode($bookmarkIdsRaw, true);
+            if (is_array($decoded)) {
+                $bookmarkIds = $decoded;
+                $debugLog .= "Parsed IDs from JSON string in form.\n";
+            } else {
+                // Fallback: comma-separated string
+                $maybeList = array_filter(array_map('trim', explode(',', $bookmarkIdsRaw)));
+                if (!empty($maybeList)) {
+                    $bookmarkIds = $maybeList;
+                    $debugLog .= "Parsed IDs from comma-separated string in form.\n";
+                }
+            }
+        }
+
+        if (empty($bookmarkIds)) {
+            $jsonBody = json_decode($request->getContent(), true);
+            $debugLog .= "Raw request body JSON: " . print_r($jsonBody, true) . "\n";
+            if (is_array($jsonBody) && isset($jsonBody['bookmark_ids']) && is_array($jsonBody['bookmark_ids'])) {
+                $bookmarkIds = $jsonBody['bookmark_ids'];
+                $debugLog .= "Parsed IDs from JSON request body.\n";
+            }
+        }
+
+        $debugLog .= "Final bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
 
         if (empty($bookmarkIds)) {
             $debugLog .= "ERROR: No bookmarks selected for deletion\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'No saved jobs selected for deletion.'], 400);
+            }
             $this->addFlash('error', 'No saved jobs selected for deletion.');
             return $this->redirectToRoute('app_provider_jobs_saved');
         }
@@ -530,6 +558,9 @@ class ApplicationController extends AbstractController
             if (!$user) {
                 $debugLog .= "ERROR: User not found\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['success' => false, 'message' => 'User not found.'], 401);
+                }
                 $this->addFlash('error', 'User not found.');
                 return $this->redirectToRoute('app_provider_jobs_saved');
             }
@@ -555,6 +586,9 @@ class ApplicationController extends AbstractController
             if (empty($bookmarks)) {
                 $debugLog .= "ERROR: No bookmarks found with user filter\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['success' => false, 'message' => 'No saved jobs found to delete or you do not have permission to delete them.'], 404);
+                }
                 $this->addFlash('error', 'No saved jobs found to delete or you do not have permission to delete them.');
                 return $this->redirectToRoute('app_provider_jobs_saved');
             }
@@ -570,12 +604,26 @@ class ApplicationController extends AbstractController
 
             $debugLog .= "SUCCESS: Deleted $count bookmarks\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
+
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => sprintf('Successfully removed %d saved job(s) from your list.', $count),
+                    'deleted' => $count
+                ]);
+            }
             $this->addFlash('success', sprintf('Successfully removed %d saved job(s) from your list.', $count));
 
         } catch (\Exception $e) {
             $debugLog .= "EXCEPTION: " . $e->getMessage() . "\n";
             $debugLog .= "TRACE: " . $e->getTraceAsString() . "\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'An error occurred while deleting saved jobs.'
+                ], 500);
+            }
             $this->addFlash('error', 'An error occurred while deleting saved jobs.');
         }
 

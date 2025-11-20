@@ -7,6 +7,7 @@ use App\Entity\DocumentRequest;
 use App\Entity\Interview;
 use App\Entity\Job;
 use App\Entity\Review;
+use App\Entity\ToDo; // Add this import
 use App\Event\ApplicationEvent;
 use App\Event\ReviewEvent;
 use App\Repository\ApplicationRepository;
@@ -41,15 +42,32 @@ class ApplicationController extends AbstractController
             ->setParameter('employer', $this->getUser()->getEmployer()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
+        $statusColors = [
+        'applied' => 'primary',
+        'in_review' => 'info', 
+        'interview' => 'warning',
+        'offered' => 'success',
+        'accepted' => 'success', // Make sure this matches your actual status
+        'rejected' => 'danger',
+        'hired' => 'success',
+        'completed' => 'secondary'
+    ];
+
         return $this->render('employer/application/index.html.twig', [
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
+            'statusColors' => $statusColors,
         ]);
     }
 
     #[Route('/{id}/ask-for-document', name: 'app_employer_application_askfordocument', methods: ['POST'])]
-    public function askForDocument(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
+    public function askForDocument(
+        Application $application, 
+        Request $request, 
+        EntityManagerInterface $em, 
+        EventDispatcherInterface $dispatcher
+    ): Response
     {
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
@@ -60,18 +78,99 @@ class ApplicationController extends AbstractController
         }
 
         $documentRequest = new DocumentRequest();
-
         $documentRequest->setName($request->get('document_name'));
         $documentRequest->setProvider($application->getProvider());
         $documentRequest->setApplication($application);
 
         $em->persist($documentRequest);
+        
+        // Create ToDo item for the provider
+        $todo = new ToDo();
+        $todo->setProvider($application->getProvider());
+        $todo->setEmployer($currentEmployer);
+        $todo->setDocumentRequest($documentRequest);
+        $todo->setTitle('Document Request: ' . $request->get('document_name'));
+        $todo->setDescription(sprintf(
+            '%s has requested the document "%s" for the job "%s". Please upload the requested document.',
+            $currentEmployer->getCompanyName(),
+            $request->get('document_name'),
+            $application->getJob()->getTitle()
+        ));
+        $todo->setType('document_request');
+        
+        $em->persist($todo);
         $em->flush();
 
         $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_DOCUMENT_REQUESTED);
 
         $this->addFlash('success', 'Document requested from provider successfully.');
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+    }
+
+    #[Route('/bulk/ask-for-document', name: 'app_employer_application_bulk_askfordocument', methods: ['POST'])]
+    public function bulkAskForDocument(
+        Request $request, 
+        EntityManagerInterface $em, 
+        EventDispatcherInterface $dispatcher,
+        ApplicationRepository $applicationRepo
+    ): Response
+    {
+        $referer = $request->headers->get('referer');
+        $currentEmployer = $this->getUser()->getEmployer();
+        $documentName = $request->get('document_name');
+        $applicationIds = explode(',', $request->get('application_ids'));
+
+        if (empty($applicationIds) || empty($documentName)) {
+            $this->addFlash('error', 'Please select applications and provide a document name.');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+        }
+
+        $applications = $applicationRepo->findBy([
+            'id' => $applicationIds,
+            'employer' => $currentEmployer
+        ]);
+
+        $successCount = 0;
+        foreach ($applications as $application) {
+            // Skip applications in excluded statuses
+            if (in_array($application->getStatus(), ['rejected', 'completed'])) {
+                continue;
+            }
+
+            $documentRequest = new DocumentRequest();
+            $documentRequest->setName($documentName);
+            $documentRequest->setProvider($application->getProvider());
+            $documentRequest->setApplication($application);
+
+            $em->persist($documentRequest);
+            
+            // Create ToDo item for the provider
+            $todo = new ToDo();
+            $todo->setProvider($application->getProvider());
+            $todo->setEmployer($currentEmployer);
+            $todo->setDocumentRequest($documentRequest);
+            $todo->setTitle('Document Request: ' . $documentName);
+            $todo->setDescription(sprintf(
+                '%s has requested the document "%s" for the job "%s". Please upload the requested document.',
+                $currentEmployer->getCompanyName(),
+                $documentName,
+                $application->getJob()->getTitle()
+            ));
+            $todo->setType('document_request');
+            
+            $em->persist($todo);
+            $successCount++;
+        }
+
+        $em->flush();
+
+        if ($successCount > 0) {
+            $this->addFlash('success', sprintf('Document requested from %d providers successfully.', $successCount));
+        } else {
+            $this->addFlash('warning', 'No document requests were sent. Please check if selected applications are eligible.');
+        }
+
+        return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
     }
 
     #[Route('/{id}/shcudule-interview', name: 'app_employer_application_scheduleinterview', methods: ['POST'])]

@@ -735,6 +735,177 @@ div.container-xl,
     color: #4B5563;
 }
 
+/* Tabs Styling */
+.documents-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 40px 0 24px 0;
+    background: #fff;
+    border-radius: 12px 12px 0 0;
+    padding: 0 24px;
+}
+
+.documents-tab {
+    padding: 16px 24px;
+    border: none;
+    background: none;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.documents-tab:hover {
+    color: #374151;
+    background: #f9fafb;
+}
+
+.documents-tab.active {
+    color: #85BB65;
+    border-bottom-color: #85BB65;
+}
+
+.documents-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #85BB65;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* History Table Styling */
+.history-table .action-badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.action-badge.uploaded {
+    background: #E1F5E0;
+    color: #1F7A1F;
+}
+
+.action-badge.updated {
+    background: #FFF4D9;
+    color: #A45D00;
+}
+
+.action-badge.deleted {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+.action-badge.assigned {
+    background: #E0F2FE;
+    color: #0369A1;
+}
+
+/* Credentials Section */
+.credentials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.credential-card {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.credential-card:hover {
+    border-color: #85BB65;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.1);
+}
+
+.credential-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.credential-icon {
+    width: 40px;
+    height: 40px;
+    background: #F4F9F1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #85BB65;
+}
+
+.credential-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+.credential-description {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.credential-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Credentialing Links specific styles */
+.credential-meta {
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #e6eef6;
+}
+
+.credential-card .text-sm {
+    font-size: 0.8rem;
+}
+
+.url-preview {
+    word-break: break-all;
+}
+
+/* Empty states */
+.empty-state-compact {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6B7280;
+}
+
+.empty-state-compact .empty-state-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .table-responsive {
@@ -745,91 +916,139 @@ div.container-xl,
         flex-direction: column;
         gap: 4px;
     }
+    
+    .documents-tabs {
+        flex-wrap: wrap;
+        padding: 0 16px;
+    }
+    
+    .documents-tab {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .credentials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .credential-actions {
+        flex-direction: column;
+    }
+    
+    .credential-actions .action-btn {
+        justify-content: center;
+    }
 }
 </style>
 
     <div class="container-xl">
     <h1 class="app-page-title">Documents</h1>
 
-    {# Document Requests Table #}
-        <div class="card app-card-settings">
-            <div class="card-body">
-            <div class="card-header-row">
-                <h5 class="card-title">Document Requests</h5>
-                <button id="requests-split-view-btn" class="action-btn" title="Split View">
-                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Split View
-                </button>
+   {# Document Requests Table - Only Pending Requests #}
+<div class="card app-card-settings">
+    <div class="card-body">
+        <div class="card-header-row">
+            <h5 class="card-title">Pending Document Requests</h5>
+            <button id="requests-split-view-btn" class="action-btn" title="Split View">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Split View
+            </button>
         </div>
 
-                <div class="table-responsive" id="requests-list-view">
-                    <table class="table document-table align-middle">
-                    <thead>
+        <div class="table-responsive" id="requests-list-view">
+            <table class="table document-table align-middle">
+                <thead>
                     <tr>
                         <th>S. No</th>
                         <th>Document Name</th>
                         <th>Job</th>
                         <th>Requested By</th>
                         <th>Requested At</th>
-                        <th>Provided At</th>
-                            <th>Assign Document</th>
+                        <th>Status</th>
+                        <th>Assign Document</th>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for documentRequest in documentRequests %}
-                        {% set document = documentRequest.document %}
-                        <tr>
-                            <td>{{ loop.index }}</td>
+                </thead>
+                <tbody>
+                    {% set pendingDocumentRequests = documentRequests|filter(request => request.providedAt is null) %}
+                    {% if pendingDocumentRequests|length > 0 %}
+                        {% for documentRequest in pendingDocumentRequests %}
+                            {% set document = documentRequest.document %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
                                 <td><strong>{{ documentRequest.name }}</strong></td>
-                            <td>{{ documentRequest.application.job }}</td>
-                            <td>
-                                    <div>
-                                        <strong>{{ documentRequest.application.employer.companyName }}</strong><br/>
-                                        <small class="text-muted">{{ documentRequest.application.employer }}</small>
-                                    </div>
-                            </td>
-                            <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
                                 <td>
-                                    {% if documentRequest.providedAt %}
-                                        <span class="text-success">{{ documentRequest.providedAt|date('m/d/Y') }}</span>
+                                    {% if documentRequest.application and documentRequest.application.job %}
+                                        {{ documentRequest.application.job.title }}
                                     {% else %}
-                                        <span class="text-muted">-</span>
+                                        <span class="text-muted">N/A</span>
                                     {% endif %}
+                                </td>
+                                <td>
+                                    {% if documentRequest.application and documentRequest.application.employer %}
+                                        <div>
+                                            <strong>{{ documentRequest.application.employer.companyName }}</strong><br/>
+                                            <small class="text-muted">
+                                                {% if documentRequest.application.employer.contactEmail %}
+                                                    {{ documentRequest.application.employer.contactEmail }}
+                                                {% elseif documentRequest.application.employer.email %}
+                                                    {{ documentRequest.application.employer.email }}
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
+                                <td>
+                                    <span class="text-warning">Pending</span>
                                 </td>
                                 <td>
                                     <select class="form-control form-select document-select" 
                                             data-request-id="{{ documentRequest.id }}"
                                             style="min-width: 200px;">
-                                    <option value="">Select Document</option>
-                                    {% for documentObj in documents %}
+                                        <option value="">Select Document</option>
+                                        {% for documentObj in documents %}
                                             <option {% if documentObj == documentRequest.document %}selected{% endif %} 
                                                     value="{{ documentObj.id }}">
                                                 {{ documentObj.category ?: documentObj.name }}
                                             </option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                                <td colspan="7" class="empty-state">
-                                    <div class="empty-state-icon">📋</div>
-                                    <p class="mb-0">No document requests found.</p>
-                                    <p class="text-muted small mt-2">Document requests from employers will appear here.</p>
+                                        {% endfor %}
+                                    </select>
                                 </td>
                             </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p class="mb-0">No pending document requests found.</p>
+                                <p class="text-muted small mt-2">All document requests have been provided.</p>
+                                <div class="mt-3">
+                                    <p class="small text-info">
+                                        <strong>How to get document requests:</strong><br>
+                                        1. Apply to jobs<br>
+                                        2. Employers may request additional documents<br>
+                                        3. Check back after submitting applications
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
         
-        {# Split View for Document Requests #}
+        </div>
+        
+        {# Split View for Document Requests - Only Pending Requests #}
         <div class="split-view-container" id="requests-split-view-container" style="display: none;">
             <button class="list-toggle-btn" id="requests-list-toggle-btn" style="display: none;" title="Toggle document list">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -838,7 +1057,8 @@ div.container-xl,
             </button>
             <!-- Left Side: Document List -->
             <div class="split-document-list" id="requests-split-list">
-                {% for documentRequest in documentRequests %}
+                {% set pendingDocumentRequests = documentRequests|filter(request => request.providedAt is null) %}
+                {% for documentRequest in pendingDocumentRequests %}
                     {% set document = documentRequest.document %}
                     {% set job = documentRequest.application.job %}
                     {% set employer = documentRequest.application.employer %}
@@ -863,8 +1083,7 @@ div.container-xl,
                         data-job-title="{{ job ? job.title|e('html_attr') : 'Job' }}"
                         data-employer="{{ employer ? employer.companyName|e('html_attr') : 'Employer' }}"
                         data-requested-at="{{ documentRequest.createdAt|date('M d, Y') }}"
-                        data-provided-at="{{ documentRequest.providedAt ? documentRequest.providedAt|date('M d, Y') : '' }}"
-                        data-status="{{ documentRequest.providedAt ? 'Provided' : 'Pending' }}"
+                        data-status="Pending"
                         data-job-location="{{ jobLocation|e('html_attr') }}"
                         data-job-need="{{ jobNeed|e('html_attr') }}"
                         data-job-schedule="{{ jobSchedule|e('html_attr') }}"
@@ -885,7 +1104,7 @@ div.container-xl,
                             </div>
                             <div class="split-document-summary-item">
                                 <span class="split-document-meta-label">Status:</span>
-                                <span class="split-document-meta-value">{{ documentRequest.providedAt ? 'Provided' : 'Pending' }}</span>
+                                <span class="split-document-meta-value">Pending</span>
                             </div>
                         </div>
                     </div>
@@ -1129,6 +1348,216 @@ div.container-xl,
             </div>
         </div>
     </div>
+
+    {# Tabs Section - Only My Documents, History, and Credentials #}
+    <div class="documents-tabs">
+        <button class="documents-tab active" data-tab="my-documents">My Documents</button>
+        <button class="documents-tab" data-tab="history">History</button>
+        <button class="documents-tab" data-tab="credentials">Credentials</button>
+    </div>
+
+    {# My Documents Tab - This is just a placeholder since we already show documents above #}
+    <div class="tab-content active" id="my-documents-tab">
+        <div class="card app-card-settings">
+            <div class="card-body">
+                <div class="card-header-row">
+                    <h5 class="card-title">My Documents Overview</h5>
+                </div>
+                <p class="text-muted">Your documents are displayed in the sections above. Use the upload form to add new documents or manage existing ones in the table.</p>
+            </div>
+        </div>
+    </div>
+
+    {# History Tab #}
+    <div class="tab-content" id="history-tab">
+        <div class="card app-card-settings">
+            <div class="card-body">
+                <div class="card-header-row">
+                    <h5 class="card-title">Document History</h5>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table document-table history-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>S. No</th>
+                                <th>Document Name</th>
+                                <th>Action</th>
+                                <th>Date & Time</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set historyEntries = [] %}
+                            
+                            {# Add document upload history #}
+                            {% for document in documents %}
+                                {% set historyEntries = historyEntries|merge([{
+                                    'name': document.category ?: document.name,
+                                    'action': 'uploaded',
+                                    'date': document.createdAt,
+                                    'details': 'Document uploaded to your library'
+                                }]) %}
+                                
+                                {% if document.updatedAt and document.updatedAt != document.createdAt %}
+                                    {% set historyEntries = historyEntries|merge([{
+                                        'name': document.category ?: document.name,
+                                        'action': 'updated',
+                                        'date': document.updatedAt,
+                                        'details': 'Document information updated'
+                                    }]) %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {# Add document assignment history #}
+                            {% for documentRequest in documentRequests %}
+                                {% if documentRequest.providedAt %}
+                                    {% set historyEntries = historyEntries|merge([{
+                                        'name': documentRequest.name,
+                                        'action': 'assigned',
+                                        'date': documentRequest.providedAt,
+                                        'details': 'Document assigned to ' ~ (documentRequest.application.employer.companyName ?? 'employer')
+                                    }]) %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {# Sort history by date (newest first) #}
+                            {% set historyEntries = historyEntries|sort((a, b) => b.date <=> a.date) %}
+                            
+                            {% if historyEntries|length > 0 %}
+                                {% for entry in historyEntries %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>
+                                            <strong>{{ entry.name }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if entry.action == 'uploaded' %}
+                                                <span class="action-badge uploaded">Uploaded</span>
+                                            {% elseif entry.action == 'updated' %}
+                                                <span class="action-badge updated">Updated</span>
+                                            {% elseif entry.action == 'assigned' %}
+                                                <span class="action-badge assigned">Assigned</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ entry.date|date('m/d/Y g:i A') }}</td>
+                                        <td>
+                                            <small class="text-muted">{{ entry.details }}</small>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="empty-state-compact">
+                                        <div class="empty-state-icon">📊</div>
+                                        <p class="mb-0">No history available</p>
+                                        <p class="text-muted small mt-2">Your document activities will appear here</p>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Credentials Tab - Updated with Credentialing Links #}
+    <div class="tab-content" id="credentials-tab">
+        <div class="card app-card-settings">
+            <div class="card-body">
+                <div class="card-header-row">
+                    <h5 class="card-title">External Links</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary">{{ credentialingLinks|length }} Links</span>
+                    </div>
+                </div>
+
+                {% if credentialingLinks|length > 0 %}
+                    <div class="credentials-grid">
+                        {% for link in credentialingLinks %}
+                            <div class="credential-card">
+                                <div class="credential-header">
+                                    <div class="credential-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="credential-title">{{ link.title }}</h6>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            {% if link.sender %}
+                                                <small class="text-muted">From: {{ link.sender }}</small>
+                                            {% endif %}
+                                            <small class="text-muted">•</small>
+                                            <small class="text-muted">{{ link.createdAt|date('M d, Y') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if link.description %}
+                                    <p class="credential-description">{{ link.description }}</p>
+                                {% endif %}
+                                
+                                <div class="credential-meta mb-3">
+                                    <div class="d-flex align-items-center gap-2 text-sm text-muted">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                                        </svg>
+                                        <span class="url-preview">{{ link.url|replace({'https://': '', 'http://': ''})|slice(0, 50) }}{{ link.url|length > 50 ? '...' : '' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="credential-actions">
+                                    <a href="{{ link.url }}" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer"
+                                       class="action-btn btn-primary"
+                                       title="Open this external link in a new tab">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                            <polyline points="15 3 21 3 21 9"/>
+                                            <line x1="10" y1="14" x2="21" y2="3"/>
+                                        </svg>
+                                        Open Link
+                                    </a>
+                                    
+                                    <button type="button" 
+                                            class="action-btn btn-secondary copy-link-btn"
+                                            data-url="{{ link.url }}"
+                                            title="Copy link to clipboard">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                        Copy URL
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state-compact">
+                        <div class="empty-state-icon">🔗</div>
+                        <h4>No External Links</h4>
+                        <p class="text-muted">You don't have any external links shared with you yet.</p>
+                        <div class="mt-3">
+                            <p class="small text-info">
+                                <strong>About External Links:</strong><br>
+                                • Employers or systems may share links with you here<br>
+                                • Links can open forms, upload pages, or any external service<br>
+                                • All links open in new browser tabs for security<br>
+                                • You can copy links to access them later
+                            </p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block footer_scripts %}
@@ -1137,8 +1566,28 @@ div.container-xl,
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
-        // Initialize flatpickr
+        // Tab functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            document.querySelectorAll('.documents-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    const content = document.getElementById(`${tabId}-tab`);
+                    if (content) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+
+            // Initialize flatpickr
             if (typeof flatpickr !== 'undefined') {
                 document.querySelectorAll('.js-datepicker').forEach(function(input) {
                     if (!input._flatpickr) {
@@ -1148,12 +1597,10 @@ div.container-xl,
                     }
                 });
             } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
-        $(".js-datepicker").flatpickr();
+                $(".js-datepicker").flatpickr();
             }
-        });
 
-        // File upload dropzone functionality
-        document.addEventListener('DOMContentLoaded', function() {
+            // File upload dropzone functionality
             const dropzone = document.getElementById('uploadDropzone');
             const fileInput = document.getElementById('fileInput');
 
@@ -1190,53 +1637,6 @@ div.container-xl,
                     }
                 });
             }
-        });
-
-        function handleFileChange(input) {
-            const badge = document.getElementById('fileBadge');
-            const nameText = document.getElementById('fileNameText');
-
-            if (input && input.files && input.files.length > 0) {
-                if (nameText) nameText.textContent = input.files[0].name;
-                if (badge) badge.style.display = 'flex';
-            } else {
-                if (badge) badge.style.display = 'none';
-            }
-        }
-
-        function clearFile() {
-            const input = document.getElementById('fileInput');
-            const badge = document.getElementById('fileBadge');
-
-            if (input) {
-                input.value = '';
-                const event = new Event('change', { bubbles: true });
-                input.dispatchEvent(event);
-            }
-            if (badge) badge.style.display = 'none';
-        }
-
-        // Delete document confirmation with SweetAlert
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.delete-document-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const documentName = this.dataset.documentName || 'this document';
-                    const deleteUrl = this.getAttribute('href');
-
-                    showConfirmAlert(
-                        'Delete Document',
-                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
-                        'Yes, Delete',
-                        'Cancel',
-                        function(confirmed) {
-                            if (confirmed) {
-                                window.location.href = deleteUrl;
-                            }
-                        }
-                    );
-                });
-            });
 
             // Document request assignment with SweetAlert
             document.querySelectorAll('.document-select').forEach(select => {
@@ -1251,6 +1651,7 @@ div.container-xl,
                     const originalValue = selectElement.value;
                     selectElement.disabled = true;
 
+                    // FIX: Add /provider prefix to match the controller route
                     fetch(`/provider/document-request/${requestId}/assign-document`, {
                         method: 'POST',
                         headers: {
@@ -1260,17 +1661,32 @@ div.container-xl,
                         },
                         body: JSON.stringify({ documentId: documentId })
                     })
-                        .then(response => response.json())
-                        .then(data => {
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
                         selectElement.disabled = false;
-                            if (data.success) {
+                        if (data.success) {
+                            // Success handling
                             const row = selectElement.closest('tr');
-                            const providedAtCell = row.querySelector('td:nth-child(6)');
-                            if (providedAtCell) {
-                                providedAtCell.innerHTML = '<span class="text-success">' + data.providedAtFormatted + '</span>';
-                            }
-                            showSuccessAlert('Success!', 'Document provided successfully.');
-                            } else {
+                            row.style.opacity = '0.5';
+                            setTimeout(() => {
+                                row.remove();
+                                updateEmptyState();
+                                
+                                // Also remove from split view if it exists
+                                const splitCard = document.querySelector(`.split-document-card[data-request-id="${requestId}"]`);
+                                if (splitCard) {
+                                    splitCard.remove();
+                                    updateSplitViewEmptyState();
+                                }
+                            }, 500);
+                            
+                            showSuccessAlert('Success!', data.message || 'Document provided successfully.');
+                        } else {
                             selectElement.value = originalValue;
                             showErrorAlert('Error', data.message || 'Unable to provide document. Please try again.');
                         }
@@ -1280,9 +1696,9 @@ div.container-xl,
                         selectElement.disabled = false;
                         selectElement.value = originalValue;
                         showErrorAlert('Error', 'An error occurred while assigning the document. Please try again.');
+                    });
                 });
             });
-        });
 
             // Form validation with SweetAlert
             const documentForm = document.querySelector('form.needs-validation');
@@ -1437,445 +1853,551 @@ div.container-xl,
                     }
                 });
             }
-        });
-    </script>
 
-    <script>
-    // Split View Functionality for Document Requests
-    document.addEventListener('DOMContentLoaded', function() {
-        const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
-        const requestsListView = document.getElementById('requests-list-view');
-        const requestsSplitViewContainer = document.getElementById('requests-split-view-container');
-        const requestsSplitList = document.getElementById('requests-split-list');
-        const requestsSplitDetails = document.getElementById('requests-split-details');
-        const requestsDocumentContent = document.getElementById('requests-document-content');
-        const requestsNoDocumentSelected = requestsSplitDetails.querySelector('.no-document-selected');
-        const requestsToggleBtn = document.getElementById('requests-list-toggle-btn');
-
-        if (requestsSplitViewBtn && requestsListView && requestsSplitViewContainer) {
-            requestsSplitViewBtn.addEventListener('click', function() {
-                const isSplitView = requestsSplitViewContainer.style.display === 'grid';
+            // Add helper functions for empty state management
+            window.updateEmptyState = function() {
+                const tbody = document.querySelector('#requests-list-view tbody');
+                const remainingRows = tbody.querySelectorAll('tr');
                 
-                if (isSplitView) {
-                    // Switch to list view
-                    requestsSplitViewContainer.style.display = 'none';
-                    requestsListView.style.display = 'block';
-                    requestsSplitViewBtn.classList.remove('active');
-                    requestsSplitViewBtn.innerHTML = `
-                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Split View
+                if (remainingRows.length === 0 || 
+                    (remainingRows.length === 1 && remainingRows[0].querySelector('.empty-state'))) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p class="mb-0">No pending document requests found.</p>
+                                <p class="text-muted small mt-2">All document requests have been provided.</p>
+                            </td>
+                        </tr>
                     `;
-                    if (requestsToggleBtn) requestsToggleBtn.style.display = 'none';
-                } else {
-                    // Switch to split view
-                    requestsSplitViewContainer.style.display = 'grid';
-                    requestsListView.style.display = 'none';
-                    requestsSplitViewBtn.classList.add('active');
-                    requestsSplitViewBtn.innerHTML = `
-                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        List View
-                    `;
-                    if (requestsToggleBtn) {
-                        requestsToggleBtn.style.display = 'flex';
-                        updateToggleButtonPosition('requests');
-                    }
                 }
-            });
-        }
-
-        // Document card selection for requests
-        if (requestsSplitList) {
-            requestsSplitList.addEventListener('click', function(e) {
-                const card = e.target.closest('.split-document-card');
-                if (card) {
-                    selectDocumentCard(card, 'requests');
-                }
-            });
-        }
-
-        // Split View Functionality for Uploaded Documents
-        const documentsSplitViewBtn = document.getElementById('documents-split-view-btn');
-        const documentsListView = document.getElementById('documents-list-view');
-        const documentsSplitViewContainer = document.getElementById('documents-split-view-container');
-        const documentsSplitList = document.getElementById('documents-split-list');
-        const documentsSplitDetails = document.getElementById('documents-split-details');
-        const documentsDocumentContent = document.getElementById('documents-document-content');
-        const documentsNoDocumentSelected = documentsSplitDetails.querySelector('.no-document-selected');
-        const documentsToggleBtn = document.getElementById('documents-list-toggle-btn');
-
-        if (documentsSplitViewBtn && documentsListView && documentsSplitViewContainer) {
-            documentsSplitViewBtn.addEventListener('click', function() {
-                const isSplitView = documentsSplitViewContainer.style.display === 'grid';
-                
-                if (isSplitView) {
-                    // Switch to list view
-                    documentsSplitViewContainer.style.display = 'none';
-                    documentsListView.style.display = 'block';
-                    documentsSplitViewBtn.classList.remove('active');
-                    documentsSplitViewBtn.innerHTML = `
-                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Split View
-                    `;
-                    if (documentsToggleBtn) documentsToggleBtn.style.display = 'none';
-                } else {
-                    // Switch to split view
-                    documentsSplitViewContainer.style.display = 'grid';
-                    documentsListView.style.display = 'none';
-                    documentsSplitViewBtn.classList.add('active');
-                    documentsSplitViewBtn.innerHTML = `
-                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        List View
-                    `;
-                    if (documentsToggleBtn) {
-                        documentsToggleBtn.style.display = 'flex';
-                        updateToggleButtonPosition('documents');
-                    }
-                }
-            });
-        }
-
-        // Document card selection for uploaded documents
-        if (documentsSplitList) {
-            documentsSplitList.addEventListener('click', function(e) {
-                const card = e.target.closest('.split-document-card');
-                if (card) {
-                    selectDocumentCard(card, 'documents');
-                }
-            });
-        }
-
-        // Function to select document card and render preview
-        function selectDocumentCard(card, section) {
-            const isRequests = section === 'requests';
-            const splitList = isRequests ? requestsSplitList : documentsSplitList;
-            const splitDetails = isRequests ? requestsSplitDetails : documentsSplitDetails;
-            const documentContent = isRequests ? requestsDocumentContent : documentsDocumentContent;
-            const noDocumentSelected = isRequests ? requestsNoDocumentSelected : documentsNoDocumentSelected;
-            const linkedDocumentId = card.dataset.documentId;
-            const linkedDocumentUrl = card.dataset.documentUrl;
-            const formatValue = (val) => {
-                if (!val) return '—';
-                const normalized = String(val).trim();
-                return normalized.length ? normalized : '—';
             };
-            
-            // Remove active class from all cards
-            splitList.querySelectorAll('.split-document-card').forEach(c => {
-                c.classList.remove('active');
-            });
-            
-            // Add active class to selected card
-            card.classList.add('active');
-            
-            // Get document ID and name
-            const documentName = card.dataset.documentName || card.querySelector('.split-document-card-title')?.textContent || 'Document';
-            const documentId = linkedDocumentId;
-            const documentUrl = linkedDocumentUrl;
 
-            if (isRequests) {
-                if (noDocumentSelected) noDocumentSelected.style.display = 'none';
-                documentContent.style.display = 'block';
-
-                const requestName = card.dataset.requestName || documentName;
-                const jobTitle = card.dataset.jobTitle || '';
-                const employer = card.dataset.employer || '';
-                const requestedAt = card.dataset.requestedAt || '';
-                const providedAt = card.dataset.providedAt || '';
-                const status = card.dataset.status || 'Pending';
-                const jobLocation = card.dataset.jobLocation || '';
-                const jobNeed = card.dataset.jobNeed || '';
-                const jobSchedule = card.dataset.jobSchedule || '';
-                const jobId = card.dataset.jobId || '';
-                const statusClass = status.toLowerCase() === 'provided' ? 'status-provided' : 'status-pending';
-
-                let instructionsMarkup = `
-                    <div class="request-instructions">
-                        <h6>Next Steps</h6>
-                        <p class="mb-1">Select an uploaded document from the dropdown in the list view to provide this request.</p>
-                        <p class="mb-0 text-muted small">Once assigned, the status will update automatically.</p>
-                    </div>
-                `;
-
-                if (linkedDocumentId && linkedDocumentUrl) {
-                    instructionsMarkup = `
-                        <div class="request-instructions">
-                            <h6>Linked Document</h6>
-                            <p class="mb-3 text-muted small">This request already has a document assigned. You can review it below.</p>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="/provider/documents/view/${linkedDocumentId}" class="btn btn-primary" style="padding:8px 16px;">View Document</a>
-                                <a href="${linkedDocumentUrl}" target="_blank" class="btn btn-secondary" style="padding:8px 16px;">Open File</a>
-                            </div>
-                        </div>
-                    `;
+            window.updateSplitViewEmptyState = function() {
+                const splitList = document.getElementById('requests-split-list');
+                if (splitList && splitList.children.length === 0) {
+                    const noDocumentSelected = document.querySelector('#requests-split-details .no-document-selected');
+                    const documentContent = document.getElementById('requests-document-content');
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'flex';
+                    if (documentContent) documentContent.style.display = 'none';
                 }
+            };
 
-                const providedMeta = providedAt ? `
-                    <div class="request-meta-item">
-                        <span>Provided On</span>
-                        <strong>${providedAt}</strong>
-                    </div>
-                ` : '';
+            // Copy link functionality for credentialing links
+            document.querySelectorAll('.copy-link-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    navigator.clipboard.writeText(url).then(() => {
+                        // Show temporary success feedback
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                            Copied!
+                        `;
+                        this.classList.add('btn-success');
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                            this.classList.remove('btn-success');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy link to clipboard');
+                    });
+                });
+            });
 
-                const jobIdMeta = jobId ? `
-                    <div class="request-meta-item">
-                        <span>Job ID</span>
-                        <strong>${jobId}</strong>
-                    </div>
-                ` : '';
+            // Optional: Track link opens (if needed)
+            document.querySelectorAll('a[target="_blank"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    // You can add analytics here if needed
+                    console.log('External link opened:', this.href);
+                });
+            });
+        });
 
-                documentContent.innerHTML = `
-                    <div class="request-preview-container">
-                        <div class="document-preview-header">
-                            <div>
-                                <div class="document-preview-title">${requestName}</div>
-                                <p class="text-muted mb-0">${jobTitle}</p>
-                            </div>
-                            <span class="request-status-badge ${statusClass}">${status}</span>
-                        </div>
-                        <div class="request-meta-grid">
-                            ${jobIdMeta}
-                            <div class="request-meta-item">
-                                <span>Employer</span>
-                                <strong>${formatValue(employer)}</strong>
-                            </div>
-                            <div class="request-meta-item">
-                                <span>Requested On</span>
-                                <strong>${formatValue(requestedAt)}</strong>
-                            </div>
-                            ${providedMeta}
-                            <div class="request-meta-item">
-                                <span>Location</span>
-                                <strong>${formatValue(jobLocation)}</strong>
-                            </div>
-                            <div class="request-meta-item">
-                                <span>Need</span>
-                                <strong>${formatValue(jobNeed)}</strong>
-                            </div>
-                            <div class="request-meta-item">
-                                <span>Schedule</span>
-                                <strong>${formatValue(jobSchedule)}</strong>
-                            </div>
-                        </div>
-                        ${instructionsMarkup}
-                    </div>
-                `;
-                return;
+        function handleFileChange(input) {
+            const badge = document.getElementById('fileBadge');
+            const nameText = document.getElementById('fileNameText');
+
+            if (input && input.files && input.files.length > 0) {
+                if (nameText) nameText.textContent = input.files[0].name;
+                if (badge) badge.style.display = 'flex';
+            } else {
+                if (badge) badge.style.display = 'none';
             }
-            
-            if (documentId && documentUrl) {
-                // Hide empty state, show content
-                if (noDocumentSelected) noDocumentSelected.style.display = 'none';
-                documentContent.style.display = 'block';
+        }
+
+        function clearFile() {
+            const input = document.getElementById('fileInput');
+            const badge = document.getElementById('fileBadge');
+
+            if (input) {
+                input.value = '';
+                const event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
+            }
+            if (badge) badge.style.display = 'none';
+        }
+
+        // Split View Functionality for Document Requests
+        document.addEventListener('DOMContentLoaded', function() {
+            const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
+            const requestsListView = document.getElementById('requests-list-view');
+            const requestsSplitViewContainer = document.getElementById('requests-split-view-container');
+            const requestsSplitList = document.getElementById('requests-split-list');
+            const requestsSplitDetails = document.getElementById('requests-split-details');
+            const requestsDocumentContent = document.getElementById('requests-document-content');
+            const requestsNoDocumentSelected = requestsSplitDetails.querySelector('.no-document-selected');
+            const requestsToggleBtn = document.getElementById('requests-list-toggle-btn');
+
+            if (requestsSplitViewBtn && requestsListView && requestsSplitViewContainer) {
+                requestsSplitViewBtn.addEventListener('click', function() {
+                    const isSplitView = requestsSplitViewContainer.style.display === 'grid';
+                    
+                    if (isSplitView) {
+                        // Switch to list view
+                        requestsSplitViewContainer.style.display = 'none';
+                        requestsListView.style.display = 'block';
+                        requestsSplitViewBtn.classList.remove('active');
+                        requestsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Split View
+                        `;
+                        if (requestsToggleBtn) requestsToggleBtn.style.display = 'none';
+                    } else {
+                        // Switch to split view
+                        requestsSplitViewContainer.style.display = 'grid';
+                        requestsListView.style.display = 'none';
+                        requestsSplitViewBtn.classList.add('active');
+                        requestsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            List View
+                        `;
+                        if (requestsToggleBtn) {
+                            requestsToggleBtn.style.display = 'flex';
+                            updateToggleButtonPosition('requests');
+                        }
+                    }
+                });
+            }
+
+            // Document card selection for requests
+            if (requestsSplitList) {
+                requestsSplitList.addEventListener('click', function(e) {
+                    const card = e.target.closest('.split-document-card');
+                    if (card) {
+                        selectDocumentCard(card, 'requests');
+                    }
+                });
+            }
+
+            // Split View Functionality for Uploaded Documents
+            const documentsSplitViewBtn = document.getElementById('documents-split-view-btn');
+            const documentsListView = document.getElementById('documents-list-view');
+            const documentsSplitViewContainer = document.getElementById('documents-split-view-container');
+            const documentsSplitList = document.getElementById('documents-split-list');
+            const documentsSplitDetails = document.getElementById('documents-split-details');
+            const documentsDocumentContent = document.getElementById('documents-document-content');
+            const documentsNoDocumentSelected = documentsSplitDetails.querySelector('.no-document-selected');
+            const documentsToggleBtn = document.getElementById('documents-list-toggle-btn');
+
+            if (documentsSplitViewBtn && documentsListView && documentsSplitViewContainer) {
+                documentsSplitViewBtn.addEventListener('click', function() {
+                    const isSplitView = documentsSplitViewContainer.style.display === 'grid';
+                    
+                    if (isSplitView) {
+                        // Switch to list view
+                        documentsSplitViewContainer.style.display = 'none';
+                        documentsListView.style.display = 'block';
+                        documentsSplitViewBtn.classList.remove('active');
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Split View
+                        `;
+                        if (documentsToggleBtn) documentsToggleBtn.style.display = 'none';
+                    } else {
+                        // Switch to split view
+                        documentsSplitViewContainer.style.display = 'grid';
+                        documentsListView.style.display = 'none';
+                        documentsSplitViewBtn.classList.add('active');
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            List View
+                        `;
+                        if (documentsToggleBtn) {
+                            documentsToggleBtn.style.display = 'flex';
+                            updateToggleButtonPosition('documents');
+                        }
+                    }
+                });
+            }
+
+            // Document card selection for uploaded documents
+            if (documentsSplitList) {
+                documentsSplitList.addEventListener('click', function(e) {
+                    const card = e.target.closest('.split-document-card');
+                    if (card) {
+                        selectDocumentCard(card, 'documents');
+                    }
+                });
+            }
+
+            // Function to select document card and render preview
+            function selectDocumentCard(card, section) {
+                const isRequests = section === 'requests';
+                const splitList = isRequests ? requestsSplitList : documentsSplitList;
+                const splitDetails = isRequests ? requestsSplitDetails : documentsSplitDetails;
+                const documentContent = isRequests ? requestsDocumentContent : documentsDocumentContent;
+                const noDocumentSelected = isRequests ? requestsNoDocumentSelected : documentsNoDocumentSelected;
+                const linkedDocumentId = card.dataset.documentId;
+                const linkedDocumentUrl = card.dataset.documentUrl;
+                const formatValue = (val) => {
+                    if (!val) return '—';
+                    const normalized = String(val).trim();
+                    return normalized.length ? normalized : '—';
+                };
                 
-                // Determine file type and render accordingly
-                const fileExtension = documentUrl.split('.').pop().toLowerCase();
-                let previewHTML = '';
+                // Remove active class from all cards
+                splitList.querySelectorAll('.split-document-card').forEach(c => {
+                    c.classList.remove('active');
+                });
                 
-                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
-                    previewHTML = `
-                        <div class="document-preview-container">
-                            <div class="document-preview-header">
-                                <div class="document-preview-title">${documentName}</div>
-                                <div class="document-preview-actions">
-                                    <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        View Full Page
-                                    </a>
-                                    <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        Open in New Tab
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="document-preview-frame">
-                                <img src="${documentUrl}" alt="${documentName}" />
-                            </div>
+                // Add active class to selected card
+                card.classList.add('active');
+                
+                // Get document ID and name
+                const documentName = card.dataset.documentName || card.querySelector('.split-document-card-title')?.textContent || 'Document';
+                const documentId = linkedDocumentId;
+                const documentUrl = linkedDocumentUrl;
+
+                if (isRequests) {
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'none';
+                    documentContent.style.display = 'block';
+
+                    const requestName = card.dataset.requestName || documentName;
+                    const jobTitle = card.dataset.jobTitle || '';
+                    const employer = card.dataset.employer || '';
+                    const requestedAt = card.dataset.requestedAt || '';
+                    const status = card.dataset.status || 'Pending';
+                    const jobLocation = card.dataset.jobLocation || '';
+                    const jobNeed = card.dataset.jobNeed || '';
+                    const jobSchedule = card.dataset.jobSchedule || '';
+                    const jobId = card.dataset.jobId || '';
+                    const statusClass = status.toLowerCase() === 'provided' ? 'status-provided' : 'status-pending';
+
+                    let instructionsMarkup = `
+                        <div class="request-instructions">
+                            <h6>Next Steps</h6>
+                            <p class="mb-1">Select an uploaded document from the dropdown in the list view to provide this request.</p>
+                            <p class="mb-0 text-muted small">Once assigned, the status will update automatically.</p>
                         </div>
                     `;
-                } else if (['pdf'].includes(fileExtension)) {
-                    previewHTML = `
-                        <div class="document-preview-container">
-                            <div class="document-preview-header">
-                                <div class="document-preview-title">${documentName}</div>
-                                <div class="document-preview-actions">
-                                    <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        View Full Page
-                                    </a>
-                                    <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        Open in New Tab
-                                    </a>
+
+                    if (linkedDocumentId && linkedDocumentUrl) {
+                        instructionsMarkup = `
+                            <div class="request-instructions">
+                                <h6>Linked Document</h6>
+                                <p class="mb-3 text-muted small">This request already has a document assigned. You can review it below.</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="/provider/documents/view/${linkedDocumentId}" class="btn btn-primary" style="padding:8px 16px;">View Document</a>
+                                    <a href="${linkedDocumentUrl}" target="_blank" class="btn btn-secondary" style="padding:8px 16px;">Open File</a>
                                 </div>
                             </div>
-                            <div class="document-preview-frame">
-                                <iframe src="${documentUrl}" type="application/pdf"></iframe>
+                        `;
+                    }
+
+                    const jobIdMeta = jobId ? `
+                        <div class="request-meta-item">
+                            <span>Job ID</span>
+                            <strong>${jobId}</strong>
+                        </div>
+                    ` : '';
+
+                    documentContent.innerHTML = `
+                        <div class="request-preview-container">
+                            <div class="document-preview-header">
+                                <div>
+                                    <div class="document-preview-title">${requestName}</div>
+                                    <p class="text-muted mb-0">${jobTitle}</p>
+                                </div>
+                                <span class="request-status-badge ${statusClass}">${status}</span>
                             </div>
+                            <div class="request-meta-grid">
+                                ${jobIdMeta}
+                                <div class="request-meta-item">
+                                    <span>Employer</span>
+                                    <strong>${formatValue(employer)}</strong>
+                                </div>
+                                <div class="request-meta-item">
+                                    <span>Requested On</span>
+                                    <strong>${formatValue(requestedAt)}</strong>
+                                </div>
+                                <div class="request-meta-item">
+                                    <span>Location</span>
+                                    <strong>${formatValue(jobLocation)}</strong>
+                                </div>
+                                <div class="request-meta-item">
+                                    <span>Need</span>
+                                    <strong>${formatValue(jobNeed)}</strong>
+                                </div>
+                                <div class="request-meta-item">
+                                    <span>Schedule</span>
+                                    <strong>${formatValue(jobSchedule)}</strong>
+                                </div>
+                            </div>
+                            ${instructionsMarkup}
                         </div>
                     `;
-                } else {
-                    previewHTML = `
-                        <div class="document-preview-container">
-                            <div class="document-preview-header">
-                                <div class="document-preview-title">${documentName}</div>
-                                <div class="document-preview-actions">
-                                    <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="document-preview-frame" style="display: flex; align-items: center; justify-content: center; padding: 40px;">
-                                <div style="text-align: center;">
-                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 16px; opacity: 0.5;">
-                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <p style="color: #6b7280; margin-bottom: 16px;">Preview not available for this file type</p>
-                                    <div style="display: flex; gap: 8px; justify-content: center;">
-                                        <a href="/provider/documents/view/${documentId}" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                    return;
+                }
+                
+                if (documentId && documentUrl) {
+                    // Hide empty state, show content
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'none';
+                    documentContent.style.display = 'block';
+                    
+                    // Determine file type and render accordingly
+                    const fileExtension = documentUrl.split('.').pop().toLowerCase();
+                    let previewHTML = '';
+                    
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
                                             View Full Page
                                         </a>
-                                        <a href="${documentUrl}" target="_blank" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
                                             Open in New Tab
                                         </a>
                                     </div>
                                 </div>
+                                <div class="document-preview-frame">
+                                    <img src="${documentUrl}" alt="${documentName}" />
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    } else if (['pdf'].includes(fileExtension)) {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            View Full Page
+                                        </a>
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Open in New Tab
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame">
+                                    <iframe src="${documentUrl}" type="application/pdf"></iframe>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame" style="display: flex; align-items: center; justify-content: center; padding: 40px;">
+                                    <div style="text-align: center;">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 16px; opacity: 0.5;">
+                                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p style="color: #6b7280; margin-bottom: 16px;">Preview not available for this file type</p>
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <a href="/provider/documents/view/${documentId}" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                                                View Full Page
+                                            </a>
+                                            <a href="${documentUrl}" target="_blank" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                                                Open in New Tab
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    documentContent.innerHTML = previewHTML;
+                } else {
+                    // No document URL, show message
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'flex';
+                    documentContent.style.display = 'none';
+                }
+            }
+
+            // Toggle button functionality for requests
+            if (requestsToggleBtn && requestsSplitViewContainer) {
+                setupListToggle('requests', requestsToggleBtn, requestsSplitViewContainer, requestsSplitList, requestsSplitDetails);
+            }
+
+            // Toggle button functionality for documents
+            if (documentsToggleBtn && documentsSplitViewContainer) {
+                setupListToggle('documents', documentsToggleBtn, documentsSplitViewContainer, documentsSplitList, documentsSplitDetails);
+            }
+
+            function setupListToggle(section, toggleBtn, container, splitList, splitDetails) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isCollapsed = container.classList.contains('list-collapsed');
+                    
+                    if (isCollapsed) {
+                        expandList(container, splitList, splitDetails);
+                    } else {
+                        collapseList(container, splitList, splitDetails);
+                    }
+                    
+                    setTimeout(() => updateToggleButtonPosition(section), 100);
+                });
+
+                // Update position on resize and scroll
+                window.addEventListener('resize', () => updateToggleButtonPosition(section));
+                window.addEventListener('scroll', () => updateToggleButtonPosition(section), true);
+            }
+
+            function collapseList(container, splitList, splitDetails) {
+                if (!container.classList.contains('list-collapsed')) {
+                    container.classList.add('list-collapsed');
+                    if (splitList) {
+                        splitList.style.display = 'none';
+                        splitList.style.width = '0';
+                        splitList.style.minWidth = '0';
+                        splitList.style.maxWidth = '0';
+                        splitList.style.padding = '0';
+                        splitList.style.margin = '0';
+                        splitList.style.visibility = 'hidden';
+                    }
+                    if (splitDetails) {
+                        splitDetails.style.gridColumn = '1 / -1';
+                        splitDetails.style.width = '100%';
+                        splitDetails.style.maxWidth = '100%';
+                    }
+                }
+            }
+
+            function expandList(container, splitList, splitDetails) {
+                if (container.classList.contains('list-collapsed')) {
+                    container.classList.remove('list-collapsed');
+                    if (splitList) {
+                        splitList.style.display = 'block';
+                        splitList.style.width = '';
+                        splitList.style.minWidth = '';
+                        splitList.style.maxWidth = '';
+                        splitList.style.padding = '';
+                        splitList.style.margin = '';
+                        splitList.style.visibility = 'visible';
+                    }
+                    if (splitDetails) {
+                        splitDetails.style.gridColumn = '';
+                        splitDetails.style.width = '';
+                        splitDetails.style.maxWidth = '';
+                    }
+                }
+            }
+
+            function updateToggleButtonPosition(section) {
+                const isRequests = section === 'requests';
+                const toggleBtn = isRequests ? requestsToggleBtn : documentsToggleBtn;
+                const container = isRequests ? requestsSplitViewContainer : documentsSplitViewContainer;
+                const splitDetails = isRequests ? requestsSplitDetails : documentsSplitDetails;
+                
+                if (!toggleBtn || !container || container.style.display !== 'grid') {
+                    if (toggleBtn) toggleBtn.style.display = 'none';
+                    return;
                 }
                 
-                documentContent.innerHTML = previewHTML;
-            } else {
-                // No document URL, show message
-                if (noDocumentSelected) noDocumentSelected.style.display = 'flex';
-                documentContent.style.display = 'none';
-            }
-        }
-
-        // Toggle button functionality for requests
-        if (requestsToggleBtn && requestsSplitViewContainer) {
-            setupListToggle('requests', requestsToggleBtn, requestsSplitViewContainer, requestsSplitList, requestsSplitDetails);
-        }
-
-        // Toggle button functionality for documents
-        if (documentsToggleBtn && documentsSplitViewContainer) {
-            setupListToggle('documents', documentsToggleBtn, documentsSplitViewContainer, documentsSplitList, documentsSplitDetails);
-        }
-
-        function setupListToggle(section, toggleBtn, container, splitList, splitDetails) {
-            toggleBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
                 const isCollapsed = container.classList.contains('list-collapsed');
                 
                 if (isCollapsed) {
-                    expandList(container, splitList, splitDetails);
+                    toggleBtn.style.display = 'flex';
+                    if (splitDetails) {
+                        const detailsRect = splitDetails.getBoundingClientRect();
+                        toggleBtn.style.position = 'fixed';
+                        toggleBtn.style.left = (detailsRect.left - 18) + 'px';
+                        toggleBtn.style.top = (detailsRect.top + 60) + 'px';
+                        toggleBtn.style.transform = 'none';
+                    }
                 } else {
-                    collapseList(container, splitList, splitDetails);
-                }
-                
-                setTimeout(() => updateToggleButtonPosition(section), 100);
-            });
-
-            // Update position on resize and scroll
-            window.addEventListener('resize', () => updateToggleButtonPosition(section));
-            window.addEventListener('scroll', () => updateToggleButtonPosition(section), true);
-        }
-
-        function collapseList(container, splitList, splitDetails) {
-            if (!container.classList.contains('list-collapsed')) {
-                container.classList.add('list-collapsed');
-                if (splitList) {
-                    splitList.style.display = 'none';
-                    splitList.style.width = '0';
-                    splitList.style.minWidth = '0';
-                    splitList.style.maxWidth = '0';
-                    splitList.style.padding = '0';
-                    splitList.style.margin = '0';
-                    splitList.style.visibility = 'hidden';
-                }
-                if (splitDetails) {
-                    splitDetails.style.gridColumn = '1 / -1';
-                    splitDetails.style.width = '100%';
-                    splitDetails.style.maxWidth = '100%';
+                    toggleBtn.style.display = 'none';
                 }
             }
-        }
 
-        function expandList(container, splitList, splitDetails) {
-            if (container.classList.contains('list-collapsed')) {
-                container.classList.remove('list-collapsed');
-                if (splitList) {
-                    splitList.style.display = 'block';
-                    splitList.style.width = '';
-                    splitList.style.minWidth = '';
-                    splitList.style.maxWidth = '';
-                    splitList.style.padding = '';
-                    splitList.style.margin = '';
-                    splitList.style.visibility = 'visible';
+            // Deep-link: open a specific document request in split view if provided via query param
+            (function() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const openRequestId = params.get('openRequest');
+                    if (openRequestId) {
+                        // Ensure split view is active
+                        if (requestsSplitViewContainer && requestsSplitViewContainer.style.display !== 'grid') {
+                            requestsSplitViewBtn && requestsSplitViewBtn.click();
+                        }
+                        // Find the matching card and select it
+                        const targetCard = document.querySelector('.split-document-card[data-request-id="' + openRequestId + '"]');
+                        if (targetCard) {
+                            selectDocumentCard(targetCard, 'requests');
+                            // Optionally collapse list to focus on details
+                            if (requestsSplitViewContainer) {
+                                collapseList(requestsSplitViewContainer, requestsSplitList, requestsSplitDetails);
+                                updateToggleButtonPosition('requests');
+                            }
+                            // Smooth scroll to details area
+                            setTimeout(() => {
+                                requestsSplitDetails && requestsSplitDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 150);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Deep-link openRequest handler error:', e);
                 }
-                if (splitDetails) {
-                    splitDetails.style.gridColumn = '';
-                    splitDetails.style.width = '';
-                    splitDetails.style.maxWidth = '';
-                }
-            }
-        }
-
-        function updateToggleButtonPosition(section) {
-            const isRequests = section === 'requests';
-            const toggleBtn = isRequests ? requestsToggleBtn : documentsToggleBtn;
-            const container = isRequests ? requestsSplitViewContainer : documentsSplitViewContainer;
-            const splitDetails = isRequests ? requestsSplitDetails : documentsSplitDetails;
-            
-            if (!toggleBtn || !container || container.style.display !== 'grid') {
-                if (toggleBtn) toggleBtn.style.display = 'none';
-                return;
-            }
-            
-            const isCollapsed = container.classList.contains('list-collapsed');
-            
-            if (isCollapsed) {
-                toggleBtn.style.display = 'flex';
-                if (splitDetails) {
-                    const detailsRect = splitDetails.getBoundingClientRect();
-                    toggleBtn.style.position = 'fixed';
-                    toggleBtn.style.left = (detailsRect.left - 18) + 'px';
-                    toggleBtn.style.top = (detailsRect.top + 60) + 'px';
-                    toggleBtn.style.transform = 'none';
-                }
-            } else {
-                toggleBtn.style.display = 'none';
-            }
-        }
-    });
+            })();
+        });
     </script>
 {% endblock %}

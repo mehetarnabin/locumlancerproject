@@ -372,6 +372,50 @@
 .is-rejected, .rejected {
     border: none;
 }
+
+/* Add these styles to change the request button colors */
+
+/* Main action button in the top section */
+.action-btn[data-bs-target="#askDocumentModal"] {
+    background: #E3F2FD;
+    border: 1px solid #2196F3;
+    color: #1976D2;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"]:hover {
+    background: #BBDEFB;
+    border: 1px solid #1976D2;
+    color: #0D47A1;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"] svg {
+    color: #2196F3;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"]:hover svg {
+    color: #1976D2;
+}
+
+/* Individual request buttons in the application rows */
+.btn-outline-primary[data-bs-target="#askDocumentModal"] {
+    background: #E8F5E8;
+    border: 1px solid #4CAF50;
+    color: #2E7D32;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"]:hover {
+    background: #C8E6C9;
+    border: 1px solid #2E7D32;
+    color: #1B5E20;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"] .fas {
+    color: #4CAF50;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"]:hover .fas {
+    color: #2E7D32;
+}
 </style>
 
     {% set statusColors = {
@@ -379,6 +423,7 @@
         'in_review': 'review',
         'interview': 'interview',
         'offered': 'offered',
+        'accepted': 'accepted', 
         'rejected': 'rejected',
         'hired': 'hired',
         'completed': 'completed'
@@ -676,16 +721,17 @@
                     <use xlink:href="#icon-apply"/>
                     </svg> Completed
                   </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
+                  <!-- ENABLED: Document Request Button for Applied Status -->
+                  <button type="button" class="action-btn" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#askDocumentModal" 
+                          title="Request Documents">
                     <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
                     </svg> Request Documents
                   </button>
                   <button id="apply-btn" class="action-btn" disabled title="Apply">
@@ -824,6 +870,7 @@
                             <div class="col-expiry col-center flex-grow-1">Schedule</div>
                             <div class="col-start col-center flex-grow-1">Applied At</div>           
                             <div class="col-start col-center flex-grow-1">Status</div>
+                            <div class="col-action flex-grow-1 text-center">Actions</div>
                         </div>
                     </div>
                 </div>
@@ -833,7 +880,7 @@
                     <div class="d-flex align-items-center job-lists">
                         <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
                             <div class="col-check" style="width: 25px;">
-                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
+                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-application-status="{{ application.status }}" />
                             </div>
                             <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
                                 <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
@@ -848,12 +895,24 @@
                             </div>
                             <div class="col-start col-center flex-grow-1">{{ application.provider }}</div>
                             <div class="col-start col-center flex-grow-1">{{ job.state }}</div>
-                            <div class="col-start col-center flex-grow-1">{{ job.schedule }}}</div>
+                            <div class="col-start col-center flex-grow-1">{{ job.schedule }}</div>
                             <div class="col-start col-center flex-grow-1">{{ application.createdAt|date('m/d/Y') }}</div>
                             <div class="col-start col-center flex-grow-1">
                                 <span class="badge badge-pill is-{{ statusColors[application.status] }}">
                                         {{ application.status | replace({'_': ' '}) | title }}
                                 </span>
+                            </div>
+                            <!-- Add Actions Column -->
+                            <div class="col-action flex-grow-1 text-center">
+                                {% if application.status not in ['rejected', 'completed'] %}
+                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#askDocumentModal" 
+                                        data-application_id="{{ application.id }}"
+                                        title="Request Document">
+                                    <i class="fas fa-file-import"></i> Request Doc
+                                </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -888,31 +947,60 @@
     </div>
 
     <!-- Ask Document Modal -->
-    <div class="modal fade" id="askDocumentModal" tabindex="-1" aria-labelledby="askDocumentLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+<div class="modal fade" id="askDocumentModal" tabindex="-1" aria-labelledby="askDocumentLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="askDocumentLabel">Request Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header">
+                <h5 class="modal-title" id="askDocumentLabel">Request Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="documentName" class="form-label">Document Name</label>
+                        <input type="text" class="form-control" id="documentName" name="document_name" required>
+                    </div>
+                    <input type="hidden" id="selectedApplicationId" name="application_id">
                 </div>
 
-                <form action="" method="POST">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="documentName" class="form-label">Document Name</label>
-                            <input type="text" class="form-control" id="documentName" name="document_name" required>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Request</button>
+                </div>
+            </form>
 
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Send Request</button>
-                    </div>
-                </form>
-
-            </div>
         </div>
     </div>
+</div>
+
+    {# Remove or comment out this section - it's causing the error #}
+{#
+<!-- Bulk Document Request Modal -->
+<div class="modal fade" id="askDocumentModalBulk" tabindex="-1" aria-labelledby="askDocumentBulkLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="askDocumentBulkLabel">Request Documents from Selected Applicants</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ path('app_employer_application_bulk_askfordocument') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="documentNameBulk" class="form-label">Document Name</label>
+                        <input type="text" class="form-control" id="documentNameBulk" name="document_name" required>
+                        <div class="form-text">This document request will be sent to all selected applicants.</div>
+                    </div>
+                    <input type="hidden" id="selectedApplications" name="application_ids">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Requests</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+#}
 
     <!-- Interview Modal -->
     <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewLabel" aria-hidden="true">
@@ -989,6 +1077,9 @@
             var form = $(this).find('form'); // Find the form inside the modal
             var actionUrl = "{{ path('app_employer_application_askfordocument', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
             form.attr('action', actionUrl); // Set the form action
+            
+            // Set the application ID in the hidden field
+            document.getElementById('selectedApplicationId').value = applicationId;
         });
     });
 
@@ -1014,6 +1105,7 @@
     const menuBtn = document.querySelector('.menu-dropdown-btn');
     const columnsPanel = document.querySelector('.columns-panel');
     const menuPanel = document.querySelector('.menu-panel');
+    const requestDocBtn = document.getElementById('request-doc-btn');
 
     function toggleDropdown(panel, btn) {
         const isOpen = !panel.classList.contains('hidden');
@@ -1054,7 +1146,7 @@
           cb.checked = selectAllCheckbox.checked;
         });
         toggleActionsVisibility();
-        updateActions();
+        updateBulkActions();
       });
 
       // Sync master checkbox if user manually toggles individual ones
@@ -1062,6 +1154,7 @@
         cb.addEventListener('change', function () {
           const allChecked = Array.from(checkboxes).every(cb => cb.checked);
           selectAllCheckbox.checked = allChecked;
+          updateBulkActions();
         });
       });
     }
@@ -1073,12 +1166,34 @@
       });
     }
 
+    function updateBulkActions() {
+        const checked = Array.from(checkboxes).filter(cb => cb.checked);
+        
+        // Enable bulk document request if any applications are selected and not in excluded statuses
+        const eligibleApplications = checked.filter(cb => {
+            const status = cb.dataset.applicationStatus;
+            return !['rejected', 'completed'].includes(status);
+        });
+        
+        if (requestDocBtn) {
+            requestDocBtn.disabled = eligibleApplications.length === 0;
+        }
+        
+        // Set selected application IDs for bulk modal
+        if (eligibleApplications.length > 0) {
+            const selectedIds = eligibleApplications.map(cb => cb.dataset.applicationId);
+            document.getElementById('selectedApplications').value = selectedIds.join(',');
+        }
+    }
+
     checkboxes.forEach(cb => {
       cb.addEventListener('change', toggleActionsVisibility);
+      cb.addEventListener('change', updateBulkActions);
     });
 
     // Initial check in case some boxes are pre-checked
     toggleActionsVisibility();
+    updateBulkActions();
 
     function updateActions() {
       const checked = Array.from(checkboxes).filter(cb => cb.checked);
@@ -1112,6 +1227,16 @@
         .map(cb => cb.dataset.jobId);
       // Trigger batch delete logic here
       console.log('Deleting jobs:', selectedIds);
+    });
+
+    // Individual document request button handlers
+    document.querySelectorAll('[data-bs-target="#askDocumentModal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const applicationId = this.getAttribute('data-application_id');
+            if (applicationId) {
+                document.querySelector('#askDocumentModal input[name="application_id"]').value = applicationId;
+            }
+        });
     });
   });
 </script>

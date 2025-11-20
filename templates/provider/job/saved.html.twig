@@ -1244,7 +1244,7 @@ window.addEventListener('resize', function() {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-backdrop="false" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 Are you sure you want to delete the selected saved jobs? This action cannot be undone.
@@ -2578,7 +2578,7 @@ window.addEventListener('resize', function() {
             if (selectedIds.length === 1) {
                 // Single job: redirect to apply page
                 const jobId = selectedIds[0];
-                window.location.href = `/provider/jobs/${jobId}/apply?redirect_route=app_provider_jobs_saved`;
+                window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
             } else {
                 // Multiple jobs: use batch apply
                 if (confirm(`Are you sure you want to apply to ${selectedIds.length} jobs?`)) {
@@ -3020,7 +3020,7 @@ function applyToJob(jobId) {
             applyBtn.disabled = true;
         }
         
-        window.location.href = `/provider/jobs/${jobId}/apply?redirect_route=app_provider_jobs_saved`;
+        window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
     }
 }
 
@@ -4339,24 +4339,55 @@ function applyToSelectedJobs(jobIds) {
 }
 
 function applyToJob(jobId) {
-    return new Promise((resolve, reject) => {
-        fetch(`/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`, {
-            method: 'GET',
+    if (confirm('Are you sure you want to apply to this job?')) {
+        // Show loading state on button
+        const applyBtn = document.querySelector('.btn-apply');
+        if (applyBtn) {
+            const originalText = applyBtn.innerHTML;
+            applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
+            applyBtn.disabled = true;
+        }
+        
+        // Use the correct Symfony route with POST method
+        fetch(`/provider/jobs/apply/${jobId}`, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            body: JSON.stringify({
+                redirect_route: 'app_provider_jobs_saved'
+            })
         })
         .then(response => {
-            if (response.ok) {
-                resolve();
+            if (response.redirected) {
+                // If Symfony redirects, follow the redirect
+                window.location.href = response.url;
+            } else if (response.ok) {
+                // If it's a successful response without redirect
+                return response.json().then(data => {
+                    if (data.success) {
+                        showToast('Successfully applied to job!', 'success');
+                        // Remove from saved jobs or update UI
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                });
             } else {
-                reject(new Error('Apply failed'));
+                throw new Error('Apply failed');
             }
         })
-        .catch(error => reject(error));
-    });
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error applying to job. Please try again.', 'error');
+            if (applyBtn) {
+                applyBtn.innerHTML = originalText;
+                applyBtn.disabled = false;
+            }
+        });
+    }
 }
-
 // Toast notification function (if not already defined)
 if (typeof showToast === 'undefined') {
 function showToast(message, type = 'info') {

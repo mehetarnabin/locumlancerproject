@@ -36,4 +36,37 @@ class DocumentRequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByProviderWithRelations(Provider $provider): array
+    {
+        return $this->createQueryBuilder('dr')
+            ->leftJoin('dr.application', 'a')
+            ->leftJoin('a.job', 'j')
+            ->leftJoin('dr.document', 'd')
+            ->leftJoin('a.employer', 'e')
+            ->addSelect('a', 'j', 'd', 'e')
+            ->where('dr.provider = :provider')
+            ->setParameter('provider', $provider)
+            ->orderBy('dr.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Get pending document requests for a provider
+     */
+    public function findPendingByProvider(Provider $provider): array
+    {
+        return $this->createQueryBuilder('dr')
+            ->leftJoin('dr.application', 'a')
+            ->leftJoin('a.job', 'j')
+            ->leftJoin('a.employer', 'e')
+            ->addSelect('a', 'j', 'e')
+            ->where('dr.provider = :provider')
+            ->andWhere('dr.providedAt IS NULL')
+            ->setParameter('provider', $provider)
+            ->orderBy('dr.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
