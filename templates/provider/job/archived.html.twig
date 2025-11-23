@@ -361,8 +361,7 @@ div.container-xl,
 
 /* Consistent rounded-square style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
-.split-job-list input[type="checkbox"].job-checkbox,
-#select-all-checkbox {
+.split-job-list input[type="checkbox"].job-checkbox {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
@@ -380,22 +379,19 @@ div.container-xl,
 
 /* Hover state - green border */
 .job-list-container input[type="checkbox"].job-check:hover,
-.split-job-list input[type="checkbox"].job-checkbox:hover,
-#select-all-checkbox:hover {
+.split-job-list input[type="checkbox"].job-checkbox:hover {
   border-color: #85BB65;
 }
 
 /* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
-.split-job-list input[type="checkbox"].job-checkbox:checked,
-#select-all-checkbox:checked {
+.split-job-list input[type="checkbox"].job-checkbox:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
-.split-job-list input[type="checkbox"].job-checkbox:checked::after,
-#select-all-checkbox:checked::after {
+.split-job-list input[type="checkbox"].job-checkbox:checked::after {
   content: '';
   position: absolute;
   top: 2px;
@@ -487,6 +483,44 @@ div.container-xl,
 /* Since display comes before wrapper, we need to hide display when wrapper is visible */
 .col-rank:has(.rank-input-wrapper:not(.hidden)) .rank-display:not(.hidden) {
     display: none !important;
+}
+
+.rank-input-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 0 auto !important;
+}
+
+.rank-save-btn {
+    background-color: #85BB65 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    color: white !important;
+    cursor: pointer !important;
+    padding: 4px 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.rank-save-btn:hover {
+    background-color: #6fa852 !important;
+    transform: scale(1.1) !important;
+}
+
+.rank-save-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.rank-save-btn svg {
+    width: 14px !important;
+    height: 14px !important;
 }
 .application .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
@@ -698,6 +732,7 @@ div.container-xl,
 
 .col-dropdowns {
   justify-self: end;
+  margin-right: 15px;
 }
 
 .table-responsive-wrapper {
@@ -734,6 +769,25 @@ div.container-xl,
               <div class="menu-dropdown position-relative">
                 <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
                 <div class="dropdown-panel menu-panel custom-dropdown hidden">
+                  <!-- Print/Share and Timeline Buttons -->
+                  <button id="print-share-job-btn" class="menu-item">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 9V2H18V9" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M6 14H18V22H6V14Z" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> 
+                    <span>Print/Share</span>
+                  </button>
+                  <a id="timeline-job-btn" href="{{ path('app_provider_interview_calendar') }}" class="menu-item">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="#121C0C" stroke-width="1.5"/>
+                      <path d="M16 2V6M8 2V6M3 10H21" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg> 
+                    <span>Timeline</span>
+                  </a>
+                  <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                  <!-- Regular Menu Items -->
                   <a href="{{ path('app_provider_download_data', {'type': 'archived'}) }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -817,10 +871,12 @@ window.addEventListener('resize', function() {
 </script>
 
 <script>
-// Rank editing functionality for archived applications
-document.addEventListener('DOMContentLoaded', function () {
-    const rankDisplays = document.querySelectorAll('.rank-display');
-    const rankInputs = document.querySelectorAll('.rank-input');
+// Rank editing functionality for archived applications - using event delegation
+(function() {
+    if (window.archivedRankEditingInitialized) {
+        return; // Already initialized
+    }
+    window.archivedRankEditingInitialized = true;
 
     function saveRank(input) {
         let value = parseFloat(input.value);
@@ -862,9 +918,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             if (data.success) {
                 if (display) {
-                    // Format the value to 1 decimal place
-                    const formattedValue = parseFloat(value).toFixed(1);
-                    display.textContent = formattedValue + '/10';
+                    display.textContent = value;
                     display.classList.remove('hidden');
                 }
                 input.dataset.originalValue = value;
@@ -904,67 +958,87 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Initialize original values
-    rankInputs.forEach(input => input.dataset.originalValue = input.value || '');
+    // Use event delegation for all rank editing interactions
+    document.addEventListener('click', function(e) {
+        // Handle save button click FIRST (before rank display)
+        const saveBtn = e.target.closest('.rank-save-btn');
+        if (saveBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const applicationId = saveBtn.dataset.applicationId;
+            const wrapper = saveBtn.closest('.rank-input-wrapper');
+            const input = wrapper ? wrapper.querySelector('.rank-input') : null;
+            if (input && input.dataset.applicationId === applicationId) {
+                saveRank(input);
+            }
+            return false;
+        }
 
-    // Click to edit
-    rankDisplays.forEach(display => {
-        display.addEventListener('click', function () {
-            // Hide this display first
-            this.classList.add('hidden');
-            
-            // Find and show the wrapper
-            const wrapper = this.nextElementSibling;
+        // Handle rank display click
+        const rankDisplay = e.target.closest('.rank-display');
+        if (rankDisplay && !rankDisplay.classList.contains('hidden')) {
+            e.preventDefault();
+            e.stopPropagation();
+            const wrapper = rankDisplay.nextElementSibling;
             if (wrapper && wrapper.classList.contains('rank-input-wrapper')) {
-                wrapper.classList.remove('hidden');
                 const input = wrapper.querySelector('.rank-input');
                 if (input) {
-                    // Small delay to ensure CSS has applied
+                    wrapper.classList.remove('hidden');
+                    rankDisplay.classList.add('hidden');
+                    // Initialize original value if not set
+                    if (!input.dataset.originalValue) {
+                        input.dataset.originalValue = input.value || '';
+                    }
                     setTimeout(() => {
                         input.focus();
                         input.select();
                     }, 10);
                 }
             }
-        });
+            return false;
+        }
+    }, true); // Use capture phase to ensure we catch the event early
+
+    // Handle keyboard events on rank inputs
+    document.addEventListener('keydown', function(e) {
+        const rankInput = e.target.closest('.rank-input');
+        if (!rankInput) return;
+
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveRank(rankInput);
+        } else if (e.key === 'Escape') {
+            const wrapper = rankInput.closest('.rank-input-wrapper');
+            const display = wrapper ? wrapper.previousElementSibling : rankInput.previousElementSibling;
+            rankInput.value = rankInput.dataset.originalValue || '';
+            if (wrapper) {
+                wrapper.classList.add('hidden');
+            } else {
+                rankInput.classList.add('hidden');
+            }
+            if (display) display.classList.remove('hidden');
+        }
     });
 
-    // Tick button click handlers
-    document.querySelectorAll('.rank-save-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const applicationId = this.dataset.applicationId;
-            const wrapper = this.closest('.rank-input-wrapper');
-            const input = wrapper ? wrapper.querySelector('.rank-input') : null;
-            if (input && input.dataset.applicationId === applicationId) {
-                saveRank(input);
+    // Initialize original values for existing inputs
+    function initializeRankValues() {
+        document.querySelectorAll('.rank-input').forEach(input => {
+            if (!input.dataset.originalValue) {
+                input.dataset.originalValue = input.value || '';
             }
         });
-    });
+    }
 
-    // Blur & key events
-    rankInputs.forEach(input => {
-        // Don't save on blur - only on tick button or Enter key
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveRank(input);
-            }
-            if (e.key === 'Escape') {
-                const wrapper = input.closest('.rank-input-wrapper');
-                const display = wrapper ? wrapper.previousElementSibling : input.previousElementSibling;
-                input.value = input.dataset.originalValue || '';
-                if (wrapper) {
-                    wrapper.classList.add('hidden');
-                } else {
-                    input.classList.add('hidden');
-                }
-                if (display) display.classList.remove('hidden');
-            }
-        });
-    });
-});
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeRankValues);
+    } else {
+        initializeRankValues();
+    }
+})();
+</script>
 
+<script>
   // Single-selection feature: prevent multiple checkboxes from being selected
   document.addEventListener('DOMContentLoaded', function() {
     // Delegated change listener to catch any checkbox state changes reliably
@@ -1015,6 +1089,200 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
                 closeAllDropdowns();
             }
+        });
+    }
+
+    // Generate PDF from job details and open print window
+    function generateJobPDF(jobId) {
+        if (!jobId) {
+            if (typeof showWarningAlert === 'function') {
+                showWarningAlert('No Job Selected', 'Please select a job first');
+            } else {
+                alert('Please select a job first');
+            }
+            return;
+        }
+        
+        // Fetch job details
+        const url = '/provider/jobs/' + jobId + '/detail-content';
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                // Parse the HTML to extract job details
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract job information
+                const jobTitle = doc.querySelector('.job-detail-title, h1, h2, h3, h4')?.textContent?.trim() || 'Job Details';
+                const jobCompany = doc.querySelector('.job-detail-company, .company-name')?.textContent?.trim() || '';
+                const jobLocation = doc.querySelector('.job-detail-meta-item')?.textContent?.trim() || '';
+                
+                // Get all job detail sections
+                const sections = doc.querySelectorAll('.job-detail-section, .job-detail-meta-item');
+                let jobDetailsHTML = '';
+                
+                sections.forEach(section => {
+                    // Clone and clean the section
+                    const clone = section.cloneNode(true);
+                    // Remove buttons and action elements
+                    clone.querySelectorAll('button, .btn, .action-btn, .no-print').forEach(el => el.remove());
+                    jobDetailsHTML += clone.outerHTML;
+                });
+                
+                // If no sections found, use the full HTML
+                if (!jobDetailsHTML) {
+                    const fullContent = doc.body.cloneNode(true);
+                    fullContent.querySelectorAll('button, .btn, .action-btn, .no-print, script, style').forEach(el => el.remove());
+                    jobDetailsHTML = fullContent.innerHTML;
+                }
+                
+                // Create a clean HTML document for PDF
+                const pdfHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${jobTitle} - Job Details</title>
+    <style>
+        @page { margin: 1.5cm; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24pt;
+            color: #121C0C;
+            border-bottom: 3px solid #85BB65;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18pt;
+            color: #121C0C;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e6eef6;
+            padding-bottom: 5px;
+        }
+        .job-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e6eef6;
+        }
+        .job-company {
+            font-size: 16pt;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .job-detail-section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .job-detail-label {
+            font-weight: bold;
+            color: #121C0C;
+            margin-right: 8px;
+        }
+        .job-detail-meta-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="job-header">
+        <h1>${jobTitle}</h1>
+        ${jobCompany ? `<div class="job-company">${jobCompany}</div>` : ''}
+        ${jobLocation ? `<div>${jobLocation}</div>` : ''}
+    </div>
+    ${jobDetailsHTML}
+</body>
+</html>`;
+                
+                // Open print window
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(pdfHTML);
+                printWindow.document.close();
+                
+                // Wait for content to load, then print
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 250);
+                };
+            })
+            .catch(error => {
+                console.error('Error generating PDF:', error);
+                if (typeof showErrorAlert === 'function') {
+                    showErrorAlert('Error', 'Failed to generate PDF. Please try again.');
+                } else {
+                    alert('Failed to generate PDF. Please try again.');
+                }
+            });
+    }
+
+    // Handle Print/Share button click
+    const printShareBtn = document.getElementById('print-share-job-btn');
+    if (printShareBtn) {
+        printShareBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Get the selected job ID
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                // Generate PDF and open print window
+                generateJobPDF(selectedJobId);
+            } else {
+                if (typeof showWarningAlert === 'function') {
+                    showWarningAlert('No Job Selected', 'Please select a job first');
+                } else {
+                    alert('Please select a job first');
+                }
+            }
+            closeAllDropdowns();
+        });
+    }
+    
+    // Handle Timeline button click
+    const timelineBtn = document.getElementById('timeline-job-btn');
+    if (timelineBtn) {
+        timelineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get job ID from the closest job card
+            const dropdown = timelineBtn.closest('.menu-dropdown');
+            let jobId = null;
+            
+            if (dropdown) {
+                const jobCard = dropdown.closest('.job-lists, .split-job-card');
+                if (jobCard) {
+                    jobId = jobCard.getAttribute('data-job-id');
+                }
+                
+                if (!jobId) {
+                    const checkbox = dropdown.closest('.job-lists, .split-view-container')?.querySelector('[data-job-id]');
+                    if (checkbox) {
+                        jobId = checkbox.getAttribute('data-job-id');
+                    }
+                }
+            }
+            
+            // Build calendar URL with job ID
+            let calendarUrl = timelineBtn.getAttribute('href');
+            if (jobId) {
+                calendarUrl += '?jobId=' + encodeURIComponent(jobId);
+            }
+            
+            window.open(calendarUrl, '_blank');
+            closeAllDropdowns();
         });
     }
 });

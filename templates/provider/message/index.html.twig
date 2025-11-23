@@ -416,15 +416,34 @@ body {
 }
 
 .messages-content-header .select-all input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     accent-color: #85BB65;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    transition: all 0.2s ease;
 }
 
 .messages-content-header .select-all input[type="checkbox"]:checked {
     background-color: #85BB65;
     border-color: #85BB65;
+}
+
+.messages-content-header .select-all input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
 }
 
 .messages-content-header .select-all label {
@@ -592,16 +611,35 @@ body {
 }
 
 .message-item .message-checkbox {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
     flex-shrink: 0;
     accent-color: #85BB65;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    transition: all 0.2s ease;
 }
 
 .message-item .message-checkbox:checked {
     background-color: #85BB65;
     border-color: #85BB65;
+}
+
+.message-item .message-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
 }
 
 .message-item > a {
@@ -744,7 +782,86 @@ body {
     display: flex;
     gap: 8px;
     align-items: center;
-    margin-left: auto;
+    margin-left: 8px;
+}
+
+.restore-btn-toolbar {
+    background: transparent;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.restore-btn-toolbar:hover:not(:disabled) {
+    background: #85BB65;
+    color: white;
+}
+
+.restore-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.permanent-delete-btn-toolbar {
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.permanent-delete-btn-toolbar:hover:not(:disabled) {
+    background: #dc3545;
+    color: white;
+}
+
+.permanent-delete-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.message-actions-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.message-delete-btn-toolbar {
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-delete-btn-toolbar:hover:not(:disabled) {
+    background: #dc3545;
+    color: white;
+}
+
+.message-delete-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .empty-trash-btn {
@@ -1548,25 +1665,30 @@ body {
                                 <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
                                 <label for="select-all-checkbox">Select all</label>
                             </div>
-                            <div class="trash-actions">
-                                <button type="button" class="restore-btn" onclick="restoreSelectedMessages()" id="restore-selected-btn" disabled>
+                            <div class="trash-actions" id="trash-actions-toolbar" style="display: none;">
+                                <button type="button" class="restore-btn-toolbar" onclick="restoreSelectedMessages()" id="restore-selected-btn" disabled title="Restore Selected">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
                                         <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2"/>
                                     </svg>
-                                    Restore Selected
                                 </button>
-                                <button type="button" class="permanent-delete-btn" onclick="permanentlyDeleteSelectedMessages()" id="delete-selected-btn" disabled>
+                                <button type="button" class="permanent-delete-btn-toolbar" onclick="permanentlyDeleteSelectedMessages()" id="delete-selected-btn" disabled title="Delete Selected">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                    Delete Selected
                                 </button>
                             </div>
                         {% else %}
                             <div class="select-all">
-                                <input type="checkbox" id="select-all-checkbox">
+                                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
                                 <label for="select-all-checkbox">Select all</label>
+                            </div>
+                            <div class="message-actions-toolbar" id="message-actions-toolbar" style="display: none;">
+                                <button type="button" class="message-delete-btn-toolbar" onclick="deleteSelectedMessages()" id="delete-selected-messages-btn" disabled title="Delete Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
                             </div>
                         {% endif %}
                     </div>
@@ -1582,7 +1704,7 @@ body {
                                         {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
                                         
                                         <div class="message-item draft-item" data-draft-id="{{ message.id }}">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
                                             <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="loadDraftFromServer('{{ message.id }}')">
                                                 <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
                                                 <div class="message-content">
@@ -1592,13 +1714,6 @@ body {
                                                 <div class="message-meta">
                                                     <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
                                                 </div>
-                                            </div>
-                                            <div class="message-actions">
-                                                <button class="message-delete-btn" onclick="event.stopPropagation(); deleteDraftFromServer('{{ message.id }}')" title="Delete draft">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                </button>
                                             </div>
                                         </div>
                                     {% elseif current_type == 'trash' %}
@@ -1622,25 +1737,6 @@ body {
                                                     <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
                                                 </div>
                                             </div>
-                                            <div class="message-actions">
-                                                <button type="button" 
-                                                        onclick="restoreMessage('{{ message.id }}', this)"
-                                                        class="restore-btn"
-                                                        title="Restore message">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
-                                                        <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2"/>
-                                                    </svg>
-                                                </button>
-                                                <button type="button" 
-                                                        onclick="permanentlyDeleteMessage('{{ message.id }}', this)"
-                                                        class="permanent-delete-btn"
-                                                        title="Permanently delete">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
                                         </div>
                                     {% else %}
                                         {# Regular message item template #}
@@ -1652,7 +1748,7 @@ body {
                                         {% set messageText = message.text|striptags|slice(0, 100) %}
                                         
                                         <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
                                             <a href="{{ path('app_provider_message_show', {'id': message.id}) }}" style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit;">
                                                 <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
                                                 <div class="message-content">
@@ -1666,17 +1762,6 @@ body {
                                                     <div class="message-time">{{ message.createdAt|time_diff }}</div>
                                                 </div>
                                             </a>
-                                            <div class="message-actions">
-                                                <button type="button" 
-                                                        onclick="deleteMessage('{{ message.id }}', this)"
-                                                        class="message-delete-btn"
-                                                        data-csrf="{{ csrf_token('delete' ~ message.id) }}"
-                                                        title="Delete message">
-                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
                                         </div>
                                     {% endif %}
                                 {% endfor %}
@@ -2305,24 +2390,161 @@ function toggleSelectAll(selectAllCheckbox) {
         checkbox.checked = selectAllCheckbox.checked;
     });
     updateTrashActionButtons();
+    updateMessageActionsToolbar();
 }
 
 // Update trash action buttons state
 function updateTrashActionButtons() {
     const selectedCount = getSelectedMessageIds().length;
+    const toolbar = document.getElementById('trash-actions-toolbar');
     const restoreBtn = document.getElementById('restore-selected-btn');
     const deleteBtn = document.getElementById('delete-selected-btn');
     
+    // Show/hide toolbar based on selection
+    if (toolbar) {
+        if (selectedCount > 0) {
+            toolbar.style.display = 'flex';
+        } else {
+            toolbar.style.display = 'none';
+        }
+    }
+    
     if (restoreBtn) {
         restoreBtn.disabled = selectedCount === 0;
-        restoreBtn.textContent = selectedCount > 0 ? 
-            `Restore Selected (${selectedCount})` : 'Restore Selected';
     }
     
     if (deleteBtn) {
         deleteBtn.disabled = selectedCount === 0;
-        deleteBtn.textContent = selectedCount > 0 ? 
-            `Delete Selected (${selectedCount})` : 'Delete Selected';
+    }
+}
+
+// Update message actions toolbar visibility and state
+function updateMessageActionsToolbar() {
+    const selectedCount = getSelectedMessageIds().length;
+    const toolbar = document.getElementById('message-actions-toolbar');
+    const deleteBtn = document.getElementById('delete-selected-messages-btn');
+    
+    if (toolbar) {
+        if (selectedCount > 0) {
+            toolbar.style.display = 'flex';
+        } else {
+            toolbar.style.display = 'none';
+        }
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.disabled = selectedCount === 0;
+    }
+}
+
+// Delete selected messages (for inbox/sent/drafts)
+async function deleteSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    
+    if (selectedIds.length === 0) {
+        showToast('error', 'Please select at least one message to delete');
+        return;
+    }
+    
+    const isDrafts = '{{ current_type }}' === 'drafts';
+    const confirmMessage = isDrafts 
+        ? `Are you sure you want to delete ${selectedIds.length} selected draft(s)?`
+        : `Are you sure you want to delete ${selectedIds.length} selected message(s)?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    const deleteBtn = document.getElementById('delete-selected-messages-btn');
+    const originalContent = deleteBtn.innerHTML;
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<span class="loading-spinner"></span> Deleting...';
+    
+    try {
+        let successCount = 0;
+        let failCount = 0;
+        
+        // Delete each selected message/draft
+        for (const messageId of selectedIds) {
+            try {
+                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`) || 
+                                   document.querySelector(`[data-draft-id="${messageId}"]`);
+                
+                let response;
+                let result;
+                
+                if (isDrafts) {
+                    // Delete draft using DELETE method
+                    response = await fetch(`/provider/messages/draft/${messageId}`, {
+                        method: 'DELETE'
+                    });
+                    result = await response.json();
+                } else {
+                    // Delete message using POST with CSRF token
+                    const formData = new FormData();
+                    formData.append('_token', '{{ csrf_token('delete') }}');
+                    
+                    response = await fetch(`/provider/message/${messageId}/delete`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    result = await response.json();
+                }
+                
+                if (result.success) {
+                    successCount++;
+                    // Remove the message item with animation
+                    if (messageItem) {
+                        messageItem.style.transition = 'all 0.3s ease';
+                        messageItem.style.opacity = '0';
+                        messageItem.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            messageItem.remove();
+                        }, 300);
+                    }
+                } else {
+                    failCount++;
+                }
+            } catch (error) {
+                console.error(`Error deleting message ${messageId}:`, error);
+                failCount++;
+            }
+        }
+        
+        // Update UI
+        updateMessageActionsToolbar();
+        updateTrashCount();
+        if (isDrafts) {
+            updateDraftsCount();
+        }
+        
+        if (successCount > 0) {
+            const successMessage = isDrafts 
+                ? `Successfully deleted ${successCount} draft(s)`
+                : `Successfully deleted ${successCount} message(s)`;
+            showToast('success', successMessage);
+        }
+        if (failCount > 0) {
+            const failMessage = isDrafts 
+                ? `Failed to delete ${failCount} draft(s)`
+                : `Failed to delete ${failCount} message(s)`;
+            showToast('error', failMessage);
+        }
+        
+        // Check if we need to show empty state
+        setTimeout(() => {
+            const messagesList = document.querySelector('.messages-list');
+            if (messagesList && messagesList.children.length === 0) {
+                showEmptyState();
+            }
+        }, 350);
+        
+    } catch (error) {
+        console.error('Error deleting messages:', error);
+        showToast('error', 'An error occurred while deleting messages');
+    } finally {
+        deleteBtn.innerHTML = originalContent;
+        deleteBtn.disabled = false;
     }
 }
 
@@ -2595,10 +2817,76 @@ function openComposeModal() {
     }
 }
 
-function closeComposeModal() {
+async function closeComposeModal() {
     const modal = document.getElementById('compose-modal');
     const form = document.getElementById('compose-form');
     
+    // Check if there's any content in the form
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
+    const hasAttachments = selectedFiles && selectedFiles.length > 0;
+    const hasContent = receiver || subject.trim() || message.trim() || hasAttachments;
+    
+    // If there's content, show SweetAlert confirmation
+    if (hasContent) {
+        const result = await Swal.fire({
+            ...SwalConfig,
+            icon: 'question',
+            title: 'Save as Draft?',
+            text: 'This message will be saved as draft. Do you want to continue?',
+            showCancelButton: true,
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        });
+        
+        // If user confirms, save as draft
+        if (result.isConfirmed) {
+            // Trigger the draft saving logic
+            const receiver = document.getElementById('compose-receiver')?.value || '';
+            const subject = document.getElementById('compose-subject')?.value || '';
+            const message = document.getElementById('compose-message')?.value || '';
+            
+            // Don't save if no content (shouldn't happen, but safety check)
+            if (!message.trim() && !receiver && !subject.trim() && !hasAttachments) {
+                // Just close if no content
+                modal.classList.add('hidden');
+                if (form) {
+                    form.reset();
+                }
+                clearAttachments();
+                currentDraftId = null;
+                document.getElementById('compose-draft-id').value = '';
+                document.getElementById('draft-indicator').classList.remove('visible');
+                return;
+            }
+            
+            // Save as draft using the existing logic
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'save_as_draft';
+            draftInput.value = '1';
+            form.appendChild(draftInput);
+            
+            // Submit the form to save as draft
+            form.submit();
+            return; // Don't close modal here, let the form submission handle it
+        } else {
+            // User cancelled, just close the modal without saving
+            modal.classList.add('hidden');
+            if (form) {
+                form.reset();
+            }
+            clearAttachments();
+            currentDraftId = null;
+            document.getElementById('compose-draft-id').value = '';
+            document.getElementById('draft-indicator').classList.remove('visible');
+            return;
+        }
+    }
+    
+    // No content, just close normally
     modal.classList.add('hidden');
     
     // Reset form and state
@@ -2879,11 +3167,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize counts
     updateDraftsCount();
+    
+    // Initialize message actions toolbar
+    updateMessageActionsToolbar();
     updateTrashCount();
     
     // Initialize trash action buttons if in trash view
     if (window.location.href.includes('type=trash')) {
         updateTrashActionButtons();
+    } else {
+        // Initialize message actions toolbar for non-trash views
+        updateMessageActionsToolbar();
     }
 });
 </script>

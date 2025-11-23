@@ -18,48 +18,141 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
     <style>
         /* ============================================
-           TOP BAR NAVIGATION - VERTICAL CENTERING & ALIGNMENT
+           TOP TOOLBAR - EXTRACTED AS INDIVIDUAL ELEMENT
            ============================================ */
-        /* Add padding to header to center navigation items and prevent touching bottom edge */
-        .app-header .app-header-inner .container-fluid {
-            padding-top: 12px !important;
-            padding-bottom: 12px !important;
+        .app-header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            height: auto !important;
+            min-height: auto !important;
+            box-shadow: none !important;
         }
         
-        /* Ensure links have proper alignment */
-        .app-header .app-utilities .app-utility-item > a,
-        .app-header .app-utilities .app-utility-item .dropdown-toggle {
-            padding: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
+        .app-header-inner {
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            margin-top: 0;
+            margin-bottom: 0;
+            position: relative;
         }
         
-        /* Fix icon alignment - ensure all icons are properly aligned */
-        .app-header .app-utilities .app-utility-item {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
+        .app-header .container-fluid {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
         }
         
-        .app-header .app-utilities .app-utility-item .icon-image,
-        .app-header .app-utilities .app-utility-item svg {
-            display: block !important;
-            margin: 0 auto !important;
+        /* Top toolbar navigation */
+        .app-utilities {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5px;
+            flex-wrap: nowrap;
         }
         
-        /* Standardize header icon and profile sizes */
-        .app-utilities .icon-image { width: 28px; height: 28px; }
-        .app-utilities .app-user-dropdown .outer-ring,
-        .app-utilities .app-user-dropdown .outer-ring img {
-            width: 32px; height: 32px; border-radius: 50%;
+        .app-utility-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
         }
-        .app-utilities .app-user-dropdown .outer-ring { border: 2px solid #85BB65; display: inline-flex; align-items: center; justify-content: center; }
         
-        /* Position profile dropdown properly */
+        .app-utility-item > a,
+        .app-utility-item .dropdown-toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #000;
+            gap: 3px;
+            padding: 2px 3px;
+            border-radius: 8px;
+            min-width: 45px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .menu-dropdown {
+            position: relative;
+            z-index: 30;
+        }
+
+        .menu-dropdown .custom-dropdown {
+            z-index: 40;
+        }
+        
+        .app-utility-item .icon-image {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .app-utility-item .label-text {
+            display: block;
+            margin-top: 1px;
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-align: center;
+            color: #000;
+            font-weight: 400;
+            width: 100%;
+        }
+        
+        /* Notification badge */
+        .app-utility-item .icon-badge {
+            position: absolute;
+            top: -4px;
+            right: 0;
+            background: #ff0000;
+            color: #fff;
+            border-radius: 10px;
+            min-width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            padding: 0 4px;
+            line-height: 1;
+            z-index: 10;
+        }
+        
+        /* Profile avatar */
+        .app-user-dropdown .outer-ring {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #85BB65;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            overflow: visible !important;
+        }
+        
+        .app-user-dropdown .outer-ring img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .app-user-dropdown .icon-image {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+        }
+        
         .app-user-dropdown {
             margin-left: 10px;
             position: relative;
@@ -82,6 +175,75 @@
         
         .app-user-dropdown .dropdown-item:hover {
             background-color: #f8f9fa;
+        }
+        
+        /* Job Search icon visibility */
+        .app-utility-item .icon-jobsearch,
+        .app-utility-item .icon-jobsearch path,
+        .app-utility-item .icon-jobsearch .cls-1,
+        .app-utility-item .icon-jobsearch .cls-2 {
+            fill: currentColor;
+            stroke: none;
+        }
+        
+        /* Top toolbar hover effects */
+        .app-utility-item > a:hover,
+        .app-utility-item .dropdown-toggle:hover {
+            background: #f7fef4;
+        }
+        
+        .app-utility-item a:hover .icon-jobsearch path {
+            fill: #85BB65;
+        }
+        
+        /* Notifications dropdown */
+        .app-notifications-dropdown {
+            position: relative;
+            z-index: 99999;
+        }
+        
+        .app-notifications-dropdown .dropdown-toggle {
+            position: relative;
+            z-index: 99999;
+        }
+        
+        .app-notifications-dropdown .dropdown-menu {
+            z-index: 99999 !important;
+            position: fixed !important;
+            top: auto !important;
+            right: 18px !important;
+            left: auto !important;
+            margin-top: 10px !important;
+            min-width: 320px;
+            max-width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            transform: none !important;
+        }
+        
+        .app-notifications-dropdown.show .dropdown-menu {
+            display: block !important;
+        }
+        
+        /* Ensure parent containers don't clip the dropdown */
+        .app-header,
+        .app-header-inner,
+        .app-header-content,
+        .app-utilities {
+            overflow: visible !important;
+        }
+        
+        .app-utility-item {
+            overflow: visible !important;
+        }
+        
+        /* Prevent user dropdown from opening on hover */
+        .app-user-dropdown:hover .dropdown-menu {
+            display: none !important;
+        }
+        
+        .app-user-dropdown .dropdown-menu.show {
+            display: block !important;
         }
         
         /* Make score field look editable with highlighting - Global styles */
@@ -254,30 +416,35 @@
 
         .swal2-popup {
             border-radius: 12px !important;
-            padding: 2rem !important;
+            padding: 1.25rem !important;
+            width: 90% !important;
+            max-width: 400px !important;
         }
 
         .swal2-title {
-            font-size: 1.5rem !important;
+            font-size: 1.25rem !important;
             font-weight: 600 !important;
             color: #121C0C !important;
-            margin-bottom: 1rem !important;
+            margin-bottom: 0.75rem !important;
+            padding: 0 0.5rem !important;
         }
 
         .swal2-content {
-            font-size: 1rem !important;
+            font-size: 0.9rem !important;
             color: #6b7280 !important;
             line-height: 1.5 !important;
+            padding: 0 0.5rem !important;
         }
 
         .swal2-confirm {
             background-color: #85BB65 !important;
             border: none !important;
             border-radius: 8px !important;
-            padding: 10px 24px !important;
-            font-size: 14px !important;
+            padding: 8px 20px !important;
+            font-size: 13px !important;
             font-weight: 500 !important;
             transition: all 0.2s ease !important;
+            margin-top: 0.5rem !important;
         }
 
         .swal2-confirm:hover {
@@ -290,10 +457,11 @@
             background-color: #6c757d !important;
             border: none !important;
             border-radius: 8px !important;
-            padding: 10px 24px !important;
-            font-size: 14px !important;
+            padding: 8px 20px !important;
+            font-size: 13px !important;
             font-weight: 500 !important;
             transition: all 0.2s ease !important;
+            margin-top: 0.5rem !important;
         }
 
         .swal2-cancel:hover {
@@ -303,7 +471,13 @@
         }
 
         .swal2-icon {
-            margin: 0 auto 1.5rem !important;
+            margin: 0 auto 1rem !important;
+            width: 3.5em !important;
+            height: 3.5em !important;
+        }
+
+        .swal2-icon .swal2-icon-content {
+            font-size: 2.5em !important;
         }
 
         .swal2-icon.swal2-success {
@@ -416,7 +590,7 @@
 
 <header class="app-header fixed-top">
     <div class="app-header-inner">
-        <div class="container-fluid py-2">
+        <div class="container-fluid">
             <div class="app-header-content">
                 <div class="row justify-content-between align-items-center">
 
@@ -696,7 +870,7 @@
             <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
                 <ul class="app-menu list-unstyled accordion" id="menu-accordion">
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'app_provider_membership' %}active{% endif %}" href="{{ path('app_provider_membership') }}">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'app_provider_profile' %}active{% endif %}" href="{{ path('app_provider_profile') }}">
 						        <span class="nav-icon">
                                 <svg fill="currentColor" class="icon-image" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:serif="http://www.serif.com/" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M9.733,14.107c-1.387,0.252 -2.676,0.921 -3.687,1.932c-1.309,1.309 -2.044,3.084 -2.044,4.935l0,4.039c0,1.657 1.343,3 3,3c4.184,-0 13.816,-0 18,-0c1.657,-0 3,-1.343 3,-3l0,-4.039c0,-1.851 -0.735,-3.626 -2.044,-4.935c-1.011,-1.011 -2.3,-1.68 -3.687,-1.932c0.468,-0.939 0.731,-1.997 0.731,-3.117c0,-3.863 -3.137,-7 -7,-7c-3.863,0 -7,3.137 -7,7c0,1.12 0.263,2.178 0.731,3.117Zm12.263,1.984l-0,2.079c1.164,0.412 2,1.524 2,2.83c0,1.101 0.004,1.995 0.004,1.995c0.003,0.552 -0.443,1.002 -0.995,1.005c-0.552,0.002 -1.002,-0.444 -1.005,-0.995c0,-0 -0.004,-0.899 -0.004,-2.005c0,-0.552 -0.446,-1 -0.997,-1c-0.551,-0 -0.997,0.448 -0.997,1l-0.002,2.001c-0.001,0.552 -0.449,1 -1.001,0.999c-0.552,-0.001 -1,-0.449 -0.999,-1.001c-0,-0 0.002,-2 0.002,-1.999c0,-1.304 0.833,-2.414 1.994,-2.828l-0,-1.433c-1.133,0.789 -2.51,1.251 -3.994,1.251c-1.489,0 -2.871,-0.466 -4.006,-1.26l-0,1.441c1.165,0.412 2,1.524 2,2.829c0,1.656 -1.344,3 -3,3c-1.656,-0 -3,-1.344 -3,-3c-0,-1.305 0.835,-2.417 2,-2.829l-0,-2.078c-0.954,0.193 -1.837,0.662 -2.535,1.36c-0.934,0.934 -1.459,2.201 -1.459,3.521c0,0 0,4.039 0,4.039c0,0.552 0.448,1 1,1l18,-0c0.552,-0 1,-0.448 1,-1c0,-0 0,-4.039 0,-4.039c0,-1.32 -0.525,-2.587 -1.458,-3.521c-0.701,-0.701 -1.59,-1.171 -2.548,-1.362Zm-11,3.909c0.552,-0 1,0.448 1,1c0,0.552 -0.448,1 -1,1c-0.552,-0 -1,-0.448 -1,-1c-0,-0.552 0.448,-1 1,-1Zm5.006,-14.01c2.76,0 5,2.241 5,5c0,2.76 -2.24,5 -5,5c-2.76,0 -5,-2.24 -5,-5c0,-2.759 2.24,-5 5,-5Z"/></svg>
 						         </span>
@@ -720,8 +894,8 @@
                             <span class="nav-link-text">Job Analytics</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link #">
+                                        <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'app_provider_membership' %}active{% endif %}" href="{{ path('app_provider_membership') }}">
 						        <span class="nav-icon">
                                 <svg class="icon-image" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
 
@@ -1170,6 +1344,60 @@
         }).showToast();
     }
 
+    // Global image error handler - set default image for all failed image loads
+    const defaultImagePath = '{{ asset('assets/icons/job.png') }}';
+    
+    // Handle existing images
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up error handlers for all existing images
+        document.querySelectorAll('img').forEach(function(img) {
+            if (!img.hasAttribute('onerror')) {
+                img.addEventListener('error', function() {
+                    if (this.src !== defaultImagePath) {
+                        this.src = defaultImagePath;
+                    }
+                });
+            }
+        });
+        
+        // Use MutationObserver to handle dynamically added images
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        // Check if the added node is an image
+                        if (node.tagName === 'IMG' && !node.hasAttribute('onerror')) {
+                            node.addEventListener('error', function() {
+                                if (this.src !== defaultImagePath) {
+                                    this.src = defaultImagePath;
+                                }
+                            });
+                        }
+                        // Check for images within the added node
+                        const images = node.querySelectorAll && node.querySelectorAll('img');
+                        if (images) {
+                            images.forEach(function(img) {
+                                if (!img.hasAttribute('onerror')) {
+                                    img.addEventListener('error', function() {
+                                        if (this.src !== defaultImagePath) {
+                                            this.src = defaultImagePath;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+    
     // Ensure user dropdown only opens when clicking on the profile dropdown toggle (not on hover)
     document.addEventListener('DOMContentLoaded', function() {
         const userDropdownToggle = document.getElementById('user-dropdown-toggle');
@@ -1202,6 +1430,126 @@
                 userDropdownMenu.classList.remove('show');
                 userDropdownToggle.setAttribute('aria-expanded', 'false');
             };
+            
+            // Initialize notification dropdown properly - hover behavior
+            const notificationDropdownToggle = document.getElementById('notifications-dropdown-toggle');
+            const notificationDropdown = document.querySelector('.app-notifications-dropdown');
+            const notificationDropdownMenu = notificationDropdown ? notificationDropdown.querySelector('.dropdown-menu') : null;
+            
+            if (notificationDropdownToggle && notificationDropdownMenu && notificationDropdown) {
+                // Remove Bootstrap's default data-bs-toggle to prevent conflicts
+                notificationDropdownToggle.removeAttribute('data-bs-toggle');
+                
+                // Ensure dropdown is hidden initially
+                notificationDropdownMenu.classList.remove('show');
+                notificationDropdownToggle.setAttribute('aria-expanded', 'false');
+                
+                let hoverTimeout = null;
+                
+                // Function to calculate and set dropdown position
+                function setDropdownPosition() {
+                    if (!notificationDropdownMenu) return;
+                    
+                    // Get header element
+                    const header = document.querySelector('.app-header');
+                    if (!header) return;
+                    
+                    // Get header dimensions
+                    const headerRect = header.getBoundingClientRect();
+                    const headerHeight = headerRect.height;
+                    const headerBottom = headerRect.bottom;
+                    
+                    // Get notification button position
+                    const toggleRect = notificationDropdownToggle.getBoundingClientRect();
+                    const toggleRight = toggleRect.right;
+                    
+                    // Calculate position: below header with some spacing
+                    const spacing = 10; // 10px spacing below header (small gap for better visual appearance)
+                    const topPosition = headerBottom + spacing;
+                    
+                    // Set position with !important to override any CSS
+                    notificationDropdownMenu.style.setProperty('top', topPosition + 'px', 'important');
+                    notificationDropdownMenu.style.setProperty('margin-top', '10px', 'important');
+                    notificationDropdownMenu.style.setProperty('right', (window.innerWidth - toggleRight + 18) + 'px', 'important');
+                }
+                
+                // Function to open dropdown
+                function openNotificationDropdown() {
+                    if (hoverTimeout) {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = null;
+                    }
+                    
+                    // Close all other dropdowns first
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== notificationDropdownMenu && menu !== userDropdownMenu) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Calculate and set position before showing
+                    setDropdownPosition();
+                    
+                    // Open notification dropdown
+                    notificationDropdownMenu.classList.add('show');
+                    notificationDropdown.classList.add('show');
+                    notificationDropdownToggle.setAttribute('aria-expanded', 'true');
+                }
+                
+                // Function to close dropdown
+                function closeNotificationDropdown() {
+                    if (hoverTimeout) {
+                        clearTimeout(hoverTimeout);
+                    }
+                    hoverTimeout = setTimeout(function() {
+                        notificationDropdownMenu.classList.remove('show');
+                        notificationDropdown.classList.remove('show');
+                        notificationDropdownToggle.setAttribute('aria-expanded', 'false');
+                        hoverTimeout = null;
+                    }, 200); // Small delay to allow moving mouse to dropdown
+                }
+                
+                // Recalculate position on window resize
+                window.addEventListener('resize', function() {
+                    if (notificationDropdownMenu && notificationDropdownMenu.classList.contains('show')) {
+                        setDropdownPosition();
+                    }
+                });
+                
+                // Recalculate position on scroll (in case header is fixed)
+                window.addEventListener('scroll', function() {
+                    if (notificationDropdownMenu && notificationDropdownMenu.classList.contains('show')) {
+                        setDropdownPosition();
+                    }
+                }, true);
+                
+                // Open on hover over toggle button
+                notificationDropdownToggle.addEventListener('mouseenter', function(e) {
+                    e.stopPropagation();
+                    openNotificationDropdown();
+                });
+                
+                // Keep open when hovering over dropdown menu
+                notificationDropdownMenu.addEventListener('mouseenter', function(e) {
+                    e.stopPropagation();
+                    if (hoverTimeout) {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = null;
+                    }
+                });
+                
+                // Close when mouse leaves the entire dropdown area
+                notificationDropdown.addEventListener('mouseleave', function(e) {
+                    e.stopPropagation();
+                    closeNotificationDropdown();
+                });
+                
+                // Also close when mouse leaves the menu
+                notificationDropdownMenu.addEventListener('mouseleave', function(e) {
+                    e.stopPropagation();
+                    closeNotificationDropdown();
+                });
+            }
             
             // Close dropdown when page becomes visible (e.g., after navigation)
             document.addEventListener('visibilitychange', forceCloseDropdown);

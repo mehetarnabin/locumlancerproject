@@ -123,7 +123,6 @@
 }
 /* Consistent rounded rectangle style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
-#select-all-checkbox,
 .job-check {
   -webkit-appearance: none;
   appearance: none;
@@ -144,21 +143,18 @@
 
 /* Hover state - green border */
 .job-list-container input[type="checkbox"].job-check:hover,
-#select-all-checkbox:hover,
 .job-check:hover {
   border-color: #85BB65;
 }
 
 /* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
-#select-all-checkbox:checked,
 .job-check:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
-#select-all-checkbox:checked::after,
 .job-check:checked::after {
   content: '';
   position: absolute;
@@ -575,9 +571,6 @@
                 <div class="d-flex align-items-center job-lists">
                     <div class="d-flex align-items-center flex-grow-1">
                         <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
-                            <div class="col-check" style="width: 25px;">
-                                <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
-                            </div>
                             <div class="col-job flex-grow-2">Job</div>
                             <div class="col-start col-center flex-grow-1">Employer</div>
                             <div class="col-start col-center flex-grow-1">Amount($)</div>
@@ -666,7 +659,6 @@
     const saveBtn = document.getElementById('save-btn');
     const deleteBtn = document.getElementById('delete-btn');
     const actionsDivs = document.querySelectorAll('.hidden-buttons');
-    const selectAllCheckbox = document.getElementById('select-all-checkbox');
     const columnsBtn = document.querySelector('.columns-dropdown-btn');
     const menuBtn = document.querySelector('.menu-dropdown-btn');
     const columnsPanel = document.querySelector('.columns-panel');
@@ -704,24 +696,6 @@
           closeAllDropdowns();
         }
     });
-
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', function () {
-        checkboxes.forEach(cb => {
-          cb.checked = selectAllCheckbox.checked;
-        });
-        toggleActionsVisibility();
-        updateActions();
-      });
-
-      // Sync master checkbox if user manually toggles individual ones
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-          const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-          selectAllCheckbox.checked = allChecked;
-        });
-      });
-    }
 
     function toggleActionsVisibility() {
       const anyChecked = Array.from(checkboxes).some(cb => cb.checked);

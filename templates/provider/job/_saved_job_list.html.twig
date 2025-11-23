@@ -34,9 +34,10 @@
 }
 
 .todo-icon svg {
-    width: 12px;
-    height: 12px;
-    fill: white;
+    width: 16px;
+    height: 16px;
+    stroke: white;
+    fill: none;
 }
 
 .todo-popup {
@@ -109,9 +110,6 @@
   <div class="d-flex align-items-center job-lists">
     <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
       <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-          <input type="checkbox" id="select-all-checkbox" title="Select All" />
-        </div>
         <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
         <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -140,7 +138,8 @@
         <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box;">
           <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
             alt="Logo"
-            style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;" />
+            style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;"
+            onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
           <div style="min-width: 0; overflow: hidden;">
             <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
               href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}"
@@ -168,8 +167,8 @@
           <div class="todo-icon-wrapper">
             <div class="todo-icon" data-todo-action="Apply for the job" data-todo-type="saved" data-bookmark-id="{{ bookmark.id }}">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
           </div>

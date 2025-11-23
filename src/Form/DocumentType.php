@@ -19,6 +19,7 @@ class DocumentType extends AbstractType
         $builder
             ->add('category', ChoiceType::class, [
                 'choices' => [
+                    'CV Upload' => 'CV Upload',
                     'Driver\'s license' => 'Driver\'s license',
                     'Copy of passport' => 'Copy of passport',
                     'Passport photo 2" x 2"' => 'Passport photo 2" x 2"',
@@ -40,6 +41,7 @@ class DocumentType extends AbstractType
                     'PROCEDURE LOGS last 2 years' => 'PROCEDURE LOGS last 2 years',
                     'Case Logs last 2 years' => 'Case Logs last 2 years',
                     'Application/ Certification: A list of everywhere lived for the last 10 years' => 'Application/ Certification: A list of everywhere lived for the last 10 years',
+                    'All Hospital Affiliations and Training Programs' => 'All Hospital Affiliations and Training Programs',
                     'Miscellaneous' => 'Miscellaneous',
                 ],
                 'label' => 'Document Name',

@@ -109,8 +109,32 @@ class DocumentController extends AbstractController
 
             $em->persist($document);
             $em->flush();
+            
+            // Handle AJAX request
+            if ($request->isXmlHttpRequest()) {
+                // Get updated CV documents if category is CV
+                $cvListHtml = '';
+                if ($document->getCategory() === 'CV') {
+                    $cvDocuments = $documentRepository->findBy(
+                        ['user' => $user, 'category' => 'CV'],
+                        ['createdAt' => 'DESC']
+                    );
+                    
+                    // Render the CV list HTML
+                    $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
+                        'cvDocuments' => $cvDocuments,
+                    ]);
+                }
+                
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Document uploaded successfully.',
+                    'fileName' => $document->getName() ?: $file->getClientOriginalName(),
+                    'cvListHtml' => $cvListHtml
+                ]);
+            }
+            
             $this->addFlash('success', 'Document uploaded successfully.');
-
             return $this->redirectToRoute('app_provider_documents');
         }
 
@@ -119,6 +143,28 @@ class DocumentController extends AbstractController
             ['provider' => $provider],
             ['createdAt' => 'DESC']
         );
+
+        // Group pending document requests by employer for the dashboard cards
+        $pendingDocumentRequests = array_filter($documentRequests, static function (DocumentRequest $request) {
+            return $request->getProvidedAt() === null;
+        });
+
+        $groupedDocumentRequests = [];
+        foreach ($pendingDocumentRequests as $request) {
+            $employer = $request->getApplication()?->getEmployer();
+            $groupKey = $employer
+                ? $employer->getId()?->toRfc4122()
+                : 'unassigned_' . spl_object_id($request);
+
+            if (!isset($groupedDocumentRequests[$groupKey])) {
+                $groupedDocumentRequests[$groupKey] = [
+                    'employer' => $employer,
+                    'requests' => [],
+                ];
+            }
+
+            $groupedDocumentRequests[$groupKey]['requests'][] = $request;
+        }
 
         // Get credentialing links using EntityManager instead of repository
         $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
@@ -130,6 +176,7 @@ class DocumentController extends AbstractController
             'form' => $form->createView(),
             'documents' => $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']),
             'documentRequests' => $documentRequests,
+            'groupedDocumentRequests' => $groupedDocumentRequests,
             'credentialingLinks' => $credentialingLinks,
             'editMode' => false,
         ]);
@@ -259,6 +306,112 @@ class DocumentController extends AbstractController
 
         $this->addFlash('success', 'Document deleted successfully.');
         return $this->redirectToRoute('app_provider_documents');
+    }
+
+    #[Route('/documents/assign-multiple', name: 'app_provider_document_request_assign_bulk', methods: ['POST'])]
+    public function assignDocumentsBulk(
+        Request $request,
+        DocumentRepository $documentRepository,
+        DocumentRequestRepository $documentRequestRepository,
+        EntityManagerInterface $em,
+        ToDoRepository $todoRepository,
+        EventDispatcherInterface $dispatcher
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $requestIds = $data['requestIds'] ?? [];
+        $documentIds = $data['documentIds'] ?? [];
+
+        if (empty($requestIds) || empty($documentIds)) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Select at least one request and one document.'
+            ], 400);
+        }
+
+        $currentUser = $this->getUser();
+        $currentProvider = $currentUser->getProvider();
+
+        $requests = $documentRequestRepository->findBy(['id' => $requestIds]);
+        $requestMap = [];
+        foreach ($requests as $req) {
+            $requestMap[$req->getId()] = $req;
+        }
+
+        $documents = $documentRepository->findBy(['id' => $documentIds, 'user' => $currentUser]);
+        $documentMap = [];
+        foreach ($documents as $doc) {
+            $documentMap[$doc->getId()] = $doc;
+        }
+
+        if (count($documentMap) === 0) {
+            return $this->json([
+                'success' => false,
+                'message' => 'No valid documents were selected.'
+            ], 400);
+        }
+
+        $assignedRequestIds = [];
+        $errors = [];
+
+        $documentIdCount = count($documentIds);
+
+        foreach ($requestIds as $index => $requestId) {
+            if (!isset($requestMap[$requestId])) {
+                $errors[] = sprintf('Request %s not found.', $requestId);
+                continue;
+            }
+
+            $documentRequest = $requestMap[$requestId];
+
+            if ($documentRequest->getProvider()->getId() !== $currentProvider->getId()) {
+                $errors[] = sprintf('You cannot update request %s', $requestId);
+                continue;
+            }
+
+            if ($documentRequest->getProvidedAt() !== null) {
+                $errors[] = sprintf('Request %s already fulfilled.', $requestId);
+                continue;
+            }
+
+            $documentId = $documentIds[$index] ?? $documentIds[$documentIdCount - 1];
+            $document = $documentMap[$documentId] ?? null;
+
+            if (!$document) {
+                $errors[] = sprintf('Document %s not available.', $documentId);
+                continue;
+            }
+
+            $documentRequest->setDocument($document);
+            $documentRequest->setProvidedAt(new \DateTime());
+
+            $todo = $todoRepository->findOneBy([
+                'documentRequest' => $documentRequest,
+                'isCompleted' => false
+            ]);
+
+            if ($todo) {
+                $todo->setIsCompleted(true);
+                $em->persist($todo);
+            }
+
+            $em->persist($documentRequest);
+            $assignedRequestIds[] = $documentRequest->getId();
+
+            if ($documentRequest->getApplication()) {
+                $dispatcher->dispatch(
+                    new ApplicationEvent($documentRequest->getApplication()),
+                    ApplicationEvent::APPLICATION_DOCUMENT_PROVIDED
+                );
+            }
+        }
+
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'assignedRequestIds' => $assignedRequestIds,
+            'errors' => $errors
+        ]);
     }
 
     #[Route('/document-request/{id}/assign-document', name: 'app_provider_document_request_assign', methods: ['POST'])]

@@ -1,0 +1,25 @@
+{% if cvDocuments is not empty %}
+  <div class="mt-4">
+    <h6 class="fw-semibold mb-2">Uploaded CVs</h6>
+    <ul class="list-group list-group-flush">
+      {% for cv in cvDocuments %}
+        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold text-dark">{{ cv.name }}</div>
+            <small class="text-muted">Uploaded {{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" target="_blank" class="btn btn-link btn-sm text-decoration-none">Download</a>
+            <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Remove this CV?');">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
+              <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+            </form>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  {# Empty state - no CVs uploaded yet #}
+{% endif %}
+

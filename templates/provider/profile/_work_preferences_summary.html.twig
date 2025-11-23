@@ -1,0 +1,84 @@
+{% set specialities = provider.specialities ?? [] %}
+{% set desiredStates = provider.desiredStates ?? [] %}
+{% set hasPreferences = provider.desiredPayRate
+    or provider.desiredHour
+    or (desiredStates is not empty)
+    or provider.payRateDaily
+    or provider.payRateHourly
+    or provider.availabilityToStart
+    or provider.preferredPatientVolume
+    or provider.willingToTravel is not null
+    or provider.profession
+    or (specialities is not empty) %}
+
+{% if not hasPreferences %}
+    <div class="text-center text-muted py-4 px-3">
+        <p class="mb-1 fw-semibold">No work preferences yet</p>
+        <p class="mb-0" style="font-size: 0.85rem;">Add your preferences to improve job matching.</p>
+    </div>
+{% else %}
+    <div class="work-preferences-summary d-flex flex-column gap-3">
+        <div>
+            <div class="text-uppercase text-muted small">Profession</div>
+            <div class="fw-semibold">{{ provider.profession ?: '—' }}</div>
+        </div>
+
+        <div>
+            <div class="text-uppercase text-muted small">Specialities</div>
+            {% set specialityNames = [] %}
+            {% for speciality in specialities %}
+                {% set specialityNames = specialityNames|merge([(speciality.name ?? speciality.title ?? speciality)]) %}
+            {% endfor %}
+            <div class="fw-semibold">{{ specialityNames ? specialityNames|join(', ') : '—' }}</div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Desired Pay Rate</div>
+                <div class="fw-semibold">
+                    {{ provider.desiredPayRate ?: '—' }}
+                    {% if provider.desiredPayRate == 'Hourly' and provider.payRateHourly %}
+                        ({{ provider.payRateHourly|number_format(0, '.', ',') }} USD/hr)
+                    {% elseif provider.desiredPayRate == 'Daily' and provider.payRateDaily %}
+                        ({{ provider.payRateDaily|number_format(0, '.', ',') }} USD/day)
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Desired Hours</div>
+                <div class="fw-semibold">{{ provider.desiredHour ?: '—' }}</div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Availability</div>
+                <div class="fw-semibold">
+                    {{ provider.availabilityToStart ? provider.availabilityToStart|date('M d, Y') : '—' }}
+                </div>
+            </div>
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Patient Volume</div>
+                <div class="fw-semibold">{{ provider.preferredPatientVolume ?: '—' }}</div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Preferred States</div>
+                <div class="fw-semibold">
+                    {{ desiredStates ? desiredStates|join(', ') : '—' }}
+                </div>
+            </div>
+            <div class="col-12 col-sm-6">
+                <div class="text-uppercase text-muted small">Willing To Travel</div>
+                {% if provider.willingToTravel is same as(null) %}
+                    <div class="fw-semibold">—</div>
+                {% else %}
+                    <div class="fw-semibold">{{ provider.willingToTravel ? 'Yes' : 'No' }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+

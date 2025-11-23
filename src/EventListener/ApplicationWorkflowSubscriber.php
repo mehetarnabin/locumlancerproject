@@ -102,6 +102,9 @@ class ApplicationWorkflowSubscriber implements EventSubscriberInterface
         }
 
         if ($transition === 'offer') {
+            $application->setStatus('negotiating');
+            $this->em->persist($application);
+
             // Notify the employer being provider offered
             $this->notificationService->sendNotification(
                 $employerUser,
@@ -129,6 +132,8 @@ class ApplicationWorkflowSubscriber implements EventSubscriberInterface
                     'employer' => $application->getEmployer()->getId(),
                 ]
             );
+
+            $this->em->flush();
         }
 
         if ($transition === 'hire') {

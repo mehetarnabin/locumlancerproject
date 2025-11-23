@@ -123,7 +123,7 @@ class MessageRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-        // In MessageRepository
+    // In MessageRepository
     public function getForwardedCount(User $user): int
     {
         return $this->createQueryBuilder('m')

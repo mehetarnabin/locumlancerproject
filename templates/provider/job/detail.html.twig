@@ -38,6 +38,7 @@
                 <img src="{{ job.companyLogo|default(job.employerLogo|default(job.employer.logo|default(asset('assets/icons/job.png')))) }}" 
                      alt="{{ job.employer }} Logo" 
                      class="job-detail-logo-img"
+                     onerror="this.src='{{ asset('assets/icons/job.png') }}'"
                      onerror="this.src='{{ asset('assets/icons/job.png') }}'">
             </div>
             <div class="job-detail-header-content">
@@ -72,6 +73,25 @@
                     </button>
                 {% endif %}
             </div>
+
+            {% if application is defined %}
+                {% if canReview %}
+                    <div class="alert alert-warning d-flex align-items-center gap-3 mt-3" role="alert">
+                        <div>
+                            <strong>Assignment completed.</strong> Share feedback with the employer.
+                        </div>
+                        <a href="{{ path('app_provider_application_review_employer', {'id': application.id}) }}" class="btn btn-sm btn-primary">
+                            Write a review
+                        </a>
+                    </div>
+                {% elseif existingReview %}
+                    <div class="alert alert-success d-flex align-items-center gap-3 mt-3" role="alert">
+                        <div>
+                            <strong>Review submitted.</strong> Thank you for sharing your experience.
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
         </div>
 
         {# Key Information Grid #}

@@ -1,0 +1,186 @@
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}Write a Review{% endblock %}
+
+{% block provider_body %}
+<style>
+.container-xl {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: 100% !important;
+}
+
+.app-content {
+    padding-left: 0 !important;
+}
+
+.review-form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 32px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.review-form-header {
+    margin-bottom: 32px;
+}
+
+.review-form-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #121C0C;
+    margin-bottom: 8px;
+}
+
+.review-form-header p {
+    color: #6b7280;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #121C0C;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 32px;
+    color: #e6eef6;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin: 0;
+    padding: 0;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+
+.star-rating input[type="radio"]:checked ~ label {
+    color: #ffc107;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating input[type="radio"]:checked ~ label ~ label {
+    color: #ffc107;
+}
+
+.btn-submit {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-submit:hover {
+    background: #6fa852;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3);
+}
+
+.btn-cancel {
+    background: #e6eef6;
+    color: #6b7280;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 12px;
+}
+
+.btn-cancel:hover {
+    background: #d4ddeb;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 32px;
+}
+</style>
+
+<div class="container-xl">
+    <div class="review-form-container">
+        <div class="review-form-header">
+            <h1>Write a Review</h1>
+            <p>Share your experience with {{ application.employer }}</p>
+        </div>
+
+        <form method="post" action="{{ path('app_provider_application_review_employer', {'id': application.id}) }}">
+            <div class="form-group">
+                <label for="message">Your Review</label>
+                <textarea 
+                    id="message" 
+                    name="message" 
+                    class="form-control" 
+                    placeholder="Tell us about your experience..." 
+                    required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Rating</label>
+                <div class="star-rating">
+                    {% for i in 5..1 %}
+                        <input type="radio" name="point" id="point-{{ i }}" value="{{ i }}" required>
+                        <label for="point-{{ i }}">★</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ path('app_provider_jobs_application_detail', {'id': application.id}) }}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-submit">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

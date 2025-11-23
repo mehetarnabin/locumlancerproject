@@ -4,17 +4,138 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match other pages */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching other pages */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
+
+/* Ensure rows fill the container width */
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Remove left padding from first column only - keep gaps between columns */
+.container-xl .row > [class*="col-"]:first-child {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
 }
 
 /* Analytics Page Styling - Proper Alignment and Spacing */
@@ -23,6 +144,7 @@
     background: #fff;
     border: 1px solid #e6eef6;
     transition: box-shadow 0.2s ease;
+    border-radius: 12px;
 }
 
 .analytics-metric-card:hover,
@@ -30,13 +152,18 @@
     box-shadow: 0 4px 12px rgba(11, 22, 40, 0.08) !important;
 }
 
-/* Consistent card padding and spacing */
+/* Consistent card padding and spacing - improved */
 .analytics-metric-card {
-    padding: 20px !important;
+    padding: 24px !important;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .analytics-chart-card {
     padding: 24px !important;
+    min-height: 400px;
 }
 
 /* Metric card content alignment */
@@ -58,8 +185,8 @@
 
 .analytics-metric-card .metric-icon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
+    width: 45px;
+    height: 45px;
     background: #EAF3E4;
     border-radius: 12px;
     display: flex;
@@ -101,18 +228,23 @@
     margin-top: 8px;
 }
 
-/* Stats grid alignment */
+/* Stats grid alignment - improved spacing */
 .stats-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .stats-grid .stat-item {
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     border-radius: 10px;
-    padding: 16px;
+    padding: 20px;
+    transition: box-shadow 0.2s ease;
+}
+
+.stats-grid .stat-item:hover {
+    box-shadow: 0 2px 8px rgba(11, 22, 40, 0.06) !important;
 }
 
 .stats-grid .stat-item .text-muted {
@@ -131,14 +263,20 @@
 }
 
 .stats-grid .row.g-2 {
-    margin-top: 12px;
-    margin-left: 0;
-    margin-right: 0;
+    margin-top: 16px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
 }
 
 .stats-grid .row.g-2 > [class*="col-"] {
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+.stats-grid .row.g-2 > [class*="col-"]:first-child {
+    padding-left: 0 !important;
 }
 
 .stats-grid .stat-item.text-center {
@@ -149,15 +287,16 @@
     font-size: 1.25rem;
 }
 
-/* Performance metrics alignment */
+/* Performance metrics alignment - improved spacing */
 .performance-metrics {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 .performance-metrics .metric-bar {
     margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 .performance-metrics .metric-bar .fw-medium {
@@ -212,30 +351,33 @@
     margin-top: 8px;
 }
 
-/* Row spacing consistency */
-.row.g-4 {
-    margin-left: 0;
-    margin-right: 0;
+/* Row spacing consistency - improved gap spacing */
+.container-xl .row.g-4 {
+    --bs-gutter-x: 1rem !important;
+    --bs-gutter-y: 1rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
 }
 
-.row.g-4 > [class*="col-"] {
-    padding-left: 12px;
-    padding-right: 12px;
+.container-xl .row.g-4 > [class*="col-"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+/* Remove left padding from first column in each row */
+.container-xl .row.g-4 > [class*="col-"]:first-child {
+    padding-left: 0 !important;
 }
 
 /* Page title alignment */
-.app-page-title {
+.app-card-title {
     font-size: 24px;
     font-weight: 700;
     color: #121C0C;
     margin-bottom: 24px;
     line-height: 1.3;
-}
-
-/* Container alignment */
-.container-xl {
-    padding-left: 0;
-    padding-right: 25px;
+    padding-left: 0 !important;
 }
 
 /* Ensure consistent card heights */
@@ -272,8 +414,8 @@
                         <div class="metric-label text-muted small mb-1">Total Impressions</div>
                         <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ impressions }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 48px; height: 48px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.72-2.92 0-1.21-.49-2.19-3.55-2.68z" fill="#85BB65"/>
                         </svg>
                     </div>
@@ -299,8 +441,8 @@
                         <div class="metric-label text-muted small mb-1">Profile Views</div>
                         <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ profileViews }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 48px; height: 48px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#85BB65"/>
                         </svg>
                     </div>
@@ -326,8 +468,8 @@
                         <div class="metric-label text-muted small mb-1">Resume Downloads</div>
                         <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ resumeDownloads }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 48px; height: 48px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#85BB65"/>
                         </svg>
                         
@@ -354,8 +496,8 @@
                         <div class="metric-label text-muted small mb-1">Response Rate</div>
                         <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ responseRate }}%</div>
                     </div>
-                    <div class="metric-icon" style="width: 48px; height: 48px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#85BB65"/>
                         </svg>
                     </div>
@@ -375,6 +517,11 @@
     </div>
     
     
+    {% set pendingApplications = totalApplications - statusCounts.applied - statusCounts.interview %}
+    {% if pendingApplications < 0 %}
+        {% set pendingApplications = 0 %}
+    {% endif %}
+
     <!-- Charts Row -->
     <div class="row g-4 mb-4">
         <!-- Application to Interview Ratio -->
@@ -382,11 +529,9 @@
             <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h6 class="mb-0 fw-semibold">Application to Interview Ratio</h6>
-                    <select class="form-select form-select-sm" style="width: auto; max-width: 200px;" id="ratioTimeframe">
-                        <option value="all">All Time</option>
-                        <option value="month">This Month</option>
-                        <option value="quarter">This Quarter</option>
-                        <option value="year">This Year</option>
+                    <select class="form-select form-select-sm" style="width: auto; max-width: 260px;" id="ratioMode">
+                        <option value="app_to_interview">Application to Interview Ratio</option>
+                        <option value="interview_to_application">Interview to Application Ratio</option>
                     </select>
                 </div>
                 <div class="chart-container" style="height: 300px; position: relative;">
@@ -452,8 +597,8 @@
                                 <div class="text-muted small mb-1">Total Applications</div>
                                 <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalApplications }}</div>
                             </div>
-                            <div style="width: 40px; height: 40px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div style="width: 37px; height: 37px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#85BB65"/>
                                 </svg>
                             </div>
@@ -465,8 +610,8 @@
                                 <div class="text-muted small mb-1">Saved Jobs</div>
                                 <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalBookmarks }}</div>
                             </div>
-                            <div style="width: 40px; height: 40px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div style="width: 37px; height: 37px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#85BB65"/>
                                 </svg>
                             </div>
@@ -574,49 +719,93 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Application to Interview Ratio - Doughnut Chart
-    const ratioCtx = document.getElementById('ratioChart').getContext('2d');
-    const ratioChart = new Chart(ratioCtx, {
-        type: 'doughnut',
-        data: {
+    const ratioConfigs = {
+        "app_to_interview": {
             labels: ['Interviews', 'Applied', 'Pending'],
-            datasets: [{
-                data: [{{ statusCounts.interview }}, {{ statusCounts.applied }}, {{ totalApplications - statusCounts.applied - statusCounts.interview }}],
-                backgroundColor: ['#85BB65', '#06b6d4', '#e6eef6'],
-                borderWidth: 0,
-            }]
+            data: [{{ statusCounts.interview }}, {{ statusCounts.applied }}, {{ pendingApplications }}],
+            colors: ['#85BB65', '#06b6d4', '#e6eef6']
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        font: {
-                            family: 'Urbanist',
-                            size: 12
-                        },
-                        color: '#121C0C'
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: {
-                        family: 'Lexend',
-                        size: 14
-                    },
-                    bodyFont: {
+        "interview_to_application": {
+            labels: ['Applied', 'Interviews', 'Pending'],
+            data: [{{ statusCounts.applied }}, {{ statusCounts.interview }}, {{ pendingApplications }}],
+            colors: ['#06b6d4', '#85BB65', '#e6eef6']
+        }
+    };
+
+    const ratioSelect = document.getElementById('ratioMode');
+    const ratioCanvas = document.getElementById('ratioChart');
+    const ratioCtx = ratioCanvas ? ratioCanvas.getContext('2d') : null;
+    let ratioChartInstance = null;
+
+    const ratioChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
                         family: 'Urbanist',
                         size: 12
-                    }
+                    },
+                    color: '#121C0C'
                 }
             },
-            cutout: '70%'
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: {
+                    family: 'Lexend',
+                    size: 14
+                },
+                bodyFont: {
+                    family: 'Urbanist',
+                    size: 12
+                }
+            }
+        },
+        cutout: '70%'
+    };
+
+    function renderRatioChart(mode) {
+        if (!ratioCtx) {
+            return;
         }
-    });
+        const config = ratioConfigs[mode] || ratioConfigs['app_to_interview'];
+        if (!config) {
+            return;
+        }
+
+        if (!ratioChartInstance) {
+            ratioChartInstance = new Chart(ratioCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: config.labels,
+                    datasets: [{
+                        data: config.data,
+                        backgroundColor: config.colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: ratioChartOptions
+            });
+        } else {
+            ratioChartInstance.data.labels = config.labels;
+            ratioChartInstance.data.datasets[0].data = config.data;
+            ratioChartInstance.data.datasets[0].backgroundColor = config.colors;
+            ratioChartInstance.update();
+        }
+    }
+
+    if (ratioSelect) {
+        ratioSelect.addEventListener('change', (event) => {
+            renderRatioChart(event.target.value);
+        });
+        renderRatioChart(ratioSelect.value);
+    } else {
+        renderRatioChart('app_to_interview');
+    }
     
     // Application Status Distribution - Pie Chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');

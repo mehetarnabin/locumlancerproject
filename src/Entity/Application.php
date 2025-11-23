@@ -33,6 +33,9 @@ class Application
     private ?string $status = 'applied';
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $appliedAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $hiredAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

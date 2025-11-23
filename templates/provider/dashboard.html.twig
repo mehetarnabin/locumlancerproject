@@ -3,17 +3,205 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match image */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching image */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+.dashboard .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove left padding from application status tracker to match image */
+.container-xl .application {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Adjust column widths to better fill space - match reference image */
+.container-xl .row.g-2 > .col-12.col-lg-7 {
+    flex: 0 0 58.333333% !important;
+    max-width: 58.333333% !important;
+}
+
+.container-xl .row.g-2 > .col-12.col-lg-5 {
+    flex: 0 0 41.666667% !important;
+    max-width: 41.666667% !important;
+}
+
+/* Ensure rows fill the container width */
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Remove left padding from first column only - keep gaps between columns */
+.container-xl .row > [class*="col-"]:first-child {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Adjust gap between columns */
+.container-xl .row.g-2 {
+    --bs-gutter-x: 0.5rem !important;
+    --bs-gutter-y: 0.5rem !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        position: relative !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 </style>
 {#<style>
@@ -60,6 +248,7 @@
 
     {% set allStatuses = ['saved', 'applied', 'interview', 'negotiating', 'accepted', 'completed'] %}
 
+    <div class="application-wrapper">
     <div class="application">
         <div class="row g-2">
             <div class="col">
@@ -109,11 +298,13 @@
         </div>
     </div>
 
+    </div>
+    
     <!-- Row 1 -->
     <div class="row g-2 mt-4">
         <!-- Matched / Saved Jobs -->
-        <div class="col-12 col-lg-7">
-            <div class="job-section shadow-lg p-3">
+        <div class="col-12 col-lg-6">
+            <div class="job-section shadow-lg p-3 rounded-3 h-100">
 
                 <!-- Top Tabs as Button Boxes -->
                 <div class="d-flex justify-content-between align-items-center mb-10-px">
@@ -127,7 +318,7 @@
 
                     <!-- Eye Icon (View All) -->
                     <a id="view-all-link" href="{{ path('app_provider_jobs_matching') }}" class="link-plain">
-                        <svg class="icon-image" width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="icon-image" width="29px" height="29px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.75 9.233C4.75 9.64721 5.08579 9.983 5.5 9.983C5.91421 9.983 6.25 9.64721 6.25 9.233H4.75ZM6.25 5.5C6.25 5.08579 5.91421 4.75 5.5 4.75C5.08579 4.75 4.75 5.08579 4.75 5.5H6.25ZM5.5 4.75C5.08579 4.75 4.75 5.08579 4.75 5.5C4.75 5.91421 5.08579 6.25 5.5 6.25V4.75ZM9.233 6.25C9.64721 6.25 9.983 5.91421 9.983 5.5C9.983 5.08579 9.64721 4.75 9.233 4.75V6.25ZM6.03033 4.96967C5.73744 4.67678 5.26256 4.67678 4.96967 4.96967C4.67678 5.26256 4.67678 5.73744 4.96967 6.03033L6.03033 4.96967ZM9.96967 11.0303C10.2626 11.3232 10.7374 11.3232 11.0303 11.0303C11.3232 10.7374 11.3232 10.2626 11.0303 9.96967L9.96967 11.0303ZM15.767 18.75C15.3528 18.75 15.017 19.0858 15.017 19.5C15.017 19.9142 15.3528 20.25 15.767 20.25V18.75ZM19.5 20.25C19.9142 20.25 20.25 19.9142 20.25 19.5C20.25 19.0858 19.9142 18.75 19.5 18.75V20.25ZM18.75 19.5C18.75 19.9142 19.0858 20.25 19.5 20.25C19.9142 20.25 20.25 19.9142 20.25 19.5H18.75ZM20.25 15.767C20.25 15.3528 19.9142 15.017 19.5 15.017C19.0858 15.017 18.75 15.3528 18.75 15.767H20.25ZM18.9697 20.0303C19.2626 20.3232 19.7374 20.3232 20.0303 20.0303C20.3232 19.7374 20.3232 19.2626 20.0303 18.9697L18.9697 20.0303ZM15.0303 13.9697C14.7374 13.6768 14.2626 13.6768 13.9697 13.9697C13.6768 14.2626 13.6768 14.7374 13.9697 15.0303L15.0303 13.9697ZM6.25 15.767C6.25 15.3528 5.91421 15.017 5.5 15.017C5.08579 15.017 4.75 15.3528 4.75 15.767H6.25ZM4.75 19.5C4.75 19.9142 5.08579 20.25 5.5 20.25C5.91421 20.25 6.25 19.9142 6.25 19.5H4.75ZM5.5 18.75C5.08579 18.75 4.75 19.0858 4.75 19.5C4.75 19.9142 5.08579 20.25 5.5 20.25V18.75ZM9.233 20.25C9.64721 20.25 9.983 19.9142 9.983 19.5C9.983 19.0858 9.64721 18.75 9.233 18.75V20.25ZM4.96967 18.9697C4.67678 19.2626 4.67678 19.7374 4.96967 20.0303C5.26256 20.3232 5.73744 20.3232 6.03033 20.0303L4.96967 18.9697ZM11.0303 15.0303C11.3232 14.7374 11.3232 14.2626 11.0303 13.9697C10.7374 13.6768 10.2626 13.6768 9.96967 13.9697L11.0303 15.0303ZM15.767 4.75C15.3528 4.75 15.017 5.08579 15.017 5.5C15.017 5.91421 15.3528 6.25 15.767 6.25V4.75ZM19.5 6.25C19.9142 6.25 20.25 5.91421 20.25 5.5C20.25 5.08579 19.9142 4.75 19.5 4.75V6.25ZM20.25 5.5C20.25 5.08579 19.9142 4.75 19.5 4.75C19.0858 4.75 18.75 5.08579 18.75 5.5H20.25ZM18.75 9.233C18.75 9.64721 19.0858 9.983 19.5 9.983C19.9142 9.983 20.25 9.64721 20.25 9.233H18.75ZM20.0303 6.03033C20.3232 5.73744 20.3232 5.26256 20.0303 4.96967C19.7374 4.67678 19.2626 4.67678 18.9697 4.96967L20.0303 6.03033ZM13.9697 9.96967C13.6768 10.2626 13.6768 10.7374 13.9697 11.0303C14.2626 11.3232 14.7374 11.3232 15.0303 11.0303L13.9697 9.96967ZM6.25 9.233V5.5H4.75V9.233H6.25ZM5.5 6.25H9.233V4.75H5.5V6.25ZM4.96967 6.03033L9.96967 11.0303L11.0303 9.96967L6.03033 4.96967L4.96967 6.03033ZM15.767 20.25H19.5V18.75H15.767V20.25ZM20.25 19.5V15.767H18.75V19.5H20.25ZM20.0303 18.9697L15.0303 13.9697L13.9697 15.0303L18.9697 20.0303L20.0303 18.9697ZM4.75 15.767V19.5H6.25V15.767H4.75ZM5.5 20.25H9.233V18.75H5.5V20.25ZM6.03033 20.0303L11.0303 15.0303L9.96967 13.9697L4.96967 18.9697L6.03033 20.0303ZM15.767 6.25H19.5V4.75H15.767V6.25ZM18.75 5.5V9.233H20.25V5.5H18.75ZM18.9697 4.96967L13.9697 9.96967L15.0303 11.0303L20.0303 6.03033L18.9697 4.96967Z" fill="currentColor"/>
                         </svg>
                     </a>
@@ -144,10 +335,7 @@
                             {% set logo = job.companyLogo|default(job.employerLogo|default(job.employer.logo|default(asset('assets/icons/job.png')))) %}
                             {% set salary = job.salary|default(job.salaryText|default(null)) %}
                             {% set percent = job.matchingPercent|default(job.matchPercent|default(job.score|default(job.matchScore|default(null)))) %}
-                            {% set r = 18 %}
-                            {% set c = (2 * 3.1416 * r) %}
                             {% set p = percent is not null ? percent : 0 %}
-                            {% set offset = c - (c * (p / 100)) %}
                             {% set hasExpiry = job.expirationDate is defined and job.expirationDate %}
                             {% set daysLeft = hasExpiry
                                 ? (date(job.expirationDate) > date('now') ? date(job.expirationDate).diff(date('now')).days : 0)
@@ -157,7 +345,7 @@
                             <div class="job-card">
                                 <div class="d-flex align-items-center gap-2 flex-grow-1">
                                     <div class="job-logo-box">
-                                        <img src="{{ logo }}" class="job-logo-img" alt="" />
+                                        <img src="{{ logo }}" class="job-logo-img" alt="" onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
                                     </div>
                                     <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
                                         <a class="job-title d-block fw-semibold text-decoration-none"
@@ -170,22 +358,13 @@
                                         </div>
                                     </div>
 
-                                    <div class="d-flex align-items-center gap-2 flex-shrink-0 text-end">
-                                        <div class="progress-circle">
-                                            <svg viewBox="0 0 44 44" width="36" height="36" aria-hidden="true">
-                                                <circle cx="22" cy="22" r="{{ r }}" class="pc-bg"
-                                                        stroke-width="4" fill="none"></circle>
-                                                <circle cx="22" cy="22" r="{{ r }}" class="pc-fg"
-                                                        stroke-width="4" fill="none"
-                                                        stroke-dasharray="{{ c }}, {{ c }}"
-                                                        stroke-dashoffset="{{ offset }}"></circle>
-                                            </svg>
-                                            <span class="pc-label">+{{ p }}%</span>
-                                        </div>
-
-                                        <div class="apply-within text-nowrap">
-                                            <div class="apply-text small">Apply by</div>
-                                            <div class="fw-semibold">
+                                    <div class="d-flex flex-column align-items-start gap-2 flex-shrink-0">
+                                        {% if p %}
+                                        <span class="match-pill">+{{ p }}%</span>
+                                        {% endif %}
+                                        <div class="apply-within">
+                                            <div class="apply-text">Apply by</div>
+                                            <div class="apply-value">
                                             {% if hasExpiry %}
                                                 {% if date(job.expirationDate) > date('now') %}
                                                     {{ daysLeft }} days
@@ -219,7 +398,7 @@
                             <div class="job-card">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="job-logo-box">
-                                        <img src="{{ logo }}" class="job-logo-img" alt="" />
+                                        <img src="{{ logo }}" class="job-logo-img" alt="" onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
                                     </div>
                                     <div class="flex-grow-1">
                                         <a class="job-title d-block fw-semibold text-decoration-none"
@@ -244,14 +423,14 @@
         </div>
 
         <!-- Messages -->
-        <div class="col-12 col-lg-5">
+        <div class="col-12 col-lg-6">
     <div class="job-section shadow-lg p-3 rounded-3 h-100">
 
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-10-px">
             <a href="{{ path('app_provider_messages') }}" style="text-decoration:none;"><h6 class="app-card-title mb-0">Messages</h6></a>
             <a id="view-messages-link" href="{{ path('app_provider_messages') }}" class="link-plain">
-                <svg class="icon-image" width="32px" height="32px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="icon-image" width="29px" height="29px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.75 9.233C4.75 9.64721 5.08579 9.983 5.5 9.983C5.91421 9.983 6.25 9.64721 6.25 9.233H4.75ZM6.25 5.5C6.25 5.08579 5.91421 4.75 5.5 4.75C5.08579 4.75 4.75 5.08579 4.75 5.5H6.25ZM5.5 4.75C5.08579 4.75 4.75 5.08579 4.75 5.5C4.75 5.91421 5.08579 6.25 5.5 6.25V4.75ZM9.233 6.25C9.64721 6.25 9.983 5.91421 9.983 5.5C9.983 5.08579 9.64721 4.75 9.233 4.75V6.25ZM6.03033 4.96967C5.73744 4.67678 5.26256 4.67678 4.96967 4.96967C4.67678 5.26256 4.67678 5.73744 4.96967 6.03033L6.03033 4.96967ZM9.96967 11.0303C10.2626 11.3232 10.7374 11.3232 11.0303 11.0303C11.3232 10.7374 11.3232 10.2626 11.0303 9.96967L9.96967 11.0303ZM15.767 18.75C15.3528 18.75 15.017 19.0858 15.017 19.5C15.017 19.9142 15.3528 20.25 15.767 20.25V18.75ZM19.5 20.25C19.9142 20.25 20.25 19.9142 20.25 19.5C20.25 19.0858 19.9142 18.75 19.5 18.75V20.25ZM18.75 19.5C18.75 19.9142 19.0858 20.25 19.5 20.25C19.9142 20.25 20.25 19.9142 20.25 19.5H18.75ZM20.25 15.767C20.25 15.3528 19.9142 15.017 19.5 15.017C19.0858 15.017 18.75 15.3528 18.75 15.767H20.25ZM18.9697 20.0303C19.2626 20.3232 19.7374 20.3232 20.0303 20.0303C20.3232 19.7374 20.3232 19.2626 20.0303 18.9697L18.9697 20.0303ZM15.0303 13.9697C14.7374 13.6768 14.2626 13.6768 13.9697 13.9697C13.6768 14.2626 13.6768 14.7374 13.9697 15.0303L15.0303 13.9697ZM6.25 15.767C6.25 15.3528 5.91421 15.017 5.5 15.017C5.08579 15.017 4.75 15.3528 4.75 15.767H6.25ZM4.75 19.5C4.75 19.9142 5.08579 20.25 5.5 20.25C5.91421 20.25 6.25 19.9142 6.25 19.5H4.75ZM5.5 18.75C5.08579 18.75 4.75 19.0858 4.75 19.5C4.75 19.9142 5.08579 20.25 5.5 20.25V18.75ZM9.233 20.25C9.64721 20.25 9.983 19.9142 9.983 19.5C9.983 19.0858 9.64721 18.75 9.233 18.75V20.25ZM4.96967 18.9697C4.67678 19.2626 4.67678 19.7374 4.96967 20.0303C5.26256 20.3232 5.73744 20.3232 6.03033 20.0303L4.96967 18.9697ZM11.0303 15.0303C11.3232 14.7374 11.3232 14.2626 11.0303 13.9697C10.7374 13.6768 10.2626 13.6768 9.96967 13.9697L11.0303 15.0303ZM15.767 4.75C15.3528 4.75 15.017 5.08579 15.017 5.5C15.017 5.91421 15.3528 6.25 15.767 6.25V4.75ZM19.5 6.25C19.9142 6.25 20.25 5.91421 20.25 5.5C20.25 5.08579 19.9142 4.75 19.5 4.75V6.25ZM20.25 5.5C20.25 5.08579 19.9142 4.75 19.5 4.75C19.0858 4.75 18.75 5.08579 18.75 5.5H20.25ZM18.75 9.233C18.75 9.64721 19.0858 9.983 19.5 9.983C19.9142 9.983 20.25 9.64721 20.25 9.233H18.75ZM20.0303 6.03033C20.3232 5.73744 20.3232 5.26256 20.0303 4.96967C19.7374 4.67678 19.2626 4.67678 18.9697 4.96967L20.0303 6.03033ZM13.9697 9.96967C13.6768 10.2626 13.6768 10.7374 13.9697 11.0303C14.2626 11.3232 14.7374 11.3232 15.0303 11.0303L13.9697 9.96967ZM6.25 9.233V5.5H4.75V9.233H6.25ZM5.5 6.25H9.233V4.75H5.5V6.25ZM4.96967 6.03033L9.96967 11.0303L11.0303 9.96967L6.03033 4.96967L4.96967 6.03033ZM15.767 20.25H19.5V18.75H15.767V20.25ZM20.25 19.5V15.767H18.75V19.5H20.25ZM20.0303 18.9697L15.0303 13.9697L13.9697 15.0303L18.9697 20.0303L20.0303 18.9697ZM4.75 15.767V19.5H6.25V15.767H4.75ZM5.5 20.25H9.233V18.75H5.5V20.25ZM6.03033 20.0303L11.0303 15.0303L9.96967 13.9697L4.96967 18.9697L6.03033 20.0303ZM15.767 6.25H19.5V4.75H15.767V6.25ZM18.75 5.5V9.233H20.25V5.5H18.75ZM18.9697 4.96967L13.9697 9.96967L15.0303 11.0303L20.0303 6.03033L18.9697 4.96967Z" fill="currentColor"/>
                 </svg>
             </a>
@@ -267,23 +446,28 @@
             {% set subj = subject|length > 80 ? subject|slice(0,80) ~ '…' : subject %}
             {% set isNew = not (message.isRead|default(false) or message.viewed|default(false) or message.seen|default(false)) %}
 
-            <div class="job-card d-flex justify-content-between align-items-start">
-                <div class="d-flex align-items-start gap-2">
-                    <img src="{{ avatar }}" class="job-logo-img rounded-circle" alt="" />
-                    <div style="min-width: 0; overflow: hidden; flex-grow: 1;">
-                        <div class="message-title fw-semibold" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ sender }}</div>
-                        <a class="text-decoration-none d-block message-title"
-                           href="{{ path('app_provider_message_show', {'id': message.id}) }}"
-                           style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
-                            {{ subj|raw }}
-                        </a>
+            <div class="job-card">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <div class="job-logo-box">
+                        <img src="{{ avatar }}" class="job-logo-img" alt="" />
                     </div>
-                </div>
-                <div class="d-flex flex-column align-items-end gap-1 flex-shrink-0">
-                    {% if isNew %}
-                        <span class="badge message-badge fw-semibold" style="font-size: 10px; padding: 2px 6px;">New</span>
-                    {% endif %}
-                    <div class="small" style="font-size: 10px; white-space: nowrap;">{{ message.createdAt|ago }}</div>
+                    <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
+                        <a class="job-title d-block fw-semibold text-decoration-none"
+                           href="{{ path('app_provider_message_show', {'id': message.id}) }}"
+                           style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {{ sender }}
+                        </a>
+                        <div class="job-meta small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {{ subj|raw }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column align-items-start gap-1 flex-shrink-0">
+                        {% if isNew %}
+                        <span class="match-pill">New</span>
+                        {% endif %}
+                        <span class="message-timestamp">{{ message.createdAt|time_diff }}</span>
+                    </div>
                 </div>
             </div>
             {% endfor %}
@@ -296,6 +480,7 @@
     </div>
 
     <!-- Row 2: 3 Equal Cards -->
+    <div class="dashboard-three-cards-wrapper">
     <div class="row g-3 mt-4">
         <!-- To Do List -->
         <div class="col-12 col-lg-4">
@@ -324,15 +509,15 @@
                                 <path d="M5.25 3C4.00736 3 3 4.00736 3 5.25V18.75C3 19.9926 4.00736 21 5.25 21H18.75C19.9926 21 21 19.9926 21 18.75V5.25C21 4.00736 19.9926 3 18.75 3H5.25ZM4.5 5.25C4.5 4.83579 4.83579 4.5 5.25 4.5H18.75C19.1642 4.5 19.5 4.83579 19.5 5.25V18.75C19.5 19.1642 19.1642 19.5 18.75 19.5H5.25C4.83579 19.5 4.5 19.1642 4.5 18.75V5.25Z" fill="#121C0C"/>
                                 </svg>
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center">
                                     <div class="schedule-left">
                                         <div class="fw-semibold">Task Title {{ i }}</div>
                                         <div class="small">Helpful short description for the task.</div>
                                     </div>
-                                    <div class="schedule-right">
-                                        <div class="small" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
-                                        <div class="small" style="font-size:12px;">10:00 AM</div>
+                                    <div class="schedule-right text-end">
+                                        <div class="small fw-semibold" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
+                                        <div class="small text-muted" style="font-size:12px;">10:00 AM</div>
                                     </div>
                                 </div>
                             </div>
@@ -355,111 +540,139 @@
                     </a>
                 </div>
 
-                <!-- Custom Dropdown -->
-        <div class="dropdown-lite mb-3">
-            <button class="dl-toggle" type="button" id="analyticsDropdown">
-                <span class="dl-label">Application to Interview Ratio</span>
-                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 9L11.7874 14.7874V14.7874C11.9048 14.9048 12.0952 14.9048 12.2126 14.7874V14.7874L18 9" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-            <div class="dl-menu d-none">
-                <button class="dl-item" data-chart="ratio">Application to Interview Ratio</button>
-                <button class="dl-item" data-chart="skills">Top Skills in Demand</button>
-                <button class="dl-item" data-chart="resume">Resume Insight</button>
-            </div>
-        </div>
-
-        <!-- Chart Container -->
-        <div class="analytics-chart flex-grow-1 d-flex justify-content-center align-items-center">
-            <!-- Application to Interview Ratio Chart -->
-            <div class="chart-content" id="chart-ratio">
-                {% set ratioData = analytics.ratio %}
-                {% set appliedCount = ratioData.totalApplications %}
-                {% set interviewCount = ratioData.totalInterviews %}
-                {% set interviewRate = ratioData.interviewRate %}
-                
-                {% if appliedCount > 0 %}
-                    {% set interviewPercentage = (interviewCount / appliedCount) * 100 %}
-                    {% set appliedPercentage = 100 - interviewPercentage %}
-                {% else %}
-                    {% set interviewPercentage = 0 %}
-                    {% set appliedPercentage = 100 %}
-                {% endif %}
-                
-                <svg viewBox="0 0 160 160" width="150" height="150">
-                    <g transform="rotate(-90 80 80)">
-                        <!-- Applied portion -->
-                        <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
-                                stroke-dasharray="{{ appliedPercentage * 3.51 }}, 351"
-                                stroke-dashoffset="0"/>
-                        <!-- Interview portion -->
-                        <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
-                                stroke-dasharray="{{ interviewPercentage * 3.51 }}, 351"
-                                stroke-dashoffset="{{ -appliedPercentage * 3.51 }}"/>
-                    </g>
-                </svg>
-                <div class="donut-center">
-                    <div class="donut-number">{{ interviewRate|round(1) }}%</div>
-                    <div class="donut-sub">Interview Rate</div>
+                <!-- Ratio selector -->
+                <div class="mb-3">
+                    <select class="form-select form-select-sm profile-analytics-select" id="profileAnalyticsSelect" aria-label="Profile Analytics view">
+                        <option value="ratio" selected>Application to Interview Ratio</option>
+                        <option value="interview-ratio">Interview to Application Ratio</option>
+                        <option value="skills">Top Skills in Demand</option>
+                        <option value="resume">Resume Insight</option>
+                    </select>
                 </div>
-            </div>
 
-            <!-- Top Skills Chart -->
-<div class="chart-content d-none" id="chart-skills">
-    <div class="skills-chart w-100">
-        {% if analytics.skills is defined and analytics.skills|length > 0 %}
-            {% for skill in analytics.skills|slice(0, 4) %}
-                <div class="skill-item mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="skill-name fw-medium" style="font-size: 12px; color: #121C0C;">{{ skill.name }}</span>
-                        <span class="skill-percent fw-bold" style="font-size: 11px; color: #85BB65;">{{ skill.percentage }}%</span>
-                    </div>
-                    <div class="skill-progress" style="height: 6px; background: #F4F9F1; border-radius: 3px; overflow: hidden;">
-                        <div class="skill-progress-bar" style="height: 100%; width: {{ skill.percentage }}%; background: {{ skill.color }}; border-radius: 3px;"></div>
-                    </div>
-                    {% if skill.hasSkill is defined %}
-                        <div class="skill-status mt-1" style="font-size: 10px; color: {% if skill.hasSkill %}#10b981{% else %}#6b7280{% endif %};">
-                            {% if skill.hasSkill %}✓ You have this skill{% else %}Consider adding{% endif %}
+                <!-- Chart Container -->
+                <div class="analytics-chart flex-grow-1 d-flex justify-content-center align-items-center">
+                    <!-- Application to Interview Ratio Chart -->
+                    <div class="chart-content" id="chart-ratio">
+                        {% if appliedCount > 0 %}
+                            {% set interviewPercentage = (interviewCount / appliedCount) * 100 %}
+                            {% set appliedPercentage = 100 - interviewPercentage %}
+                        {% else %}
+                            {% set interviewPercentage = 0 %}
+                            {% set appliedPercentage = 100 %}
+                        {% endif %}
+                        {% set totalAppliedInterview = appliedCount + interviewCount %}
+                        {% if totalAppliedInterview > 0 %}
+                            {% set applicationShareTotal = (appliedCount / totalAppliedInterview) * 100 %}
+                            {% set interviewShareTotal = (interviewCount / totalAppliedInterview) * 100 %}
+                        {% else %}
+                            {% set applicationShareTotal = 0 %}
+                            {% set interviewShareTotal = 0 %}
+                        {% endif %}
+                        {% set interviewToApplicationRatioValue = interviewCount > 0 ? (appliedCount / interviewCount) : 0 %}
+                        {% set interviewToApplicationDisplay = interviewCount > 0 ? (appliedCount / interviewCount)|number_format(1, '.', ',') : '0.0' %}
+                        
+                        <svg viewBox="0 0 160 160" width="150" height="150">
+                            <g transform="rotate(-90 80 80)">
+                                <!-- Applied portion -->
+                                <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
+                                        stroke-dasharray="{{ appliedPercentage * 3.51 }}, 351"
+                                        stroke-dashoffset="0"/>
+                                <!-- Interview portion -->
+                                <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
+                                        stroke-dasharray="{{ interviewPercentage * 3.51 }}, 351"
+                                        stroke-dashoffset="{{ -appliedPercentage * 3.51 }}"/>
+                            </g>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-number">{{ ratio }}%</div>
+                            <div class="donut-sub">Interview Rate</div>
                         </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center text-muted py-4">
-                <small>No skills data available</small>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-            <!-- Resume Insight Chart -->
-            <div class="chart-content d-none" id="chart-resume">
-                {% set resumeData = analytics.resume %}
-                <div class="resume-metric text-center">
-                    <div class="resume-circle" style="border-color: {% if resumeData.profileCompleteness >= 80 %}#10b981{% elseif resumeData.profileCompleteness >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
-                        <span>{{ resumeData.profileCompleteness }}%</span>
                     </div>
-                    <p class="mt-2 mb-0">Profile Completeness</p>
-                    
-                    {% if resumeData.missingFields|length > 0 %}
-                        <div class="mt-2">
-                            <small class="text-muted">Missing:</small>
-                            <div class="small">
-                                {% for field in resumeData.missingFields|slice(0, 2) %}
-                                    <span class="badge bg-warning text-dark me-1">{{ field }}</span>
+                    <div class="chart-content d-none" id="chart-interview-ratio">
+                        <svg viewBox="0 0 160 160" width="150" height="150">
+                            <g transform="rotate(-90 80 80)">
+                                <!-- Applications portion -->
+                                <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
+                                        stroke-dasharray="{{ applicationShareTotal * 3.51 }}, 351"
+                                        stroke-dashoffset="0"/>
+                                <!-- Interviews portion -->
+                                <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
+                                        stroke-dasharray="{{ interviewShareTotal * 3.51 }}, 351"
+                                        stroke-dashoffset="{{ -applicationShareTotal * 3.51 }}"/>
+                            </g>
+                        </svg>
+                        <div class="donut-center">
+                            <div class="donut-number">{{ interviewToApplicationDisplay }}x</div>
+                            <div class="donut-sub">Apps / Interview</div>
+                        </div>
+                    </div>
+
+                    <!-- Top Skills Chart -->
+                    <div class="chart-content d-none" id="chart-skills">
+                        <div class="skills-chart w-100">
+                            {% if skills is defined and skills|length > 0 %}
+                                {% for skill in skills|slice(0, 4) %}
+                                    <div class="skill-item mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="skill-name fw-medium" style="font-size: 12px; color: #121C0C;">{{ skill.name }}</span>
+                                            <span class="skill-percent fw-bold" style="font-size: 11px; color: #85BB65;">{{ skill.percentage }}%</span>
+                                        </div>
+                                        <div class="skill-progress" style="height: 6px; background: #F4F9F1; border-radius: 3px; overflow: hidden;">
+                                            <div class="skill-progress-bar" style="height: 100%; width: {{ skill.percentage }}%; background: {{ skill.color }}; border-radius: 3px;"></div>
+                                        </div>
+                                        {% if skill.hasSkill is defined %}
+                                            <div class="skill-status mt-1" style="font-size: 10px; color: {% if skill.hasSkill %}#10b981{% else %}#6b7280{% endif %};">
+                                                {% if skill.hasSkill %}✓ You have this skill{% else %}Consider adding{% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
                                 {% endfor %}
-                                {% if resumeData.missingFields|length > 2 %}
-                                    <small class="text-muted">+{{ resumeData.missingFields|length - 2 }} more</small>
+                            {% else %}
+                                <div class="text-center text-muted py-4">
+                                    <small>No skills data available</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Resume Insight Chart -->
+                    <div class="chart-content d-none" id="chart-resume">
+                        {% if resume is defined %}
+                            {% set profileCompleteness = resume.profileCompleteness|default(0) %}
+                            <div class="resume-metric text-center">
+                                <div class="resume-circle" style="border-color: {% if profileCompleteness >= 80 %}#10b981{% elseif profileCompleteness >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
+                                    <span>{{ profileCompleteness }}%</span>
+                                </div>
+                                <p class="mt-2 mb-0">Profile Completeness</p>
+                                
+                                {% if resume.missingFields is defined and resume.missingFields|length > 0 %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Missing:</small>
+                                        <div class="small">
+                                            {% for field in resume.missingFields|slice(0, 2) %}
+                                                <span class="badge bg-warning text-dark me-1">{{ field }}</span>
+                                            {% endfor %}
+                                            {% if resume.missingFields|length > 2 %}
+                                                <small class="text-muted">+{{ resume.missingFields|length - 2 }} more</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
                                 {% endif %}
                             </div>
-                        </div>
-                    {% endif %}
+                        {% else %}
+                            <div class="resume-metric text-center">
+                                <div class="resume-circle" style="border-color: #ef4444;">
+                                    <span>0%</span>
+                                </div>
+                                <p class="mt-2 mb-0">Profile Completeness</p>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+
         <!-- Interview Schedule -->
         <div class="col-12 col-lg-4">
             <div class="interview-card shadow-lg rounded-3 p-3 h-100 d-flex flex-column">
@@ -481,8 +694,8 @@
                                     <div class="fw-semibold">Company {{ i }}</div>
                                     <div class="small">Position {{ i }}</div>
                                 </div>
-                                <div class="schedule-right">
-                                    <div class="small" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
+                                <div class="schedule-right text-end">
+                                    <div class="small fw-semibold" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
                                     <div class="small" style="font-size:12px;">10:00 AM</div>
                                 </div>
                             </div>
@@ -591,84 +804,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-/* Analytics Chart Improvements */
-.analytics-chart {
-    min-height: 200px;
-    padding: 10px;
-}
-
-.bar-chart .bar-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-size: 12px;
-}
-
-.bar-chart .bar-item span {
-    min-width: 80px;
-    font-weight: 500;
-}
-
-.bar-chart .bar-fill {
-    height: 10px;
-    border-radius: 5px;
-    transition: width 0.5s ease;
-    flex-grow: 1;
-}
-
-.bar-chart .bar-item small {
-    min-width: 35px;
-    text-align: right;
-    font-weight: 600;
-}
-
-.resume-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 8px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin: 0 auto;
-    transition: border-color 0.3s ease;
-}
-
-/* Badge styling for missing fields */
-.badge.bg-warning {
-    font-size: 9px;
-    padding: 2px 6px;
-}
-
-/* Donut chart improvements */
-.donut-center {
-    position: absolute;
-    text-align: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.donut-number {
-    font-weight: 800;
-    font-size: 24px;
-    line-height: 1;
-    color: #111827;
-}
-
-.donut-sub {
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 4px;
 }
 .donut-number { font-weight: 800; font-size: 32px; line-height: 1; color: #111827; }
 .donut-sub { font-size: 14px; color: rgb(37, 41, 48); margin-top: 4px; }
@@ -795,7 +930,7 @@
 .job-list-container {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   max-height: 320px;
   overflow-y: auto;
   padding-right: 0;
@@ -819,32 +954,52 @@
   border-radius: 10px;
   background: #F4F9F1;
   border: 1px solid #e6eef6;
-  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-  padding: 8px 12px;
+  padding: 2px 14px;
   margin-left: 0;
   margin-right: 0;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.job-card:last-child {
+  margin-bottom: 0;
 }
 
 .job-logo-box {
-  width: 40px;
-  height: 40px;
-  background: #f4f4f4;
-  border-radius: 8px;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d0d0d0;
   flex-shrink: 0;
+  padding: 4px;
+  box-sizing: border-box;
+  margin-left: 0;
+  overflow: hidden;
 }
 
 .job-logo-img {
-  max-width: 70%;
-  max-height: 70%;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
   object-fit: contain;
+  border-radius: 4px !important;
 }
 .job-title {
     color:#121C0C;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.4;
     margin-bottom: 2px;
 }
@@ -906,7 +1061,8 @@
   margin-right: 0;
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 12px;
+  padding: 2px 14px;
+  min-height: 40px;
 }
 
 
@@ -914,7 +1070,7 @@
 .job-list-container {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   overflow-y: auto;
   padding-right: 0;
   padding-left: 0;
@@ -924,16 +1080,17 @@
 
 /* Each message box */
 .job-card {
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 2px 14px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  min-height: 40px;
 }
 
-/* Container max-height = 4 items + 3 gaps of 8px each */
+/* Container max-height = 4 items + 3 gaps of 10px each */
 .job-list-container {
-  max-height: calc(4 * 72px + 3 * 8px);
+  max-height: calc(4 * 50px + 3 * 10px);
   padding-right: 0;
   padding-left: 0;
   margin-left: 0;
@@ -952,13 +1109,6 @@
   background: transparent;
 }
 
-/* Avatar image */
-.job-logo-img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
 .icon-image {
     width:25px;
 }
@@ -981,6 +1131,10 @@
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.dashboard-three-cards-wrapper {
+    position: relative;
+    z-index: 10;
 }
 
 /* --- To Do List --- */
@@ -1021,6 +1175,81 @@
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    min-height: 200px;
+    padding: 10px;
+}
+
+/* Analytics Chart Improvements */
+.bar-chart .bar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.bar-chart .bar-item span {
+    min-width: 80px;
+    font-weight: 500;
+}
+
+.bar-chart .bar-fill {
+    height: 10px;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+    flex-grow: 1;
+}
+
+.bar-chart .bar-item small {
+    min-width: 35px;
+    text-align: right;
+    font-weight: 600;
+}
+
+.resume-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 8px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0 auto;
+    transition: border-color 0.3s ease;
+}
+
+/* Badge styling for missing fields */
+.badge.bg-warning {
+    font-size: 9px;
+    padding: 2px 6px;
+}
+
+/* Donut chart improvements */
+.donut-center {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-number {
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+    color: #111827;
+}
+
+.donut-sub {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
 }
 
 /* --- Profile Analytics --- */
@@ -1043,7 +1272,21 @@
 }
 .application {
     margin-top: 12px;
-    padding-left: 12px;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+.application .row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0;
+    scrollbar-width: none;
+}
+.application .row::-webkit-scrollbar {
+    display: none;
+}
+.application .row .col {
+    flex: 1 0 150px;
+    max-width: 100%;
 }
 .application .row .col a, .application .row .col a .card {
     margin-bottom: 0!important;
@@ -1073,7 +1316,7 @@
     justify-content: center;
 }
 .application .col:first-child {
-    max-width: 80px;
+    max-width: none;
 }
 .application .col .card-body {
     display: flex;
@@ -1185,34 +1428,66 @@
 }
 .job-meta {
     color: #121C0C;
-    font-size: 11px;
-    line-height: 1.3;
+    font-size: 12px;
+    line-height: 1.4;
     margin-top: 2px;
 }
 .apply-within {
-    font-size: 11px;
-    line-height: 1.3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
 }
 .apply-within .apply-text {
-    color: #000000;
-    font-size: 10px;
-    margin-bottom: 2px;
-}
-.apply-within .fw-semibold {
+    color: #121C0C;
     font-size: 11px;
     font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 1px;
 }
-.message-title {
-    color:#121C0C;
+.apply-within .apply-value {
     font-size: 12px;
-    line-height: 1.4;
-    margin-bottom: 2px;
+    font-weight: 700;
+    color: #121C0C;
+    line-height: 1.3;
+}
+.match-pill {
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #00FFFF;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.2;
+}
+
+.message-timestamp {
+    font-size: 11px;
+    font-weight: 400;
+    color: #666666;
+    line-height: 1.2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 .message-badge {
     background: transparent;
-    font-size: 12px;
+    font-size: 14px;
     text-align: right;
-    animation: colorChange 1s infinite alternate;
+    color: #000000 !important;
+    animation: blinkText 1s infinite;
+}
+@keyframes blinkText {
+    0%, 50% {
+        color: #000000;
+    }
+    51%, 100% {
+        color: transparent;
+    }
 }
 @keyframes colorChange {
     0% {
@@ -1269,39 +1544,554 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.querySelector('.dl-toggle');
-    const menu = document.querySelector('.dl-menu');
-    const label = toggleBtn.querySelector('.dl-label');
+    const select = document.getElementById('profileAnalyticsSelect');
     const charts = document.querySelectorAll('.chart-content');
 
-    // Toggle dropdown open/close
-    toggleBtn.addEventListener('click', () => {
-        menu.classList.toggle('d-none');
-    });
-
-    // Handle selection
-    document.querySelectorAll('.dl-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const chartType = item.dataset.chart;
-
-            // Update label
-            label.textContent = item.textContent;
-
-            // Show the selected chart
-            charts.forEach(c => c.classList.add('d-none'));
-            document.getElementById('chart-' + chartType).classList.remove('d-none');
-
-            // Close menu
-            menu.classList.add('d-none');
-        });
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && !toggleBtn.contains(e.target)) {
-            menu.classList.add('d-none');
+    function showChart(chartType) {
+        charts.forEach(chart => chart.classList.add('d-none'));
+        const active = document.getElementById(`chart-${chartType}`);
+        if (active) {
+            active.classList.remove('d-none');
         }
+    }
+
+    if (select) {
+        select.addEventListener('change', (event) => {
+            showChart(event.target.value);
+        });
+        showChart(select.value);
+    }
+});
+</script>
+
+{# Intro.js CSS & JS for Quick Tour #}
+<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+<script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+
+<style>
+/* Enhanced Custom styling for Intro.js tour - Dashboard */
+.introjs-tooltip {
+    max-width: 420px !important;
+    min-width: 380px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06), 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e6eef6 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-tooltipReferenceLayer {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-tooltipHeader {
+    padding: 0 !important;
+}
+
+.introjs-tooltipTitle {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #121C0C !important;
+    margin: 0 !important;
+    padding: 20px 24px 16px 24px !important;
+    line-height: 1.4 !important;
+    background: #F4F9F1 !important;
+    border-bottom: 1px solid #e6eef6 !important;
+}
+
+.introjs-tooltipContent {
+    padding: 20px 24px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #374151 !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+}
+
+.introjs-tooltipContent p {
+    margin: 0 !important;
+    color: #374151 !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+/* Progress bar */
+.introjs-progress {
+    background: #e6eef6 !important;
+    height: 3px !important;
+    border-radius: 0 !important;
+}
+
+.introjs-progressbar {
+    background: linear-gradient(90deg, #85BB65 0%, #6fa850 100%) !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+}
+
+/* Bullets */
+.introjs-bullets {
+    padding: 0 24px 16px 24px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e6eef6 !important;
+}
+
+.introjs-bullets ul {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    list-style: none !important;
+}
+
+.introjs-bullets ul li {
+    width: 8px !important;
+    height: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.introjs-bullets ul li a {
+    width: 100% !important;
+    height: 100% !important;
+    background: #d1d5db !important;
+    border-radius: 50% !important;
+    border: none !important;
+    display: block !important;
+}
+
+.introjs-bullets ul li a.active {
+    background: #85BB65 !important;
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.2) !important;
+}
+
+/* Buttons */
+.introjs-tooltipbuttons {
+    padding: 16px 24px 20px 24px !important;
+    border-top: 1px solid #e6eef6 !important;
+    background: #fafbfc !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.introjs-button {
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 100px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.introjs-button.introjs-nextbutton,
+.introjs-button.introjs-donebutton {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+    margin-left: auto !important;
+}
+
+.introjs-button.introjs-nextbutton:hover,
+.introjs-button.introjs-donebutton:hover {
+    background: #6fa850 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3) !important;
+}
+
+.introjs-button.introjs-nextbutton:active,
+.introjs-button.introjs-donebutton:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+}
+
+.introjs-button.introjs-prevbutton {
+    background: #ffffff !important;
+    color: #374151 !important;
+    border: 1px solid #e6eef6 !important;
+    margin-right: auto !important;
+}
+
+.introjs-button.introjs-prevbutton:hover {
+    background: #F4F9F1 !important;
+    color: #121C0C !important;
+    border-color: #85BB65 !important;
+}
+
+.introjs-button.introjs-skipbutton {
+    color: #6b7280 !important;
+    background: transparent !important;
+    border: none !important;
+    font-weight: 500 !important;
+    padding: 6px 12px !important;
+    min-width: auto !important;
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    font-size: 13px !important;
+    transition: all 0.2s ease !important;
+    z-index: 10 !important;
+}
+
+.introjs-button.introjs-skipbutton:hover {
+    color: #121C0C !important;
+    background: #f1f3f4 !important;
+    border-radius: 6px !important;
+}
+
+/* Overlay */
+.introjs-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease !important;
+}
+
+/* Helper layer (highlight) */
+.introjs-helperLayer {
+    box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2), 0 0 0 8px rgba(133, 187, 101, 0.1) !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Arrow */
+.introjs-arrow {
+    border: 8px solid transparent !important;
+}
+
+.introjs-arrow.top {
+    border-bottom-color: #ffffff !important;
+    top: -16px !important;
+}
+
+.introjs-arrow.bottom {
+    border-top-color: #ffffff !important;
+    bottom: -16px !important;
+}
+
+.introjs-arrow.left {
+    border-right-color: #ffffff !important;
+    left: -16px !important;
+}
+
+.introjs-arrow.right {
+    border-left-color: #ffffff !important;
+    right: -16px !important;
+}
+</style>
+
+<script>
+function startDashboardTour() {
+    introJs().setOptions({
+        steps: [
+            { intro: "Welcome to your Provider Dashboard! Let's take a quick tour." },
+            { element: document.querySelector('.applications-card'), intro: "This card shows the total number of applications you've received." },
+            { element: document.querySelector('.matched-jobs-card'), intro: "See jobs that match your skills here." },
+            { element: document.querySelector('.messages-card'), intro: "Check your messages here to communicate with job seekers." },
+            { element: document.querySelector('.todo-card'), intro: "Keep track of your tasks and pending actions here." },
+            { element: document.querySelector('.saved-jobs-card'), intro: "Access your bookmarked jobs for easy reference." },
+            { intro: "That's it! You're ready to explore your dashboard." }
+        ],
+        showProgress: true,
+        showBullets: true,
+        exitOnOverlayClick: false
+    }).start();
+}
+
+// Initialize tour when Quick Tour button is clicked
+document.addEventListener('DOMContentLoaded', function() {
+    const quickTourBtn = document.getElementById('start-page-tour');
+    if (quickTourBtn) {
+        quickTourBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            startDashboardTour();
+        });
+    }
+});
+</script>
+
+<!-- FINAL OVERRIDE - Force spacing styles to load last and override all other CSS -->
+<style>
+/* COMPLETE RESET - Final override at end of page */
+body.app .app-wrapper {
+    position: relative !important;
+    display: block !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+}
+
+body.app .app-wrapper .app-content {
+    position: relative !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+.dashboard .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove left padding from application status tracker */
+.container-xl .application {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Column width adjustments to fill space better */
+.container-xl .row.g-2 > .col-12.col-lg-7 {
+    flex: 0 0 58.333333% !important;
+    max-width: 58.333333% !important;
+}
+
+.container-xl .row.g-2 > .col-12.col-lg-5 {
+    flex: 0 0 41.666667% !important;
+    max-width: 41.666667% !important;
+}
+
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    .container-xl .application {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* CRITICAL: Override custom.css media queries with maximum specificity - FINAL OVERRIDE */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+</style>
+
+<script>
+// Force apply styles via JavaScript - COMPLETE OVERRIDE - Run multiple times to ensure it sticks
+function applySpacingStyles() {
+    // Reset and apply container-xl styles
+    const container = document.querySelector('.container-xl');
+    if (container) {
+        container.style.setProperty('position', 'relative', 'important');
+        container.style.setProperty('padding-left', '0', 'important');
+        container.style.setProperty('padding-right', '30px', 'important');
+        container.style.setProperty('margin-left', '0', 'important');
+        container.style.setProperty('margin-right', '0', 'important');
+        container.style.setProperty('transform', 'none', 'important');
+        container.style.setProperty('max-width', '100%', 'important');
+        container.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Remove left padding from application status tracker
+    const application = document.querySelector('.application');
+    if (application) {
+        application.style.setProperty('padding-left', '0', 'important');
+        application.style.setProperty('margin-left', '0', 'important');
+    }
+    
+    // Reset app-content
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+        appContent.style.setProperty('position', 'relative', 'important');
+        appContent.style.setProperty('padding-left', '0', 'important');
+        appContent.style.setProperty('padding-right', '0', 'important');
+        appContent.style.setProperty('margin-left', '0', 'important');
+        appContent.style.setProperty('margin-right', '0', 'important');
+        appContent.style.setProperty('max-width', '100%', 'important');
+        appContent.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-wrapper
+    const appWrapper = document.querySelector('.app-wrapper');
+    if (appWrapper) {
+        appWrapper.style.setProperty('position', 'relative', 'important');
+        if (window.innerWidth >= 1200) {
+            appWrapper.style.setProperty('margin-left', '250px', 'important');
+            appWrapper.style.setProperty('transform', 'translateX(-150px)', 'important');
+            appWrapper.style.setProperty('width', 'calc(100% - 250px + 150px)', 'important');
+        } else {
+            appWrapper.style.setProperty('margin-left', '0', 'important');
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', '100%', 'important');
+        }
+        appWrapper.style.setProperty('margin-right', '0', 'important');
+        appWrapper.style.setProperty('padding-left', '0', 'important');
+        appWrapper.style.setProperty('padding-right', '0', 'important');
+    }
+    
+    // Remove padding from all rows and first columns
+    const rows = document.querySelectorAll('.container-xl .row');
+    rows.forEach(row => {
+        row.style.setProperty('margin-left', '0', 'important');
+        row.style.setProperty('padding-left', '0', 'important');
     });
+    
+    const firstCols = document.querySelectorAll('.container-xl .row > [class*="col-"]:first-child');
+    firstCols.forEach(col => {
+        col.style.setProperty('padding-left', '0', 'important');
+        col.style.setProperty('margin-left', '0', 'important');
+    });
+    
+    // Adjust column widths
+    const col7 = document.querySelector('.col-12.col-lg-7');
+    const col5 = document.querySelector('.col-12.col-lg-5');
+    if (col7) {
+        col7.style.setProperty('flex', '0 0 58.333333%', 'important');
+        col7.style.setProperty('max-width', '58.333333%', 'important');
+    }
+    if (col5) {
+        col5.style.setProperty('flex', '0 0 41.666667%', 'important');
+        col5.style.setProperty('max-width', '41.666667%', 'important');
+    }
+}
+
+// Run immediately
+document.addEventListener('DOMContentLoaded', applySpacingStyles);
+
+// Run after a short delay to override any late-loading styles
+setTimeout(applySpacingStyles, 100);
+setTimeout(applySpacingStyles, 500);
+
+// Re-apply on window resize to override any responsive changes
+window.addEventListener('resize', function() {
+    setTimeout(applySpacingStyles, 50);
 });
 </script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{# templates/provider/todo/index.html.twig #}
+{% extends 'provider/base.html.twig' %}
+
+{% block title %}To-Do List{% endblock %}
+
+{% block provider_body %}
+<style>
+.todo-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.todo-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-left: 4px solid #85BB65;
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.todo-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+.todo-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.todo-description {
+    color: #374151;
+    margin-bottom: 16px;
+}
+
+.todo-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-complete {
+    background: #85BB65;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.btn-complete:hover {
+    background: #6FA050;
+}
+
+.btn-action {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-action:hover {
+    background: #e5e7eb;
+    color: #121C0C;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+</style>
+
+<div class="container-xl">
+    <h1 class="app-page-title">To-Do List</h1>
+
+    <div class="todo-container">
+        {% if todos|length > 0 %}
+            {% for todo in todos %}
+                <div class="todo-card">
+                    <div class="todo-header">
+                        <div>
+                            <h3 class="todo-title">{{ todo.title }}</h3>
+                            <div class="todo-meta">
+                                Requested by {{ todo.employer.companyName }} • {{ todo.createdAt|date('M d, Y') }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="todo-description">
+                        {{ todo.description }}
+                    </div>
+                    
+                    <div class="todo-actions">
+                        <form method="post" action="{{ path('app_provider_todo_complete', {'id': todo.id}) }}" style="display: inline;">
+                            <button type="submit" class="btn-complete" onclick="return confirm('Mark this task as completed?')">
+                                Mark Complete
+                            </button>
+                        </form>
+                        
+                        <a href="{{ path('app_provider_todo_redirect', {'id': todo.id}) }}" class="btn-action">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Take Action
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">✅</div>
+                <h3>All caught up!</h3>
+                <p>You don't have any pending tasks at the moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -4,118 +4,671 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
 .container-xl {
-    margin-left: 0 !important;
-    padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
 }
 
-/* Override app-content padding from base template to remove left spacing */
-.app-content {
-    padding-left: 0 !important;
+.calendar-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.calendar-main {
+    flex: 1 1 640px;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.calendar-sidebar {
+    flex: 0 0 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.summary-card,
+.event-feed-card {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.status-tag {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    padding: 10px 0;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-row.highlight {
+    background: #f4f9f1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border: 1px solid #d5e8cd;
+}
+
+.summary-row span {
+    color: #64748b;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.summary-row p {
+    margin: 0;
+    font-weight: 600;
+    color: #111827;
+}
+
+.timeline-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+
+.timeline-stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.timeline-stage {
+    flex: 1 1 140px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px dashed #cbd5f5;
+    font-size: 0.85rem;
+    color: #475569;
+    background: #f8fafc;
+}
+
+.timeline-stage.completed {
+    border-style: solid;
+    border-color: #85BB65;
+    background: #f4f9f1;
+    color: #1f6b25;
+}
+
+.timeline-stage.active {
+    border-style: solid;
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.event-type-filters {
+    display: inline-flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.event-type-filter {
+    border: 1px solid #dbeafe;
+    background: #f8fbff;
+    color: #1d4ed8;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.event-type-filter.active {
+    background: #1d4ed8;
+    color: #fff;
+    border-color: #1d4ed8;
+}
+
+.calendar-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+#calendar {
+    min-height: 640px;
+}
+
+.event-feed-card h6 {
+    margin-bottom: 8px;
+}
+
+.event-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-feed-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eef2ff;
+    background: #f8fafc;
+}
+
+.event-feed-marker {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+}
+
+.event-feed-content {
+    flex: 1;
+}
+
+.event-feed-title {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.event-feed-meta {
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.event-feed-date {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.selected-job-interview,
+.selected-job-event {
+    border: 3px solid #ff6b00 !important;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.4) !important;
+    font-weight: 600 !important;
+    z-index: 10 !important;
+}
+
+.saved-status-message {
+    padding: 18px 20px;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    background: #fffbeb;
+    color: #92400e;
+    margin-bottom: 20px;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 20px;
+}
+
+.fc .fc-button-primary {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.fc .fc-button-primary:not(:disabled):hover {
+    background: #1e40af;
+    border-color: #1e40af;
+}
+
+.fc-daygrid-dot-event .fc-event-title {
+    font-weight: 600;
+}
+
+@media (max-width: 992px) {
+    .calendar-wrapper {
+        flex-direction: column;
+    }
+
+    .calendar-sidebar {
+        width: 100%;
+        flex-direction: column;
+    }
 }
 </style>
     <div class="container-xl">
         <h1 class="app-page-title">Interview Calendar</h1>
 
-        {# Uncomment to enable filters #}
-        {#
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label class="form-label">Filter by Platform</label>
-                <select id="platformFilter" class="form-select">
-                    <option value="">All</option>
-                    <option value="Zoom">Zoom</option>
-                    <option value="Google Meet">Google Meet</option>
-                    <option value="Teams">Teams</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Search by Applicant Name</label>
-                <input type="text" id="applicantFilter" class="form-control" placeholder="Type to search...">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Search by Job Title</label>
-                <input type="text" id="jobFilter" class="form-control" placeholder="Type to search...">
-            </div>
+        {% if status == 'saved' %}
+        <div class="saved-status-message">
+                <strong>Heads up!</strong> You need to apply for this job before interview timelines and events will populate.
         </div>
-        #}
+        {% endif %}
 
-        <div id="calendar"></div>
+        <div class="calendar-wrapper">
+            <div class="calendar-main">
+                <div class="calendar-toolbar">
+                    <div class="calendar-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#85BB65;"></span> Application</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#1d4ed8;"></span> Interview</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#ff6b00;"></span> Selected Job</span>
+                    </div>
+                    <div class="event-type-filters" id="eventTypeFilters">
+                        <button class="event-type-filter active" data-event-filter="all">All Events</button>
+                        <button class="event-type-filter" data-event-filter="timeline">Application</button>
+                        <button class="event-type-filter" data-event-filter="interview">Interviews</button>
+                    </div>
+                </div>
+                <div id="calendar"></div>
+            </div>
+
+            <aside class="calendar-sidebar">
+                <div class="summary-card">
+                    <div class="summary-header">
+                        <h5 class="mb-0">Application Overview</h5>
+                        <span class="status-tag" id="summaryStatusBadge">Awaiting Data</span>
+                    </div>
+                    <div class="summary-row highlight">
+                        <div>
+                            <span>Date Applied</span>
+                            <p id="summaryDateApplied">—</p>
+                        </div>
+                        <div>
+                            <span>Next Step</span>
+                            <p id="summaryNextStep">—</p>
+                        </div>
+                    </div>
+                    <div class="summary-row">
+                        <span>Job Title</span>
+                        <p id="summaryJobTitle">Select a job</p>
+                    </div>
+                    <div class="summary-row">
+                        <span>Employer</span>
+                        <p id="summaryEmployer">—</p>
+                    </div>
+                    <div class="summary-row">
+                        <span>Upcoming Interview</span>
+                        <p id="summaryNextInterview">No interviews scheduled</p>
+                    </div>
+                    <div class="timeline-wrapper mt-3">
+                        <div class="timeline-header">Progress</div>
+                        <div id="timeline-stages" class="timeline-stages">
+                            <div class="timeline-stage">
+                                <span>Applied</span>
+                            </div>
+                            <div class="timeline-stage">
+                                <span>Interview</span>
+                            </div>
+                            <div class="timeline-stage">
+                                <span>Negotiating</span>
+                            </div>
+                            <div class="timeline-stage">
+                                <span>Accepted</span>
+                            </div>
+                            <div class="timeline-stage">
+                                <span>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-feed-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Upcoming Activity</h6>
+                        <small class="text-muted" id="eventFeedCount">0 events</small>
+                    </div>
+                    <div id="eventFeedList" class="event-feed-list">
+                        <div class="text-muted small">Events will appear here once loaded.</div>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
 {% endblock %}
 
 {% block footer_scripts %}
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
-
     <script>
+        const jobId = {{ jobId|default('null')|json_encode|raw }};
+        const applicationId = {{ applicationId|default('null')|json_encode|raw }};
+        const status = {{ status|default('null')|json_encode|raw }};
+
         let calendar;
+        let allEvents = [];
+        let currentEventFilter = 'all';
 
-        function initCalendar(filteredPlatform = '', filteredName = '', filteredJob = '') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initCalendarInstance();
+            loadCalendarData();
+            setupFilterButtons();
+        });
+
+        function initCalendarInstance() {
             const calendarEl = document.getElementById('calendar');
-
-            if (calendar) {
-                calendar.destroy();
-            }
-
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                height: 'auto',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-                views: {
-                    dayGridMonth: { buttonText: 'Month' },
-                    timeGridWeek: { buttonText: 'Week' },
-                    timeGridDay: { buttonText: 'Day' },
-                    listWeek: { buttonText: 'List' }
+                eventDisplay: 'block',
+                displayEventTime: true,
+                eventDidMount(info) {
+                    if (info.event.extendedProps.isSelectedJob) {
+                        info.el.classList.add('selected-job-interview');
+                    }
+                    if (info.event.extendedProps.description) {
+                        info.el.setAttribute('title', info.event.extendedProps.description);
+                    }
                 },
-                eventDidMount: function(info) {
-                    $(info.el).tooltip({
-                        title: info.event.extendedProps.description,
-                        placement: 'top',
-                        trigger: 'hover',
-                        container: 'body'
-                    });
-                },
-                events: function(fetchInfo, successCallback, failureCallback) {
-                    $.ajax({
-                        url: '/provider/interviews/calendar-data',
-                        dataType: 'json',
-                        success: function(data) {
-                            const filtered = data.filter(event => {
-                                return (!filteredPlatform || event.platform?.toLowerCase() === filteredPlatform.toLowerCase())
-                                    && (!filteredName || event.applicant?.toLowerCase().includes(filteredName.toLowerCase()))
-                                    && (!filteredJob || event.job?.toLowerCase().includes(filteredJob.toLowerCase()));
-                            });
-                            successCallback(filtered);
-                        },
-                        error: failureCallback
-                    });
-                },
-                eventClick: function(info) {
+                eventClick(info) {
                     if (info.event.url) {
                         window.open(info.event.url, '_blank');
                         info.jsEvent.preventDefault();
                     }
                 }
             });
-
             calendar.render();
         }
 
-        $(document).ready(function () {
-            initCalendar();
+        function loadCalendarData() {
+            const params = new URLSearchParams();
+            if (jobId && jobId !== 'null') params.append('jobId', jobId);
+            if (applicationId && applicationId !== 'null') params.append('applicationId', applicationId);
+            if (status && status !== 'null') params.append('status', status);
 
-            $('#platformFilter, #applicantFilter, #jobFilter').on('change keyup', function () {
-                const platform = $('#platformFilter').val();
-                const applicant = $('#applicantFilter').val();
-                const job = $('#jobFilter').val();
-                initCalendar(platform, applicant, job);
+            const url = '/provider/interviews/calendar-data?' + params.toString();
+            console.log('Loading calendar data from:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Response status:', response.status, response.statusText);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Error response:', text);
+                            let errorData;
+                            try {
+                                errorData = JSON.parse(text);
+                            } catch (e) {
+                                errorData = { error: 'Failed to load calendar data', message: text };
+                            }
+                            throw new Error(errorData.message || errorData.error || 'Failed to load calendar data');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Calendar data received:', data);
+                    // Check if response contains an error
+                    if (data && data.error) {
+                        throw new Error(data.message || data.error);
+                    }
+                    allEvents = Array.isArray(data) ? data : [];
+                    console.log('Processed events:', allEvents.length);
+                    buildTimeline(allEvents);
+                    refreshCalendar();
+                })
+                .catch(error => {
+                    console.error('Calendar data error:', error);
+                    console.error('Error stack:', error.stack);
+                    if (typeof showErrorAlert === 'function') {
+                        showErrorAlert('Calendar Error', error.message || 'Unable to load interview data. Please try again.');
+                    } else {
+                        alert('Calendar Error: ' + (error.message || 'Unable to load interview data. Please try again.'));
+                    }
+                });
+        }
+
+        function refreshCalendar() {
+            if (!calendar) return;
+            const events = getFilteredEvents();
+            calendar.removeAllEventSources();
+            calendar.addEventSource(events);
+            updateSummaryCard();
+            updateEventFeed(events);
+        }
+
+        function getFilteredEvents() {
+            return allEvents.filter(event => {
+                if (currentEventFilter === 'timeline') return event.type === 'timeline';
+                if (currentEventFilter === 'interview') return event.type === 'interview';
+                return true;
             });
-        });
+        }
+
+        function setupFilterButtons() {
+            const buttons = document.querySelectorAll('[data-event-filter]');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentEventFilter = btn.dataset.eventFilter || 'all';
+                    refreshCalendar();
+                });
+            });
+        }
+
+        function buildTimeline(events) {
+            const container = document.getElementById('timeline-stages');
+            if (!container) return;
+            const stages = [
+                { key: 'applied', label: 'Applied' },
+                { key: 'interview', label: 'Interview' },
+                { key: 'negotiating', label: 'Negotiating' },
+                { key: 'joining', label: 'Accepted' },
+                { key: 'completed', label: 'Completed' }
+            ];
+
+            let timelineEvents = events.filter(e => e.type === 'timeline');
+            if (jobId && jobId !== 'null') {
+                const selected = timelineEvents.filter(e => e.jobId === jobId || e.isSelectedJob);
+                if (selected.length) {
+                    timelineEvents = selected;
+                }
+            }
+
+            let highestStageIndex = -1;
+            timelineEvents.forEach(event => {
+                const idx = stages.findIndex(s => s.key === event.timelineStage);
+                if (idx > highestStageIndex) highestStageIndex = idx;
+            });
+
+            container.innerHTML = '';
+            stages.forEach((stage, index) => {
+                const stageEvent = timelineEvents.find(e => e.timelineStage === stage.key);
+                const el = document.createElement('div');
+                el.className = 'timeline-stage';
+                if (index <= highestStageIndex) {
+                    el.classList.add('completed');
+                }
+                if (index === highestStageIndex && stageEvent) {
+                    el.classList.add('active');
+                }
+                const dateLabel = stageEvent && stageEvent.start ? `<span style="font-size:11px;color:#64748b;">${formatDate(stageEvent.start)}</span>` : '';
+                el.innerHTML = `<span>${stage.label}</span>${dateLabel}`;
+                container.appendChild(el);
+            });
+        }
+
+        function updateSummaryCard() {
+            const jobTitleEl = document.getElementById('summaryJobTitle');
+            const employerEl = document.getElementById('summaryEmployer');
+            const dateAppliedEl = document.getElementById('summaryDateApplied');
+            const statusBadge = document.getElementById('summaryStatusBadge');
+            const nextInterviewEl = document.getElementById('summaryNextInterview');
+            const nextStepEl = document.getElementById('summaryNextStep');
+
+            if (!jobTitleEl) return;
+
+            const targetEvents = getEventsForSummary();
+            console.log('Target events for summary:', targetEvents);
+            
+            const appliedEvent = targetEvents.find(e => e.timelineStage === 'applied');
+            console.log('Applied event found:', appliedEvent);
+            
+            const stageOrder = ['applied', 'interview', 'negotiating', 'joining', 'completed'];
+            let highestStage = 'applied';
+
+            targetEvents.forEach(event => {
+                if (event.timelineStage) {
+                    const idx = stageOrder.indexOf(event.timelineStage);
+                    if (idx > stageOrder.indexOf(highestStage)) {
+                        highestStage = event.timelineStage;
+                    }
+                }
+            });
+
+            const nextInterview = allEvents
+                .filter(e => e.type === 'interview')
+                .map(e => ({ ...e, dateObj: new Date(e.start) }))
+                .filter(e => !isNaN(e.dateObj.getTime()) && e.dateObj >= new Date())
+                .sort((a, b) => a.dateObj - b.dateObj)[0];
+
+            const jobLabel = appliedEvent?.job || targetEvents[0]?.job || 'No data yet';
+            const employerLabel = appliedEvent?.employer || targetEvents[0]?.employer || 'Not specified';
+            jobTitleEl.textContent = jobLabel;
+            employerEl.textContent = employerLabel;
+            
+            // Always show applied date if available
+            if (appliedEvent && appliedEvent.start) {
+                dateAppliedEl.textContent = formatDate(appliedEvent.start);
+            } else if (targetEvents.length > 0 && targetEvents[0].start) {
+                // Fallback to first event date if no applied event
+                dateAppliedEl.textContent = formatDate(targetEvents[0].start);
+            } else {
+                dateAppliedEl.textContent = '—';
+            }
+            
+            statusBadge.textContent = formatStageLabel(highestStage);
+            nextInterviewEl.textContent = nextInterview ? `${formatDate(nextInterview.start)} · ${nextInterview.platform || 'Interview'}` : 'No interviews scheduled';
+            nextStepEl.textContent = nextInterview ? 'Prepare for interview' : formatStageLabel(highestStage);
+        }
+
+        function getEventsForSummary() {
+            if (jobId && jobId !== 'null') {
+                const jobEvents = allEvents.filter(e => e.jobId === jobId || e.isSelectedJob);
+                if (jobEvents.length) {
+                    return jobEvents;
+                }
+            }
+            const firstTimeline = allEvents.find(e => e.type === 'timeline');
+            if (firstTimeline?.jobId) {
+                return allEvents.filter(e => e.jobId === firstTimeline.jobId);
+            }
+            return allEvents;
+        }
+
+        function updateEventFeed(events) {
+            const list = document.getElementById('eventFeedList');
+            const count = document.getElementById('eventFeedCount');
+            if (!list) return;
+
+            const sorted = [...events]
+                .map(event => ({ ...event, dateObj: new Date(event.start) }))
+                .filter(e => !isNaN(e.dateObj.getTime()))
+                .sort((a, b) => a.dateObj - b.dateObj)
+                .slice(0, 6);
+
+            count && (count.textContent = `${sorted.length} event${sorted.length === 1 ? '' : 's'}`);
+
+            if (!sorted.length) {
+                list.innerHTML = '<div class="text-muted small">No events match this view.</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            sorted.forEach(event => {
+                const item = document.createElement('div');
+                item.className = 'event-feed-item';
+                const markerIcon = event.type === 'interview' ? '🗓' : '🧷';
+                const label = event.type === 'interview' ? 'Interview' : formatStageLabel(event.timelineStage || 'applied');
+                const job = event.job || 'Job update';
+                item.innerHTML = `
+                    <div class="event-feed-marker" style="background:${event.type === 'interview' ? '#e0ebff' : '#f4f9f1'}">${markerIcon}</div>
+                    <div class="event-feed-content">
+                        <div class="event-feed-title">${label}</div>
+                        <div class="event-feed-meta">${job}</div>
+                        <div class="event-feed-date">${formatDateTime(event.start)}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function formatStageLabel(stage) {
+            switch (stage) {
+                case 'interview': return 'Interview';
+                case 'negotiating': return 'Negotiating';
+                case 'joining': return 'Accepted';
+                case 'completed': return 'Completed';
+                default: return 'Applied';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '—';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '—';
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '—';
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '—';
+            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' +
+                date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+        }
     </script>
 {% endblock %}

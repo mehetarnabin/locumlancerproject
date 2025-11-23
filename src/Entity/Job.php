@@ -113,10 +113,10 @@ class Job
 
     use TimestampableEntity;
 
-    public function __toString()
-    {
-        return $this->title;
-    }
+    // public function __toString()
+    // {
+    //     return $this->title;
+    // }
 
     public function getId(): ?Uuid
     {

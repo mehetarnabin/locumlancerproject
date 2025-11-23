@@ -361,7 +361,7 @@ div.container-xl,
   .col-lg-2  { flex: 0 0 100%; max-width: 100%; margin-top: 18px; }
 }
 .profile-card, .section-card, .profile-right-card {
-  padding: 24px; /* increased for better spacing */
+  padding: 16px; /* reduced for compact layout */
 }
 .profile-right-card {
   height: 100%;
@@ -713,6 +713,10 @@ input[type="checkbox"]:checked::after,
 #infoEdit .form-control {
     font-size: 14px !important;
     padding: 6px 12px;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
 }
 #infoEdit .info-item svg {
     width: 20px;
@@ -729,6 +733,24 @@ input[type="checkbox"]:checked::after,
 }
 #infoEdit .info-item {
     padding: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#infoEdit .info-item .d-flex,
+#infoView .info-item .d-flex {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#infoEdit .info-item .d-flex .form-control,
+#infoView .info-item .d-flex .text-muted {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 #infoEdit .info-item svg {
     width: 24px;
@@ -827,9 +849,9 @@ input[type="checkbox"]:checked::after,
       <div class="row g-4">
         {# Left: profile card #}
           <div class="col-12 col-lg-6 d-flex flex-column">
-              <div id="personalSection" class="profile-card" style="position: relative;">
-                <div id="infoView" style="position: relative;">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+              <div id="personalSection" class="profile-card" style="position: relative; min-height: 380px; padding: 20px; overflow: hidden; box-sizing: border-box;">
+                <div id="infoView" style="position: absolute; top: 0; left: 0; right: 0; width: 100%; padding: 20px; box-sizing: border-box; overflow: hidden;">
+                  <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 0;">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons">
                         <a href="javascript:void(0);" id="editToggle" class="link-plain" title="Edit">
@@ -843,7 +865,7 @@ input[type="checkbox"]:checked::after,
                       </div>
                   </div>
 
-                  <div class="d-flex gap-4 align-items-center" style="margin-bottom: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="margin-bottom: 6px; margin-top: 12px;">
                     <div class="profile-avatar-box">
                         <div class="profile-icon-box">
                             {% if app.user.profilePictureFilename %}
@@ -864,10 +886,10 @@ input[type="checkbox"]:checked::after,
 
                   <!-- Removed duplicate name section -->
 
-                  <div style="margin-top:14px; padding: 0 8px;">
+                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box;">
 
-                    <div class="info-item">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box;">
+                      <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -876,8 +898,8 @@ input[type="checkbox"]:checked::after,
                       </div>
                     </div>
 
-                    <div class="info-item">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="style=stroke">
                         <g id="email">
@@ -890,8 +912,8 @@ input[type="checkbox"]:checked::after,
                       </div>
                     </div>
 
-                    <div class="info-item">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                         <!-- Address Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
@@ -903,8 +925,8 @@ input[type="checkbox"]:checked::after,
                       </div>
                     </div>
 
-                    <div class="info-item">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                         <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
@@ -937,8 +959,8 @@ input[type="checkbox"]:checked::after,
                     </div>#}
                   </div>
                 </div>
-                <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%;">
-                  <div class="d-flex justify-content-between align-items-center mb-3" style="padding: 0 8px;">
+                <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%; padding: 20px; box-sizing: border-box; overflow: hidden;">
+                  <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 0;">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons" class="d-flex gap-2">
                         <!-- Save Button -->
@@ -952,18 +974,18 @@ input[type="checkbox"]:checked::after,
                           </g>
                           </g>
                           <use xlink:href="#icon-apply"></use>
-                          </svg> Save
+                          </svg>
                         </button>
 
                         <!-- Cancel Button -->
                         <button type="button" id="cancelBtn" class="action-btn-edit" title="Cancel">
-                          <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="cancelIconTitle" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" color="currentcolor"> <title id="cancelIconTitle">Cancel</title> <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"/> <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"/> </svg> Cancel
+                          <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" aria-labelledby="cancelIconTitle" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" color="currentcolor"> <title id="cancelIconTitle">Cancel</title> <path d="M15.5355339 15.5355339L8.46446609 8.46446609M15.5355339 8.46446609L8.46446609 15.5355339"/> <path d="M4.92893219,19.0710678 C1.02368927,15.1658249 1.02368927,8.83417511 4.92893219,4.92893219 C8.83417511,1.02368927 15.1658249,1.02368927 19.0710678,4.92893219 C22.9763107,8.83417511 22.9763107,15.1658249 19.0710678,19.0710678 C15.1658249,22.9763107 8.83417511,22.9763107 4.92893219,19.0710678 Z"/> </svg>
                         </button>
                       </div>
                   </div>
             {{ form_start(profileForm, {'attr': {'id': 'profileForm', 'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
                   {{ form_errors(profileForm) }}
-                  <div class="d-flex gap-3 align-items-center mb-3" style="padding: 0 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="margin-bottom: 6px;">
                     <div class="position-relative profile-avatar-box">
                       <div class="profile-icon-box">
                           {% if app.user.profilePicture %}
@@ -985,15 +1007,15 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <div style="flex:1;">
-                      {{ form_widget(profileForm.name, {'attr': {'class': 'form-control fw-semibold'}}) }}
+                      {{ form_widget(profileForm.name, {'attr': {'class': 'form-control fw-semibold', 'placeholder': 'Name'}}) }}
                       {{ form_errors(profileForm.name) }}
                     </div>
                   </div>
 
-                  <div style="margin-top:14px; padding: 0 8px;">
+                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden;">
                     <!-- Nickname -->
-                    <div class="info-item">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box;">
+                      <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1008,8 +1030,8 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <!-- Email -->
-                    <div class="info-item mt-2">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <g id="style=stroke">
                             <g id="email">
@@ -1018,31 +1040,34 @@ input[type="checkbox"]:checked::after,
                             </g>
                           </g>
                         </svg>
-                          {{ form_row(profileForm.email, {'attr': {'class': 'form-control'}}) }}
+                          {{ form_widget(profileForm.email, {'attr': {'class': 'form-control', 'placeholder': 'Email address'}}) }}
+                          {{ form_errors(profileForm.email) }}
                       </div>
                     </div>
 
                     <!-- Address -->
-                    <div class="info-item mt-2">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
                           <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
                         </svg>
-                          {{ form_row(profileForm.address, {'attr': {'class': 'form-control'}}) }}
+                          {{ form_widget(profileForm.address, {'attr': {'class': 'form-control', 'placeholder': 'Address'}}) }}
+                          {{ form_errors(profileForm.address) }}
                       </div>
                     </div>
 
                     <!-- Phone -->
-                    <div class="info-item mt-2">
-                      <div class="d-flex gap-3 align-items-center">
+                    <div class="info-item" style="margin-bottom: 6px;">
+                      <div class="d-flex gap-2 align-items-center">
                       <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
                         <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
                         <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
                         </svg>
-                          {{ form_row(profileForm.phone1, {'attr': {'class': 'form-control'}}) }}
+                          {{ form_widget(profileForm.phone1, {'attr': {'class': 'form-control', 'placeholder': 'Phone number'}}) }}
+                          {{ form_errors(profileForm.phone1) }}
                         </div>
                     </div>
                   </div>
@@ -1065,47 +1090,18 @@ input[type="checkbox"]:checked::after,
               <div class="card-body" style="padding: 12px 16px;">
                 <div class="mb-2" style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Your Average Rating</h6>
-                  <div class="d-flex align-items-center" style="margin-top: 2px;">
-                    <div class="d-flex align-items-center" style="gap: 2px;">
+                  <div style="margin-top: 2px;">
                       {% set rating = 3.72 %}
-                      {% set fullStars = (rating // 1)|number_format(0, '.', '') %}
-                      {% set partialStar = rating - fullStars %}
-                      {% for i in 1..5 %}
-                        {% if i <= fullStars %}
-                          {# Filled star (golden yellow) #}
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFD700" stroke="#FFD700" stroke-width="1" style="display: block; flex-shrink: 0;">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                          </svg>
-                        {% elseif i == fullStars + 1 and partialStar > 0 %}
-                          {# Half-filled star #}
-                          <svg width="14" height="14" viewBox="0 0 24 24" style="display: block; flex-shrink: 0; position: relative;">
-                            <defs>
-                              <clipPath id="half-star-clip-{{ i }}">
-                                <rect x="0" y="0" width="12" height="24"/>
-                              </clipPath>
-                            </defs>
-                            {# Empty star outline (full) #}
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="none" stroke="#D1D5DB" stroke-width="1"/>
-                            {# Filled portion (clipped to left half) #}
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#FFD700" stroke="#FFD700" stroke-width="1" clip-path="url(#half-star-clip-{{ i }})"/>
-                          </svg>
-                        {% else %}
-                          {# Empty star (grey outline) #}
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1" style="display: block; flex-shrink: 0;">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                          </svg>
-                        {% endif %}
-                      {% endfor %}
-              </div>
+                    <div style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">{{ rating|number_format(1) }}</div>
                   </div>
                 </div>
                 <div class="mb-2" style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Locum Assignments : </h6>
-                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 500; color: #252930; line-height: 1.2;">10</h4>
+                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">10</div>
                 </div>
                 <div style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Years Active : </h6>
-                  <h4 class="fw-normal mb-0" style="font-size: 1.125rem; font-weight: 500; color: #252930; line-height: 1.2;">15 years</h4>
+                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">15 years</div>
                 </div>
                 </div>
             </div>
@@ -1113,75 +1109,147 @@ input[type="checkbox"]:checked::after,
 
           <div class="col-12 mt-5">
             <div class="row g-4" style="display: flex; flex-wrap: wrap; margin-left: 0; margin-right: 0;">
-              <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
-                <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
-                  <div class="card-body d-flex flex-column" style="flex: 1;">
-                    <h5 class="card-title mb-3">{{ editMode is defined ? 'Edit Document' : 'CV Upload' }}</h5>
-
-                    {{ form_start(documentForm, {
-                'attr': {
-                    'class': 'needs-validation',
-                    'novalidate': 'novalidate',
-                    'enctype': 'multipart/form-data'
-                }
-            }) }}
-            <div class="upload-dropzone position-relative mb-3 flex-grow-1"
-                style="display:flex; align-items:center; justify-content:center; min-height:180px; border:1px dashed #D1D5DB; border-radius:8px; background:#F9FAFB; cursor:pointer;">
-              {{ form_widget(documentForm.fileName, {
-                'attr': {
-                  'class': 'dropzone-input position-absolute top-0 start-0 w-100 h-100',
-                  'id': 'dropzoneInput',
-                  'accept': '.pdf,.csv,.xls,.xlsx',
-                  'style': 'opacity:0; cursor:pointer;',
-                  'onchange': 'handleFileChange(this)'
-                }
-              }) }}
-
-              <!-- Filename badge -->
-              <div id="fileBadge" class="file-badge position-absolute top-2 end-2 bg-white px-2 py-1 rounded shadow-sm" style="display:none;">
-                <span id="fileNameText" class="small text-muted"></span>
-                <button type="button" class="file-remove-btn btn btn-sm btn-light ms-1" onclick="clearFile()">×</button>
-              </div>
-
-              <div class="dropzone-content text-center pointer-events-none">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="16" y1="13" x2="8" y2="13"/>
-                  <line x1="16" y1="17" x2="8" y2="17"/>
-                  <line x1="10" y1="9" x2="8" y2="9"/>
-                </svg>
-
-                <p class="mb-1" style="font-size: 0.95rem; color: #252930; font-weight: 500;">Drag and drop or click to upload</p>
-                <p class="mb-0 text-muted" style="font-size: 0.85rem;">Supported formats: PDF, CSV, XLS (Max 25MB)</p>
+      <!-- CV Upload Column -->
+      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
+        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
+          <div class="card-body d-flex flex-column" style="flex: 1;">
+            <h5 class="card-title mb-3">CV Upload</h5>
+            
+            <!-- Uploaded CV Display -->
+            <div id="cvDisplayArea" class="mb-3" style="display: none;">
+              <div class="d-flex align-items-center justify-content-between p-3" style="background: #F4F9F1; border: 1px solid #85BB65; border-radius: 8px;">
+                <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                  <span id="cvFileNameDisplay" class="text-dark fw-medium" style="font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;"></span>
+                </div>
               </div>
             </div>
-            <div class="d-flex justify-content-end gap-2 mt-3">
-              <a href="javascript:void(0);" class="upload-btn-custom" onclick="clearFile()" style="padding: 8px 16px; font-size: 0.9rem;">Cancel</a>
-              <button type="submit" class="upload-btn-custom upload-cv" style="padding: 8px 16px; font-size: 0.9rem;">
-                {{ editMode is defined ? 'Update' : 'Upload CV' }}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="ms-1">
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            
+            <!-- Upload/Update Button - Centered in flexbox -->
+            <div class="d-flex justify-content-center align-items-center flex-grow-1 mb-3" style="min-height: 200px;">
+              <button type="button" id="cvUploadBtn" class="btn btn-primary" style="padding: 10px 20px;">
+                <span id="cvButtonText">Upload your CV</span>
+                <span id="cvUploadSpinner" style="display: none;">
+                  <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                </span>
               </button>
+              <!-- Hidden file input -->
+              <input type="file" id="cvFileInputDirect" accept=".pdf,.doc,.docx" style="display: none;">
             </div>
-            {{ form_end(documentForm, {'render_rest': false}) }}
+            
+            <!-- Uploaded CVs List -->
+            <div id="cvDocumentsList" class="mt-3">
+              {% if cvDocuments is not empty %}
+                <div>
+                  <h6 class="fw-semibold mb-2">Uploaded CVs</h6>
+                  <ul class="list-group list-group-flush">
+                    {% for cv in cvDocuments %}
+                      <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                        <div>
+                          <div class="fw-semibold text-dark">{{ cv.name }}</div>
+                          <small class="text-muted">Uploaded {{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                          <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" target="_blank" class="btn btn-link btn-sm text-decoration-none">Download</a>
+                          <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Remove this CV?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                          </form>
+                        </div>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
+      {% set hasWorkPreferences = providerEntity.desiredPayRate or providerEntity.desiredHour or (providerEntity.desiredStates is not empty) or providerEntity.availabilityToStart or providerEntity.profession or (providerEntity.specialities is defined and providerEntity.specialities|length > 0) %}
       <!-- Work Preferences column -->
       <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
         <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
           <div class="card-body d-flex flex-column" style="flex: 1;">
             <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
               <h5 class="card-title mb-0">Work Preferences</h5>
+              <button type="button"
+                      class="btn btn-outline-primary btn-sm"
+                      id="workPreferencesBtn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#workPreferencesModal">
+                {{ hasWorkPreferences ? 'Update Work Preferences' : 'Add Work Preferences' }}
+              </button>
             </div>
-            <div class="work-preferences flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 200px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB;">
-              <p class="text-muted mb-0" style="font-size: 0.9rem;">Work preferences content will appear here</p>
+            <div class="work-preferences flex-grow-1" style="min-height: 220px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB; padding: 16px; overflow-y: auto;">
+              <div id="work-preferences-summary">
+                {% include 'provider/profile/_work_preferences_summary.html.twig' with { provider: providerEntity } %}
+              </div>
             </div>
           </div>
         </div>
       </div>
+    <!-- Work Preferences Modal -->
+    <div class="modal fade" id="workPreferencesModal" tabindex="-1" aria-labelledby="workPreferencesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="workPreferencesModalLabel">Work Preferences</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="work-preferences-error" class="alert alert-danger d-none mb-3"></div>
+            {% if workPreferenceForm is defined %}
+              {{ form_start(workPreferenceForm, {'attr': {'id': 'work-preferences-form'}}) }}
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.profession) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.specialities) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.desiredPayRate) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.desiredHour) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.payRateHourly) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.payRateDaily) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.availabilityToStart) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.preferredPatientVolume) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.desiredStates) }}
+                  </div>
+                  <div class="col-md-6">
+                    {{ form_row(workPreferenceForm.willingToTravel) }}
+                  </div>
+                </div>
+                {{ form_rest(workPreferenceForm) }}
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                  <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="work-preferences-submit">Save Preferences</button>
+                </div>
+              {{ form_end(workPreferenceForm, {'render_rest': false}) }}
+            {% else %}
+              <p class="text-muted mb-0">Form unavailable.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
       <!-- Documents column -->
       <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
         <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
@@ -1293,6 +1361,18 @@ input[type="checkbox"]:checked::after,
           </span>
           </a>
           </div>
+          <div class="upload-btn-custom"><span class="cstm-btn-text">Application Certification</span>
+          <span class="cstm-btn-checkmark">
+          <input type="checkbox" class="upload-check d-none ms-2">
+          </span>
+          <a href="#" class="open-popup" data-popup="application-certification" role="button">
+          <span class="cstm-btn-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          </a>
+          </div>
           <div class="upload-btn-custom"><span class="cstm-btn-text">References</span>
           <span class="cstm-btn-checkmark">
           <input type="checkbox" class="upload-check d-none ms-2">
@@ -1348,7 +1428,7 @@ input[type="checkbox"]:checked::after,
                     </div>
 
             <div class="d-flex justify-content-end mt-4">
-              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-education').classList.add('d-none'); return false;">
+              <a href="#" class="cstm-btn-style continue-popup-btn" data-current-popup="education" data-next-popup="license">
               Continue
             </a>
             </div>
@@ -1442,7 +1522,7 @@ input[type="checkbox"]:checked::after,
             </div>
 
             <div class="d-flex justify-content-end mt-4">
-              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-license').classList.add('d-none'); return false;">
+              <a href="#" class="cstm-btn-style continue-popup-btn" data-current-popup="license" data-next-popup="insurance">
               Continue
             </a>
             </div>
@@ -1536,7 +1616,7 @@ input[type="checkbox"]:checked::after,
             </div>
 
             <div class="d-flex justify-content-end mt-4">
-              <a href="#" class="cstm-btn-style" onclick="document.getElementById('popup-insurance').classList.add('d-none'); return false;">
+              <a href="#" class="cstm-btn-style continue-popup-btn" data-current-popup="insurance" data-next-popup="health">
               Continue
             </a>
             </div>
@@ -1602,8 +1682,11 @@ input[type="checkbox"]:checked::after,
 
               </div>
 
-              <button type="submit" class="cstm-btn-style mr-2">Save</button>
-              <button type="submit" name="save_continue" value="1" class="cstm-btn-style">Save and Continue</button>
+              <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="cstm-btn-style">Save</button>
+                <button type="submit" name="save_continue" value="1" class="cstm-btn-style save-continue-btn" data-current-popup="health" data-next-popup="risk">Save and Continue</button>
+                <a href="#" class="cstm-btn-style continue-popup-btn" data-current-popup="health" data-next-popup="risk">Continue</a>
+              </div>
             </form>
           </div>
         </div>
@@ -1762,7 +1845,7 @@ input[type="checkbox"]:checked::after,
               </div>
 
               <button type="submit" class="cstm-btn-style mr-2">Save</button>
-              <button type="submit" name="save_continue" value="1" class="cstm-btn-style">Save and Continue</button>
+              <button type="submit" name="save_continue" value="1" class="cstm-btn-style save-continue-btn" data-current-popup="risk" data-next-popup="">Save and Continue</button>
             </form>
           </div>
         </div>
@@ -1771,6 +1854,53 @@ input[type="checkbox"]:checked::after,
   </div>
 </div>
 
+<div id="popup-application-certification" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5>Application Certification</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <div id="applicationCertificationFormContainer">
+              <!-- Form will be loaded here via AJAX -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="popup-release-authorization" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5>Release & Authorization</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <div id="releaseAuthorizationFormContainer">
+              <!-- Form will be loaded here via AJAX -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
 
 <!-- Add Experience Modal -->
     <div class="modal fade" id="experienceModal" tabindex="-1" aria-labelledby="experienceModalLabel" aria-hidden="true">
@@ -1816,37 +1946,113 @@ input[type="checkbox"]:checked::after,
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <label>Category</label>
-            <select class="form-select" name="category" id="documentCategory" required>
-            <option value="CV">CV</option>
-            <option value="Work Preference">Work Preference</option>
-            <option value="Insurance">Insurance</option>
-            <option value="Health Assessment">Health Assessment</option>
-            <option value="Risk Assessment">Risk Assessment</option>
-            <option value="References">References</option>
-            <option value="Documents">Documents</option>
-            </select>
+            <div class="mb-3" id="categoryField" style="display: none;">
+                <label>Category</label>
+                <select class="form-select" name="category" id="documentCategory" required>
+                <option value="CV">CV</option>
+                <option value="Work Preference">Work Preference</option>
+                <option value="Insurance">Insurance</option>
+                <option value="Health Assessment">Health Assessment</option>
+                <option value="Risk Assessment">Risk Assessment</option>
+                <option value="References">References</option>
+                <option value="Documents">Documents</option>
+                </select>
+            </div>
+            <input type="hidden" name="category" id="documentCategoryHidden" value="CV">
+            <div class="mb-3">
+                <label for="documentTypeSelect" class="form-label">Document Type</label>
+                <select class="form-select" id="documentTypeSelect" name="documentType">
+                    <option value="">Select document type</option>
+                    <option value="CV">CV</option>
+                    <option value="Driver's License">Driver's license</option>
+                    <option value="Copy of Passport">Copy of passport</option>
+                    <option value="Passport Photo 2x2">Passport photo 2&quot; x 2&quot;</option>
+                    <option value="USMLE / COMLEX Scores">USMLE Step 1-3 / COMLEX</option>
+                    <option value="Specialty & Subspecialty Certification">Specialty & Subspecialty Exam Certification</option>
+                    <option value="Medical School Diploma">Medical school diploma</option>
+                    <option value="Postgraduate Certificates">Postgraduate certificates</option>
+                    <option value="Life Support Certifications">Life support certifications</option>
+                    <option value="Medical Licenses">Active & Inactive medical licenses</option>
+                    <option value="DEA Certificates">All DEAs</option>
+                    <option value="CSR">CSR (Controlled Substance Registration)</option>
+                    <option value="Undergraduate Transcript">Copy of undergraduate transcript</option>
+                    <option value="Vaccine Titers">Vaccine titers (Hep B, Varicella, MMR)</option>
+                    <option value="Negative TB Test">Negative TB test (last 12 months)</option>
+                    <option value="Influenza Vaccine Proof">Influenza vaccine proof</option>
+                    <option value="COVID-19 Vaccine Proof">COVID-19 vaccine proof</option>
+                    <option value="Mask Fit Testing">Mask fit testing</option>
+                    <option value="Malpractice COI">Malpractice COI (last 10 years)</option>
+                    <option value="Procedure Logs">Procedure logs (last 2 years)</option>
+                    <option value="Case Logs">Case logs (last 2 years)</option>
+                    <option value="Residency History">Residency history (addresses last 10 years)</option>
+                    <option value="Hospital Affiliations & Training">Hospital affiliations & training programs</option>
+                    <option value="Custom">Other / Custom</option>
+                </select>
+                <small class="text-muted">Selecting a document type will pre-fill the name and required fields.</small>
+            </div>
             <div class="mb-3">
                 <label for="name" class="form-label">Document Name</label>
-                <input type="text" class="form-control" name="name" id="name" required>
+                <input type="text" class="form-control" name="name" id="name">
             </div>
+            <div class="mb-3 d-none" id="documentNote"></div>
             <div class="mb-3">
                 <label for="fileName" class="form-label">Choose File</label>
                 <input type="file" class="form-control" name="fileName" id="fileName" accept=".pdf,.docx" required>
                 <small class="text-muted">Max upload size 8MB. Only PDF and DOCX allowed.</small>
             </div>
-            <div class="mb-3">
+            <div class="mb-3" id="issueDateField">
                 <label for="issueDate" class="form-label">Issue Date</label>
                 <input type="date" class="form-control" name="issueDate" id="issueDate">
             </div>
-            <div class="mb-3">
+            <div class="mb-3" id="expirationDateField">
                 <label for="expirationDate" class="form-label">Expiration Date</label>
                 <input type="date" class="form-control" name="expirationDate" id="expirationDate">
             </div>
         </div>
         <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="submit" class="btn btn-primary" id="uploadDocumentBtn">
+                <span class="upload-btn-text">Upload</span>
+                <span class="upload-btn-spinner" style="display: none;">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Uploading...
+                </span>
+            </button>
         </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- CV Upload Modal -->
+<div class="modal fade" id="cvUploadModal" tabindex="-1" aria-labelledby="cvUploadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cvUploadModalLabel">Upload CV</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="cvUploadForm" method="POST" enctype="multipart/form-data" action="{{ path('app_provider_profile') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="cvFileInput" class="form-label">Choose CV File</label>
+            {{ form_widget(cvForm.cv, {
+              'attr': {
+                'class': 'form-control',
+                'id': 'cvFileInput',
+                'accept': '.pdf,.doc,.docx',
+                'required': true
+              }
+            }) }}
+            <small class="text-muted">Supported formats: PDF, DOC, DOCX (Max 25MB)</small>
+            {{ form_errors(cvForm.cv) }}
+          </div>
+          <div id="cvUploadError" class="alert alert-danger d-none" role="alert"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" id="cvUploadSubmitBtn" class="btn btn-primary">Upload</button>
+        </div>
+        {{ form_rest(cvForm) }}
       </form>
     </div>
   </div>
@@ -2050,8 +2256,14 @@ input[type="checkbox"]:checked::after,
             clickedButton = $(this);
         });
 
-        // Load education form when modal opens
+        // Load education form when modal opens (jQuery event handler)
             educationModal.on('show.bs.modal', function () {
+            // Check if form is already loaded
+            const formContainer = document.getElementById('addEducationFormContainer');
+            if (formContainer && formContainer.innerHTML.trim() !== '' && !formContainer.querySelector('.spinner-border')) {
+              // Form already loaded, skip
+              return;
+            }
             // Always reload the form to get fresh CSRF token
             fetch('{{ path('app_provider_education_new') }}', {
                 headers: { 
@@ -2452,15 +2664,446 @@ input[type="checkbox"]:checked::after,
     }
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const openAddEducationModal = document.getElementById('openAddEducationModal');
-  if (openAddEducationModal) {
-    openAddEducationModal.addEventListener('click', function (e) {
-  e.preventDefault();
-  const modal = new bootstrap.Modal(document.getElementById('educationModal'));
-  modal.show();
-});
+// Function to load education form
+function loadEducationForm() {
+  const formContainer = document.getElementById('addEducationFormContainer');
+  if (!formContainer) {
+    console.error('Education form container not found');
+    return;
   }
+  
+  // Show loading state
+  formContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+  
+  // Always reload the form to get fresh CSRF token
+  fetch('{{ path('app_provider_education_new') }}', {
+    headers: { 
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'text/html'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok: ' + response.status);
+    }
+    return response.text();
+  })
+  .then(html => {
+    // Check if response contains a form
+    if (!html || html.trim().length === 0) {
+      throw new Error('Empty response from server');
+    }
+    
+    console.log('Form HTML received:', html.substring(0, 200)); // Debug log
+    
+    // Use jQuery if available, otherwise use vanilla JS
+    if (typeof $ !== 'undefined' && $.fn.html) {
+      // The form template already includes form_start and form_end, so it's a complete form
+      // We just need to extract it and add the modal footer
+      let formHtml = html.trim();
+      
+      // If the response is wrapped in a form tag, extract the inner content
+      if (formHtml.includes('<form')) {
+        // Try to parse and extract form
+        const parser = new DOMParser();
+        // Wrap in a container for parsing
+        const wrappedHtml = '<div>' + formHtml + '</div>';
+        const doc = parser.parseFromString(wrappedHtml, 'text/html');
+        const form = doc.querySelector('form');
+        
+        if (form) {
+          // Get the form's inner HTML (fields) but keep the form tag
+          const formInnerHTML = form.innerHTML;
+          const formAction = form.getAttribute('action') || '{{ path('app_provider_education_new') }}';
+          const formMethod = form.getAttribute('method') || 'POST';
+          const formId = form.getAttribute('id') || 'addEducationForm';
+          const formClass = form.getAttribute('class') || 'needs-validation';
+          
+          // Replace the submit button with modal footer
+          formHtml = formInnerHTML.replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
+          
+          $('#addEducationFormContainer').html(`
+            <form id="${formId}" action="${formAction}" method="${formMethod}" class="${formClass}" novalidate>
+              ${formHtml}
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          `);
+        } else {
+          // If parsing failed, try regex extraction
+          const formMatch = formHtml.match(/<form[^>]*>([\s\S]*?)<\/form>/i);
+          if (formMatch) {
+            const formInnerHTML = formMatch[1].replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
+            const actionMatch = formHtml.match(/action=["']([^"']+)["']/i);
+            const methodMatch = formHtml.match(/method=["']([^"']+)["']/i);
+            const idMatch = formHtml.match(/id=["']([^"']+)["']/i);
+            const classMatch = formHtml.match(/class=["']([^"']+)["']/i);
+            
+            $('#addEducationFormContainer').html(`
+              <form id="${idMatch ? idMatch[1] : 'addEducationForm'}" 
+                    action="${actionMatch ? actionMatch[1] : '{{ path('app_provider_education_new') }}'}" 
+                    method="${methodMatch ? methodMatch[1] : 'POST'}" 
+                    class="${classMatch ? classMatch[1] : 'needs-validation'}" 
+                    novalidate>
+                ${formInnerHTML}
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+              </form>
+            `);
+          } else {
+            // Use HTML as-is and wrap in form
+            $('#addEducationFormContainer').html(`
+              <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
+                ${formHtml}
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+              </form>
+            `);
+          }
+        }
+      } else {
+        // No form tag found, wrap the content in a form
+        $('#addEducationFormContainer').html(`
+          <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
+            ${formHtml}
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </form>
+        `);
+      }
+    } else {
+      // Vanilla JS fallback
+      formContainer.innerHTML = html;
+    }
+    
+    // Re-initialize flatpickr for date fields after a small delay to ensure DOM is ready
+    setTimeout(function() {
+      // Check if flatpickr is available
+      if (typeof flatpickr !== 'undefined') {
+        // Use native flatpickr API
+        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+          if (!input._flatpickr) { // Only initialize if not already initialized
+            flatpickr(input, {
+              dateFormat: "Y-m-d"
+            });
+          }
+        });
+      } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
+        // Fallback to jQuery plugin if available
+        $('#addEducationFormContainer .js-datepicker').flatpickr();
+      }
+    }, 100);
+  })
+  .catch(error => {
+    console.error('Error loading form:', error);
+    const errorMsg = error.message || 'Unknown error';
+    if (typeof $ !== 'undefined' && $.fn.html) {
+      $('#addEducationFormContainer').html(`<div class="alert alert-danger">Error loading form: ${errorMsg}. Please refresh the page and try again.</div>`);
+    } else {
+      formContainer.innerHTML = `<div class="alert alert-danger">Error loading form: ${errorMsg}. Please refresh the page and try again.</div>`;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Use event delegation for dynamically loaded content - "Add New" button
+  document.addEventListener('click', function(e) {
+    const openAddEducationModal = e.target.closest('#openAddEducationModal');
+  if (openAddEducationModal) {
+  e.preventDefault();
+      e.stopPropagation();
+      const modalElement = document.getElementById('educationModal');
+      if (modalElement) {
+        // Load the form first
+        loadEducationForm();
+        
+        // Check if Bootstrap is available
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+          // Listen for when modal is shown
+          modalElement.addEventListener('shown.bs.modal', function() {
+            // Form should already be loaded, but ensure it's visible
+            const formContainer = document.getElementById('addEducationFormContainer');
+            if (formContainer && formContainer.innerHTML.trim() === '') {
+              loadEducationForm();
+            }
+          }, { once: true });
+  modal.show();
+        } else if (typeof $ !== 'undefined' && $.fn.modal) {
+          // Fallback to jQuery if Bootstrap JS not available
+          $(modalElement).on('shown.bs.modal', function() {
+            const formContainer = document.getElementById('addEducationFormContainer');
+            if (formContainer && formContainer.innerHTML.trim() === '') {
+              loadEducationForm();
+            }
+          });
+          $(modalElement).modal('show');
+        } else {
+          // Fallback: manually show modal
+          modalElement.classList.remove('d-none');
+          modalElement.style.display = 'block';
+          document.body.classList.add('modal-open');
+          const backdrop = document.createElement('div');
+          backdrop.className = 'modal-backdrop fade show';
+          backdrop.id = 'educationModalBackdrop';
+          document.body.appendChild(backdrop);
+          // Load form after showing modal
+          setTimeout(loadEducationForm, 100);
+        }
+      } else {
+        console.error('Education modal element not found');
+      }
+    }
+  });
+  
+  // Sequential popup opening on Continue button
+  document.addEventListener('click', function(e) {
+    const continueBtn = e.target.closest('.continue-popup-btn');
+    if (continueBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const currentPopupId = continueBtn.dataset.currentPopup;
+      const nextPopupId = continueBtn.dataset.nextPopup;
+      
+      // Close current popup
+      if (currentPopupId) {
+        const currentPopup = document.getElementById(`popup-${currentPopupId}`);
+        if (currentPopup) {
+          currentPopup.classList.add('d-none');
+        }
+      }
+      
+      // Open next popup
+      if (nextPopupId && nextPopupId.trim() !== '') {
+        const nextPopup = document.getElementById(`popup-${nextPopupId}`);
+        if (nextPopup) {
+          nextPopup.classList.remove('d-none');
+          // Load content if needed
+          if (nextPopupId === 'education') {
+            if (typeof loadEducationList === 'function') {
+              loadEducationList();
+            }
+          }
+        }
+      }
+    }
+  });
+  
+  // Handle "Save and Continue" button clicks in forms
+  document.addEventListener('click', function(e) {
+    const saveContinueBtn = e.target.closest('.save-continue-btn');
+    if (saveContinueBtn && saveContinueBtn.type === 'submit') {
+      const currentPopupId = saveContinueBtn.dataset.currentPopup;
+      const nextPopupId = saveContinueBtn.dataset.nextPopup;
+      
+      // Store transition info on the button for after form submission
+      if (currentPopupId) {
+        saveContinueBtn.dataset.pendingCurrentPopup = currentPopupId;
+        saveContinueBtn.dataset.pendingNextPopup = nextPopupId || '';
+      }
+    }
+  });
+  
+  // Handle form submission for "Save and Continue"
+  document.addEventListener('submit', function(e) {
+    const form = e.target;
+    const saveContinueBtn = form.querySelector('.save-continue-btn[name="save_continue"]');
+    if (saveContinueBtn && saveContinueBtn.dataset.pendingCurrentPopup) {
+      const currentPopupId = saveContinueBtn.dataset.pendingCurrentPopup;
+      const nextPopupId = saveContinueBtn.dataset.pendingNextPopup;
+      
+      // Store the transition info for after form submission
+      form.dataset.pendingCurrentPopup = currentPopupId;
+      form.dataset.pendingNextPopup = nextPopupId || '';
+      
+      // If form submission is successful (handled by server), transition will happen
+      // Otherwise, we can add AJAX handling here
+    }
+  });
+  
+  // Handle Application Certification form submission to redirect to Release & Authorization
+  document.addEventListener('submit', function(e) {
+    const form = e.target;
+    // Check if this is the application certification form
+    if (form.closest('#popup-application-certification')) {
+      const clickedButton = e.submitter || document.activeElement;
+      const saveContinueBtn = form.querySelector('.save-continue-btn[name="save_continue"]');
+      
+      // Only handle if "I Agree and Continue" was clicked
+      if (clickedButton && clickedButton.name === 'save_continue' && clickedButton.value === '1' && saveContinueBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const currentPopupId = saveContinueBtn.dataset.currentPopup || 'application-certification';
+        const nextPopupId = saveContinueBtn.dataset.nextPopup || 'release-authorization';
+        
+        // Create FormData and submit via AJAX
+        const formData = new FormData(form);
+        formData.append('save_continue', '1');
+        
+        // Show loading state
+        const submitBtn = clickedButton;
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+        
+        fetch(form.action || window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Form submitted successfully, transition to next popup
+            window.transitionToNextPopup(currentPopupId, nextPopupId);
+            // Load the Release & Authorization form
+            loadReleaseAuthorizationForm();
+          } else {
+            throw new Error('Form submission failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting form:', error);
+          alert('Error saving form. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        });
+        return;
+      }
+    }
+    
+    // Handle Release & Authorization form submission to save and close popup
+    if (form.closest('#popup-release-authorization')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const clickedButton = e.submitter || document.activeElement;
+      
+      // Show loading state
+      const submitBtn = clickedButton;
+      const originalText = submitBtn ? submitBtn.textContent : 'Save';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+      }
+      
+      // Create FormData and submit via AJAX
+      const formData = new FormData(form);
+      
+      fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          // Form submitted successfully, close the popup
+          const popup = document.getElementById('popup-release-authorization');
+          if (popup) {
+            popup.classList.add('d-none');
+          }
+          // Optionally show success message or reload page
+          // You can add a success notification here if needed
+        } else {
+          throw new Error('Form submission failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error submitting form:', error);
+        alert('Error saving form. Please try again.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+      return;
+    }
+    
+    // Handle Health Assessment form submission to redirect to Risk Assessment
+    if (form.closest('#popup-health')) {
+      const clickedButton = e.submitter || document.activeElement;
+      const saveContinueBtn = form.querySelector('.save-continue-btn[name="save_continue"]');
+      
+      // Only handle if "Save and Continue" was clicked
+      if (clickedButton && clickedButton.name === 'save_continue' && clickedButton.value === '1' && saveContinueBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const currentPopupId = saveContinueBtn.dataset.currentPopup || 'health';
+        const nextPopupId = saveContinueBtn.dataset.nextPopup || 'risk';
+        
+        // Create FormData and submit via AJAX
+        const formData = new FormData(form);
+        formData.append('save_continue', '1');
+        
+        // Show loading state
+        const submitBtn = clickedButton;
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+        
+        fetch(form.action || window.location.href, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            // Form submitted successfully, transition to next popup
+            window.transitionToNextPopup(currentPopupId, nextPopupId);
+          } else {
+            throw new Error('Form submission failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting form:', error);
+          alert('Error saving form. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        });
+      }
+    }
+  });
+  
+  // Handle popup transition after form submission (if form doesn't redirect)
+  // This can be called from the form submission success handler
+  window.transitionToNextPopup = function(currentPopupId, nextPopupId) {
+    // Close current popup
+    if (currentPopupId) {
+      const currentPopup = document.getElementById(`popup-${currentPopupId}`);
+      if (currentPopup) {
+        currentPopup.classList.add('d-none');
+      }
+    }
+    
+    // Open next popup
+    if (nextPopupId && nextPopupId.trim() !== '') {
+      const nextPopup = document.getElementById(`popup-${nextPopupId}`);
+      if (nextPopup) {
+        nextPopup.classList.remove('d-none');
+        // Load content if needed
+        if (nextPopupId === 'education') {
+          if (typeof loadEducationList === 'function') {
+            loadEducationList();
+          }
+        }
+      }
+    }
+  };
 
 // License Modal
   const openLicenseModal = document.getElementById('openLicenseModal');
@@ -2486,6 +3129,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 {# == JS: keep setCategory and upload handler; remove previous toggle hide/show code == #}
 <script>
+// Store original document type options
+let originalDocumentTypeOptions = null;
+
 function setCategory(label) {
     const map = {
         'CV Upload': 'CV',
@@ -2496,65 +3142,328 @@ function setCategory(label) {
         'References': 'References',
         'Documents': 'Documents'
     };
-    document.getElementById('documentCategory').value = map[label] || 'Documents';
+    const categoryValue = map[label] || 'Documents';
+    
+    // Hide category field and use hidden input for CV
+    const categoryField = document.getElementById('categoryField');
+    const categoryHidden = document.getElementById('documentCategoryHidden');
+    const categorySelect = document.getElementById('documentCategory');
+    const documentTypeSelect = document.getElementById('documentTypeSelect');
+    
+    if (categoryValue === 'CV') {
+        // Hide the visible category field and use hidden input
+        if (categoryField) categoryField.style.display = 'none';
+        if (categoryHidden) categoryHidden.value = 'CV';
+        
+        // Filter document type dropdown to show only CV
+        if (documentTypeSelect) {
+            // Store original options if not already stored
+            if (!originalDocumentTypeOptions) {
+                originalDocumentTypeOptions = Array.from(documentTypeSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text
+                }));
+            }
+            
+            // Clear all options
+            documentTypeSelect.innerHTML = '';
+            
+            // Add only CV option
+            const cvOption = document.createElement('option');
+            cvOption.value = 'CV';
+            cvOption.text = 'CV';
+            documentTypeSelect.appendChild(cvOption);
+            
+            // Select CV by default
+            documentTypeSelect.value = 'CV';
+            
+            // Trigger change event to apply document type config
+            documentTypeSelect.dispatchEvent(new Event('change'));
+        }
+    } else {
+        // Show the visible category field for other document types
+        if (categoryField) categoryField.style.display = 'block';
+        if (categorySelect) categorySelect.value = categoryValue;
+        if (categoryHidden) categoryHidden.value = '';
+        
+        // Restore all document type options
+        if (documentTypeSelect && originalDocumentTypeOptions) {
+            documentTypeSelect.innerHTML = '';
+            originalDocumentTypeOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.text = opt.text;
+                documentTypeSelect.appendChild(option);
+            });
+            documentTypeSelect.value = '';
+        }
+    }
+    
+    // Set document name to "CV" when CV category is selected
+    const documentNameInput = document.getElementById('name');
+    if (documentNameInput && categoryValue === 'CV') {
+        documentNameInput.value = 'CV';
+    }
 }
 
 /* Upload handler preserved */
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.querySelector('#uploadModal form');
+  const documentTypeSelect = document.getElementById('documentTypeSelect');
+  const documentNameInput = document.getElementById('name');
+  const issueDateField = document.getElementById('issueDateField');
+  const expirationDateField = document.getElementById('expirationDateField');
+  const issueDateInput = document.getElementById('issueDate');
+  const expirationDateInput = document.getElementById('expirationDate');
+  const documentNote = document.getElementById('documentNote');
+  const handleAutoExpiry = () => {
+    if (!issueDateInput) return;
+    const days = parseInt(issueDateInput.dataset.autoExpiryDays || '0', 10);
+    if (days > 0 && issueDateInput.value && expirationDateInput) {
+      const baseDate = new Date(issueDateInput.value);
+      if (!isNaN(baseDate.getTime())) {
+        const expiryDate = new Date(baseDate);
+        expiryDate.setDate(expiryDate.getDate() + days);
+        expirationDateInput.value = expiryDate.toISOString().split('T')[0];
+      }
+    } else if (days > 0 && expirationDateInput) {
+      expirationDateInput.value = '';
+    }
+  };
+  if (issueDateInput) {
+    issueDateInput.addEventListener('change', handleAutoExpiry);
+  }
+  const defaultDocumentConfig = {
+    showIssue: true,
+    showExpiry: true,
+    autoExpiryDays: 0,
+    note: ''
+  };
+  const documentConfigs = {
+    "CV": { showIssue: false, showExpiry: false, note: 'Upload your CV document.' },
+    "Driver's License": { showIssue: true, showExpiry: true, note: 'Upload front and back if available.' },
+    "Copy of Passport": { showIssue: true, showExpiry: true, note: 'Ensure passport details are clearly visible.' },
+    "Passport Photo 2x2": { showIssue: false, showExpiry: false, note: 'Standard 2&quot;x2&quot; photo. No expiry required.' },
+    "USMLE / COMLEX Scores": { showIssue: true, showExpiry: true, note: 'Include all score reports.' },
+    "Specialty & Subspecialty Certification": { showIssue: false, showExpiry: false, note: 'Certification does not expire.' },
+    "Medical School Diploma": { showIssue: false, showExpiry: false, note: 'Upload your diploma copy.' },
+    "Postgraduate Certificates": { showIssue: false, showExpiry: false, note: 'Residency/Fellowship completion certificates.' },
+    "Life Support Certifications": { showIssue: false, showExpiry: false, note: 'Include ACLS/BLS/PALS certificates.' },
+    "Medical Licenses": { showIssue: true, showExpiry: true, note: 'Include both active and inactive licenses.' },
+    "DEA Certificates": { showIssue: true, showExpiry: true, note: 'Upload all DEA certificates.' },
+    "CSR": { showIssue: true, showExpiry: true, note: 'Controlled Substance Registration for applicable states.' },
+    "Undergraduate Transcript": { showIssue: false, showExpiry: false, note: 'Unofficial copy is acceptable if official unavailable.' },
+    "Vaccine Titers": { showIssue: false, showExpiry: false, note: 'Include Hepatitis B, Varicella, and MMR titers.' },
+    "Negative TB Test": { showIssue: true, showExpiry: true, autoExpiryDays: 365, note: 'Automatically expires 1 year from test date.' },
+    "Influenza Vaccine Proof": { showIssue: true, showExpiry: true, autoExpiryDays: 365, note: 'Auto-expires 1 year from administration date.' },
+    "COVID-19 Vaccine Proof": { showIssue: true, showExpiry: true, autoExpiryDays: 365, note: 'Auto-expires 1 year from last dose.' },
+    "Mask Fit Testing": { showIssue: true, showExpiry: true, autoExpiryDays: 365, note: 'Auto-expires 1 year from fit test date.' },
+    "Malpractice COI": { showIssue: true, showExpiry: true, note: 'Upload certificates covering the last 10 years (multiple files allowed).' },
+    "Procedure Logs": { showIssue: true, showExpiry: true, note: 'Provide procedure logs for the last 2 years.' },
+    "Case Logs": { showIssue: true, showExpiry: true, note: 'Provide case logs for the last 2 years.' },
+    "Residency History": { showIssue: false, showExpiry: false, note: 'Attach a list of addresses lived at for the last 10 years.' },
+    "Hospital Affiliations & Training": { showIssue: false, showExpiry: false, note: 'Document must include start/end dates, address, phone, and contact email.' },
+    "Custom": { showIssue: true, showExpiry: true, note: '' }
+  };
+  function applyDocumentTypeConfig(type) {
+    if (!issueDateField || !expirationDateField || !issueDateInput || !expirationDateInput) {
+      return;
+    }
+    const config = documentConfigs[type] || defaultDocumentConfig;
+    const showIssue = !!config.showIssue;
+    const showExpiry = !!config.showExpiry;
+    issueDateField.classList.toggle('d-none', !showIssue);
+    issueDateInput.required = showIssue;
+    if (!showIssue) {
+      issueDateInput.value = '';
+    }
+    expirationDateField.classList.toggle('d-none', !showExpiry);
+    if (showExpiry) {
+      expirationDateInput.readOnly = !!config.autoExpiryDays;
+      expirationDateInput.classList.toggle('bg-light', !!config.autoExpiryDays);
+      expirationDateInput.required = !config.autoExpiryDays;
+    } else {
+      expirationDateInput.readOnly = false;
+      expirationDateInput.classList.remove('bg-light');
+      expirationDateInput.required = false;
+      expirationDateInput.value = '';
+    }
+    issueDateInput.dataset.autoExpiryDays = config.autoExpiryDays || '';
+    if (!config.autoExpiryDays) {
+      expirationDateInput.value = showExpiry ? expirationDateInput.value : '';
+    } else {
+      handleAutoExpiry();
+    }
+    if (documentNote) {
+      if (config.note) {
+        documentNote.innerHTML = config.note;
+        documentNote.classList.remove('d-none');
+        documentNote.classList.add('text-muted');
+      } else {
+        documentNote.textContent = '';
+        documentNote.classList.add('d-none');
+      }
+    }
+    if (documentNameInput && type && type !== 'Custom') {
+      documentNameInput.value = type;
+    }
+  }
+  if (documentTypeSelect) {
+    // Store original options on page load
+    if (!originalDocumentTypeOptions) {
+      originalDocumentTypeOptions = Array.from(documentTypeSelect.options).map(opt => ({
+        value: opt.value,
+        text: opt.text
+      }));
+    }
+    
+    documentTypeSelect.addEventListener('change', function () {
+      applyDocumentTypeConfig(this.value);
+    });
+    applyDocumentTypeConfig(documentTypeSelect.value);
+  }
+  
+  // Restore document type options when modal is closed
+  const uploadModal = document.getElementById('uploadModal');
+  if (uploadModal) {
+    uploadModal.addEventListener('hidden.bs.modal', function () {
+      const documentTypeSelect = document.getElementById('documentTypeSelect');
+      if (documentTypeSelect && originalDocumentTypeOptions) {
+        // Restore all original options
+        documentTypeSelect.innerHTML = '';
+        originalDocumentTypeOptions.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.text = opt.text;
+          documentTypeSelect.appendChild(option);
+        });
+        documentTypeSelect.value = '';
+        
+        // Reset form fields
+        const documentNameInput = document.getElementById('name');
+        if (documentNameInput) documentNameInput.value = '';
+        
+        // Show category field again
+        const categoryField = document.getElementById('categoryField');
+        if (categoryField) categoryField.style.display = 'block';
+        
+        // Reset hidden category
+        const categoryHidden = document.getElementById('documentCategoryHidden');
+        if (categoryHidden) categoryHidden.value = '';
+      }
+    });
+  }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    if (!confirm('Are you sure you want to upload this document?')) return;
+    const uploadBtn = document.getElementById('uploadDocumentBtn');
+    const uploadBtnText = uploadBtn ? uploadBtn.querySelector('.upload-btn-text') : null;
+    const uploadBtnSpinner = uploadBtn ? uploadBtn.querySelector('.upload-btn-spinner') : null;
+    const fileNameInput = document.getElementById('fileName');
+    const documentNameInput = document.getElementById('name');
+    
+    // Get file name for display
+    const fileName = fileNameInput && fileNameInput.files.length > 0 ? fileNameInput.files[0].name : '';
+    const documentName = documentNameInput ? documentNameInput.value : '';
 
-    const formData = new FormData(form);
+    // Use SweetAlert for confirmation
+    showConfirmAlert(
+      'Confirm Upload',
+      'Are you sure you want to upload this document?',
+      'Yes, Upload',
+      'Cancel',
+      function(confirmed) {
+        if (!confirmed) return;
 
-    fetch(form.action, {
-      method: 'POST',
-      body: formData,
-    })
-    .then(response => {
-      if (!response.ok) throw new Error('Upload failed');
-      return response.text();
-    })
-    .then(() => {
-      showSuccessAlert('Upload Success', 'Document has been successfully uploaded.');
-      const modalEl = document.getElementById('uploadModal');
-      const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
-      modal.hide();
-      form.reset();
-    })
-    .catch(error => {
-      showErrorAlert('Upload Error', 'Something went wrong: ' + error.message);
-    });
+        // Update button state to uploading
+        if (uploadBtn) {
+          uploadBtn.disabled = true;
+          if (uploadBtnText) uploadBtnText.style.display = 'none';
+          if (uploadBtnSpinner) uploadBtnSpinner.style.display = 'inline-block';
+        }
+
+        const formData = new FormData(form);
+        
+        // Ensure only one category field is submitted
+        const categoryHidden = document.getElementById('documentCategoryHidden');
+        const categorySelect = document.getElementById('documentCategory');
+        if (categoryHidden && categoryHidden.value) {
+          // Remove the select field value if hidden field has a value
+          formData.delete('category');
+          formData.append('category', categoryHidden.value);
+        }
+
+        fetch(form.action, {
+          method: 'POST',
+          body: formData,
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.text().then(text => {
+              throw new Error(text || 'Upload failed');
+            });
+          }
+          return response.text();
+        })
+        .then(() => {
+          // Show success alert with document name
+          const displayName = documentName || fileName || 'Document';
+          showSuccessAlert('Upload Success', `${displayName} has been successfully uploaded.`, function() {
+            // Close modal
+            const modalEl = document.getElementById('uploadModal');
+            const modal = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.hide();
+            form.reset();
+            
+            // Reset button state
+            if (uploadBtn) {
+              uploadBtn.disabled = false;
+              if (uploadBtnText) uploadBtnText.style.display = 'inline-block';
+              if (uploadBtnSpinner) uploadBtnSpinner.style.display = 'none';
+            }
+            
+            // Reload page to show updated document list
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          });
+        })
+        .catch(error => {
+          // Reset button state on error
+          if (uploadBtn) {
+            uploadBtn.disabled = false;
+            if (uploadBtnText) uploadBtnText.style.display = 'inline-block';
+            if (uploadBtnSpinner) uploadBtnSpinner.style.display = 'none';
+          }
+          
+          // Show error alert
+          const errorMessage = error.message.includes('<') ? 'Upload failed. Please try again.' : error.message;
+          showErrorAlert('Upload Error', errorMessage);
+        });
+      }
+    );
   });
 });
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Make all dropzones clickable
-  document.querySelectorAll('.upload-dropzone').forEach(function(dropzone) {
-    const input = dropzone.querySelector('input[type="file"]') || document.getElementById('dropzoneInput');
+  // Exclude CV upload dropzone from general handler - it has its own handler
+  document.querySelectorAll('.upload-dropzone:not(#cvUploadDropzone)').forEach(function(dropzone) {
+    const input = dropzone.querySelector('input[type="file"]');
 
   if (dropzone && input) {
-      // Remove any existing click handlers
       dropzone.onclick = null;
       
-      // Add click handler to open file picker
       dropzone.addEventListener('click', function (e) {
-        // Don't trigger if clicking on the remove button or badge
         if (e.target.closest('.file-badge') || e.target.closest('.file-remove-btn')) {
           return;
         }
         e.preventDefault();
         e.stopPropagation();
-        if (input) {
       input.click();
-        }
       });
       
-      // Also handle drag and drop
       dropzone.addEventListener('dragover', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2581,15 +3490,406 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// CV Upload Functionality - Direct file picker with auto-submit
+document.addEventListener('DOMContentLoaded', function () {
+  const cvUploadBtn = document.getElementById('cvUploadBtn');
+  const cvButtonText = document.getElementById('cvButtonText');
+  const cvFileInputDirect = document.getElementById('cvFileInputDirect');
+  const cvUploadSpinner = document.getElementById('cvUploadSpinner');
+  const cvDisplayArea = document.getElementById('cvDisplayArea');
+  const cvFileNameDisplay = document.getElementById('cvFileNameDisplay');
+  const cvDocumentsList = document.getElementById('cvDocumentsList');
+  
+  // Keep references to old modal elements for backward compatibility
+  const cvUploadModal = document.getElementById('cvUploadModal');
+  const cvUploadForm = document.getElementById('cvUploadForm');
+  const cvFileInput = document.getElementById('cvFileInput');
+  const cvUploadSubmitBtn = document.getElementById('cvUploadSubmitBtn');
+  const cvUploadError = document.getElementById('cvUploadError');
+
+  // Check if CV is already uploaded on page load
+  {% if cvDocuments is not empty %}
+    const firstCv = {{ cvDocuments|first|json_encode|raw }};
+    if (firstCv) {
+      updateCvDisplay(firstCv.name);
+    }
+  {% endif %}
+
+  function updateCvDisplay(fileName) {
+    if (cvButtonText) {
+      cvButtonText.textContent = 'Update CV';
+    }
+    if (cvFileNameDisplay) {
+      cvFileNameDisplay.textContent = fileName;
+    }
+    if (cvDisplayArea) {
+      cvDisplayArea.style.display = 'block';
+    }
+    // Keep the button visible - don't hide it
+  }
+
+  function fetchUpdatedCvList() {
+    // Fetch updated CV list from the server
+    fetch('{{ path("app_provider_profile") }}', {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Parse the HTML and extract the CV list
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const updatedList = doc.getElementById('cvDocumentsList');
+      if (updatedList && cvDocumentsList) {
+        cvDocumentsList.innerHTML = updatedList.innerHTML;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching CV list:', error);
+    });
+  }
+
+  // Direct file upload functionality
+  if (cvUploadBtn && cvFileInputDirect) {
+    // When button is clicked, trigger file input
+    cvUploadBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      cvFileInputDirect.click();
+    });
+
+    // When file is selected, automatically submit via AJAX
+    cvFileInputDirect.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        return;
+      }
+
+      // Validate file type
+      const allowedExtensions = ['.pdf', '.doc', '.docx'];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('Invalid File Type', 'Please select a valid CV file (PDF, DOC, or DOCX)');
+        } else {
+          alert('Please select a valid CV file (PDF, DOC, or DOCX)');
+        }
+        cvFileInputDirect.value = '';
+        return;
+      }
+
+      // Validate file size (25MB max)
+      const maxSize = 25 * 1024 * 1024; // 25MB in bytes
+      if (file.size > maxSize) {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('File Too Large', 'File size exceeds 25MB limit. Please select a smaller file.');
+        } else {
+          alert('File size exceeds 25MB limit. Please select a smaller file.');
+        }
+        cvFileInputDirect.value = '';
+        return;
+      }
+
+      // Show loading state
+      if (cvUploadBtn) {
+        cvUploadBtn.disabled = true;
+        if (cvUploadSpinner) {
+          cvUploadSpinner.style.display = 'inline-block';
+        }
+        if (cvButtonText) {
+          cvButtonText.textContent = 'Uploading...';
+        }
+      }
+
+      // Create FormData - use same structure as the modal form
+      const formData = new FormData();
+      formData.append('fileName', file);
+      formData.append('category', 'CV');
+      formData.append('name', 'CV');
+      formData.append('documentType', 'CV');
+      
+      // Try to get CSRF token from the modal form if it exists
+      const modalForm = document.querySelector('#uploadModal form');
+      if (modalForm) {
+        const csrfInput = modalForm.querySelector('input[name*="_token"]');
+        if (csrfInput) {
+          formData.append(csrfInput.name, csrfInput.value);
+        }
+      }
+
+      // Submit via AJAX
+      fetch('{{ path("app_provider_documents") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            try {
+              const data = JSON.parse(text);
+              throw new Error(data.message || 'Upload failed');
+            } catch (e) {
+              if (e instanceof Error && e.message) {
+                throw e;
+              }
+              throw new Error('Upload failed. Please try again.');
+            }
+          });
+        }
+        return response.text().then(text => {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            // If response is HTML (redirect), consider it success
+            return { success: true, fileName: file.name };
+          }
+        });
+      })
+      .then(data => {
+        // Update button text
+        if (cvButtonText) {
+          cvButtonText.textContent = 'Update CV';
+        }
+        
+        // Update display with uploaded file name - store it to persist
+        const displayFileName = data.fileName || file.name;
+        updateCvDisplay(displayFileName);
+        
+        // Update CV list if HTML is provided (this won't affect the display area above)
+        if (cvDocumentsList && data.cvListHtml) {
+          cvDocumentsList.innerHTML = data.cvListHtml;
+        } else if (cvDocumentsList && data.success) {
+          // If no HTML provided but upload was successful, fetch updated list
+          fetchUpdatedCvList();
+        }
+        
+        // Ensure display area stays visible after list update
+        setTimeout(() => {
+          if (cvDisplayArea && displayFileName) {
+            cvDisplayArea.style.display = 'block';
+            if (cvFileNameDisplay) {
+              cvFileNameDisplay.textContent = displayFileName;
+            }
+          }
+        }, 100);
+        
+        // Show success message
+        if (typeof showSuccessAlert === 'function') {
+          showSuccessAlert('CV Uploaded', 'CV uploaded successfully!');
+        } else {
+          alert('CV uploaded successfully!');
+        }
+        
+        // Reset file input only (this doesn't affect the display area)
+        // The display area shows the uploaded file name, not the input value
+        cvFileInputDirect.value = '';
+        
+        // Don't reload page - keep the file name visible in the display area
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
+        if (typeof showErrorAlert === 'function') {
+          showErrorAlert('Upload Failed', 'Upload failed: ' + error.message);
+        } else {
+          alert('Upload failed: ' + error.message);
+        }
+        cvFileInputDirect.value = '';
+      })
+      .finally(() => {
+        // Reset button state
+        if (cvUploadBtn) {
+          cvUploadBtn.disabled = false;
+          if (cvUploadSpinner) {
+            cvUploadSpinner.style.display = 'none';
+          }
+        }
+      });
+    });
+  }
+
+  // Form submit handler
+  if (cvUploadForm) {
+    cvUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (!cvFileInput || !cvFileInput.files || cvFileInput.files.length === 0) {
+        showError('Please select a CV file to upload.');
+        return false;
+      }
+
+      const file = cvFileInput.files[0];
+      
+      // Validate file type
+      const allowedExtensions = ['.pdf', '.doc', '.docx'];
+      const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        showError('Please select a valid CV file (PDF, DOC, or DOCX)');
+        return false;
+      }
+
+      // Validate file size (25MB max)
+      const maxSize = 25 * 1024 * 1024; // 25MB in bytes
+      if (file.size > maxSize) {
+        showError('File size exceeds 25MB limit. Please select a smaller file.');
+        return false;
+      }
+
+      // Hide error
+      hideError();
+
+      // Show loading state - change button to "Uploading..."
+      if (cvUploadSubmitBtn) {
+        cvUploadSubmitBtn.disabled = true;
+        const originalBtnText = cvUploadSubmitBtn.innerHTML;
+        cvUploadSubmitBtn.dataset.originalText = originalBtnText;
+        cvUploadSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Uploading...';
+      }
+
+      // Create FormData
+      const formData = new FormData(cvUploadForm);
+      
+      // Submit via AJAX
+      fetch(cvUploadForm.action || window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(data => {
+            throw new Error(data.message || 'Upload failed');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          // Reset button state first
+          if (cvUploadSubmitBtn && cvUploadSubmitBtn.dataset.originalText) {
+            cvUploadSubmitBtn.disabled = false;
+            cvUploadSubmitBtn.innerHTML = cvUploadSubmitBtn.dataset.originalText;
+            delete cvUploadSubmitBtn.dataset.originalText;
+          }
+          
+          // Update button text
+          if (cvButtonText) {
+            cvButtonText.textContent = 'Update CV';
+          }
+          
+          // Update display with uploaded file name
+          updateCvDisplay(data.fileName || file.name);
+          
+          // Update CV list if HTML is provided
+          if (cvDocumentsList && data.cvListHtml) {
+            cvDocumentsList.innerHTML = data.cvListHtml;
+          }
+          
+          // Reset form
+          cvUploadForm.reset();
+          
+          // Close modal
+          const modal = bootstrap.Modal.getInstance(cvUploadModal);
+          if (modal) {
+            modal.hide();
+          }
+          
+          // Show success message
+          if (typeof showSuccessAlert === 'function') {
+            showSuccessAlert('CV Uploaded', 'CV uploaded successfully!');
+          } else {
+            alert('CV uploaded successfully!');
+          }
+        } else {
+          throw new Error(data.message || 'Upload failed');
+        }
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
+        if (typeof showErrorAlert === 'function') {
+          showErrorAlert('Upload Failed', 'Upload failed: ' + error.message);
+        } else {
+          showError('Upload failed: ' + error.message);
+        }
+      })
+      .finally(() => {
+        // Reset button state only if upload failed (success case already handled)
+        if (cvUploadSubmitBtn && cvUploadSubmitBtn.dataset.originalText) {
+          cvUploadSubmitBtn.disabled = false;
+          cvUploadSubmitBtn.innerHTML = cvUploadSubmitBtn.dataset.originalText;
+          delete cvUploadSubmitBtn.dataset.originalText;
+        }
+      });
+      
+      return false;
+    });
+  }
+
+  // Also handle button click directly as a fallback
+  if (cvUploadSubmitBtn) {
+    cvUploadSubmitBtn.addEventListener('click', function(e) {
+      // Let the form submit handler take care of it
+      // This ensures the button click triggers form submission
+      if (cvUploadForm && cvFileInput && cvFileInput.files && cvFileInput.files.length > 0) {
+        // Form will handle the submission
+        return true;
+      } else {
+        e.preventDefault();
+        showError('Please select a CV file to upload.');
+        return false;
+      }
+    });
+  }
+
+  function showError(message) {
+    if (cvUploadError) {
+      cvUploadError.textContent = message;
+      cvUploadError.classList.remove('d-none');
+    }
+  }
+
+  function hideError() {
+    if (cvUploadError) {
+      cvUploadError.classList.add('d-none');
+    }
+  }
+
+  // Clear error when file input changes
+  if (cvFileInput) {
+    cvFileInput.addEventListener('change', function() {
+      hideError();
+    });
+  }
+
+  // Reset form when modal is closed
+  if (cvUploadModal) {
+    cvUploadModal.addEventListener('hidden.bs.modal', function() {
+      if (cvUploadForm) {
+        cvUploadForm.reset();
+      }
+      hideError();
+    });
+  }
+});
+
 function handleFileChange(input) {
+  {# CV-specific logic removed - was checking for #cvUploadForm, cvFileBadge, cvFileNameText #}
   const badge = document.getElementById('fileBadge');
   const nameText = document.getElementById('fileNameText');
 
   if (input && input.files && input.files.length > 0) {
     if (nameText) nameText.textContent = input.files[0].name;
     if (badge) badge.style.display = 'flex';
-  } else {
-    if (badge) badge.style.display = 'none';
+  } else if (badge) {
+    badge.style.display = 'none';
   }
 }
 
@@ -2599,12 +3899,16 @@ function clearFile() {
 
   if (input) {
     input.value = '';
-    // Trigger change event to update UI
     const event = new Event('change', { bubbles: true });
     input.dispatchEvent(event);
   }
   if (badge) badge.style.display = 'none';
 }
+
+{# clearCvFile() function - REMOVED (to be reimplemented)
+  Element IDs: cvDropzoneInput, cvFileBadge
+  Functionality: Clears CV file input and hides filename badge
+#}
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -2617,6 +3921,86 @@ function clearFile() {
       });
     }
   });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const workPrefForm = document.getElementById('work-preferences-form');
+  const workPrefError = document.getElementById('work-preferences-error');
+  const summaryContainer = document.getElementById('work-preferences-summary');
+  const workPrefBtn = document.getElementById('workPreferencesBtn');
+  const workPrefModalEl = document.getElementById('workPreferencesModal');
+
+  if (workPrefForm) {
+    workPrefForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      if (workPrefError) {
+        workPrefError.classList.add('d-none');
+        workPrefError.textContent = '';
+      }
+
+      const submitBtn = document.getElementById('work-preferences-submit');
+      const originalLabel = submitBtn ? submitBtn.innerHTML : null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+      }
+
+      fetch(workPrefForm.action, {
+        method: 'POST',
+        body: new FormData(workPrefForm),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      }).then(response => response.json())
+        .then(data => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalLabel || 'Save Preferences';
+          }
+
+          if (data.success) {
+            if (summaryContainer && data.summaryHtml) {
+              summaryContainer.innerHTML = data.summaryHtml;
+            }
+
+            if (workPrefBtn && data.hasPreferences) {
+              workPrefBtn.textContent = 'Update Work Preferences';
+            }
+
+            if (typeof bootstrap !== 'undefined' && workPrefModalEl) {
+              const modalInstance = bootstrap.Modal.getInstance(workPrefModalEl) || new bootstrap.Modal(workPrefModalEl);
+              modalInstance.hide();
+            }
+
+            if (typeof showSuccessAlert === 'function') {
+              showSuccessAlert('Preferences Saved', 'Your work preferences were updated successfully.');
+            }
+          } else {
+            const message = data.message || 'Unable to save work preferences.';
+            if (workPrefError) {
+              workPrefError.textContent = message;
+              workPrefError.classList.remove('d-none');
+            } else if (typeof showErrorAlert === 'function') {
+              showErrorAlert('Error', message);
+            }
+          }
+        })
+        .catch(() => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalLabel || 'Save Preferences';
+          }
+
+          if (workPrefError) {
+            workPrefError.textContent = 'Something went wrong. Please try again.';
+            workPrefError.classList.remove('d-none');
+          } else if (typeof showErrorAlert === 'function') {
+            showErrorAlert('Error', 'Something went wrong. Please try again.');
+          }
+        });
+    });
+  }
+});
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -2643,6 +4027,7 @@ function clearFile() {
     function switchToEditMode(e) {
       if (e) e.preventDefault();
       if (!infoView || !infoEdit) return;
+      const personalSection = document.getElementById('personalSection');
       // Hide view, show edit in same position
       const viewHeight = infoView.offsetHeight;
       infoView.style.visibility = 'hidden';
@@ -2654,11 +4039,18 @@ function clearFile() {
       infoEdit.style.visibility = 'visible';
       infoEdit.style.opacity = '1';
       infoEdit.style.height = 'auto';
+      
+      // Set flexbox height to 400px when edit mode is open
+      if (personalSection) {
+        personalSection.style.minHeight = '400px';
+        personalSection.style.height = '400px';
+      }
     }
 
     // Function to switch back to view mode
     function switchToViewMode() {
       if (!infoView || !infoEdit) return;
+      const personalSection = document.getElementById('personalSection');
       // Hide edit, show view
     infoEdit.style.display = 'none';
     infoEdit.style.visibility = 'hidden';
@@ -2669,6 +4061,12 @@ function clearFile() {
     infoView.style.opacity = '1';
     infoView.style.height = 'auto';
     infoView.style.overflow = 'visible';
+    
+    // Reset flexbox height when view mode is active
+    if (personalSection) {
+      personalSection.style.minHeight = '380px';
+      personalSection.style.height = 'auto';
+    }
 
       // Restore edit button
       if (actionIcons) {
@@ -2790,6 +4188,150 @@ function clearFile() {
     });
   }
 
+  // Function to load Application Certification form
+  function loadApplicationCertificationForm() {
+    const formContainer = document.getElementById('applicationCertificationFormContainer');
+    if (!formContainer) return;
+    
+    formContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    
+    fetch('{{ path('app_provider_application_certification') }}', {
+      headers: { 
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/html'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Extract form content from the full page template
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const form = doc.querySelector('form');
+      
+      if (form) {
+        // Clone the form to avoid modifying the original
+        const formClone = form.cloneNode(true);
+        
+        // Remove all buttons first
+        const buttons = formClone.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
+        
+        // Remove empty button containers (divs that only contained buttons)
+        const containers = formClone.querySelectorAll('.row, .col-12, .mt-3, div[class*="mt-"]');
+        containers.forEach(container => {
+          // If container is empty or only contains whitespace, remove it
+          if (!container.textContent.trim() || container.children.length === 0) {
+            container.remove();
+          }
+        });
+        
+        const formInnerHTML = formClone.innerHTML;
+        const formAction = form.getAttribute('action') || '{{ path('app_provider_application_certification') }}';
+        const formMethod = form.getAttribute('method') || 'POST';
+        const formId = form.getAttribute('id') || 'applicationCertificationForm';
+        const formClass = form.getAttribute('class') || 'needs-validation';
+        
+        formContainer.innerHTML = `
+          <form id="${formId}" action="${formAction}" method="${formMethod}" class="${formClass}" novalidate>
+            ${formInnerHTML}
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="submit" name="save_continue" value="1" class="cstm-btn-style save-continue-btn" data-current-popup="application-certification" data-next-popup="release-authorization">I Agree</button>
+            </div>
+          </form>
+        `;
+        
+        // Initialize flatpickr for date fields
+        setTimeout(() => {
+          if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('#applicationCertificationFormContainer .js-datepicker').forEach(input => {
+              if (!input._flatpickr) {
+                flatpickr(input, { dateFormat: "Y-m-d" });
+              }
+            });
+          }
+        }, 100);
+      } else {
+        formContainer.innerHTML = '<div class="alert alert-danger">Error loading form. Please refresh the page.</div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error loading Application Certification form:', error);
+      formContainer.innerHTML = '<div class="alert alert-danger">Error loading form. Please refresh the page.</div>';
+    });
+  }
+  
+  // Function to load Release & Authorization form
+  function loadReleaseAuthorizationForm() {
+    const formContainer = document.getElementById('releaseAuthorizationFormContainer');
+    if (!formContainer) return;
+    
+    formContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+    
+    fetch('{{ path('app_provider_release_authorization') }}', {
+      headers: { 
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'text/html'
+      }
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Extract form content from the full page template
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const form = doc.querySelector('form');
+      
+      if (form) {
+        // Clone the form to avoid modifying the original
+        const formClone = form.cloneNode(true);
+        
+        // Remove all buttons first
+        const buttons = formClone.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
+        
+        // Remove empty button containers (divs that only contained buttons)
+        const containers = formClone.querySelectorAll('.row, .col-12, .mt-3, div[class*="mt-"]');
+        containers.forEach(container => {
+          // If container is empty or only contains whitespace, remove it
+          if (!container.textContent.trim() || container.children.length === 0) {
+            container.remove();
+          }
+        });
+        
+        const formInnerHTML = formClone.innerHTML;
+        const formAction = form.getAttribute('action') || '{{ path('app_provider_release_authorization') }}';
+        const formMethod = form.getAttribute('method') || 'POST';
+        const formId = form.getAttribute('id') || 'releaseAuthorizationForm';
+        const formClass = form.getAttribute('class') || 'needs-validation';
+        
+        formContainer.innerHTML = `
+          <form id="${formId}" action="${formAction}" method="${formMethod}" class="${formClass}" novalidate>
+            ${formInnerHTML}
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="submit" class="cstm-btn-style">Save</button>
+            </div>
+          </form>
+        `;
+        
+        // Initialize flatpickr for date fields
+        setTimeout(() => {
+          if (typeof flatpickr !== 'undefined') {
+            document.querySelectorAll('#releaseAuthorizationFormContainer .js-datepicker').forEach(input => {
+              if (!input._flatpickr) {
+                flatpickr(input, { dateFormat: "Y-m-d" });
+              }
+            });
+          }
+        }, 100);
+      } else {
+        formContainer.innerHTML = '<div class="alert alert-danger">Error loading form. Please refresh the page.</div>';
+      }
+    })
+    .catch(error => {
+      console.error('Error loading Release & Authorization form:', error);
+      formContainer.innerHTML = '<div class="alert alert-danger">Error loading form. Please refresh the page.</div>';
+    });
+  }
+
   // Open popup based on data-popup attribute
   document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.open-popup').forEach(button => {
@@ -2799,9 +4341,13 @@ function clearFile() {
       const popup = document.getElementById(`popup-${popupId}`);
       if (popup) {
         popup.classList.remove('d-none');
-        // Load education list when education popup opens
+        // Load content when specific popups open
         if (popupId === 'education') {
           loadEducationList();
+        } else if (popupId === 'application-certification') {
+          loadApplicationCertificationForm();
+        } else if (popupId === 'release-authorization') {
+          loadReleaseAuthorizationForm();
         }
       }
     });

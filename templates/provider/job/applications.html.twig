@@ -168,15 +168,11 @@ div.container-xl,
 .todo-icon {
     width: 20px;
     height: 20px;
-    border-radius: 50%;
-    background: #85BB65;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     position: relative;
-    box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
-    animation: pulse-glow 2s ease-in-out infinite;
     pointer-events: auto;
 }
 
@@ -184,24 +180,11 @@ div.container-xl,
     pointer-events: none;
 }
 
-.todo-icon:hover {
-    box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
-    animation: none;
-}
-
-@keyframes pulse-glow {
-    0%, 100% {
-        box-shadow: 0 0 10px rgba(133, 187, 101, 0.6), 0 0 20px rgba(133, 187, 101, 0.4);
-    }
-    50% {
-        box-shadow: 0 0 15px rgba(133, 187, 101, 0.8), 0 0 30px rgba(133, 187, 101, 0.6);
-    }
-}
-
 .todo-icon svg {
-    width: 12px;
-    height: 12px;
-    fill: white;
+    width: 16px;
+    height: 16px;
+    stroke: #85BB65;
+    fill: none;
 }
 
 .todo-popup {
@@ -213,7 +196,7 @@ div.container-xl,
     font-size: 13px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     z-index: 99999;
-    max-width: 250px;
+    max-width: 300px;
     display: none;
     pointer-events: none;
 }
@@ -554,6 +537,15 @@ div.container-xl,
     padding: 4px 12px;
 }
 
+.menu-dropdown {
+    position: relative;
+    z-index: 30;
+}
+
+.menu-panel.custom-dropdown {
+    z-index: 40;
+}
+
 .menu-panel {
     min-width: 160px;
 }
@@ -708,14 +700,13 @@ div.container-xl,
     width: 100px !important;
 }
 .application {
-    padding-left: 16px;
+    padding-left: 11px;
     position: relative !important;
     top: auto !important;
     bottom: auto !important;
     left: auto !important;
     right: auto !important;
     transform: none !important;
-    /* Allow dropdowns to overflow */
     overflow: visible !important;
 }
 .application .card {
@@ -1001,6 +992,7 @@ div.container-xl,
 
 .col-dropdowns {
     justify-self: end;
+    margin-right: 15px;
 }
 
 .table-responsive-wrapper {
@@ -1112,10 +1104,10 @@ div.container-xl,
 }
 .email-modal {
   position: fixed;
-  top: 50%;
+  top: 10vh;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(700px, 95vw);
+  transform: translateX(-50%);
+  width: min(700px, 90vw);
   max-height: 80vh;
   background: #fff;
   border: 1px solid #e6eef6;
@@ -1124,19 +1116,23 @@ div.container-xl,
   display: flex;
   flex-direction: column;
   z-index: 10000;
+  overflow: hidden;
 }
-.email-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 18px;
-  border-bottom: 1px solid #e6eef6;
+.email-modal-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 12px 14px; 
+  border-bottom: 1px solid #e6eef6; 
 }
 .email-modal-body {
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 .email-modal-body label {
   font-size: 13px;
@@ -1197,7 +1193,7 @@ function applySpacingStyles() {
     // Remove left padding from application status tracker
     const application = document.querySelector('.application');
     if (application) {
-        application.style.setProperty('padding-left', '0', 'important');
+        application.style.setProperty('padding-left', '11px', 'important');
         application.style.setProperty('margin-left', '0', 'important');
     }
     
@@ -1458,22 +1454,15 @@ window.addEventListener('resize', function() {
                 {% endif %}
                 </div>
                 
-                <!-- Middle Group: Note, Archive, Delete -->
+                <!-- Middle Group: Archive, Delete -->
                 <div class="job-actions-middle" style="display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; white-space: nowrap;">
-                  <button id="note-btn" class="action-btn d-none" title="Add Note" onclick="handleNoteClick()" style="display: none;">
+                  <button class="action-btn archive-btn" title="Archive">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <!-- Sticky note with pencil icon -->
-                      <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
-                      <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
                     </svg>
-                    Note
-                  </button>
-                  <button id="archive-btn" class="action-btn" title="Archive">
-                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
-                    </svg> Archive
+                    Archive
                   </button>
                   <button id="delete-btn" class="action-btn" title="Delete">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1505,12 +1494,31 @@ window.addEventListener('resize', function() {
                   <div class="menu-dropdown position-relative">
                     <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
                     <div class="dropdown-panel menu-panel custom-dropdown hidden">
+                      <!-- Print/Share and Timeline Buttons -->
+                      <button id="print-share-job-btn" class="menu-item">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6 9V2H18V9" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 14H18V22H6V14Z" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg> 
+                        <span>Print/Share</span>
+                      </button>
+                      <a id="timeline-job-btn" href="{{ path('app_provider_interview_calendar') }}" class="menu-item">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="3" y="4" width="18" height="18" rx="2" stroke="#121C0C" stroke-width="1.5"/>
+                          <path d="M16 2V6M8 2V6M3 10H21" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                          <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg> 
+                        <span>Timeline</span>
+                      </a>
+                      <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                      <!-- Regular Menu Items -->
                       <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
                         <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
                         <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg> Archived Jobs</a>
-                      <a href="{{ path('app_provider_download_data', {'type': 'applications'}) }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <a href="#" id="export-report-btn" class="menu-item" style="text-decoration: none; color: inherit; cursor: pointer;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1526,18 +1534,15 @@ window.addEventListener('resize', function() {
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
                     <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
-                          <input type="checkbox" id="select-all-checkbox" title="Select All" />
-                        </div>
                         <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; cursor: pointer;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Employer</div>
-                        <div class="col-start col-center sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category</div>
-                        <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
+                        <div class="col-start col-center col-location sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-salary sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-employer sortable" data-sort="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Employer<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-applied sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-category sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-todo sortable" data-sort="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                        <div class="col-start col-center sortable" data-sort="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                        <div class="col-start col-center col-status sortable" data-sort="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     </div>
                 </div>
             </div>
@@ -1552,7 +1557,8 @@ window.addEventListener('resize', function() {
                   <div class="col-job d-flex align-items-center gap-2" style="width: 200px; flex-shrink: 0; padding: 0 4px; box-sizing: border-box; min-width: 0; overflow: hidden;">
                       <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
                           alt="Logo"
-                          style="width: 40px; height: 40px; border-radius: 8px;" />
+                          style="width: 40px; height: 40px; border-radius: 8px;"
+                          onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
                       <div style="min-width: 0; overflow: hidden;">
                           <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
                             href="{{ path('app_provider_jobs_application_detail', {'id': application.id}) }}"
@@ -1561,11 +1567,11 @@ window.addEventListener('resize', function() {
                           </a>
                       </div>
                   </div>
-                  <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
-                  <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
-                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.employer|default(job.companyName|default('—')) }}</div>
-                  <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ application.createdAt|date('m/d/Y') }}</div>
-                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
+                  <div class="col-start col-center col-location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
+                  <div class="col-start col-center col-salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
+                  <div class="col-start col-center col-employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.employer|default(job.companyName|default('—')) }}</div>
+                  <div class="col-start col-center col-applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ application.createdAt|date('m/d/Y') }}</div>
+                  <div class="col-start col-center col-category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
                     {% if job.workType == 'locums' %}
                         Locums
                     {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
@@ -1576,7 +1582,7 @@ window.addEventListener('resize', function() {
                         {{ job.workType|default('—')|replace({'_': ' '})|title }}
                     {% endif %}
                   </div>
-                  <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+                  <div class="col-start col-center col-todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;" data-todo-text="{{ (todoTask|default('—'))|e('html_attr') }}">
                       {% set todoTask = null %}
                       {% if application.documentRequestedAt and not application.documentProvidedAt %}
                           {% set todoTask = 'Provide requested documents' %}
@@ -1592,10 +1598,10 @@ window.addEventListener('resize', function() {
                       
                       {% if todoTask %}
                           <div class="todo-icon-wrapper">
-                              <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application">
+                              <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
                                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                      <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                   </svg>
                               </div>
                           </div>
@@ -1624,7 +1630,7 @@ window.addEventListener('resize', function() {
                         </button>
                       </div>
                     </div>
-                  <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
+                  <div class="col-start col-center col-status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
                       {{ application.status | replace({'_': ' '}) | title }}
                   </div>
                 </div>
@@ -1728,12 +1734,13 @@ window.addEventListener('resize', function() {
             <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </button>
-          <button id="archive-btn" class="action-btn" title="Archive">
+          <button class="action-btn archive-btn" title="Archive">
             <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
+              <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
             </svg>
+            Archive
           </button>
         </div>
     </div>
@@ -1907,19 +1914,23 @@ window.addEventListener('resize', function() {
       min-height: 180px; 
       resize: vertical; 
     }
-    .email-modal-footer { 
-      display: flex; 
-      gap: 8px; 
-      padding: 12px 14px; 
-      border-top: 1px solid #e6eef6; 
-    }
-    .email-modal-close { 
-      background: transparent; 
-      border: none; 
-      font-size: 22px; 
-      cursor: pointer; 
-      color: #666; 
-    }
+.email-modal-footer { 
+  display: flex; 
+  gap: 8px; 
+  padding: 12px 14px; 
+  border-top: 1px solid #e6eef6; 
+}
+.email-modal-close { 
+  background: transparent; 
+  border: none; 
+  font-size: 22px; 
+  cursor: pointer; 
+  color: #666; 
+}
+.email-modal-body textarea { 
+  min-height: 180px; 
+  resize: vertical; 
+}
     </style>
 
     <script>
@@ -1986,6 +1997,15 @@ window.addEventListener('resize', function() {
           modal.setAttribute('aria-hidden', 'true');
         });
         if (overlay) overlay.style.display = 'none';
+        // Restore body and html scrolling
+        const scrollY = document.body.dataset.scrollY || '0';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, parseInt(scrollY, 10));
+        delete document.body.dataset.scrollY;
       }
 
       function openTemplateModal(type) {
@@ -2007,49 +2027,28 @@ window.addEventListener('resize', function() {
           m.setAttribute('aria-hidden', 'true');
         });
 
+        // Prevent body and html scrolling FIRST - before anything else
+        const scrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+        
+        // Store scroll position for restoration
+        document.body.dataset.scrollY = scrollY;
+
         if (overlay) overlay.style.display = 'block';
         modal.style.display = 'flex';
         modal.setAttribute('aria-hidden', 'false');
         
-        // Reset modal position to center
-        modal.style.top = '50%';
+        // Position modal at top of viewport
+        modal.style.top = '10vh';
         modal.style.left = '50%';
         modal.style.right = 'auto';
         modal.style.bottom = 'auto';
-        modal.style.transform = 'translate(-50%, -50%)';
-        
-        // Ensure modal is visible in viewport - scroll into view smoothly
-        setTimeout(() => {
-          modal.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-          
-          // After scrolling, check if modal needs position adjustment
-          setTimeout(() => {
-            const rect = modal.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-            const padding = 20;
-            
-            // Adjust vertical position if needed
-            if (rect.top < padding) {
-              modal.style.top = padding + 'px';
-              modal.style.transform = 'translate(-50%, 0)';
-            } else if (rect.bottom > viewportHeight - padding) {
-              modal.style.top = 'auto';
-              modal.style.bottom = padding + 'px';
-              modal.style.transform = 'translate(-50%, 0)';
-            }
-            
-            // Adjust horizontal position if needed
-            if (rect.left < padding) {
-              modal.style.left = padding + 'px';
-              modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
-            } else if (rect.right > viewportWidth - padding) {
-              modal.style.right = padding + 'px';
-              modal.style.left = 'auto';
-              modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
-            }
-          }, 300); // Wait for scroll animation to complete
-        }, 10);
+        modal.style.transform = 'translateX(-50%)';
+        modal.style.maxHeight = '80vh';
       }
 
       if (overlay) {
@@ -2071,8 +2070,7 @@ window.addEventListener('resize', function() {
         'request-response-btn': 'request',
         'say-thank-you-btn': 'thank',
         'follow-up-btn': 'follow',
-        'ask-details-btn': 'details',
-        'write-review-btn': 'review'
+        'ask-details-btn': 'details'
       };
 
       Object.entries(triggerMap).forEach(([btnId, type]) => {
@@ -2085,6 +2083,31 @@ window.addEventListener('resize', function() {
           });
         }
       });
+
+      // Write Review button - redirect to review page instead of email template
+      const writeReviewBtn = document.getElementById('write-review-btn');
+      if (writeReviewBtn) {
+        writeReviewBtn.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          
+          // Get the selected application ID
+          const checkedCheckbox = Array.from(document.querySelectorAll('.job-checkbox:checked'))[0];
+          if (checkedCheckbox && checkedCheckbox.dataset.applicationId) {
+            const applicationId = checkedCheckbox.dataset.applicationId;
+            // Build the review URL - the route pattern is /provider/applications/{id}/review-employer
+            const reviewUrl = '{{ path("app_provider_application_review_employer", {"id": "00000000-0000-0000-0000-000000000000"}) }}'.replace('00000000-0000-0000-0000-000000000000', applicationId);
+            // Redirect to review page
+            window.location.href = reviewUrl;
+          } else {
+            if (typeof showToast === 'function') {
+              showToast('Please select an application to review', 'warning');
+            } else {
+              alert('Please select an application to review');
+            }
+          }
+        });
+      }
 
       // Copy handlers - use data-copy-subject and data-copy-message
       document.querySelectorAll('[data-copy-subject]').forEach(btn => {
@@ -2153,9 +2176,15 @@ window.addEventListener('resize', function() {
                 applyBtn.disabled = !hasSelection;
             }
             
-            // Show/hide notify of hire button
+            // Check if any selected application has status "accepted" or "completed"
+            const hasAcceptedOrCompleted = selectedCheckboxes.some(checkbox => {
+                const status = checkbox.dataset.status;
+                return status && (status.toLowerCase() === 'accepted' || status.toLowerCase() === 'completed');
+            });
+            
+            // Show/hide notify of hire button - hide if status is accepted or completed
             if (saveBtn) {
-                if (hasSelection) {
+                if (hasSelection && !hasAcceptedOrCompleted) {
                     saveBtn.style.display = 'flex';
                     saveBtn.disabled = false;
                 } else {
@@ -2165,7 +2194,7 @@ window.addEventListener('resize', function() {
             }
             
             if (saveBtnBottom) {
-                if (hasSelection) {
+                if (hasSelection && !hasAcceptedOrCompleted) {
                     saveBtnBottom.style.display = 'flex';
                     saveBtnBottom.disabled = false;
                 } else {
@@ -2188,7 +2217,24 @@ window.addEventListener('resize', function() {
         
         // Update buttons when checkboxes change
         document.querySelectorAll('.job-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', updateActionButtons);
+            checkbox.addEventListener('change', function() {
+                // Set window.selectedJobId when a checkbox is checked
+                if (this.checked) {
+                    const jobId = this.getAttribute('data-job-id');
+                    if (jobId) {
+                        window.selectedJobId = jobId;
+                    }
+                } else {
+                    // If this was the selected one, clear it
+                    const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+                    if (checkedCheckbox) {
+                        window.selectedJobId = checkedCheckbox.getAttribute('data-job-id');
+                    } else {
+                        window.selectedJobId = null;
+                    }
+                }
+                updateActionButtons();
+            });
         });
         
         // Initial update
@@ -2729,49 +2775,28 @@ window.addEventListener('resize', function() {
             messageEl.value = `Hi there,\n\nI hope you're doing well. I'm reaching out to check in on the ${jobTitle} opportunity with ${company}. I'm still very interested and would be happy to provide any additional information you might need from me.\n\nThanks so much for your time!\n\nBest,\n[YOUR NAME]`;
           }
           
+          // Prevent body and html scrolling FIRST - before anything else
+          const scrollY = window.scrollY;
+          document.body.style.overflow = 'hidden';
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${scrollY}px`;
+          document.body.style.width = '100%';
+          
+          // Store scroll position for restoration
+          document.body.dataset.scrollY = scrollY;
+
           overlay.style.display = 'block';
           modal.style.display = 'flex';
           modal.setAttribute('aria-hidden', 'false');
           
-          // Reset modal position to center
-          modal.style.top = '50%';
+          // Position modal at top of viewport
+          modal.style.top = '10vh';
           modal.style.left = '50%';
           modal.style.right = 'auto';
           modal.style.bottom = 'auto';
-          modal.style.transform = 'translate(-50%, -50%)';
-          
-          // Ensure modal is visible in viewport - scroll into view smoothly
-          setTimeout(() => {
-            modal.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
-            
-            // After scrolling, check if modal needs position adjustment
-            setTimeout(() => {
-              const rect = modal.getBoundingClientRect();
-              const viewportHeight = window.innerHeight;
-              const viewportWidth = window.innerWidth;
-              const padding = 20;
-              
-              // Adjust vertical position if needed
-              if (rect.top < padding) {
-                modal.style.top = padding + 'px';
-                modal.style.transform = 'translate(-50%, 0)';
-              } else if (rect.bottom > viewportHeight - padding) {
-                modal.style.top = 'auto';
-                modal.style.bottom = padding + 'px';
-                modal.style.transform = 'translate(-50%, 0)';
-              }
-              
-              // Adjust horizontal position if needed
-              if (rect.left < padding) {
-                modal.style.left = padding + 'px';
-                modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
-              } else if (rect.right > viewportWidth - padding) {
-                modal.style.right = padding + 'px';
-                modal.style.left = 'auto';
-                modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
-              }
-            }, 300); // Wait for scroll animation to complete
-          }, 10);
+          modal.style.transform = 'translateX(-50%)';
+          modal.style.maxHeight = '80vh';
         }
       });
     }
@@ -2813,6 +2838,284 @@ window.addEventListener('resize', function() {
           closeAllDropdowns();
         }
     });
+
+    // Generate PDF from job details and open print window
+    function generateJobPDF(jobId) {
+        if (!jobId) {
+            if (typeof showWarningAlert === 'function') {
+                showWarningAlert('No Job Selected', 'Please select a job first');
+            } else {
+                alert('Please select a job first');
+            }
+            return;
+        }
+        
+        // Fetch job details
+        const url = '/provider/jobs/' + jobId + '/detail-content';
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                // Parse the HTML to extract job details
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract job information
+                const jobTitle = doc.querySelector('.job-detail-title, h1, h2, h3, h4')?.textContent?.trim() || 'Job Details';
+                const jobCompany = doc.querySelector('.job-detail-company, .company-name')?.textContent?.trim() || '';
+                const jobLocation = doc.querySelector('.job-detail-meta-item')?.textContent?.trim() || '';
+                
+                // Get all job detail sections
+                const sections = doc.querySelectorAll('.job-detail-section, .job-detail-meta-item');
+                let jobDetailsHTML = '';
+                
+                sections.forEach(section => {
+                    // Clone and clean the section
+                    const clone = section.cloneNode(true);
+                    // Remove buttons and action elements
+                    clone.querySelectorAll('button, .btn, .action-btn, .no-print').forEach(el => el.remove());
+                    jobDetailsHTML += clone.outerHTML;
+                });
+                
+                // If no sections found, use the full HTML
+                if (!jobDetailsHTML) {
+                    const fullContent = doc.body.cloneNode(true);
+                    fullContent.querySelectorAll('button, .btn, .action-btn, .no-print, script, style').forEach(el => el.remove());
+                    jobDetailsHTML = fullContent.innerHTML;
+                }
+                
+                // Create a clean HTML document for PDF
+                const pdfHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${jobTitle} - Job Details</title>
+    <style>
+        @page { margin: 1.5cm; }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24pt;
+            color: #121C0C;
+            border-bottom: 3px solid #85BB65;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18pt;
+            color: #121C0C;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e6eef6;
+            padding-bottom: 5px;
+        }
+        .job-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e6eef6;
+        }
+        .job-company {
+            font-size: 16pt;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .job-detail-section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .job-detail-label {
+            font-weight: bold;
+            color: #121C0C;
+            margin-right: 8px;
+        }
+        .job-detail-meta-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="job-header">
+        <h1>${jobTitle}</h1>
+        ${jobCompany ? `<div class="job-company">${jobCompany}</div>` : ''}
+        ${jobLocation ? `<div>${jobLocation}</div>` : ''}
+    </div>
+    ${jobDetailsHTML}
+</body>
+</html>`;
+                
+                // Open print window
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(pdfHTML);
+                printWindow.document.close();
+                
+                // Wait for content to load, then print
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 250);
+                };
+            })
+            .catch(error => {
+                console.error('Error generating PDF:', error);
+                if (typeof showErrorAlert === 'function') {
+                    showErrorAlert('Error', 'Failed to generate PDF. Please try again.');
+                } else {
+                    alert('Failed to generate PDF. Please try again.');
+                }
+            });
+    }
+
+    // Handle Print/Share button click
+    const printShareBtn = document.getElementById('print-share-job-btn');
+    if (printShareBtn) {
+        printShareBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get the selected job ID from multiple sources
+            let selectedJobId = window.selectedJobId || null;
+            
+            // If not found, try to find from active split job card
+            if (!selectedJobId) {
+                const activeCard = document.querySelector('.split-job-card.active');
+                if (activeCard) {
+                    selectedJobId = activeCard.getAttribute('data-job-id');
+                }
+            }
+            
+            // If still not found, try to find from checked checkbox
+            if (!selectedJobId) {
+                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+                if (checkedCheckbox) {
+                    selectedJobId = checkedCheckbox.getAttribute('data-job-id');
+                }
+            }
+            
+            // Also try to get from application ID if available
+            if (!selectedJobId) {
+                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+                if (checkedCheckbox) {
+                    // Try to get job ID from application
+                    const applicationId = checkedCheckbox.getAttribute('data-application-id');
+                    if (applicationId) {
+                        // Try to get job ID from the row
+                        const jobRow = checkedCheckbox.closest('.job-lists, .job-row');
+                        if (jobRow) {
+                            selectedJobId = jobRow.getAttribute('data-job-id');
+                        }
+                    }
+                }
+            }
+            
+            if (selectedJobId) {
+                // Generate PDF and open print window
+                generateJobPDF(selectedJobId);
+            } else {
+                if (typeof showWarningAlert === 'function') {
+                    showWarningAlert('No Job Selected', 'Please select a job first');
+                } else {
+                    alert('Please select a job first');
+                }
+            }
+            closeAllDropdowns();
+        });
+    }
+    
+    // Handle Timeline button click
+    const timelineBtn = document.getElementById('timeline-job-btn');
+    if (timelineBtn) {
+        timelineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get job ID from selected job or active card
+            let jobId = window.selectedJobId || null;
+            
+            // If not found, try to find from active split job card
+            if (!jobId) {
+                const activeCard = document.querySelector('.split-job-card.active');
+                if (activeCard) {
+                    jobId = activeCard.getAttribute('data-job-id');
+                }
+            }
+            
+            // If still not found, try to find from checked checkbox
+            if (!jobId) {
+                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+                if (checkedCheckbox) {
+                    jobId = checkedCheckbox.getAttribute('data-job-id');
+                }
+            }
+            
+            // Also try to get application ID and job ID from application row
+            const dropdown = timelineBtn.closest('.menu-dropdown');
+            let applicationId = null;
+            
+            if (dropdown && !jobId) {
+                // Try to find application ID from nearby elements
+                const jobRow = dropdown.closest('.job-lists');
+                if (jobRow) {
+                    const checkbox = jobRow.querySelector('[data-application-id]');
+                    if (checkbox) {
+                        applicationId = checkbox.getAttribute('data-application-id');
+                        // Also try to get job ID from the same checkbox
+                        jobId = checkbox.getAttribute('data-job-id');
+                    }
+                }
+            }
+            
+            // Build calendar URL with job ID (preferred) or application ID
+            let calendarUrl = timelineBtn.getAttribute('href');
+            if (jobId) {
+                calendarUrl += '?jobId=' + encodeURIComponent(jobId);
+            } else if (applicationId) {
+                calendarUrl += '?applicationId=' + encodeURIComponent(applicationId);
+            }
+            
+            window.open(calendarUrl, '_blank');
+            closeAllDropdowns();
+        });
+    }
+
+    // Handle Export Report button click
+    const exportReportBtn = document.getElementById('export-report-btn');
+    if (exportReportBtn) {
+        exportReportBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get current URL and check for status parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            
+            // Build the download URL based on current page content
+            // Type is always 'applications' for this page
+            // If status is 'applied', pass it as query parameter to filter
+            // Otherwise (no status or empty), export all applications data
+            let downloadUrl = "{{ path('app_provider_download_data', {'type': 'applications'}) }}";
+            
+            // If status is 'applied', add it as a query parameter
+            if (status === 'applied') {
+                downloadUrl += '?status=applied';
+            }
+            // If no status or empty, export all applications (no status parameter needed)
+            
+            // Open in new window
+            window.open(downloadUrl, '_blank');
+            
+            closeAllDropdowns();
+        });
+    }
 
 
     function toggleActionsVisibility() {
@@ -2857,19 +3160,6 @@ window.addEventListener('resize', function() {
             writeReviewBtn.disabled = false;
           }
         }
-      }
-      
-      // Show/hide Note button (show when job details are viewed)
-      const noteBtn = document.getElementById('note-btn');
-      if (noteBtn) {
-        const hasJobDetailsOpen = window.selectedJobId !== null && window.selectedJobId !== undefined;
-        const activeCard = document.querySelector('.split-job-card.active');
-        const hasActiveCard = activeCard !== null;
-        const jobDetailContent = document.getElementById('job-detail-content');
-        const hasJobDetailContent = jobDetailContent && jobDetailContent.style.display !== 'none' && jobDetailContent.innerHTML.trim() !== '';
-        
-        // Show ONLY when job details are actually being viewed
-        noteBtn.style.display = (hasJobDetailsOpen || hasActiveCard || hasJobDetailContent) ? 'flex' : 'none';
       }
     }
 
@@ -2947,6 +3237,7 @@ window.addEventListener('resize', function() {
       cb.addEventListener('change', updateActions);
     });
 
+
     applyBtn && applyBtn.addEventListener('click', () => {
       const selected = Array.from(checkboxes).filter(cb => cb.checked);
       if (selected.length === 1) {
@@ -3019,12 +3310,150 @@ window.addEventListener('resize', function() {
       console.log('Saving jobs:', selectedIds);
     });
 
-    deleteBtn && deleteBtn.addEventListener('click', () => {
-      const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.dataset.jobId);
-      // Trigger batch delete logic here
-      console.log('Deleting jobs:', selectedIds);
+    // Delete button handler with alert confirmation (for both top and bottom buttons)
+    const deleteButtons = [deleteBtn, document.getElementById('delete-btn-bottom')].filter(btn => btn);
+    deleteButtons.forEach(deleteBtn => {
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+            const selectedIds = selectedCheckboxes.map(cb => cb.dataset.applicationId || cb.dataset.jobId);
+            
+            if (selectedIds.length === 0) {
+                if (typeof showToast === 'function') {
+                    showToast('Please select at least one application to delete.', 'warning');
+                } else {
+                    alert('Please select at least one application to delete.');
+                }
+                return;
+            }
+            
+            // Show confirmation alert
+            if (typeof showConfirmAlert === 'function') {
+                showConfirmAlert(
+                    'Confirm Deletion',
+                    `Are you sure you want to delete ${selectedIds.length} selected application(s)? This action cannot be undone.`,
+                    'Delete',
+                    'Cancel',
+                    async (confirmed) => {
+                        if (!confirmed) return;
+                        
+                        try {
+                            // Use fetch API to delete
+                            const response = await fetch('{{ path("app_provider_applications_delete") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: new URLSearchParams({
+                                    '_token': '{{ csrf_token("delete_applications") }}',
+                                    'application_ids': JSON.stringify(selectedIds)
+                                })
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success || response.ok) {
+                                if (typeof showSuccessAlert === 'function') {
+                                    showSuccessAlert('Success!', `Successfully deleted ${selectedIds.length} application(s)!`);
+                                } else {
+                                    alert('Successfully deleted ' + selectedIds.length + ' application(s)!');
+                                }
+                                
+                                // Remove deleted applications from UI immediately
+                                selectedIds.forEach(id => {
+                                    // Try to find by application-id first, then by job-id
+                                    let checkbox = document.querySelector(`.job-check.job-checkbox[data-application-id="${id}"]`);
+                                    if (!checkbox) {
+                                        checkbox = document.querySelector(`.job-checkbox[data-application-id="${id}"]`);
+                                    }
+                                    if (!checkbox) {
+                                        checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
+                                    }
+                                    if (!checkbox) {
+                                        checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
+                                    }
+                                    
+                                    if (checkbox) {
+                                        // Remove the entire job-lists container (parent of job-row)
+                                        const jobList = checkbox.closest(".job-lists");
+                                        if (jobList) {
+                                            jobList.remove();
+                                        } else {
+                                            // Fallback: remove just the job-row
+                                            const row = checkbox.closest(".job-row");
+                                            if (row) row.remove();
+                                            const tr = checkbox.closest('tr');
+                                            if (tr) tr.remove();
+                                        }
+                                    }
+                                });
+                                
+                                // Update UI after removal
+                                const remainingRows = document.querySelectorAll('.job-lists');
+                                if (remainingRows.length === 0) {
+                                    const container = document.querySelector('.job-list-container');
+                                    if (container) {
+                                        container.innerHTML = '<p class="mb-0">No applications found.</p>';
+                                    }
+                                }
+                                
+                                // Uncheck all checkboxes and update button states
+                                document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                                if (typeof toggleActionsVisibility === 'function') {
+                                    toggleActionsVisibility();
+                                }
+                                if (typeof updateButtonStates === 'function') {
+                                    updateButtonStates();
+                                }
+                            } else {
+                                if (typeof showErrorAlert === 'function') {
+                                    showErrorAlert('Error!', data.message || 'Failed to delete applications');
+                                } else {
+                                    alert('Error: ' + (data.message || 'Failed to delete applications'));
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            if (typeof showErrorAlert === 'function') {
+                                showErrorAlert('Error!', 'Network error. Please try again.');
+                            } else {
+                                alert('Network error. Please try again.');
+                            }
+                        }
+                    }
+                );
+            } else {
+                if (confirm(`Are you sure you want to delete ${selectedIds.length} selected application(s)? This action cannot be undone.`)) {
+                    // Fallback: use fetch if showConfirmAlert is not available
+                    fetch('{{ path("app_provider_applications_delete") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new URLSearchParams({
+                            '_token': '{{ csrf_token("delete_applications") }}',
+                            'application_ids': JSON.stringify(selectedIds)
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Successfully deleted ' + selectedIds.length + ' application(s)!');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to delete applications'));
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error:', err);
+                        alert('Network error. Please try again.');
+                    });
+                }
+            }
+        });
+    }
     });
   });
 
@@ -3272,10 +3701,15 @@ function initializeRankEditing() {
             window.todoPopup.className = 'todo-popup';
             window.todoPopup.innerHTML = `
                 <div class="todo-popup-header">
-                    <div class="todo-popup-title">To Do Action</div>
+                    <div class="todo-popup-title">Document Requests</div>
                     <button class="todo-popup-close" type="button">&times;</button>
                 </div>
-                <div class="todo-popup-content"></div>
+                <div class="todo-popup-content">
+                    <div class="todo-popup-loading" style="text-align: center; padding: 10px;">Loading...</div>
+                    <div class="todo-popup-documents" style="display: none;"></div>
+                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #999;">No document requests</div>
+                    <div class="todo-popup-action" style="display: none;"></div>
+                </div>
             `;
             if (document.body) {
                 document.body.appendChild(window.todoPopup);
@@ -3316,31 +3750,107 @@ function initializeRankEditing() {
                 }
                 
                 const action = todoIcon.dataset.todoAction;
-                if (action && window.todoPopup) {
-                    const content = window.todoPopup.querySelector('.todo-popup-content');
-                    if (content) {
-                        content.textContent = action;
+                const status = todoIcon.dataset.status;
+                const applicationId = todoIcon.dataset.applicationId;
+                const todoType = todoIcon.dataset.todoType;
+                
+                if (window.todoPopup) {
+                    const loadingEl = window.todoPopup.querySelector('.todo-popup-loading');
+                    const documentsEl = window.todoPopup.querySelector('.todo-popup-documents');
+                    const noDocumentsEl = window.todoPopup.querySelector('.todo-popup-no-documents');
+                    const actionEl = window.todoPopup.querySelector('.todo-popup-action');
+                    const titleEl = window.todoPopup.querySelector('.todo-popup-title');
+                    
+                    // Hide all content sections
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    if (documentsEl) documentsEl.style.display = 'none';
+                    if (noDocumentsEl) noDocumentsEl.style.display = 'none';
+                    if (actionEl) actionEl.style.display = 'none';
+                    
+                    // Check if we should show document requests (not saved or completed status)
+                    if (applicationId && status && status !== 'saved' && status !== 'completed' && todoType === 'application') {
+                        // Show loading
+                        if (loadingEl) loadingEl.style.display = 'block';
+                        if (titleEl) titleEl.textContent = 'Document Requests';
                         
-                        // Position popup near the icon
-                        const rect = todoIcon.getBoundingClientRect();
-                        const popupWidth = 250;
-                        const popupHeight = 100;
-                        let left = rect.left + (rect.width / 2) - (popupWidth / 2);
-                        let top = rect.top - popupHeight - 10;
-                        
-                        // Adjust if popup goes off screen
-                        if (left < 10) left = 10;
-                        if (left + popupWidth > window.innerWidth - 10) {
-                            left = window.innerWidth - popupWidth - 10;
+                        // Fetch document requests
+                        fetch('{{ path("app_provider_application_document_requests", {"id": "APPLICATION_ID"}) }}'.replace('APPLICATION_ID', applicationId))
+                            .then(response => response.json())
+                            .then(data => {
+                                if (loadingEl) loadingEl.style.display = 'none';
+                                
+                                if (data.documentRequests && data.documentRequests.length > 0) {
+                                    // Show document requests
+                                    let html = '<div style="max-height: 300px; overflow-y: auto;">';
+                                    data.documentRequests.forEach((req, index) => {
+                                        const statusText = req.providedAt ? 
+                                            '<span style="color: #85BB65;">✓ Provided</span>' : 
+                                            '<span style="color: #ffc107;">Pending</span>';
+                                        html += `
+                                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                                <div style="font-weight: 600; margin-bottom: 4px;">${req.name}</div>
+                                                <div style="font-size: 11px; color: #ccc;">
+                                                    Requested: ${new Date(req.createdAt).toLocaleDateString()}
+                                                    ${req.providedAt ? ' | Provided: ' + new Date(req.providedAt).toLocaleDateString() : ''}
+                                                </div>
+                                                <div style="font-size: 11px; margin-top: 4px;">${statusText}</div>
+                                            </div>
+                                        `;
+                                    });
+                                    html += '</div>';
+                                    if (documentsEl) {
+                                        documentsEl.innerHTML = html;
+                                        documentsEl.style.display = 'block';
+                                    }
+                                } else {
+                                    // Show no documents message
+                                    if (noDocumentsEl) noDocumentsEl.style.display = 'block';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching document requests:', error);
+                                if (loadingEl) loadingEl.style.display = 'none';
+                                if (noDocumentsEl) {
+                                    noDocumentsEl.textContent = 'Error loading document requests';
+                                    noDocumentsEl.style.display = 'block';
+                                }
+                            });
+                    } else {
+                        // Show action text for saved/completed or non-application types
+                        if (titleEl) titleEl.textContent = 'To Do Action';
+                        if (actionEl) {
+                            actionEl.textContent = action || 'No action required';
+                            actionEl.style.display = 'block';
                         }
-                        if (top < 10) {
-                            top = rect.bottom + 10;
-                        }
-                        
-                        window.todoPopup.style.left = left + 'px';
-                        window.todoPopup.style.top = top + 'px';
-                        window.todoPopup.classList.add('show');
                     }
+                    
+                    // Position popup to the left of the icon
+                    const rect = todoIcon.getBoundingClientRect();
+                    const popupWidth = 300;
+                    const popupHeight = 200;
+                    // Position to the left of the icon
+                    let left = rect.left - popupWidth - 10;
+                    // Align vertically with the icon
+                    let top = rect.top + (rect.height / 2) - (popupHeight / 2);
+                    
+                    // Adjust if popup goes off screen
+                    if (left < 10) {
+                        // If not enough space on left, show to the right
+                        left = rect.right + 10;
+                    }
+                    if (left + popupWidth > window.innerWidth - 10) {
+                        left = window.innerWidth - popupWidth - 10;
+                    }
+                    if (top < 10) {
+                        top = 10;
+                    }
+                    if (top + popupHeight > window.innerHeight - 10) {
+                        top = window.innerHeight - popupHeight - 10;
+                    }
+                    
+                    window.todoPopup.style.left = left + 'px';
+                    window.todoPopup.style.top = top + 'px';
+                    window.todoPopup.classList.add('show');
                 }
                 return;
             }
@@ -3372,99 +3882,96 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeRankEditing();
 });
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const archiveBtn = document.getElementById("archive-btn");
+document.addEventListener('DOMContentLoaded', function () {
+    const archiveButtons = document.querySelectorAll('.archive-btn');
+    if (!archiveButtons.length) {
+        return;
+    }
 
-    archiveBtn.addEventListener("click", async function () {
-        // 1️⃣ Collect selected application IDs
-        const selectedIds = Array.from(document.querySelectorAll(".job-check.job-checkbox:checked"))
-                                 .map(cb => cb.dataset.applicationId || cb.dataset.jobId)
-                                 .filter(id => id); // Filter out undefined values
+    const handleArchiveClick = async (event) => {
+        event.preventDefault();
+
+        const selectedIds = Array.from(document.querySelectorAll('.job-check.job-checkbox:checked'))
+            .map(cb => cb.dataset.applicationId || cb.dataset.jobId)
+            .filter(Boolean);
 
         if (selectedIds.length === 0) {
             showWarningAlert('No Selection', 'Please select at least one application to archive.');
             return;
         }
 
-        showConfirmAlert(
-            'Archive Applications',
-            `Are you sure you want to archive ${selectedIds.length} application(s)?`,
-            'Archive',
-            'Cancel',
-            async function(confirmed) {
-                if (!confirmed) return;
-                
-                try {
-                    // 2️⃣ Send archive request
-                    const response = await fetch("/provider/application/archive/bulk", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ ids: selectedIds })
-                    });
+        const confirmTitle = 'Archive Applications';
+        const confirmMessage = `Are you sure you want to archive ${selectedIds.length} application(s)?`;
 
-                    const result = await response.json();
-
-                    if (result.success) {
-                        showSuccessAlert('Success', result.message);
-
-                        // 3️⃣ Remove archived rows from DOM
-                        selectedIds.forEach(id => {
-                            // Try to find by application-id first, then by job-id
-                            let checkbox = document.querySelector(`.job-check.job-checkbox[data-application-id="${id}"]`);
-                            if (!checkbox) {
-                                checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
-                            }
-                            
-                            if (checkbox) {
-                                // Remove the entire job-lists container (parent of job-row)
-                                const jobList = checkbox.closest(".job-lists");
-                                if (jobList) {
-                                    jobList.remove();
-                                } else {
-                                    // Fallback: remove just the job-row
-                                    const row = checkbox.closest(".job-row");
-                                if (row) row.remove();
-                                }
-                            }
-                        });
-                        
-                        // Update UI after removal
-                        const remainingRows = document.querySelectorAll('.job-lists');
-                        if (remainingRows.length === 0) {
-                            const container = document.querySelector('.job-list-container');
-                            if (container) {
-                                container.innerHTML = '<p class="mb-0">No applications found.</p>';
-                            }
-                        }
-                        
-                        // Uncheck all checkboxes and update button states
-                        document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                        if (typeof toggleActionsVisibility === 'function') {
-                            toggleActionsVisibility();
-                        }
-                        if (typeof updateButtonStates === 'function') {
-                            updateButtonStates();
-                        }
-
-
-                    } else {
-                        showErrorAlert('Error', result.message || "Something went wrong.");
-                    }
-                } catch (error) {
-                    console.error("Error archiving applications:", error);
-                    showErrorAlert('Error', 'An error occurred while archiving applications.');
-                }
+        const confirmed = await new Promise((resolve) => {
+            if (typeof showConfirmAlert === 'function') {
+                showConfirmAlert(
+                    confirmTitle,
+                    confirmMessage,
+                    'Archive',
+                    'Cancel',
+                    (result) => resolve(result)
+                );
+            } else {
+                resolve(window.confirm(`${confirmTitle}\n${confirmMessage}`));
             }
-        );
-    });
+        });
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch("{{ path('app_provider_application_archive_bulk') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ ids: selectedIds })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const redirectToArchived = () => {
+                    window.location.href = "{{ path('app_provider_jobs_archived') }}";
+                };
+
+                if (typeof showSuccessAlert === 'function') {
+                    showSuccessAlert('Success', result.message, redirectToArchived);
+                } else {
+                    alert(result.message || 'Archived successfully.');
+                    redirectToArchived();
+                }
+            } else {
+                showErrorAlert('Error', result.message || 'Something went wrong.');
+            }
+        } catch (error) {
+            console.error('Error archiving applications:', error);
+            showErrorAlert('Error', 'An error occurred while archiving applications.');
+        }
+    };
+
+    archiveButtons.forEach(btn => btn.addEventListener('click', handleArchiveClick));
 });
+
+// End of utilities script block
 </script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const headers = document.querySelectorAll('.sortable');
   let currentSort = { key: null, direction: 'asc' };
+
+  const getText = (cell) => (cell?.textContent || '').trim();
+  const getLowerText = (cell) => getText(cell).toLowerCase();
+  const parseNumericText = (text) => {
+    if (!text) return 0;
+    const cleaned = text.replace(/[^0-9.]/g, '');
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
+  };
 
   headers.forEach(header => {
     header.addEventListener('click', () => {
@@ -3486,47 +3993,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function sortApplications(key, direction) {
     const rows = Array.from(document.querySelectorAll('.job-row')).map(row => {
-      const cells = Array.from(row.children);
-      // Structure: [0]checkbox, [1]job, [2]location, [3]salary, [4]category, [5]applied(cond), [6]rank(cond), [7]todo(cond), [8]interview(cond), [9]status
-      
-      // Find cells by their content/class rather than index since columns are conditional
-      const locationCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c.textContent.trim() && !c.querySelector('select') && c !== cells[1]);
-      const salaryCell = cells.find(c => c.classList.contains('col-start') && c.classList.contains('col-center') && c !== locationCell && !c.querySelector('select') && c !== cells[1]);
-      const appliedCell = cells.find(c => c.textContent.trim().match(/\d{2}\/\d{2}\/\d{4}/) && c !== salaryCell && c !== locationCell);
+      const locationCell = row.querySelector('.col-location');
+      const salaryCell = row.querySelector('.col-salary');
+      const employerCell = row.querySelector('.col-employer');
+      const appliedCell = row.querySelector('.col-applied');
+      const categoryCell = row.querySelector('.col-category');
+      const todoCell = row.querySelector('.col-todo');
       const rankCell = row.querySelector('.col-rank');
-      const todoCell = cells.find(c => c.textContent.trim() && c !== locationCell && c !== salaryCell && c !== appliedCell && c !== rankCell && !c.querySelector('select') && !c.classList.contains('col-job'));
-      const interviewCell = cells.find(c => c.textContent.trim() && c !== locationCell && c !== salaryCell && c !== appliedCell && c !== rankCell && c !== todoCell && !c.querySelector('select') && !c.classList.contains('col-job'));
-      // Status is the last cell with text content that's not a checkbox, select, or other special cell
-      const statusCell = Array.from(cells).reverse().find(c => {
-        const text = c.textContent.trim();
-        const hasStatusText = text && 
-               (text.match(/^(Applied|Interview|Hired|Rejected|Saved|In Review|Offered|Completed)$/i) ||
-                (text.length > 0 && !text.match(/^\d+$/) && !text.match(/^\d+\/\d+\/\d+$/) && text !== '—' && text !== 'To Do Actions'));
-        return hasStatusText &&
-               !c.querySelector('select') && 
-               !c.querySelector('input[type="checkbox"]') && 
-               !c.querySelector('.job-title') &&
-               !c.querySelector('.rank-display') &&
-               !c.querySelector('.rank-input') &&
-               c !== locationCell && 
-               c !== salaryCell && 
-               c !== appliedCell && 
-               c !== rankCell && 
-               c !== todoCell && 
-               c !== interviewCell;
-      });
+      const statusCell = row.querySelector('.col-status');
+      const interviewCell = row.querySelector('.col-interview');
       
       return {
         element: row,
         job: {
           job: row.querySelector('.job-title')?.textContent.trim().toLowerCase() || '',
-          location: locationCell?.textContent.trim().toLowerCase() || '',
-          salary: parseFloat(salaryCell?.textContent.trim().replace(/[^0-9.]/g, '')) || 0,
-          applied: appliedCell?.textContent.trim() || '',
-          rank: parseInt(rankCell?.textContent.trim()) || 0,
-          todo: todoCell?.textContent.trim() || '',
-          interview: interviewCell?.textContent.trim() || '',
-          status: statusCell?.textContent.trim().toLowerCase() || ''
+          location: getLowerText(locationCell),
+          salary: parseNumericText(getText(salaryCell)),
+          employer: getLowerText(employerCell),
+          applied: getText(appliedCell),
+          category: getLowerText(categoryCell),
+          rank: (() => {
+            const rankText = rankCell?.querySelector('.rank-display')?.textContent.trim() || rankCell?.textContent.trim() || '';
+            if (rankText === '—' || rankText === '') return 0;
+            const parsed = parseFloat(rankText);
+            return isNaN(parsed) ? 0 : parsed;
+          })(),
+          todo: ((todoCell?.dataset.todoText || getText(todoCell)) || '').trim().toLowerCase(),
+          interview: getLowerText(interviewCell),
+          status: getLowerText(statusCell)
         }
       };
     });

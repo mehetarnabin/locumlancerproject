@@ -852,43 +852,41 @@ class MessageController extends AbstractController
         return $originalName;
     }
 
-  private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
-{
-    $subject = $message->getSubject() ?: "New message";
-    
-    $attachmentHtml = '';
-    $attachment = $message->getAttachment();
-    
-    // FORCE CHECK - Always show if file exists on disk
-    if ($attachment) {
-        $uploadDirectory = $this->getParameter('messages_attachments_directory');
-        $filePath = $uploadDirectory . '/' . $attachment;
+    private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
+    {
+        $subject = $message->getSubject() ?: "New message";
         
-        if (file_exists($filePath)) {
-            $originalFilename = $this->getOriginalFilename($attachment);
+        $attachmentHtml = '';
+        $attachment = $message->getAttachment();
+        
+        // FORCE CHECK - Always show if file exists on disk
+        if ($attachment) {
+            $uploadDirectory = $this->getParameter('messages_attachments_directory');
+            $filePath = $uploadDirectory . '/' . $attachment;
+            
+            if (file_exists($filePath)) {
+                $originalFilename = $this->getOriginalFilename($attachment);
+                $attachmentHtml = "
+                    <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #85BB65;'>
+                        <strong>📎 Attachment:</strong> {$originalFilename}
+                        <br>
+                        <small style='color: #28a745;'>
+                            The file is attached to this email.
+                        </small>
+                    </div>
+                ";
+                error_log("✅✅✅ FORCING ATTACHMENT DISPLAY: " . $originalFilename);
+            }
+        }
+        
+        if (empty($attachmentHtml)) {
             $attachmentHtml = "
-                <div style='background: #e8f5e9; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #85BB65;'>
-                    <strong>📎 Attachment:</strong> {$originalFilename}
-                    <br>
-                    <small style='color: #28a745;'>
-                        The file is attached to this email.
-                    </small>
+                <div style='background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #6c757d;'>
+                    <small style='color: #6c757d;'>No attachment included with this message.</small>
                 </div>
             ";
-            error_log("✅✅✅ FORCING ATTACHMENT DISPLAY: " . $originalFilename);
         }
-    }
-    
-    if (empty($attachmentHtml)) {
-        $attachmentHtml = "
-            <div style='background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #6c757d;'>
-                <small style='color: #6c757d;'>No attachment included with this message.</small>
-            </div>
-        ";
-    }
-    
-    // Rest of template remains the same...
-
+        
         // Rest of your template code remains the same...
         return "
             <!DOCTYPE html>

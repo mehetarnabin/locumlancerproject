@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Application;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -27,8 +28,9 @@ class ApplicationRepository extends ServiceEntityRepository
         // Temporarily removed archived filter to avoid column not found error
 
     if (!empty($filters['status'])) {
+        $statuses = is_array($filters['status']) ? $filters['status'] : [$filters['status']];
         $qb->andWhere('a.status IN (:status)')
-           ->setParameter('status', $filters['status']);
+           ->setParameter('status', $statuses, Connection::PARAM_STR_ARRAY);
     }
 
     if (!empty($filters['provider'])) {

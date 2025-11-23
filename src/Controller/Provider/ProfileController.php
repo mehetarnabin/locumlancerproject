@@ -3,6 +3,7 @@
 namespace App\Controller\Provider;
 
 use App\Entity\Notification;
+use App\Entity\Provider;
 use App\Form\ChangePasswordFormType;
 use App\Form\ProviderCvType;
 use App\Form\ProviderBasicInformationType;
@@ -36,6 +37,14 @@ class ProfileController extends AbstractController
 
     ): Response {
         $user = $this->getUser();
+        $provider = $user?->getProvider();
+        if (!$provider) {
+            throw $this->createAccessDeniedException('Provider profile not found.');
+        }
+        $cvDocuments = $em->getRepository(Document::class)->findBy(
+            ['user' => $user, 'category' => 'CV Upload'],
+            ['createdAt' => 'DESC']
+        );
 
         // --- PROFILE FORM ---
         $profileForm = $this->createForm(UserProfileType::class, $user);
@@ -68,42 +77,118 @@ class ProfileController extends AbstractController
         }
 
         // --- DOCUMENT FORM ---
-        $document = new Document();
-        $documentForm = $this->createForm(DocumentType::class, $document);
-        $documentForm->handleRequest($request);
+        $cvForm = $this->createForm(ProviderCvType::class, $provider);
+        $cvForm->handleRequest($request);
 
-        if ($documentForm->isSubmitted() && $documentForm->isValid()) {
-            /** @var UploadedFile $uploadedFile */
-            $uploadedFile = $documentForm->get('fileName')->getData();
+        if ($cvForm->isSubmitted() && $cvForm->isValid()) {
+            /** @var UploadedFile $cvFile */
+            $cvFile = $cvForm->get('cv')->getData();
 
-            if ($uploadedFile) {
+            if ($cvFile) {
                 $userDir = $uploadDirectory . '/' . $user->getId();
-                if (!is_dir($userDir)) mkdir($userDir, 0777, true);
+                if (!is_dir($userDir)) {
+                    mkdir($userDir, 0777, true);
+                }
 
-                $safeFilename = $slugger->slug(pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME));
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
+                $safeFilename = $slugger->slug(pathinfo($cvFile->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $cvFile->guessExtension();
 
                 try {
-                    $uploadedFile->move($userDir, $newFilename);
-                    $document->setFileName($newFilename);
+                    $cvFile->move($userDir, $newFilename);
+                    $document = new Document();
                     $document->setUser($user);
+                    $document->setCategory('CV Upload');
+                    $document->setName($cvFile->getClientOriginalName() ?: 'CV Upload');
+                    $document->setFileName($newFilename);
+                    $provider->setCvFilename($newFilename);
+                    $em->persist($document);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Document upload failed: ' . $e->getMessage());
+                    if ($request->isXmlHttpRequest()) {
+                        return $this->json(['success' => false, 'message' => 'CV upload failed: ' . $e->getMessage()], 400);
+                    }
+                    $this->addFlash('error', 'CV upload failed: ' . $e->getMessage());
                     return $this->redirectToRoute('app_provider_profile');
                 }
 
-                $em->persist($document);
+                $em->persist($provider);
                 $em->flush();
-                $this->addFlash('success', 'Document uploaded successfully.');
+
+                // Handle AJAX request
+                if ($request->isXmlHttpRequest()) {
+                    // Get updated CV documents list
+                    $cvDocuments = $em->getRepository(Document::class)->findBy(
+                        ['user' => $user, 'category' => 'CV Upload'],
+                        ['createdAt' => 'DESC']
+                    );
+                    
+                    // Render the CV list HTML
+                    $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
+                        'cvDocuments' => $cvDocuments,
+                    ]);
+                    
+                    return $this->json([
+                        'success' => true,
+                        'message' => 'CV uploaded successfully.',
+                        'cvListHtml' => $cvListHtml,
+                        'fileName' => $document->getName() ?: $cvFile->getClientOriginalName()
+                    ]);
+                }
+
+                $this->addFlash('success', 'CV uploaded successfully.');
+            } else {
+                if ($request->isXmlHttpRequest()) {
+                    return $this->json(['success' => false, 'message' => 'Please select a CV file to upload.'], 400);
+                }
+                $this->addFlash('warning', 'Please select a CV file to upload.');
+            }
+
+            if (!$request->isXmlHttpRequest()) {
                 return $this->redirectToRoute('app_provider_profile');
             }
         }
+        
+        // Handle AJAX validation errors
+        if ($cvForm->isSubmitted() && !$cvForm->isValid() && $request->isXmlHttpRequest()) {
+            $errors = [];
+            foreach ($cvForm->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+            return $this->json(['success' => false, 'message' => implode(', ', $errors)], 400);
+        }
+
+        $workPreferenceForm = $this->createForm(ProviderWorkPreferenceType::class, $provider, [
+            'action' => $this->generateUrl('app_provider_profile_work_preferences_save'),
+            'method' => 'POST',
+        ]);
 
         return $this->render('provider/profile/profile.html.twig', [
             'user' => $user,
             'profileForm' => $profileForm->createView(),
-            'documentForm' => $documentForm->createView(),
+            'cvForm' => $cvForm->createView(),
+            'providerEntity' => $provider,
+            'cvDocuments' => $cvDocuments,
+            'workPreferenceForm' => $workPreferenceForm->createView(),
         ]);
+    }
+
+    #[Route('/cv/delete/{id}', name: 'app_provider_profile_cv_delete', methods: ['POST'])]
+    public function deleteCv(Document $document, Request $request, EntityManagerInterface $em, #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory): Response
+    {
+        $user = $this->getUser();
+        if ($document->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+        if (!$this->isCsrfTokenValid('delete_cv_' . $document->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+        $filePath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
+        if (is_file($filePath)) {
+            @unlink($filePath);
+        }
+        $em->remove($document);
+        $em->flush();
+        $this->addFlash('success', 'CV deleted successfully.');
+        return $this->redirectToRoute('app_provider_profile');
     }
 
 
@@ -235,6 +320,43 @@ class ProfileController extends AbstractController
             'provider' => $provider,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/work-preferences/save-inline', name: 'app_provider_profile_work_preferences_save', methods: ['POST'])]
+    public function saveWorkPreferencesInline(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $provider = $this->getUser()->getProvider();
+        if (!$provider) {
+            return $this->json(['success' => false, 'message' => 'Provider profile not found.'], 404);
+        }
+
+        $form = $this->createForm(ProviderWorkPreferenceType::class, $provider);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($provider);
+            $em->flush();
+
+            $summaryHtml = $this->renderView('provider/profile/_work_preferences_summary.html.twig', [
+                'provider' => $provider,
+            ]);
+
+            return $this->json([
+                'success' => true,
+                'summaryHtml' => $summaryHtml,
+                'hasPreferences' => $this->hasWorkPreferencesData($provider),
+            ]);
+        }
+
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return $this->json([
+            'success' => false,
+            'message' => $errors ? implode("\n", $errors) : 'Unable to save work preferences.',
+        ], 400);
     }
 
     #[Route('/change-password', name: 'app_provider_change_password', methods: ['GET', 'POST'])]
@@ -458,4 +580,17 @@ class ProfileController extends AbstractController
         ]);
     }
 
+    private function hasWorkPreferencesData(Provider $provider): bool
+    {
+        return !empty($provider->getDesiredPayRate())
+            || !empty($provider->getDesiredHour())
+            || !empty($provider->getDesiredStates())
+            || !empty($provider->getPayRateDaily())
+            || !empty($provider->getPayRateHourly())
+            || !empty($provider->getPreferredPatientVolume())
+            || $provider->getAvailabilityToStart() !== null
+            || $provider->getWillingToTravel() !== null
+            || $provider->getProfession() !== null
+            || ($provider->getSpecialities() && $provider->getSpecialities()->count() > 0);
+    }
 }

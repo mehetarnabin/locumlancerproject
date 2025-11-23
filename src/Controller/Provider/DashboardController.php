@@ -77,6 +77,38 @@ class DashboardController extends AbstractController
 
         $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
         
+        // Get all applications for status counting (same as AnalyticsController)
+        $allApplications = [];
+        if ($provider) {
+            $allApplications = $em->getRepository(Application::class)->findBy(['provider' => $provider]);
+        }
+        
+        // Calculate status counts the same way as AnalyticsController
+        $statusCountsArray = [
+            'applied' => 0,
+            'interview' => 0,
+            'negotiating' => 0,
+            'accepted' => 0,
+            'completed' => 0,
+            'rejected' => 0,
+        ];
+        
+        foreach ($allApplications as $application) {
+            $status = strtolower($application->getStatus() ?? '');
+            if (isset($statusCountsArray[$status])) {
+                $statusCountsArray[$status]++;
+            }
+        }
+        
+        // Calculate total applications
+        $totalApplications = count($allApplications);
+        
+        // Calculate ratio the same way as AnalyticsController
+        $interviewCount = $statusCountsArray['interview'];
+        $appliedCount = $statusCountsArray['applied'] > 0 ? $statusCountsArray['applied'] : 1;
+        $ratio = ($interviewCount / $appliedCount) * 100;
+        
+        // Get status counts for the status cards (original format)
         $statusCounts = [];
         if ($provider) {
             $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
@@ -86,23 +118,31 @@ class DashboardController extends AbstractController
             'count' => count($bookmarks),
         ];
 
-        $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
-            ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
-            ->getSingleScalarResult();
-
+        // Get analytics data
         $analytics = $analyticsService->getProfileAnalytics($user);
-
+        
+        // Extract metrics and other data from analytics
+        $metrics = $analytics['metrics'] ?? [];
+        $skills = $analytics['skills'] ?? [];
+        $resume = $analytics['resume'] ?? [];
 
         return $this->render('provider/dashboard.html.twig', [
             'bookmarks' => $bookmarks,
             'matchingJobs' => $matchingJobs,
-            'statusCounts' => $statusCounts,
+            'statusCounts' => $statusCounts, // For status cards
+            'statusCountsArray' => $statusCountsArray, // For analytics calculations
             'applications' => $applications,
             'messages' => $messages,
             'notifications' => $notifications,
             'totalApplications' => $totalApplications,
             'analytics' => $analytics,
-            'hasProvider' => $provider !== null, // Pass this to template for conditional rendering
+            'ratio' => round($ratio, 1), // Calculated ratio
+            'interviewCount' => $interviewCount,
+            'appliedCount' => $appliedCount,
+            'metrics' => $metrics,
+            'skills' => $skills,
+            'resume' => $resume,
+            'hasProvider' => $provider !== null,
         ]);
     }
 
