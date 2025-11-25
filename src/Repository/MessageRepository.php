@@ -42,39 +42,41 @@ class MessageRepository extends ServiceEntityRepository
 
     private function applyFilters($queryBuilder, array $filters): void
     {
-        // Handle different message types
-        if (isset($filters['receiver'])) {
-            // INBOX: Messages where user is receiver, not drafts, not deleted
-            $queryBuilder->andWhere('m.receiver = :receiver')
-                ->andWhere('m.deleted = false')
-                ->andWhere('m.isDraft = false')
-                ->setParameter('receiver', Uuid::fromString($filters['receiver'])->toBinary());
-        }
-
-        if (isset($filters['sender'])) {
-            if (isset($filters['drafts_only']) && $filters['drafts_only']) {
-                // DRAFTS: Only show draft messages from sender
-                $queryBuilder->andWhere('m.sender = :sender')
-                    ->andWhere('m.isDraft = true')
-                    ->andWhere('m.deleted = false')
-                    ->setParameter('sender', Uuid::fromString($filters['sender'])->toBinary());
-            } else {
-                // SENT: Show non-draft sent messages
-                $queryBuilder->andWhere('m.sender = :sender')
-                    ->andWhere('m.isDraft = false')
-                    ->andWhere('m.deleted = false')
-                    ->setParameter('sender', Uuid::fromString($filters['sender'])->toBinary());
-            }
-        }
-
-        // Handle trash - messages that are deleted and user is either sender or receiver
-        if (isset($filters['deleted']) && $filters['deleted']) {
+        // Handle trash first - this takes precedence over other filters
+        if (isset($filters['deleted']) && $filters['deleted'] === true) {
+            // TRASH: Show all deleted messages where user is either sender or receiver
+            // This includes both regular messages AND drafts that were deleted
             $queryBuilder->andWhere('m.deleted = true')
                 ->andWhere('(m.sender = :user OR m.receiver = :user)')
                 ->setParameter('user', Uuid::fromString($filters['user'])->toBinary());
+        } else {
+            // For non-trash views, exclude deleted messages
+            $queryBuilder->andWhere('m.deleted = false');
+
+            // Handle different message types for non-trash
+            if (isset($filters['receiver'])) {
+                // INBOX: Messages where user is receiver, not drafts
+                $queryBuilder->andWhere('m.receiver = :receiver')
+                    ->andWhere('m.isDraft = false')
+                    ->setParameter('receiver', Uuid::fromString($filters['receiver'])->toBinary());
+            }
+
+            if (isset($filters['sender'])) {
+                if (isset($filters['drafts_only']) && $filters['drafts_only']) {
+                    // DRAFTS: Only show draft messages from sender
+                    $queryBuilder->andWhere('m.sender = :sender')
+                        ->andWhere('m.isDraft = true')
+                        ->setParameter('sender', Uuid::fromString($filters['sender'])->toBinary());
+                } else {
+                    // SENT: Show non-draft sent messages
+                    $queryBuilder->andWhere('m.sender = :sender')
+                        ->andWhere('m.isDraft = false')
+                        ->setParameter('sender', Uuid::fromString($filters['sender'])->toBinary());
+                }
+            }
         }
 
-        // Handle search
+        // Handle search (applies to all views including trash)
         if (isset($filters['keyword']) && $filters['keyword']) {
             $queryBuilder->andWhere('m.text LIKE :keyword OR m.subject LIKE :keyword')
                 ->setParameter('keyword', '%' . $filters['keyword'] . '%');
@@ -90,7 +92,7 @@ class MessageRepository extends ServiceEntityRepository
             ->select('COUNT(m.id)')
             ->andWhere('m.sender = :user')
             ->andWhere('m.isDraft = true')
-            ->andWhere('m.deleted = false')
+            ->andWhere('m.deleted = false') // Only count non-deleted drafts
             ->andWhere('m.parent IS NULL')
             ->setParameter('user', $user->getId()->toBinary())
             ->getQuery()
@@ -115,12 +117,43 @@ class MessageRepository extends ServiceEntityRepository
             ->andWhere('m.id = :id')
             ->andWhere('m.sender = :user')
             ->andWhere('m.isDraft = true')
-            ->andWhere('m.deleted = false')
+            ->andWhere('m.deleted = false') // Only find non-deleted drafts
             ->andWhere('m.parent IS NULL')
             ->setParameter('id', Uuid::fromString($draftId)->toBinary())
             ->setParameter('user', $user->getId()->toBinary())
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    // Find a message in trash (for restoration)
+    public function findInTrash(string $messageId, User $user): ?Message
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.id = :id')
+            ->andWhere('m.deleted = true')
+            ->andWhere('(m.sender = :user OR m.receiver = :user)')
+            ->setParameter('id', Uuid::fromString($messageId)->toBinary())
+            ->setParameter('user', $user->getId()->toBinary())
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    // Get all trash messages for a user
+    public function findTrashMessages(User $user, int $offset = 0, int $limit = 10): array
+    {
+        return $this->createQueryBuilder('m')
+            ->leftJoin('m.sender', 'sender')
+            ->leftJoin('m.receiver', 'receiver')
+            ->leftJoin('m.employer', 'employer')
+            ->andWhere('m.deleted = true')
+            ->andWhere('(m.sender = :user OR m.receiver = :user)')
+            ->andWhere('m.parent IS NULL')
+            ->orderBy('m.deletedAt', 'DESC')
+            ->setParameter('user', $user->getId()->toBinary())
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
     // In MessageRepository

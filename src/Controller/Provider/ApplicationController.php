@@ -292,10 +292,6 @@ class ApplicationController extends AbstractController
             if (!$provider) {
                 $debugLog .= "ERROR: Provider not found for user\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-                
-                if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['success' => false, 'message' => 'Provider not found.'], 401);
-                }
                 $this->addFlash('error', 'Provider not found.');
                 return $this->redirectToRoute('app_provider_jobs_applications');
             }
@@ -318,10 +314,6 @@ class ApplicationController extends AbstractController
             if (empty($applications)) {
                 $debugLog .= "ERROR: No applications found with provider filter\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-                
-                if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['success' => false, 'message' => 'No applications found to delete or you do not have permission to delete them.'], 404);
-                }
                 $this->addFlash('error', 'No applications found to delete or you do not have permission to delete them.');
                 return $this->redirectToRoute('app_provider_jobs_applications');
             }
@@ -342,25 +334,12 @@ class ApplicationController extends AbstractController
 
             $debugLog .= "SUCCESS: Deleted $count applications\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse([
-                    'success' => true,
-                    'message' => sprintf('Successfully removed %d application(s) from your list.', $count)
-                ]);
-            }
-            
             $this->addFlash('success', sprintf('Successfully removed %d application(s) from your list.', $count));
 
         } catch (\Exception $e) {
             $debugLog .= "EXCEPTION: " . $e->getMessage() . "\n";
             $debugLog .= "TRACE: " . $e->getTraceAsString() . "\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse(['success' => false, 'message' => 'An error occurred while deleting applications.'], 500);
-            }
-            
             $this->addFlash('error', 'An error occurred while deleting applications.');
         }
 
@@ -563,30 +542,9 @@ class ApplicationController extends AbstractController
 
         $debugLog .= "Final bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
 
-        // Handle both JSON and form-encoded requests
-        $bookmarkIdsJson = null;
-        if ($request->isXmlHttpRequest() && $request->getContentType() === 'json') {
-            $data = json_decode($request->getContent(), true);
-            $bookmarkIdsJson = $data['bookmark_ids'] ?? null;
-        } else {
-            $bookmarkIdsJson = $request->request->get('bookmark_ids');
-        }
-        
-        $debugLog .= "Raw bookmark_ids: " . $bookmarkIdsJson . "\n";
-        
-        // Decode JSON string if it's a JSON string, otherwise treat as array
-        if (is_string($bookmarkIdsJson)) {
-            $bookmarkIds = json_decode($bookmarkIdsJson, true);
-        } else {
-            $bookmarkIds = $bookmarkIdsJson;
-        }
-        
-        $debugLog .= "Decoded bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
-
         if (empty($bookmarkIds)) {
             $debugLog .= "ERROR: No bookmarks selected for deletion\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['success' => false, 'message' => 'No saved jobs selected for deletion.'], 400);
             }
@@ -654,7 +612,6 @@ class ApplicationController extends AbstractController
                     'deleted' => $count
                 ]);
             }
-
             $this->addFlash('success', sprintf('Successfully removed %d saved job(s) from your list.', $count));
 
         } catch (\Exception $e) {
