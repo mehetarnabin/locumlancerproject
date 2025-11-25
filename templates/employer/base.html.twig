@@ -16,6 +16,98 @@
     <!-- App CSS -->
     <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/css/portal.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
+    <style>
+        /* ============================================
+           EMPLOYER DASHBOARD - SPACING & ALIGNMENT FIXES
+           Match provider dashboard layout and spacing
+           ============================================ */
+        
+        /* Center app content and fix left spacing - match provider layout */
+        .app-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .app-content {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 20px !important;
+            padding-bottom: 0 !important;
+            max-width: 1600px;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        /* Override Bootstrap padding classes on app-content */
+        .app-content.pt-3,
+        .app-content.p-md-3,
+        .app-content.p-lg-4 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        .app-content .container-xl,
+        .container-xl,
+        div.container-xl,
+        [class*="container-xl"] {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Remove excessive left padding on dashboard and main content */
+        .main-content,
+        .dashboard,
+        .dashboard .container-xl {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Sidebar animation - app-wrapper shifts right when sidebar expands on hover */
+        /* Match admin/provider pattern but adapted for employer's collapsed sidebar (60px -> 250px) */
+        /* Use maximum specificity to override page-specific styles */
+        @media (min-width: 1200px) {
+            body.app .app-wrapper,
+            body .app-wrapper,
+            .app-wrapper {
+                margin-left: 60px !important; /* Collapsed sidebar width */
+                transform: none !important; /* Remove transform from page-specific overrides */
+                width: auto !important; /* Remove width constraints */
+                transition: margin-left 0.4s ease-in-out !important;
+            }
+            
+            /* When sidebar is hovered (expanded) or nav item is hovered, shift to 250px */
+            body.nav-hover-active .app-wrapper,
+            body.nav-hover-active body.app .app-wrapper,
+            body.sidebar-hovered .app-wrapper,
+            body.sidebar-hovered body.app .app-wrapper {
+                margin-left: 250px !important; /* Expanded sidebar width */
+                transform: none !important; /* Remove transform */
+                width: auto !important;
+            }
+        }
+        
+        /* On smaller screens, no margin when sidebar is hidden */
+        @media (max-width: 1199.98px) {
+            body.app .app-wrapper,
+            body .app-wrapper,
+            .app-wrapper {
+                margin-left: 0 !important;
+                transform: none !important;
+                width: auto !important;
+            }
+        }
+    </style>
 
     {% block header_scripts %}{% endblock %}
 </head>
@@ -500,6 +592,89 @@
 
 <!-- Page Specific JS -->
 <script src="{{ asset('assets/admin/js/app.js') }}"></script>
+
+<script>
+    // Sidebar hover detection for app-wrapper animation
+    // This works in conjunction with nav-hover-active from app.js
+    // Override page-specific JavaScript that sets inline styles
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidePanel = document.getElementById('app-sidepanel');
+        const sidePanelInner = sidePanel ? sidePanel.querySelector('.sidepanel-inner') : null;
+        const appWrapper = document.querySelector('.app-wrapper');
+        
+        // Override any inline styles set by page-specific JavaScript
+        function applyAnimationStyles() {
+            if (window.innerWidth >= 1200 && appWrapper) {
+                // Remove transform and width constraints that interfere with animation
+                appWrapper.style.setProperty('transform', 'none', 'important');
+                appWrapper.style.setProperty('width', 'auto', 'important');
+                
+                // Set initial margin based on sidebar state
+                if (document.body.classList.contains('nav-hover-active') || 
+                    document.body.classList.contains('sidebar-hovered')) {
+                    appWrapper.style.setProperty('margin-left', '250px', 'important');
+                } else {
+                    appWrapper.style.setProperty('margin-left', '60px', 'important');
+                }
+            } else if (appWrapper) {
+                appWrapper.style.setProperty('margin-left', '0', 'important');
+                appWrapper.style.setProperty('transform', 'none', 'important');
+                appWrapper.style.setProperty('width', 'auto', 'important');
+            }
+        }
+        
+        function handleSidebarHover() {
+            if (window.innerWidth >= 1200 && sidePanelInner) {
+                // Add class when sidebar inner is hovered (expanded)
+                sidePanelInner.addEventListener('mouseenter', function() {
+                    document.body.classList.add('sidebar-hovered');
+                    applyAnimationStyles();
+                });
+                
+                // Remove class when mouse leaves sidebar
+                sidePanelInner.addEventListener('mouseleave', function() {
+                    // Small delay to allow nav-hover-active to take over if hovering nav items
+                    setTimeout(function() {
+                        if (!document.querySelector('.app-nav .nav-item:hover')) {
+                            document.body.classList.remove('sidebar-hovered');
+                            applyAnimationStyles();
+                        }
+                    }, 50);
+                });
+            }
+        }
+        
+        // Override page-specific styles immediately
+        applyAnimationStyles();
+        
+        // Watch for nav-hover-active changes (from app.js)
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    applyAnimationStyles();
+                }
+            });
+        });
+        
+        if (document.body) {
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+        
+        handleSidebarHover();
+        
+        // Re-apply on window resize
+        window.addEventListener('resize', function() {
+            applyAnimationStyles();
+            handleSidebarHover();
+        });
+        
+        // Re-apply periodically to override any page-specific JavaScript
+        setInterval(applyAnimationStyles, 100);
+    });
+</script>
 
 {% block footer_scripts %}{% endblock %}
 

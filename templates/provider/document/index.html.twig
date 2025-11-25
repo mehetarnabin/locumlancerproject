@@ -121,11 +121,18 @@ div.container-xl,
 }
 
 /* Form styling */
+.form-label-wrapper {
+    padding-left: 16px;
+    margin-bottom: 8px;
+}
+
 .form-label {
     font-weight: 500;
     color: #0f172a;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     font-size: 0.9rem;
+    display: block;
+    padding-left: 16px;
 }
 
 .form-control, .form-select {
@@ -266,6 +273,7 @@ div.container-xl,
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 14px 16px;
+    text-align: center;
 }
 
 .document-table {
@@ -293,19 +301,46 @@ div.container-xl,
     font-size: 0.95rem;
     color: #111827;
     vertical-align: middle;
+    text-align: center;
 }
 
+
+.document-table td div {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.document-table td small {
+    text-align: center;
+    display: block;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Ensure all text-muted elements in tables have consistent styling */
+.document-table .text-muted {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Ensure all strong tags in tables have consistent styling */
 .document-table td strong {
     font-weight: 600;
     color: #0f172a;
+    display: inline-block;
+    font-size: 0.95rem;
 }
 
 .table tbody td {
     padding: 16px;
     vertical-align: middle;
     border-bottom: 1px solid #f3f4f6;
-    color: #374151;
-    font-size: 0.875rem;
+    color: #111827;
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 .table tbody tr:hover {
@@ -350,9 +385,24 @@ div.container-xl,
 }
 
 .action-btn:hover {
-    background: #85BB65;
+    color: #85BB65;
     border-color: #85BB65;
     transform: translateY(-1px);
+}
+
+.action-btn:hover svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.action-btn.active {
+    color: #85BB65;
+    border-color: #85BB65;
+}
+
+.action-btn.active svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 .action-btn img {
@@ -674,9 +724,10 @@ div.container-xl,
     flex: 1;
     width: 100%;
     border: 1px solid #e6eef6;
-    border-radius: 8px;
+    border-radius: 16px;
     overflow: hidden;
     background: #f9fafb;
+    position: relative;
 }
 
 .document-preview-frame iframe,
@@ -685,6 +736,8 @@ div.container-xl,
     width: 100%;
     height: 100%;
     border: none;
+    border-radius: 16px;
+    display: block;
 }
 
 .document-preview-frame img {
@@ -692,83 +745,321 @@ div.container-xl,
     height: auto;
     max-height: 100%;
     object-fit: contain;
-}
-
-/* Document Requests Grid */
-.document-requests-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.document-request-card {
-    border: 1px solid #e6eef6;
     border-radius: 16px;
-    padding: 20px;
+    display: block;
+}
+
+#requests-split-view-btn.active,
+#documents-split-view-btn.active {
+    background: #F4F9F1;
+    border-color: #85BB65;
+    color: #85BB65;
+}
+
+#requests-split-view-btn.active svg,
+#documents-split-view-btn.active svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+/* Grid View Styles */
+.documents-grid-view-container {
+    display: none;
+    margin-top: 20px;
     background: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
-}
-
-.document-request-card-header h6 {
-    margin: 0;
-    font-weight: 600;
-    color: #0f172a;
-}
-
-.document-request-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.document-request-item {
     border: 1px solid #e6eef6;
-    border-radius: 10px;
-    padding: 12px 14px;
-    background: #f9fafb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
 }
 
-.request-checkbox {
+.grid-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.grid-view-header h5 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #121C0C;
+}
+
+.grid-view-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.documents-grid-wrapper {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 8px; /* Add padding to prevent scrollbar overlap */
+}
+
+.company-document-group {
+    margin-bottom: 32px;
+}
+
+.company-document-group:last-child {
+    margin-bottom: 0;
+}
+
+.company-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border-radius: 8px;
+    border-left: 4px solid #85BB65;
+}
+
+.company-name-wrapper {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    flex: 1;
+    padding: 0 8px;
+}
+
+.company-name {
+    margin: 0;
+    font-size: 16px;
     font-weight: 600;
-    margin-bottom: 6px;
+    color: #121C0C;
+    text-align: center;
 }
 
-.document-request-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+.request-count {
+    font-size: 12px;
+    color: #6b7280;
+    background: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
 }
 
-.document-library-list {
-    max-height: 400px;
-    overflow-y: auto;
+.documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.requests-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+    padding-right: 20px; /* Add padding to prevent scrollbar overlap */
+}
+
+.request-card {
+    background: #fff;
+    border: 2px solid #e6eef6;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.request-card:hover {
+    border-color: #85BB65;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+}
+
+.request-card-header {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.document-library-item {
+.request-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #121C0C;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.request-document-select {
+    width: 100%;
+}
+
+.request-document-select .form-select {
+    width: 100%;
+    font-size: 13px;
+    padding: 6px 10px;
     border: 1px solid #e6eef6;
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
+    border-radius: 6px;
+    background: #fff;
     cursor: pointer;
 }
 
-.document-library-item input {
-    margin-top: 5px;
+.request-document-select .form-select:focus {
+    border-color: #85BB65;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+}
+
+.grid-document-card {
+    background: #fff;
+    border: 2px solid #e6eef6;
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.grid-document-card:hover {
+    border-color: #85BB65;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+}
+
+.grid-document-card.selected {
+    border-color: #85BB65;
+    background: #F4F9F1;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.2);
+}
+
+.grid-document-checkbox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
+
+.grid-document-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #85BB65;
+}
+
+.grid-document-content {
+    padding: 0 32px 0 16px;
+}
+
+.grid-document-title-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px 0 16px;
+    margin-bottom: 12px;
+}
+
+.grid-document-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #121C0C;
+    margin: 0;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.grid-document-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.grid-document-meta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grid-document-meta-item .meta-label {
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grid-document-meta-item .meta-value {
+    font-size: 12px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.grid-document-requests {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: #f9fafb;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.request-item:hover {
+    background: #f3f4f6;
+}
+
+.request-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #85BB65;
+    flex-shrink: 0;
+}
+
+.request-item label {
+    cursor: pointer;
+    flex: 1;
+    margin: 0;
+    font-size: 12px;
+    color: #374151;
+}
+
+.request-name {
+    font-weight: 500;
+}
+
+.empty-grid-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.empty-grid-state svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-grid-state h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: #6b7280;
+}
+
+.empty-grid-state p {
+    margin: 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* Document select styling */
+.document-select {
+    min-width: 200px;
+    font-size: 0.875rem;
 }
 
 /* Empty state */
@@ -1004,13 +1295,13 @@ div.container-xl,
     <div class="container-xl">
     <h1 class="app-page-title">Documents</h1>
 
-   {# Document Requests Grid - Grouped by Employer #}
+   {# Document Requests Table - Only Pending Requests #}
 <div class="card app-card-settings">
     <div class="card-body">
         <div class="card-header-row">
             <h5 class="card-title">Pending Document Requests</h5>
-            <button id="requests-grid-view-btn" class="action-btn" type="button">
-                <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <button id="requests-split-view-btn" class="action-btn" title="Grid View">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1105,106 +1396,72 @@ div.container-xl,
                 </tbody>
             </table>
         </div>
-
-        <div id="requests-grid-view" style="display: none;">
-        {% if groupedDocumentRequests is not empty %}
-            <div class="document-requests-grid">
-                {% for employerId, group in groupedDocumentRequests %}
-                    {% set employer = group.employer %}
-                    {% set requests = group.requests %}
-                    <div class="document-request-card" data-employer-id="{{ employer ? employer.id : '' }}">
-                        <div class="document-request-card-header">
-                                        <div>
-                                <h6 class="mb-1">{{ employer ? employer.companyName : 'Unknown Employer' }}</h6>
-                                <p class="text-muted mb-0 small">
-                                    {{ employer and employer.contactEmail ? employer.contactEmail : (employer and employer.email ? employer.email : 'No contact email') }}
-                                </p>
-                                        </div>
-                            <div class="text-muted small">{{ requests|length }} request{{ requests|length > 1 ? 's' : '' }}</div>
-                        </div>
-
-                        <ol class="document-request-list">
-                            {% for documentRequest in requests %}
-                                {% set job = documentRequest.application and documentRequest.application.job ? documentRequest.application.job : null %}
-                                <li class="document-request-item">
-                                    <label class="request-checkbox">
-                                        <input type="checkbox"
-                                               class="form-check-input request-select"
-                                            data-request-id="{{ documentRequest.id }}"
-                                               data-request-name="{{ documentRequest.name|e('html_attr') }}">
-                                        <span>{{ documentRequest.name }}</span>
-                                    </label>
-                                    <div class="text-muted small">
-                                        Job: {{ job ? job.title : 'N/A' }}
-                                </div>
-                                    <div class="text-muted small">
-                                        Requested: {{ documentRequest.createdAt|date('M d, Y') }}
-        </div>
-                                </li>
-                                        {% endfor %}
-                        </ol>
         
-                        <div class="selected-documents-summary text-muted small" data-selected-documents-summary>
-                            Select one or more requests, then choose documents to upload.
         </div>
         
-                        <div class="document-request-actions">
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm open-document-selector">
-                                Upload
-            </button>
-                            <button type="button"
-                                    class="btn btn-success btn-sm submit-documents"
-                                    data-assign-url="{{ path('app_provider_document_request_assign_bulk') }}"
-                                    disabled>
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                        {% endfor %}
-            </div>
-                    {% else %}
-            <div class="empty-state">
-                                <div class="empty-state-icon">📋</div>
-                                <p class="mb-0">No pending document requests found.</p>
-                                <p class="text-muted small mt-2">All document requests have been provided.</p>
-                                </div>
-        {% endif %}
-        </div>
-        </div>
-        </div>
-        
-        {# Document selection modal #}
-        <div class="modal fade" id="documentSelectModal" tabindex="-1" aria-labelledby="documentSelectModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="documentSelectModalLabel">Select Documents</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                    <div class="modal-body">
-                        {% if documents is not empty %}
-                            <div class="document-library-list">
-                                {% for document in documents %}
-                                    <label class="document-library-item">
-                                        <input type="checkbox" class="form-check-input document-library-checkbox" value="{{ document.id }}">
-                                        <div>
-                                            <div class="fw-semibold">{{ document.name ?: document.category ?: 'Untitled Document' }}</div>
-                                            <div class="text-muted small">
-                                                {{ document.category ?: 'No category' }} &middot; Uploaded {{ document.createdAt ? document.createdAt|date('M d, Y') : 'Unknown' }}
-                        </div>
-                            </div>
-                                    </label>
-                {% endfor %}
-            </div>
-                        {% else %}
-                            <p class="text-muted mb-0">You haven't uploaded any documents yet. Upload a document first to respond to requests.</p>
-                        {% endif %}
+        {# Grid View for Document Requests - Grouped by Company #}
+        <div class="documents-grid-view-container" id="requests-grid-view-container" style="display: none;">
+            <div class="grid-view-header">
+                <h5>Select Documents to Submit</h5>
+                <div class="grid-view-actions">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all-requests-btn">Select All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
                 </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="documentSelectConfirm">Use Selected</button>
-                    </div>
+            </div>
+            <div class="documents-grid-wrapper" id="requests-grid-wrapper">
+                {% set companyGroups = {} %}
+                {% for documentRequest in documentRequests %}
+                    {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+                        {% set companyName = documentRequest.application.employer.companyName %}
+                        {% if companyGroups[companyName] is not defined %}
+                            {% set companyGroups = companyGroups|merge({(companyName): []}) %}
+                    {% endif %}
+                        {% set companyGroups = companyGroups|merge({(companyName): companyGroups[companyName]|merge([documentRequest])}) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if companyGroups|length > 0 %}
+                    {% for companyName, requests in companyGroups %}
+                        <div class="company-document-group">
+                            <div class="company-group-header">
+                                <h6 class="company-name">{{ companyName }}</h6>
+                                <span class="request-count">{{ requests|length }} request(s)</span>
+                            </div>
+                            <div class="requests-grid">
+                                {% for request in requests %}
+                                    <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
+                                        <div class="request-card-header">
+                                            <div class="request-title">{{ request.name }}</div>
+                                            <div class="request-document-select">
+                                                <select class="form-select document-select" 
+                                                        data-request-id="{{ request.id }}"
+                                                        id="request-{{ request.id }}-document">
+                                                    <option value="">Select Document</option>
+                                                    {% for document in documents %}
+                                                        <option value="{{ document.id }}" 
+                                                                {% if request.document and request.document.id == document.id %}selected{% endif %}>
+                                                            {{ document.category ?: document.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-grid-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                        <h4>No pending document requests</h4>
+                        <p>There are no pending document requests from companies at this time.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -1232,7 +1489,9 @@ div.container-xl,
                 {# File Upload Dropzone #}
                 <div class="col-12">
                     <div class="mb-3">
+                        <div class="form-label-wrapper">
                         <label class="form-label">Choose File (PDF or DOCX)</label>
+                        </div>
                         <div class="upload-dropzone position-relative" id="uploadDropzone">
                             {{ form_widget(form.fileName, {
                                 'attr': {
@@ -1431,6 +1690,7 @@ div.container-xl,
                     <div id="documents-document-content" style="display: none;"></div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -1651,24 +1911,132 @@ div.container-xl,
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
+        // Alert helper functions using SweetAlert2
+        function showSuccessAlert(title, message) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: title,
+                    text: message,
+                    confirmButtonColor: '#85BB65'
+                });
+            } else {
+                alert(title + ': ' + message);
+            }
+        }
+
+        function showErrorAlert(title, message) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: title,
+                    text: message,
+                    confirmButtonColor: '#dc3545'
+                });
+            } else {
+                alert(title + ': ' + message);
+            }
+        }
+
+        function showWarningAlert(title, message) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: title,
+                    text: message,
+                    confirmButtonColor: '#ffc107'
+                });
+            } else {
+                alert(title + ': ' + message);
+            }
+        }
+
+        function showInfoAlert(title, message) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'info',
+                    title: title,
+                    text: message,
+                    confirmButtonColor: '#0dcaf0'
+                });
+            } else {
+                alert(title + ': ' + message);
+            }
+        }
+
+        function showConfirmAlert(title, message, confirmText, cancelText, callback) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: title,
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: confirmText || 'Yes',
+                    cancelButtonText: cancelText || 'Cancel'
+                }).then((result) => {
+                    if (callback) {
+                        callback(result.isConfirmed);
+                    }
+                });
+            } else {
+                if (confirm(title + ': ' + message)) {
+                    if (callback) callback(true);
+                } else {
+                    if (callback) callback(false);
+                }
+            }
+        }
+
         // Tab functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Function to switch to a specific tab
+            function switchToTab(tabName) {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Find and activate the target tab
+                const targetTab = document.querySelector(`.documents-tab[data-tab="${tabName}"]`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                }
+                
+                // Show corresponding content
+                const content = document.getElementById(`${tabName}-tab`);
+                if (content) {
+                    content.classList.add('active');
+                    // Scroll to the tab section
+                    setTimeout(() => {
+                        content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            }
+            
+            // Handle hash navigation (for dropdown links)
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1); // Remove #
+                if (hash === 'my-documents-tab' || hash === 'history-tab') {
+                    const tabName = hash.replace('-tab', '');
+                    switchToTab(tabName);
+                }
+            }
+            
+            // Listen for hash changes
+            window.addEventListener('hashchange', function() {
+                const hash = window.location.hash.substring(1);
+                if (hash === 'my-documents-tab' || hash === 'history-tab') {
+                    const tabName = hash.replace('-tab', '');
+                    switchToTab(tabName);
+                }
+            });
+            
             // Tab switching
             document.querySelectorAll('.documents-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs and contents
-                    document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Show corresponding content
                     const tabId = this.getAttribute('data-tab');
-                    const content = document.getElementById(`${tabId}-tab`);
-                    if (content) {
-                        content.classList.add('active');
-                    }
+                    switchToTab(tabId);
                 });
             });
 
@@ -1863,9 +2231,34 @@ div.container-xl,
 
         // Delete document confirmation with SweetAlert
         document.addEventListener('DOMContentLoaded', function() {
+            // Use event delegation for delete buttons (works for dynamically added buttons)
+            document.addEventListener('click', function(e) {
+                const deleteBtn = e.target.closest('.delete-document-btn');
+                if (deleteBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const documentName = deleteBtn.dataset.documentName || 'this document';
+                    const deleteUrl = deleteBtn.getAttribute('href');
+
+                    showConfirmAlert(
+                        'Delete Document',
+                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
+                        'Yes, Delete',
+                        'Cancel',
+                        function(confirmed) {
+                            if (confirmed) {
+                                window.location.href = deleteUrl;
+                            }
+                        }
+                    );
+                }
+            });
+            
+            // Also attach directly to existing buttons
             document.querySelectorAll('.delete-document-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     const documentName = this.dataset.documentName || 'this document';
                     const deleteUrl = this.getAttribute('href');
 
@@ -1883,7 +2276,73 @@ div.container-xl,
                 });
             });
 
-            initDocumentRequestGrid();
+            // Document request assignment with SweetAlert (only for list view, not grid view)
+            document.querySelectorAll('.document-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    // Skip auto-submit if this select is in the grid view container
+                    const gridContainer = document.getElementById('requests-grid-view-container');
+                    if (gridContainer && gridContainer.contains(this)) {
+                        return; // Let the grid view handle it via bulk submit button
+                    }
+                    
+                    const documentId = this.value;
+                    const requestId = this.dataset.requestId;
+                    const selectElement = this;
+
+                    if (!documentId) return;
+
+                    // Show loading state
+                    const originalValue = selectElement.value;
+                    selectElement.disabled = true;
+
+                    // FIX: Add /provider prefix to match the controller route
+                    fetch(`/provider/document-request/${requestId}/assign-document`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
+                        },
+                        body: JSON.stringify({ documentId: documentId })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        selectElement.disabled = false;
+                        if (data.success) {
+                            // Success handling
+                            const row = selectElement.closest('tr');
+                            row.style.opacity = '0.5';
+                            setTimeout(() => {
+                                row.remove();
+                                updateEmptyState();
+                                
+                                // Also remove from split view if it exists
+                                const splitCard = document.querySelector(`.split-document-card[data-request-id="${requestId}"]`);
+                                if (splitCard) {
+                                    splitCard.remove();
+                                    updateSplitViewEmptyState();
+                                }
+                            }, 500);
+                            
+                            showSuccessAlert('Success!', data.message || 'Document provided successfully.');
+                        } else {
+                            selectElement.value = originalValue;
+                            showErrorAlert('Error', data.message || 'Unable to provide document. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        selectElement.disabled = false;
+                        selectElement.value = originalValue;
+                        showErrorAlert('Error', 'An error occurred while assigning the document. Please try again.');
+                    });
+                });
+            });
 
             // Form validation with SweetAlert
             const documentForm = document.querySelector('form.needs-validation');
@@ -2039,6 +2498,35 @@ div.container-xl,
                 });
             }
 
+            // Add helper functions for empty state management
+            window.updateEmptyState = function() {
+                const tbody = document.querySelector('#requests-list-view tbody');
+                const remainingRows = tbody.querySelectorAll('tr');
+                
+                if (remainingRows.length === 0 || 
+                    (remainingRows.length === 1 && remainingRows[0].querySelector('.empty-state'))) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p class="mb-0">No pending document requests found.</p>
+                                <p class="text-muted small mt-2">All document requests have been provided.</p>
+                            </td>
+                        </tr>
+                    `;
+                }
+            };
+
+            window.updateSplitViewEmptyState = function() {
+                const splitList = document.getElementById('requests-split-list');
+                if (splitList && splitList.children.length === 0) {
+                    const noDocumentSelected = document.querySelector('#requests-split-details .no-document-selected');
+                    const documentContent = document.getElementById('requests-document-content');
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'flex';
+                    if (documentContent) documentContent.style.display = 'none';
+                }
+            };
+
             // Copy link functionality for credentialing links
             document.querySelectorAll('.copy-link-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -2065,275 +2553,586 @@ div.container-xl,
                 });
             });
 
-            initDocumentRequestGrid();
-            initDocumentSelectAssignments();
+            // Optional: Track link opens (if needed)
+            document.querySelectorAll('a[target="_blank"]').forEach(link => {
+                link.addEventListener('click', function() {
+                    // You can add analytics here if needed
+                    console.log('External link opened:', this.href);
+                });
+            });
         });
 
-        function initDocumentRequestGrid() {
-            const cards = document.querySelectorAll('.document-request-card');
-            const modalEl = document.getElementById('documentSelectModal');
-            const confirmBtn = document.getElementById('documentSelectConfirm');
+        function handleFileChange(input) {
+            const badge = document.getElementById('fileBadge');
+            const nameText = document.getElementById('fileNameText');
 
-            if (!cards.length || !modalEl || !confirmBtn) {
-                return;
+            if (input && input.files && input.files.length > 0) {
+                if (nameText) nameText.textContent = input.files[0].name;
+                if (badge) badge.style.display = 'flex';
+            } else {
+                if (badge) badge.style.display = 'none';
             }
-
-            const documentCheckboxes = modalEl.querySelectorAll('.document-library-checkbox');
-            const documentModal = typeof bootstrap !== 'undefined' ? new bootstrap.Modal(modalEl) : null;
-            let activeCard = null;
-
-            const getSelected = (card, key) => JSON.parse(card.dataset[key] || '[]');
-            const setSelected = (card, key, values) => { card.dataset[key] = JSON.stringify(values); };
-
-            const updateSummary = (card) => {
-                const summaryEl = card.querySelector('[data-selected-documents-summary]');
-                if (!summaryEl) {
-                    return;
-                }
-                const requestCount = getSelected(card, 'selectedRequests').length;
-                const docCount = getSelected(card, 'selectedDocuments').length;
-
-                if (!requestCount) {
-                    summaryEl.textContent = 'Select requests to begin.';
-                } else if (!docCount) {
-                    summaryEl.textContent = `${requestCount} request${requestCount > 1 ? 's' : ''} selected. Click Upload to choose documents.`;
-                    } else {
-                    summaryEl.textContent = `${requestCount} request${requestCount > 1 ? 's' : ''} with ${docCount} document${docCount > 1 ? 's' : ''} selected.`;
-                }
-            };
-
-            const updateSubmitState = (card) => {
-                const submitBtn = card.querySelector('.submit-documents');
-                if (!submitBtn) {
-                    return;
-                }
-                const hasRequests = getSelected(card, 'selectedRequests').length > 0;
-                const hasDocuments = getSelected(card, 'selectedDocuments').length > 0;
-                submitBtn.disabled = !(hasRequests && hasDocuments);
-            };
-
-            cards.forEach(card => {
-                setSelected(card, 'selectedRequests', []);
-                setSelected(card, 'selectedDocuments', []);
-
-                card.querySelectorAll('.request-select').forEach(checkbox => {
-                    checkbox.addEventListener('change', () => {
-                        const selected = Array.from(card.querySelectorAll('.request-select:checked')).map(cb => cb.dataset.requestId);
-                        setSelected(card, 'selectedRequests', selected);
-                        updateSummary(card);
-                        updateSubmitState(card);
-                    });
-                });
-
-                const uploadBtn = card.querySelector('.open-document-selector');
-                if (uploadBtn) {
-                    uploadBtn.addEventListener('click', () => {
-                        const selectedRequests = getSelected(card, 'selectedRequests');
-                        if (!selectedRequests.length) {
-                            showWarningAlert('Select Requests', 'Please select at least one request before choosing documents.');
-                            return;
-                        }
-                        activeCard = card;
-                        const selectedDocs = new Set(getSelected(card, 'selectedDocuments'));
-                        documentCheckboxes.forEach(cb => {
-                            cb.checked = selectedDocs.has(cb.value);
-                        });
-                        documentModal && documentModal.show();
-                    });
-                }
-
-                const submitBtn = card.querySelector('.submit-documents');
-                if (submitBtn) {
-                    submitBtn.addEventListener('click', () => {
-                        const requestIds = getSelected(card, 'selectedRequests');
-                        const documentIds = getSelected(card, 'selectedDocuments');
-                        if (!requestIds.length || !documentIds.length) {
-                            showWarningAlert('Incomplete Selection', 'Select requests and documents before submitting.');
-                    return;
-                }
-                
-                        const originalHtml = submitBtn.innerHTML;
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
-
-                        fetch(submitBtn.dataset.assignUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: JSON.stringify({ requestIds, documentIds })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalHtml;
-
-                            if (data.success) {
-                                const completedIds = data.assignedRequestIds || [];
-                                completedIds.forEach(id => {
-                                    const checkbox = card.querySelector(`.request-select[data-request-id="${id}"]`);
-                                    if (checkbox) {
-                                        const item = checkbox.closest('.document-request-item');
-                                        item && item.remove();
-                                    }
-                                });
-
-                                setSelected(card, 'selectedRequests', []);
-                                setSelected(card, 'selectedDocuments', []);
-                                updateSummary(card);
-                                updateSubmitState(card);
-
-                                if (!card.querySelector('.document-request-item')) {
-                                    card.remove();
-                                }
-
-                                if (data.errors && data.errors.length) {
-                                    showWarningAlert('Partial Success', data.errors.join('\\n'));
-                                } else {
-                                    showSuccessAlert('Documents Submitted', 'Your selected documents were submitted successfully.');
-                                }
-                    } else {
-                                showErrorAlert('Error', data.message || 'Unable to submit documents. Please try again.');
-                            }
-                        })
-                        .catch(() => {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalHtml;
-                            showErrorAlert('Error', 'Unable to submit documents. Please try again.');
-                        });
-                    });
-                }
-            });
-
-            confirmBtn.addEventListener('click', () => {
-                if (!activeCard) {
-                    return;
-                }
-                const selectedDocs = Array.from(documentCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
-
-                if (!selectedDocs.length) {
-                    showWarningAlert('Select Documents', 'Please select at least one document.');
-                    return;
-                }
-                
-                setSelected(activeCard, 'selectedDocuments', selectedDocs);
-                updateSummary(activeCard);
-                updateSubmitState(activeCard);
-                documentModal && documentModal.hide();
-            });
         }
 
-    function initDocumentSelectAssignments() {
-        const selects = document.querySelectorAll('.document-select');
-        selects.forEach(select => {
-            if (select.dataset.handlerAttached) return;
-            select.dataset.handlerAttached = 'true';
+        function clearFile() {
+            const input = document.getElementById('fileInput');
+            const badge = document.getElementById('fileBadge');
 
-            select.addEventListener('change', function() {
-                const documentId = this.value;
-                const requestId = this.dataset.requestId;
-                const selectElement = this;
+            if (input) {
+                input.value = '';
+                const event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
+            }
+            if (badge) badge.style.display = 'none';
+        }
 
-                if (!documentId) return;
+        // Grid View Functionality for Document Requests
+        document.addEventListener('DOMContentLoaded', function() {
+            // Grid View Button Handler for Document Requests
+            const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
+            const requestsListView = document.getElementById('requests-list-view');
+            const requestsGridViewContainer = document.getElementById('requests-grid-view-container');
 
-                const originalValue = selectElement.value;
-                selectElement.disabled = true;
+            if (requestsSplitViewBtn && requestsListView && requestsGridViewContainer) {
+                requestsSplitViewBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const isGridView = requestsGridViewContainer.style.display !== 'none';
+                    
+                    if (isGridView) {
+                        // Switch to list view
+                        requestsGridViewContainer.style.display = 'none';
+                        requestsListView.style.display = 'block';
+                        requestsSplitViewBtn.classList.remove('active');
+                        requestsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Grid View
+                        `;
+                    } else {
+                        // Switch to grid view
+                        requestsGridViewContainer.style.display = 'block';
+                        requestsListView.style.display = 'none';
+                        requestsSplitViewBtn.classList.add('active');
+                        requestsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            List View
+                        `;
+                    }
+                });
+            }
 
-                fetch(`/provider/document-request/${requestId}/assign-document`, {
+            // Split View Functionality for Uploaded Documents
+            const documentsSplitViewBtn = document.getElementById('documents-split-view-btn');
+            const documentsListView = document.getElementById('documents-list-view');
+            const documentsSplitViewContainer = document.getElementById('documents-split-view-container');
+            const documentsSplitList = document.getElementById('documents-split-list');
+            const documentsSplitDetails = document.getElementById('documents-split-details');
+            const documentsDocumentContent = document.getElementById('documents-document-content');
+            const documentsNoDocumentSelected = documentsSplitDetails ? documentsSplitDetails.querySelector('.no-document-selected') : null;
+            const documentsToggleBtn = document.getElementById('documents-list-toggle-btn');
+
+            // Split View Button Handler for Uploaded Documents
+            if (documentsSplitViewBtn) {
+                documentsSplitViewBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Use variables already declared in outer scope
+                    if (!documentsListView || !documentsSplitViewContainer) return;
+                    
+                    const isSplitView = documentsSplitViewContainer.style.display === 'grid';
+                    
+                    if (isSplitView) {
+                        // Switch to list view
+                        documentsSplitViewContainer.style.display = 'none';
+                        documentsListView.style.display = 'block';
+                        documentsSplitViewBtn.classList.remove('active');
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Split View
+                        `;
+                        if (documentsToggleBtn) documentsToggleBtn.style.display = 'none';
+                    } else {
+                        // Switch to split view
+                        documentsSplitViewContainer.style.display = 'grid';
+                        documentsListView.style.display = 'none';
+                        documentsSplitViewBtn.classList.add('active');
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            List View
+                        `;
+                        if (documentsToggleBtn) {
+                            documentsToggleBtn.style.display = 'flex';
+                            updateToggleButtonPosition('documents');
+                        }
+                    }
+                });
+            }
+
+            // Document card selection for uploaded documents
+            if (documentsSplitList) {
+                documentsSplitList.addEventListener('click', function(e) {
+                    const card = e.target.closest('.split-document-card');
+                    if (card) {
+                        selectDocumentCard(card, 'documents');
+                    }
+                });
+            }
+
+            // Grid View Functionality for Document Requests - Initialize after DOM is ready
+            // Note: requestsGridViewContainer is already declared above, reusing it
+            const selectAllRequestsBtn = document.getElementById('select-all-requests-btn');
+            const deselectAllRequestsBtn = document.getElementById('deselect-all-requests-btn');
+            const submitSelectedRequestsBtn = document.getElementById('submit-selected-requests-btn');
+            
+            // Helper functions for grid view (defined in outer scope for accessibility)
+            window.getSelectedRequestPairs = function() {
+                const container = document.getElementById('requests-grid-view-container');
+                if (!container) return [];
+                const pairs = [];
+                const documentSelects = container.querySelectorAll('.document-select');
+                
+                documentSelects.forEach(select => {
+                    const documentId = select.value;
+                    const requestId = select.dataset.requestId;
+                    
+                    if (documentId && requestId) {
+                        pairs.push({
+                            documentId: documentId,
+                            requestId: requestId
+                        });
+                    }
+                });
+                
+                return pairs;
+            };
+
+            window.updateRequestsSubmitButton = function() {
+                const btn = document.getElementById('submit-selected-requests-btn');
+                if (!btn) return;
+                const selectedPairs = window.getSelectedRequestPairs();
+                btn.disabled = selectedPairs.length === 0;
+            };
+
+            // Handle document select changes in grid view for requests
+            if (requestsGridViewContainer) {
+                requestsGridViewContainer.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('document-select')) {
+                        window.updateRequestsSubmitButton();
+                    }
+                });
+            }
+            
+            // Use document-level delegation for select changes
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('document-select')) {
+                    const container = document.getElementById('requests-grid-view-container');
+                    if (container && container.contains(e.target)) {
+                        window.updateRequestsSubmitButton();
+                    }
+                }
+            });
+
+            // Select All functionality for requests - selects first document for all requests
+            if (selectAllRequestsBtn) {
+                selectAllRequestsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const container = document.getElementById('requests-grid-view-container');
+                    if (!container) return;
+                    const documentSelects = container.querySelectorAll('.document-select');
+                    const firstDocumentOption = documentSelects[0] ? documentSelects[0].querySelector('option[value]:not([value=""])') : null;
+                    
+                    if (firstDocumentOption) {
+                        const firstDocumentId = firstDocumentOption.value;
+                        documentSelects.forEach(select => {
+                            if (select.querySelector(`option[value="${firstDocumentId}"]`)) {
+                                select.value = firstDocumentId;
+                            }
+                        });
+                    }
+                    window.updateRequestsSubmitButton();
+                });
+            }
+
+            // Deselect All functionality for requests - clears all selections
+            if (deselectAllRequestsBtn) {
+                deselectAllRequestsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const container = document.getElementById('requests-grid-view-container');
+                    if (!container) return;
+                    const documentSelects = container.querySelectorAll('.document-select');
+                    documentSelects.forEach(select => {
+                        select.value = '';
+                    });
+                    window.updateRequestsSubmitButton();
+                });
+            }
+
+            // Submit Selected Documents for requests
+            if (submitSelectedRequestsBtn) {
+                submitSelectedRequestsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const selectedPairs = window.getSelectedRequestPairs();
+                    
+                    if (selectedPairs.length === 0) {
+                        showWarningAlert('No Selection', 'Please select at least one document and request pair.');
+                        return;
+                    }
+
+                    // Show confirmation
+                    if (typeof Swal !== 'undefined') {
+                        const container = document.getElementById('requests-grid-view-container');
+                        const uniqueCompanies = new Set();
+                        selectedPairs.forEach(p => {
+                            const requestCard = container ? container.querySelector(`[data-request-id="${p.requestId}"]`) : null;
+                            if (requestCard) {
+                                uniqueCompanies.add(requestCard.dataset.company || '');
+                            }
+                        });
+                        
+                        Swal.fire({
+                            title: 'Submit Documents?',
+                            text: `You are about to submit ${selectedPairs.length} document(s) to ${uniqueCompanies.size} company/companies. Continue?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#85BB65',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Yes, Submit',
+                            cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.submitRequestDocuments(selectedPairs);
+                            }
+                        });
+                    } else {
+                        if (confirm('Submit ' + selectedPairs.length + ' document(s)?')) {
+                            window.submitRequestDocuments(selectedPairs);
+                        }
+                    }
+                });
+            }
+
+            window.submitRequestDocuments = function(pairs) {
+                const submitSelectedBtn = document.getElementById('submit-selected-requests-btn');
+                if (!submitSelectedBtn) return;
+
+                // Disable button and show loading
+                submitSelectedBtn.disabled = true;
+                const originalText = submitSelectedBtn.innerHTML;
+                submitSelectedBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+
+                const requestIds = pairs.map(p => p.requestId);
+                const documentIds = pairs.map(p => p.documentId);
+
+                fetch('/provider/documents/assign-multiple', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
                     },
-                    body: JSON.stringify({ documentId })
+                    body: JSON.stringify({
+                        requestIds: requestIds,
+                        documentIds: documentIds
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    selectElement.disabled = false;
                     if (data.success) {
-                        const row = selectElement.closest('tr');
-                        if (row) {
-                            row.remove();
-                            updateListEmptyState();
-                        }
-                        removeRequestFromGrid(requestId);
-                        showSuccessAlert && showSuccessAlert('Success', data.message || 'Document provided successfully.');
+                        showSuccessAlert('Success!', `Successfully submitted ${data.assignedRequestIds.length} document(s).`);
+                        
+                        // Reload page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
                     } else {
-                        selectElement.value = originalValue;
-                        showErrorAlert && showErrorAlert('Error', data.message || 'Unable to provide document. Please try again.');
+                        showErrorAlert('Error', data.message || 'An error occurred while submitting documents.');
+                        submitSelectedBtn.disabled = false;
+                        submitSelectedBtn.innerHTML = originalText;
                     }
                 })
-                .catch(() => {
-                    selectElement.disabled = false;
-                    selectElement.value = originalValue;
-                    showErrorAlert && showErrorAlert('Error', 'An error occurred while assigning the document. Please try again.');
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorAlert('Error', 'An error occurred while submitting documents. Please try again.');
+                    submitSelectedBtn.disabled = false;
+                    submitSelectedBtn.innerHTML = originalText;
                 });
-            });
-        });
+            };
 
-        const gridViewBtn = document.getElementById('requests-grid-view-btn');
-        const listView = document.getElementById('requests-list-view');
-        const gridView = document.getElementById('requests-grid-view');
-        if (gridViewBtn && listView && gridView) {
-            gridViewBtn.addEventListener('click', () => {
-                const showingGrid = gridView.style.display !== 'none';
-                if (showingGrid) {
-                    gridView.style.display = 'none';
-                    listView.style.display = 'block';
-                    gridViewBtn.innerHTML = `
-                        <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Grid View
-                    `;
+            // Function to select document card and render preview (only for documents section now)
+            function selectDocumentCard(card, section) {
+                const isRequests = section === 'requests';
+                // Requests now uses grid view, so skip split view logic for requests
+                if (isRequests) return;
+                
+                const splitList = documentsSplitList;
+                const splitDetails = documentsSplitDetails;
+                const documentContent = documentsDocumentContent;
+                const noDocumentSelected = documentsNoDocumentSelected;
+                const linkedDocumentId = card.dataset.documentId;
+                const linkedDocumentUrl = card.dataset.documentUrl;
+                const formatValue = (val) => {
+                    if (!val) return '—';
+                    const normalized = String(val).trim();
+                    return normalized.length ? normalized : '—';
+                };
+                
+                // Remove active class from all cards
+                splitList.querySelectorAll('.split-document-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+                
+                // Add active class to selected card
+                card.classList.add('active');
+                
+                // Get document ID and name
+                const documentName = card.dataset.documentName || card.querySelector('.split-document-card-title')?.textContent || 'Document';
+                const documentId = linkedDocumentId;
+                const documentUrl = linkedDocumentUrl;
+
+                
+                if (documentId && documentUrl) {
+                    // Hide empty state, show content
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'none';
+                    documentContent.style.display = 'block';
+                    
+                    // Determine file type and render accordingly
+                    const fileExtension = documentUrl.split('.').pop().toLowerCase();
+                    let previewHTML = '';
+                    
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            View Full Page
+                                        </a>
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Open in New Tab
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame">
+                                    <img src="${documentUrl}" alt="${documentName}" />
+                                </div>
+                            </div>
+                        `;
+                    } else if (['pdf'].includes(fileExtension)) {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            View Full Page
+                                        </a>
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Open in New Tab
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame">
+                                    <iframe src="${documentUrl}" type="application/pdf"></iframe>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
+                                    <div class="document-preview-actions">
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame" style="display: flex; align-items: center; justify-content: center; padding: 40px;">
+                                    <div style="text-align: center;">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 16px; opacity: 0.5;">
+                                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        <p style="color: #6b7280; margin-bottom: 16px;">Preview not available for this file type</p>
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <a href="/provider/documents/view/${documentId}" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                                                View Full Page
+                                            </a>
+                                            <a href="${documentUrl}" target="_blank" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
+                                                Open in New Tab
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    documentContent.innerHTML = previewHTML;
                 } else {
-                    gridView.style.display = 'block';
-                    listView.style.display = 'none';
-                    gridViewBtn.innerHTML = `
-                        <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 12H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <path d="M3 18H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        List View
-                    `;
+                    // No document URL, show message
+                    if (noDocumentSelected) noDocumentSelected.style.display = 'flex';
+                    documentContent.style.display = 'none';
                 }
-            });
-        }
-    }
+            }
 
-    function updateListEmptyState() {
-        const tbody = document.querySelector('#requests-list-view tbody');
-        if (!tbody) return;
-        if (!tbody.querySelector('tr')) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-state">
-                        <div class="empty-state-icon">📋</div>
-                        <p class="mb-0">No pending document requests found.</p>
-                        <p class="text-muted small mt-2">All document requests have been provided.</p>
-                    </td>
-                </tr>
-            `;
-        }
-    }
+            // Toggle button functionality for documents
+            if (documentsToggleBtn && documentsSplitViewContainer) {
+                setupListToggle('documents', documentsToggleBtn, documentsSplitViewContainer, documentsSplitList, documentsSplitDetails);
+            }
 
-    function removeRequestFromGrid(requestId) {
-        const checkbox = document.querySelector(\`.request-select[data-request-id="\${requestId}"]\`);
-        if (!checkbox) return;
-        const item = checkbox.closest('.document-request-item');
-        const card = item?.closest('.document-request-card');
-        item?.remove();
-        if (card && !card.querySelector('.document-request-item')) {
-            card.remove();
-        }
-    }
+            function setupListToggle(section, toggleBtn, container, splitList, splitDetails) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isCollapsed = container.classList.contains('list-collapsed');
+                    
+                    if (isCollapsed) {
+                        expandList(container, splitList, splitDetails);
+                    } else {
+                        collapseList(container, splitList, splitDetails);
+                    }
+                    
+                    setTimeout(() => updateToggleButtonPosition(section), 100);
+                });
+
+                // Update position on resize and scroll
+                window.addEventListener('resize', () => updateToggleButtonPosition(section));
+                window.addEventListener('scroll', () => updateToggleButtonPosition(section), true);
+            }
+
+            function collapseList(container, splitList, splitDetails) {
+                if (!container.classList.contains('list-collapsed')) {
+                    container.classList.add('list-collapsed');
+                    if (splitList) {
+                        splitList.style.display = 'none';
+                        splitList.style.width = '0';
+                        splitList.style.minWidth = '0';
+                        splitList.style.maxWidth = '0';
+                        splitList.style.padding = '0';
+                        splitList.style.margin = '0';
+                        splitList.style.visibility = 'hidden';
+                    }
+                    if (splitDetails) {
+                        splitDetails.style.gridColumn = '1 / -1';
+                        splitDetails.style.width = '100%';
+                        splitDetails.style.maxWidth = '100%';
+                    }
+                }
+            }
+
+            function expandList(container, splitList, splitDetails) {
+                if (container.classList.contains('list-collapsed')) {
+                    container.classList.remove('list-collapsed');
+                    if (splitList) {
+                        splitList.style.display = 'block';
+                        splitList.style.width = '';
+                        splitList.style.minWidth = '';
+                        splitList.style.maxWidth = '';
+                        splitList.style.padding = '';
+                        splitList.style.margin = '';
+                        splitList.style.visibility = 'visible';
+                    }
+                    if (splitDetails) {
+                        splitDetails.style.gridColumn = '';
+                        splitDetails.style.width = '';
+                        splitDetails.style.maxWidth = '';
+                    }
+                }
+            }
+
+            function updateToggleButtonPosition(section) {
+                // Only handle documents section now (requests uses grid view)
+                const toggleBtn = documentsToggleBtn;
+                const container = documentsSplitViewContainer;
+                const splitDetails = documentsSplitDetails;
+                
+                if (!toggleBtn || !container || container.style.display !== 'grid') {
+                    if (toggleBtn) toggleBtn.style.display = 'none';
+                    return;
+                }
+                
+                const isCollapsed = container.classList.contains('list-collapsed');
+                
+                if (isCollapsed) {
+                    toggleBtn.style.display = 'flex';
+                    if (splitDetails) {
+                        const detailsRect = splitDetails.getBoundingClientRect();
+                        toggleBtn.style.position = 'fixed';
+                        toggleBtn.style.left = (detailsRect.left - 18) + 'px';
+                        toggleBtn.style.top = (detailsRect.top + 60) + 'px';
+                        toggleBtn.style.transform = 'none';
+                    }
+                } else {
+                    toggleBtn.style.display = 'none';
+                }
+            }
+
+            // Deep-link: open a specific document request in grid view if provided via query param
+            (function() {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const openRequestId = params.get('openRequest');
+                    if (openRequestId) {
+                        // Ensure grid view is active for requests
+                        const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
+                        const requestsGridViewContainer = document.getElementById('requests-grid-view-container');
+                        if (requestsGridViewContainer && requestsGridViewContainer.style.display === 'none' && requestsSplitViewBtn) {
+                            requestsSplitViewBtn && requestsSplitViewBtn.click();
+                        }
+                        // Scroll to the request in grid view
+                        setTimeout(() => {
+                            const requestItem = document.querySelector(`[data-request-id="${openRequestId}"]`);
+                            if (requestItem) {
+                                requestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                requestItem.style.background = '#fff3cd';
+                                setTimeout(() => {
+                                    requestItem.style.background = '';
+                                }, 2000);
+                            }
+                        }, 300);
+                    }
+                } catch (e) {
+                    console.warn('Deep-link openRequest handler error:', e);
+                }
+            })();
+        });
     </script>
 {% endblock %}

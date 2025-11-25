@@ -187,6 +187,17 @@ div.container-xl,
   justify-content:space-between;
   align-items:center;
   margin-bottom:12px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 24px;
+}
+
+/* Override for cards with reduced padding */
+.profile-right-card .card-header-row {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  margin-bottom: 12px;
 }
 
 /* Title */
@@ -194,6 +205,19 @@ div.container-xl,
   font-size: 1.1rem;
   font-weight: 500;
   margin:0;
+}
+
+/* Ensure all headings have font-weight 500 */
+.app-card-title,
+h5.card-title,
+h6.card-title {
+  font-weight: 500 !important;
+}
+
+/* Card title wrapper to prevent text from touching borders */
+.card-title-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 /* Small icon link */
@@ -245,6 +269,51 @@ div.container-xl,
   display: flex;
   align-items: center;
   margin-right: 20px;
+}
+
+/* Hide checkboxes in quick links by default */
+.quick-link-checkbox,
+.upload-check {
+  display: none !important;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* Show checkboxes when toggled */
+.quick-link-checkbox.show,
+.upload-check.show {
+  display: block !important;
+}
+
+/* Profile Square Cards */
+.profile-square-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.profile-square-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* CV Drag and Drop Area */
+.cv-drag-drop-area {
+  position: relative;
+}
+
+.cv-drag-drop-area.drag-over {
+  background: #E8F5E9 !important;
+  border-color: #4CAF50 !important;
+  border-style: solid !important;
+  transform: scale(1.02);
+}
+
+.cv-drag-drop-area.drag-over svg {
+  opacity: 1 !important;
+  transform: scale(1.1);
 }
 
 /* Make CV upload visually emphasized */
@@ -477,6 +546,25 @@ button.upload-btn-custom:hover span {
 }
 .upload-btn-custom.upload-cv:hover {
   color: #85BB65;
+}
+
+/* Quick link card hover effects - make entire card clickable */
+.quick-link-card {
+  transition: all 0.2s ease;
+}
+
+.quick-link-card:hover {
+  background: white !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: #85BB65;
+}
+
+/* Work Preferences clickable card hover */
+.work-preferences-clickable:hover {
+  background: #F4F9F1 !important;
+  border-color: #85BB65 !important;
+  box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
 }
 .mg-btm-18 {
     margin-bottom: 18px;
@@ -1084,10 +1172,10 @@ input[type="checkbox"]:checked::after,
           {# Center: assignment column #}
           <div class="col-12 col-lg-6 d-flex flex-column">
             <div class="profile-right-card h-fix-auto">
-              <div class="card-header-row d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Your History</h5>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0" style="font-weight: 500;">Your History</h5>
               </div>
-              <div class="card-body" style="padding: 12px 16px;">
+              <div class="card-body" style="padding: 0;">
                 <div class="mb-2" style="text-align: left;">
                   <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Your Average Rating</h6>
                   <div style="margin-top: 2px;">
@@ -1105,171 +1193,138 @@ input[type="checkbox"]:checked::after,
                 </div>
                 </div>
             </div>
+
+            <!-- Square Cards Section: Work Preferences and Documents - Placed below Your History -->
+            <div class="row g-3 mt-3">
+              <!-- Work Preferences Card -->
+              <div class="col-6">
+                <div class="card app-card-settings profile-square-card h-100">
+                  <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 140px; padding: 1rem 0.75rem;">
+                    <div class="mb-2">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                    </div>
+                    <h5 class="card-title mb-2 text-center" style="font-size: 0.95rem; font-weight: 500; line-height: 1.2;">Work Preferences</h5>
+                    <button type="button" class="btn btn-primary documents-view-btn" data-popup="work-preferences" style="padding: 6px 16px; font-size: 0.85rem; font-weight: 500; border-radius: 6px; white-space: nowrap;">
+                      <span>View</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; margin-left: 4px;">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Documents Card -->
+              <div class="col-6">
+                <div class="card app-card-settings profile-square-card h-100">
+                  <div class="card-body d-flex flex-column align-items-center justify-content-center" style="min-height: 140px; padding: 1rem 0.75rem;">
+                    <div class="mb-2">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                      </svg>
+                    </div>
+                    <h5 class="card-title mb-2 text-center" style="font-size: 0.95rem; font-weight: 500; line-height: 1.2;">Documents</h5>
+                    <a href="{{ path('app_provider_documents') }}" class="btn btn-primary documents-view-btn" style="padding: 6px 16px; font-size: 0.85rem; font-weight: 500; border-radius: 6px; text-decoration: none; white-space: nowrap;">
+                      <span>View</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0; margin-left: 4px;">
+                        <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="col-12 mt-5">
-            <div class="row g-4" style="display: flex; flex-wrap: wrap; margin-left: 0; margin-right: 0;">
-      <!-- CV Upload Column -->
-      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
-        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
-          <div class="card-body d-flex flex-column" style="flex: 1;">
-            <h5 class="card-title mb-3">CV Upload</h5>
-            
-            <!-- Uploaded CV Display -->
-            <div id="cvDisplayArea" class="mb-3" style="display: none;">
-              <div class="d-flex align-items-center justify-content-between p-3" style="background: #F4F9F1; border: 1px solid #85BB65; border-radius: 8px;">
-                <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="16" y1="13" x2="8" y2="13"/>
-                    <line x1="16" y1="17" x2="8" y2="17"/>
-                  </svg>
-                  <span id="cvFileNameDisplay" class="text-dark fw-medium" style="font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;"></span>
+          <!-- CV Upload Card - Full Width with Drag and Drop -->
+          <div class="col-12 mt-4">
+            <div class="card app-card-settings">
+              <div class="card-header-row d-flex justify-content-between align-items-center mb-0">
+                <div class="card-title-wrapper">
+                  <h5 class="card-title mb-0">CV Upload</h5>
+                </div>
+              </div>
+              <div class="card-body" style="padding: 24px !important;">
+                <!-- Drag and Drop Area -->
+                <div id="cvDragDropArea" class="cv-drag-drop-area" style="border: 2px dashed #85BB65; border-radius: 12px; padding: 1rem 1.25rem !important; text-align: center; background: #F4F9F1; transition: all 0.3s ease; cursor: pointer; height: 140px !important; max-height: 140px !important; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box;">
+                  <div id="cvDragDropContent" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0; margin: 0; box-sizing: border-box; gap: 0.35rem;">
+                    <div style="margin: 0 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7; display: block; margin: 0; padding: 0;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                    </div>
+                    <h6 class="mb-0" style="font-size: 0.8rem !important; font-weight: 600; color: #252930; line-height: 1.2; margin: 0 !important; padding: 0 !important; text-align: center; white-space: nowrap;">Drag & Drop your CV here</h6>
+                    <p class="text-muted mb-0" style="font-size: 0.7rem !important; line-height: 1.1; margin: 0 !important; padding: 0 !important; text-align: center;">or</p>
+                    <button type="button" id="cvUploadBtn" class="btn btn-primary" style="padding: 5px 16px !important; font-size: 0.75rem !important; font-weight: 600; border-radius: 6px; margin: 0 !important; white-space: nowrap; display: inline-block; line-height: 1.2;">
+                      <span id="cvButtonText">Browse Files</span>
+                      <span id="cvUploadSpinner" style="display: none;">
+                        <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                      </span>
+                    </button>
+                    <p class="text-muted mb-0" style="font-size: 0.65rem !important; line-height: 1.1; margin: 0 !important; padding: 0 !important; text-align: center; white-space: nowrap;">Supported formats: PDF, DOC, DOCX (Max 10MB)</p>
+                  </div>
+                  
+                  <!-- Uploaded CV Display (shown after upload) -->
+                  <div id="cvDisplayArea" class="d-none" style="width: 100%;">
+                    <div class="d-flex align-items-center justify-content-between p-3" style="background: white; border: 1px solid #85BB65; border-radius: 8px;">
+                      <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                          <line x1="16" y1="13" x2="8" y2="13"/>
+                          <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        <span id="cvFileNameDisplay" class="text-dark fw-medium" style="font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Hidden file input -->
+                <input type="file" id="cvFileInputDirect" accept=".pdf,.doc,.docx" style="display: none;">
+                
+                <!-- Uploaded CVs List -->
+                <div id="cvDocumentsList" class="mt-4">
+                  {% if cvDocuments is not empty %}
+                    <div>
+                      <h6 class="fw-semibold mb-3" style="font-size: 1rem;">Uploaded CVs</h6>
+                      <ul class="list-group list-group-flush">
+                        {% for cv in cvDocuments %}
+                          <li class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #e5e7eb;">
+                            <div class="d-flex align-items-center gap-3">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                              </svg>
+                              <div>
+                                <div class="fw-semibold text-dark">{{ cv.name }}</div>
+                                <small class="text-muted">Uploaded {{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</small>
+                              </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                              <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" target="_blank" class="btn btn-link btn-sm text-decoration-none" style="color: #85BB65;">Download</a>
+                              <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Remove this CV?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                              </form>
+                            </div>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
-            
-            <!-- Upload/Update Button - Centered in flexbox -->
-            <div class="d-flex justify-content-center align-items-center flex-grow-1 mb-3" style="min-height: 200px;">
-              <button type="button" id="cvUploadBtn" class="btn btn-primary" style="padding: 10px 20px;">
-                <span id="cvButtonText">Upload your CV</span>
-                <span id="cvUploadSpinner" style="display: none;">
-                  <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
-                </span>
-              </button>
-              <!-- Hidden file input -->
-              <input type="file" id="cvFileInputDirect" accept=".pdf,.doc,.docx" style="display: none;">
-            </div>
-            
-            <!-- Uploaded CVs List -->
-            <div id="cvDocumentsList" class="mt-3">
-              {% if cvDocuments is not empty %}
-                <div>
-                  <h6 class="fw-semibold mb-2">Uploaded CVs</h6>
-                  <ul class="list-group list-group-flush">
-                    {% for cv in cvDocuments %}
-                      <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                        <div>
-                          <div class="fw-semibold text-dark">{{ cv.name }}</div>
-                          <small class="text-muted">Uploaded {{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</small>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                          <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" target="_blank" class="btn btn-link btn-sm text-decoration-none">Download</a>
-                          <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Remove this CV?');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
-                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
-                          </form>
-                        </div>
-                      </li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              {% endif %}
-            </div>
           </div>
-        </div>
-      </div>
-      {% set hasWorkPreferences = providerEntity.desiredPayRate or providerEntity.desiredHour or (providerEntity.desiredStates is not empty) or providerEntity.availabilityToStart or providerEntity.profession or (providerEntity.specialities is defined and providerEntity.specialities|length > 0) %}
-      <!-- Work Preferences column -->
-      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
-        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
-          <div class="card-body d-flex flex-column" style="flex: 1;">
-            <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
-              <h5 class="card-title mb-0">Work Preferences</h5>
-              <button type="button"
-                      class="btn btn-outline-primary btn-sm"
-                      id="workPreferencesBtn"
-                      data-bs-toggle="modal"
-                      data-bs-target="#workPreferencesModal">
-                {{ hasWorkPreferences ? 'Update Work Preferences' : 'Add Work Preferences' }}
-              </button>
-            </div>
-            <div class="work-preferences flex-grow-1" style="min-height: 220px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB; padding: 16px; overflow-y: auto;">
-              <div id="work-preferences-summary">
-                {% include 'provider/profile/_work_preferences_summary.html.twig' with { provider: providerEntity } %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    <!-- Work Preferences Modal -->
-    <div class="modal fade" id="workPreferencesModal" tabindex="-1" aria-labelledby="workPreferencesModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="workPreferencesModalLabel">Work Preferences</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div id="work-preferences-error" class="alert alert-danger d-none mb-3"></div>
-            {% if workPreferenceForm is defined %}
-              {{ form_start(workPreferenceForm, {'attr': {'id': 'work-preferences-form'}}) }}
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.profession) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.specialities) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.desiredPayRate) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.desiredHour) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.payRateHourly) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.payRateDaily) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.availabilityToStart) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.preferredPatientVolume) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.desiredStates) }}
-                  </div>
-                  <div class="col-md-6">
-                    {{ form_row(workPreferenceForm.willingToTravel) }}
-                  </div>
-                </div>
-                {{ form_rest(workPreferenceForm) }}
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                  <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-primary" id="work-preferences-submit">Save Preferences</button>
-                </div>
-              {{ form_end(workPreferenceForm, {'render_rest': false}) }}
-            {% else %}
-              <p class="text-muted mb-0">Form unavailable.</p>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
-      <!-- Documents column -->
-      <div class="col-12 col-md-4" style="display: flex; flex-direction: column;">
-        <div class="card app-card-settings h-100" style="display: flex; flex-direction: column; flex: 1;">
-          <div class="card-body d-flex flex-column" style="flex: 1;">
-            <div class="card-header-row d-flex justify-content-between align-items-center mb-3">
-              <h5 class="card-title mb-0">Documents</h5>
-            </div>
-            <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 200px; background: #F9FAFB; border-radius: 8px; border: 1px dashed #E5E7EB; padding: 20px;">
-              <a href="{{ path('app_provider_documents') }}" class="documents-view-btn">
-                <span>View Documents</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0;">
-                  <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
         </div>
       </div>
@@ -1293,97 +1348,55 @@ input[type="checkbox"]:checked::after,
               <label class="form-label small text-muted mb-2">Share via Onelink</label>
               <div class="d-flex gap-2">
                 <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="flex: 1; font-size: 0.875rem;">
-                <button type="button" class="upload-btn-custom" style="white-space: nowrap;">Share</button>
+                <button type="button" class="upload-btn-custom" id="share-quick-links-btn" style="white-space: nowrap;">Share</button>
             </div>
         </div>
 
             <div class="pt-0">
               <label class="form-label small text-muted mb-2">Quick Links</label>
         <div class="upload-list mt-2">
-          {# Other items as links to specific pages (you can replace '#' with real routes) #}
-           <div class="upload-btn-custom"><span class="cstm-btn-text">Education & Training</span>
-           <span class="cstm-btn-checkmark">
-           <input type="checkbox" class="upload-check d-none ms-2">
-           </span>
-           <a href="#" class="open-popup" data-popup="education" role="button">
-           <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          {# Other items as links to specific pages #}
+           <div class="upload-btn-custom quick-link-card" data-popup="education" role="button" style="cursor: pointer;">
+             <span class="cstm-btn-text">Education & Training</span>
+             <span class="cstm-btn-checkmark">
+               <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="education">
+             </span>
+           </div>
+          <div class="upload-btn-custom quick-link-card" data-popup="license" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">License & Certificate</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="license">
+            </span>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">License & Certificate</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" class="open-popup" data-popup="license" role="button">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          <div class="upload-btn-custom quick-link-card" data-popup="insurance" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">Insurance</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="insurance">
+            </span>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">Insurance</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" class="open-popup" data-popup="insurance" role="button">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          <div class="upload-btn-custom quick-link-card" data-popup="health" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">Health Assessment</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="health">
+            </span>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">Health Assessment</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" class="open-popup" data-popup="health" role="button">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          <div class="upload-btn-custom quick-link-card" data-popup="risk" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">Risk Assessment</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="risk">
+            </span>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">Risk Assessment</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" class="open-popup" data-popup="risk" role="button">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          <div class="upload-btn-custom quick-link-card" data-popup="application-certification" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">Application Certification</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="application-certification">
+            </span>
           </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">Application Certification</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" class="open-popup" data-popup="application-certification" role="button">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
-          </div>
-          <div class="upload-btn-custom"><span class="cstm-btn-text">References</span>
-          <span class="cstm-btn-checkmark">
-          <input type="checkbox" class="upload-check d-none ms-2">
-          </span>
-          <a href="#" role="link">
-          <span class="cstm-btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 6L15 12L9 18" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          </a>
+          <div class="upload-btn-custom quick-link-card" data-popup="references" role="button" style="cursor: pointer;">
+            <span class="cstm-btn-text">References</span>
+            <span class="cstm-btn-checkmark">
+              <input type="checkbox" class="upload-check quick-link-checkbox ms-2" data-link="references">
+            </span>
           </div>
               </div>
             </div>
@@ -1403,6 +1416,135 @@ input[type="checkbox"]:checked::after,
   </div>
   </div>
 </div>
+</div>
+
+<div id="popup-work-preferences" class="popup-overlay d-none">
+  <div class="popup-content shadow-lg p-3 rounded-3">
+    <div class="popup-header d-flex justify-content-between align-items-center">
+      <h5>Work Preferences</h5>
+      <button class="popup-close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="popup-body">
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <div id="work-preferences-error" class="alert alert-danger d-none mb-3"></div>
+            
+            {# Summary View - Shown by default #}
+            <div id="work-preferences-summary-view">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">My Work Preferences</h6>
+                <button type="button" class="btn btn-primary btn-sm" id="work-preferences-add-new-btn">
+                  {% set hasPreferences = providerEntity.profession or providerEntity.desiredPayRate or providerEntity.desiredHour or (providerEntity.desiredStates is not empty) %}
+                  {{ hasPreferences ? 'Edit' : 'Add New' }}
+                </button>
+              </div>
+              <div id="work-preferences-summary-content">
+                {% include 'provider/profile/_work_preferences_summary.html.twig' with { provider: providerEntity } %}
+              </div>
+            </div>
+
+            {# Form View - Hidden by default #}
+            <div id="work-preferences-form-view" style="display: none;">
+            {% if workPreferenceForm is defined %}
+                {{ form_start(workPreferenceForm, {'attr': {'id': 'work-preferences-form', 'class': 'needs-validation'}}) }}
+                <div class="row g-3">
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.profession, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.profession, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(workPreferenceForm.profession) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.specialities, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.specialities, {'attr': {'class': 'form-control select2'}}) }}
+                        {{ form_errors(workPreferenceForm.specialities) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.desiredPayRate, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="radio-group">
+                          {{ form_widget(workPreferenceForm.desiredPayRate, {'attr':{'class': 'checkbox'}}) }}
+                        </div>
+                        {{ form_errors(workPreferenceForm.desiredPayRate) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.desiredHour, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="radio-group">
+                          {{ form_widget(workPreferenceForm.desiredHour, {'attr':{'class': 'checkbox'}}) }}
+                        </div>
+                        {{ form_errors(workPreferenceForm.desiredHour) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.payRateHourly, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.payRateHourly, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(workPreferenceForm.payRateHourly) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.payRateDaily, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.payRateDaily, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(workPreferenceForm.payRateDaily) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.availabilityToStart, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.availabilityToStart, {'attr': {'class': 'form-control js-datepicker'}}) }}
+                        {{ form_errors(workPreferenceForm.availabilityToStart) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.preferredPatientVolume, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.preferredPatientVolume, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(workPreferenceForm.preferredPatientVolume) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.desiredStates, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(workPreferenceForm.desiredStates, {'attr': {'class': 'form-control select2'}}) }}
+                        {{ form_errors(workPreferenceForm.desiredStates) }}
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="mb-3">
+                        {{ form_label(workPreferenceForm.willingToTravel, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="mt-2">
+                          {{ form_widget(workPreferenceForm.willingToTravel, {'attr':{'class': 'checkbox'}}) }}
+                        </div>
+                        {{ form_errors(workPreferenceForm.willingToTravel) }}
+                      </div>
+                  </div>
+                </div>
+                {{ form_rest(workPreferenceForm) }}
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" class="btn btn-secondary" id="work-preferences-cancel-form-btn">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="work-preferences-submit">Save Preferences</button>
+                </div>
+                {{ form_end(workPreferenceForm) }}
+            {% else %}
+              <p class="text-muted mb-0">Form unavailable.</p>
+            {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
 </div>
 
 <div id="popup-education" class="popup-overlay d-none">
@@ -2220,6 +2362,8 @@ input[type="checkbox"]:checked::after,
 <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     // Initialize flatpickr for existing date pickers
@@ -3499,6 +3643,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const cvDisplayArea = document.getElementById('cvDisplayArea');
   const cvFileNameDisplay = document.getElementById('cvFileNameDisplay');
   const cvDocumentsList = document.getElementById('cvDocumentsList');
+  const cvDragDropContent = document.getElementById('cvDragDropContent');
   
   // Keep references to old modal elements for backward compatibility
   const cvUploadModal = document.getElementById('cvUploadModal');
@@ -3513,6 +3658,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (firstCv) {
       updateCvDisplay(firstCv.name);
     }
+  {% else %}
+    // Show drag drop content if no CV is uploaded
+    if (cvDragDropContent) {
+      cvDragDropContent.style.display = 'flex';
+    }
   {% endif %}
 
   function updateCvDisplay(fileName) {
@@ -3523,7 +3673,12 @@ document.addEventListener('DOMContentLoaded', function () {
       cvFileNameDisplay.textContent = fileName;
     }
     if (cvDisplayArea) {
+      cvDisplayArea.classList.remove('d-none');
       cvDisplayArea.style.display = 'block';
+    }
+    // Hide drag drop content when file is uploaded
+    if (cvDragDropContent) {
+      cvDragDropContent.style.display = 'none';
     }
     // Keep the button visible - don't hide it
   }
@@ -3709,6 +3864,92 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       });
+    });
+  }
+
+  // Drag and Drop functionality for CV upload
+  const cvDragDropArea = document.getElementById('cvDragDropArea');
+  
+  if (cvDragDropArea && cvFileInputDirect) {
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      cvDragDropArea.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      cvDragDropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      cvDragDropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+      cvDragDropArea.classList.add('drag-over');
+    }
+
+    function unhighlight(e) {
+      cvDragDropArea.classList.remove('drag-over');
+    }
+
+    // Handle dropped files
+    cvDragDropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        const file = files[0];
+        
+        // Validate file type
+        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+        const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        
+        if (!allowedExtensions.includes(fileExtension)) {
+          if (typeof showWarningAlert === 'function') {
+            showWarningAlert('Invalid File Type', 'Please select a valid CV file (PDF, DOC, or DOCX)');
+          } else {
+            alert('Please select a valid CV file (PDF, DOC, or DOCX)');
+          }
+          return;
+        }
+
+        // Validate file size (25MB max)
+        const maxSize = 25 * 1024 * 1024; // 25MB in bytes
+        if (file.size > maxSize) {
+          if (typeof showWarningAlert === 'function') {
+            showWarningAlert('File Too Large', 'File size exceeds 25MB limit. Please select a smaller file.');
+          } else {
+            alert('File size exceeds 25MB limit. Please select a smaller file.');
+          }
+          return;
+        }
+
+        // Set the file to the input and trigger change event
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        cvFileInputDirect.files = dataTransfer.files;
+        
+        // Trigger the change event to use existing upload logic
+        const changeEvent = new Event('change', { bubbles: true });
+        cvFileInputDirect.dispatchEvent(changeEvent);
+      }
+    }
+
+    // Also allow clicking the drag drop area to open file picker
+    cvDragDropArea.addEventListener('click', function(e) {
+      // Don't trigger if clicking on the button
+      if (!e.target.closest('#cvUploadBtn')) {
+        cvFileInputDirect.click();
+      }
     });
   }
 
@@ -3915,9 +4156,9 @@ function clearFile() {
     const toggleCheckmarks = document.getElementById('toggle-checkmarks');
     if (toggleCheckmarks) {
       toggleCheckmarks.addEventListener('click', function () {
-    document.querySelectorAll('.upload-check').forEach(checkbox => {
-      checkbox.classList.toggle('d-none');
-    });
+        document.querySelectorAll('.upload-check, .quick-link-checkbox').forEach(checkbox => {
+          checkbox.classList.toggle('show');
+        });
       });
     }
   });
@@ -3927,8 +4168,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const workPrefForm = document.getElementById('work-preferences-form');
   const workPrefError = document.getElementById('work-preferences-error');
   const summaryContainer = document.getElementById('work-preferences-summary');
-  const workPrefBtn = document.getElementById('workPreferencesBtn');
-  const workPrefModalEl = document.getElementById('workPreferencesModal');
 
   if (workPrefForm) {
     workPrefForm.addEventListener('submit', function (event) {
@@ -3959,18 +4198,17 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
           if (data.success) {
-            if (summaryContainer && data.summaryHtml) {
-              summaryContainer.innerHTML = data.summaryHtml;
+            // Update summary content
+            const summaryContent = document.getElementById('work-preferences-summary-content');
+            if (summaryContent && data.summaryHtml) {
+              summaryContent.innerHTML = data.summaryHtml;
             }
 
-            if (workPrefBtn && data.hasPreferences) {
-              workPrefBtn.textContent = 'Update Work Preferences';
-            }
-
-            if (typeof bootstrap !== 'undefined' && workPrefModalEl) {
-              const modalInstance = bootstrap.Modal.getInstance(workPrefModalEl) || new bootstrap.Modal(workPrefModalEl);
-              modalInstance.hide();
-            }
+            // Switch back to summary view
+            const summaryView = document.getElementById('work-preferences-summary-view');
+            const formView = document.getElementById('work-preferences-form-view');
+            if (summaryView) summaryView.style.display = 'block';
+            if (formView) formView.style.display = 'none';
 
             if (typeof showSuccessAlert === 'function') {
               showSuccessAlert('Preferences Saved', 'Your work preferences were updated successfully.');
@@ -4332,8 +4570,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Open popup based on data-popup attribute
+  // Open popup based on data-popup attribute - handle both .open-popup and .quick-link-card
   document.addEventListener('DOMContentLoaded', function() {
+  // Handle old .open-popup links
   document.querySelectorAll('.open-popup').forEach(button => {
     button.addEventListener('click', function (e) {
       e.preventDefault();
@@ -4352,6 +4591,512 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // Handle new .quick-link-card clicks (but not when clicking checkbox)
+  document.querySelectorAll('.quick-link-card').forEach(card => {
+    card.addEventListener('click', function (e) {
+      // Don't open popup if clicking on checkbox
+      if (e.target.type === 'checkbox' || e.target.closest('.quick-link-checkbox')) {
+        e.stopPropagation();
+        return;
+      }
+      e.preventDefault();
+      const popupId = this.dataset.popup;
+      const popup = document.getElementById(`popup-${popupId}`);
+      if (popup) {
+        popup.classList.remove('d-none');
+        // Load content when specific popups open
+        if (popupId === 'education') {
+          loadEducationList();
+        } else if (popupId === 'application-certification') {
+          loadApplicationCertificationForm();
+        } else if (popupId === 'release-authorization') {
+          loadReleaseAuthorizationForm();
+        }
+      }
+    });
+  });
+
+  // Handle Work Preferences button click
+  document.querySelectorAll('[data-popup="work-preferences"]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const popup = document.getElementById('popup-work-preferences');
+      if (popup) {
+        popup.classList.remove('d-none');
+        // Reset to summary view when popup opens
+        const summaryView = document.getElementById('work-preferences-summary-view');
+        const formView = document.getElementById('work-preferences-form-view');
+        if (summaryView) summaryView.style.display = 'block';
+        if (formView) formView.style.display = 'none';
+      }
+    });
+  });
+
+  // Handle Work Preferences "Add New" / "Edit" button - Use event delegation
+  document.addEventListener('click', function(e) {
+    // Handle Add New/Edit button (check both target and closest button)
+    const addNewBtn = e.target.closest('#work-preferences-add-new-btn') || (e.target.id === 'work-preferences-add-new-btn' ? e.target : null);
+    
+    if (addNewBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const summaryView = document.getElementById('work-preferences-summary-view');
+      const formView = document.getElementById('work-preferences-form-view');
+      
+      if (summaryView && formView) {
+        // Hide summary, show form
+        summaryView.style.display = 'none';
+        formView.style.display = 'block';
+        
+        // Initialize Select2 and flatpickr when form is shown
+        setTimeout(function() {
+          // Initialize Select2
+          if (typeof $ !== 'undefined' && $.fn.select2) {
+            $('#work-preferences-form-view .select2').each(function() {
+              if (!$(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2({
+                  dropdownParent: $('#popup-work-preferences')
+                });
+              }
+            });
+          }
+          
+          // Initialize flatpickr
+          if (typeof flatpickr !== 'undefined') {
+            $('#work-preferences-form-view .js-datepicker').each(function() {
+              if (!this._flatpickr) {
+                flatpickr(this, {
+                  dateFormat: "Y-m-d"
+                });
+              }
+            });
+          }
+        }, 100);
+      }
+    }
+    
+    // Handle Cancel button
+    const cancelBtn = e.target.closest('#work-preferences-cancel-form-btn') || (e.target.id === 'work-preferences-cancel-form-btn' ? e.target : null);
+    
+    if (cancelBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const summaryView = document.getElementById('work-preferences-summary-view');
+      const formView = document.getElementById('work-preferences-form-view');
+      
+      if (summaryView && formView) {
+        // Hide form, show summary
+        formView.style.display = 'none';
+        summaryView.style.display = 'block';
+      }
+    }
+  });
+  
+  // Also attach direct event listener as fallback
+  document.addEventListener('DOMContentLoaded', function() {
+    // Use setInterval to check for button existence (in case popup loads dynamically)
+    const checkAndAttach = setInterval(function() {
+      const addNewBtn = document.getElementById('work-preferences-add-new-btn');
+      const cancelBtn = document.getElementById('work-preferences-cancel-form-btn');
+      
+      if (addNewBtn && !addNewBtn.dataset.listenerAttached) {
+        addNewBtn.dataset.listenerAttached = 'true';
+        addNewBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const summaryView = document.getElementById('work-preferences-summary-view');
+          const formView = document.getElementById('work-preferences-form-view');
+          
+          if (summaryView && formView) {
+            summaryView.style.display = 'none';
+            formView.style.display = 'block';
+            
+            setTimeout(function() {
+              if (typeof $ !== 'undefined' && $.fn.select2) {
+                $('#work-preferences-form-view .select2').each(function() {
+                  if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({
+                      dropdownParent: $('#popup-work-preferences')
+                    });
+                  }
+                });
+              }
+              
+              if (typeof flatpickr !== 'undefined') {
+                $('#work-preferences-form-view .js-datepicker').each(function() {
+                  if (!this._flatpickr) {
+                    flatpickr(this, {
+                      dateFormat: "Y-m-d"
+                    });
+                  }
+                });
+              }
+            }, 100);
+          }
+        });
+      }
+      
+      if (cancelBtn && !cancelBtn.dataset.listenerAttached) {
+        cancelBtn.dataset.listenerAttached = 'true';
+        cancelBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const summaryView = document.getElementById('work-preferences-summary-view');
+          const formView = document.getElementById('work-preferences-form-view');
+          
+          if (summaryView && formView) {
+            formView.style.display = 'none';
+            summaryView.style.display = 'block';
+          }
+        });
+      }
+      
+      // Clear interval once both buttons are found and attached
+      if (addNewBtn && cancelBtn && addNewBtn.dataset.listenerAttached && cancelBtn.dataset.listenerAttached) {
+        clearInterval(checkAndAttach);
+      }
+    }, 500);
+    
+    // Clear interval after 10 seconds to prevent infinite checking
+    setTimeout(function() {
+      clearInterval(checkAndAttach);
+    }, 10000);
+  });
+
+  // Handle Share button - generate PDF and save to localStorage
+  const shareBtn = document.getElementById('share-quick-links-btn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const selectedLinks = [];
+      document.querySelectorAll('.quick-link-checkbox:checked').forEach(checkbox => {
+        const linkName = checkbox.closest('.quick-link-card').querySelector('.cstm-btn-text').textContent.trim();
+        const linkId = checkbox.dataset.link;
+        selectedLinks.push({
+          id: linkId,
+          name: linkName
+        });
+      });
+
+      if (selectedLinks.length === 0) {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('No Selection', 'Please select at least one quick link to share.');
+        } else {
+          alert('Please select at least one quick link to share.');
+        }
+        return;
+      }
+
+      // Load jsPDF library dynamically if not already loaded
+      if (typeof window.jspdf === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = () => generateAndSavePDF(selectedLinks);
+        document.head.appendChild(script);
+      } else {
+        generateAndSavePDF(selectedLinks);
+      }
+    });
+  }
+
+  // Helper function to fetch data for each quick link type
+  async function fetchQuickLinkData(linkId) {
+    try {
+      switch(linkId) {
+        case 'education':
+          const eduResponse = await fetch('{{ path('app_provider_education_list') }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const eduHtml = await eduResponse.text();
+          const eduParser = new DOMParser();
+          const eduDoc = eduParser.parseFromString(eduHtml, 'text/html');
+          const eduCards = eduDoc.querySelectorAll('.ed-card, .card');
+          const eduData = Array.from(eduCards).map(card => {
+            const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+            const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+            return { title, details };
+          });
+          return eduData.length > 0 ? eduData : [{ title: 'No education entries found', details: [] }];
+          
+        case 'license':
+          // Extract license data from popup if available
+          const licensePopup = document.getElementById('popup-license');
+          if (licensePopup && !licensePopup.classList.contains('d-none')) {
+            const licenseCards = licensePopup.querySelectorAll('.ed-card, .card');
+            const licenseData = Array.from(licenseCards).map(card => {
+              const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+              const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+              return { title, details };
+            });
+            if (licenseData.length > 0) return licenseData;
+          }
+          return [{ title: 'No license entries found', details: [] }];
+          
+        case 'insurance':
+          const insurancePopup = document.getElementById('popup-insurance');
+          if (insurancePopup && !insurancePopup.classList.contains('d-none')) {
+            const insuranceCards = insurancePopup.querySelectorAll('.ed-card, .card');
+            const insuranceData = Array.from(insuranceCards).map(card => {
+              const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+              const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+              return { title, details };
+            });
+            if (insuranceData.length > 0) return insuranceData;
+          }
+          return [{ title: 'No insurance entries found', details: [] }];
+          
+        case 'health':
+          const healthPopup = document.getElementById('popup-health');
+          if (healthPopup && !healthPopup.classList.contains('d-none')) {
+            const form = healthPopup.querySelector('form');
+            if (form) {
+              const formData = new FormData(form);
+              const healthData = [];
+              form.querySelectorAll('.form-group').forEach(group => {
+                const label = group.querySelector('label')?.textContent?.trim() || '';
+                const inputs = group.querySelectorAll('input[type="radio"]:checked, textarea, select');
+                const values = Array.from(inputs).map(input => {
+                  if (input.type === 'radio') return input.value;
+                  if (input.tagName === 'TEXTAREA') return input.value;
+                  if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                  return '';
+                }).filter(v => v);
+                if (label && values.length > 0) {
+                  healthData.push({ title: label, details: values });
+                }
+              });
+              if (healthData.length > 0) return healthData;
+            }
+          }
+          return [{ title: 'No health assessment data found', details: [] }];
+          
+        case 'risk':
+          const riskPopup = document.getElementById('popup-risk');
+          if (riskPopup && !riskPopup.classList.contains('d-none')) {
+            const form = riskPopup.querySelector('form');
+            if (form) {
+              const riskData = [];
+              form.querySelectorAll('.form-group').forEach(group => {
+                const label = group.querySelector('label')?.textContent?.trim() || '';
+                const inputs = group.querySelectorAll('input[type="radio"]:checked, textarea, select');
+                const values = Array.from(inputs).map(input => {
+                  if (input.type === 'radio') return input.value;
+                  if (input.tagName === 'TEXTAREA') return input.value;
+                  if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                  return '';
+                }).filter(v => v);
+                if (label && values.length > 0) {
+                  riskData.push({ title: label, details: values });
+                }
+              });
+              if (riskData.length > 0) return riskData;
+            }
+          }
+          return [{ title: 'No risk assessment data found', details: [] }];
+          
+        case 'application-certification':
+          const certPopup = document.getElementById('popup-application-certification');
+          if (certPopup && !certPopup.classList.contains('d-none')) {
+            const form = certPopup.querySelector('form');
+            if (form) {
+              const certData = [];
+              form.querySelectorAll('.form-group, .form-check').forEach(group => {
+                const label = group.querySelector('label')?.textContent?.trim() || '';
+                const inputs = group.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked, textarea, select');
+                const values = Array.from(inputs).map(input => {
+                  if (input.type === 'checkbox' || input.type === 'radio') return input.value || 'Yes';
+                  if (input.tagName === 'TEXTAREA') return input.value;
+                  if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                  return '';
+                }).filter(v => v);
+                if (label && values.length > 0) {
+                  certData.push({ title: label, details: values });
+                }
+              });
+              if (certData.length > 0) return certData;
+            }
+          }
+          return [{ title: 'No application certification data found', details: [] }];
+          
+        default:
+          return [{ title: 'Data not available', details: [] }];
+      }
+    } catch (error) {
+      console.error(`Error fetching data for ${linkId}:`, error);
+      return [{ title: 'Error loading data', details: [`Error: ${error.message}`] }];
+    }
+  }
+
+  // Helper function to add text with word wrapping
+  function addWrappedText(doc, text, x, y, maxWidth, fontSize = 10) {
+    doc.setFontSize(fontSize);
+    const lines = doc.splitTextToSize(text, maxWidth);
+    doc.text(lines, x, y);
+    return lines.length * (fontSize * 0.4); // Return height used
+  }
+
+  // Function to generate PDF and save to localStorage
+  async function generateAndSavePDF(selectedLinks) {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 14;
+      const maxWidth = pageWidth - (margin * 2);
+      
+      // Set font
+      doc.setFontSize(18);
+      doc.setFont(undefined, 'bold');
+      doc.text('Quick Links Summary', margin, 20);
+      
+      // Add date
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      const dateStr = new Date().toLocaleString();
+      doc.text(`Generated: ${dateStr}`, margin, 30);
+      
+      // Add email if provided
+      const email = document.getElementById('share-url')?.value || '';
+      let yPos = 36;
+      if (email) {
+        doc.text(`Email: ${email}`, margin, yPos);
+        yPos += 6;
+      }
+      
+      // Add line separator
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPos + 2, pageWidth - margin, yPos + 2);
+      yPos += 10;
+      
+      // Fetch and add data for each selected link
+      for (let index = 0; index < selectedLinks.length; index++) {
+        const link = selectedLinks[index];
+        
+        // Check if we need a new page
+        if (yPos > pageHeight - 40) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        // Section header
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${index + 1}. ${link.name}`, margin, yPos);
+        yPos += 8;
+        
+        // Fetch data for this link
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text('Loading data...', margin + 5, yPos);
+        
+        try {
+          const linkData = await fetchQuickLinkData(link.id);
+          
+          // Remove "Loading data..." by drawing white rectangle
+          doc.setFillColor(255, 255, 255);
+          doc.rect(margin + 5, yPos - 5, maxWidth - 5, 5, 'F');
+          
+          if (linkData && linkData.length > 0) {
+            linkData.forEach((item, itemIndex) => {
+              // Check if we need a new page
+              if (yPos > pageHeight - 30) {
+                doc.addPage();
+                yPos = 20;
+              }
+              
+              // Item title
+              if (item.title) {
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(11);
+                const titleHeight = addWrappedText(doc, item.title, margin + 5, yPos, maxWidth - 5, 11);
+                yPos += titleHeight + 2;
+              }
+              
+              // Item details
+              if (item.details && item.details.length > 0) {
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+                item.details.forEach(detail => {
+                  if (yPos > pageHeight - 20) {
+                    doc.addPage();
+                    yPos = 20;
+                  }
+                  const detailHeight = addWrappedText(doc, `  • ${detail}`, margin + 10, yPos, maxWidth - 10, 10);
+                  yPos += detailHeight + 3;
+                });
+              }
+              
+              yPos += 3; // Space between items
+            });
+          } else {
+            doc.setFont(undefined, 'italic');
+            doc.setFontSize(10);
+            doc.text('  No data available', margin + 5, yPos);
+            yPos += 6;
+          }
+        } catch (error) {
+          doc.setFillColor(255, 255, 255);
+          doc.rect(margin + 5, yPos - 5, maxWidth - 5, 5, 'F');
+          doc.setFont(undefined, 'normal');
+          doc.setFontSize(10);
+          doc.text(`  Error loading data: ${error.message}`, margin + 5, yPos);
+          yPos += 6;
+        }
+        
+        yPos += 8; // Space between sections
+      }
+      
+      // Generate PDF as base64
+      const pdfBase64 = doc.output('datauristring');
+      const pdfBlob = doc.output('blob');
+      
+      // Convert blob to base64 for localStorage
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        const base64data = reader.result.split(',')[1]; // Remove data:application/pdf;base64, prefix
+        
+        // Save to localStorage
+        const shareData = {
+          selectedLinks: selectedLinks,
+          timestamp: new Date().toISOString(),
+          email: email,
+          pdfBase64: base64data,
+          filename: `quick_links_${new Date().toISOString().split('T')[0]}.pdf`
+        };
+        
+        localStorage.setItem('sharedQuickLinksPDF', JSON.stringify(shareData));
+        
+        // Also trigger download
+        doc.save(shareData.filename);
+        
+        if (typeof showSuccessAlert === 'function') {
+          showSuccessAlert('PDF Saved', `Generated and saved PDF with ${selectedLinks.length} quick link(s) to local storage and downloaded.`);
+        } else {
+          alert(`Generated and saved PDF with ${selectedLinks.length} quick link(s) to local storage and downloaded.`);
+        }
+
+        // Clear email input
+        const emailInput = document.getElementById('share-url');
+        if (emailInput) emailInput.value = '';
+      };
+      reader.readAsDataURL(pdfBlob);
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      if (typeof showErrorAlert === 'function') {
+        showErrorAlert('Error', 'Failed to generate PDF. Please try again.');
+      } else {
+        alert('Failed to generate PDF. Please try again.');
+      }
+    }
+  }
 
   // Close popup for any .popup-close button
   document.querySelectorAll('.popup-close').forEach(closeBtn => {
@@ -4402,14 +5147,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const file = input.files[0];
     if (!file) return;
 
-    document.getElementById('fileBadge').style.display = 'inline-flex';
-    document.getElementById('fileNameText').textContent = file.name;
+    const badge = document.getElementById('fileBadge');
+    const nameText = document.getElementById('fileNameText');
+    if (badge) {
+        badge.style.display = 'inline-flex';
+    }
+    if (nameText) {
+        nameText.textContent = file.name;
+    }
 }
 
 function clearFile() {
     const input = document.getElementById('dropzoneInput');
-    input.value = '';
-    document.getElementById('fileBadge').style.display = 'none';
+    const badge = document.getElementById('fileBadge');
+    if (input) {
+        input.value = '';
+    }
+    if (badge) {
+        badge.style.display = 'none';
+    }
 }
 
 </script>

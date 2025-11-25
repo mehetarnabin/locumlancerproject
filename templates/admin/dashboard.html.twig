@@ -2,6 +2,54 @@
 
 {% block title %}Dashboard{% endblock %}
 
+{% block header_scripts %}
+<style>
+/* Force hide ALL decorative icons in stat cards - Loads after all CSS */
+.app-card.app-card-stat::before,
+.app-card.app-card-stat::after,
+.app-card.app-card-stat *::before,
+.app-card.app-card-stat *::after,
+.app-card.app-card-stat .app-card-body::before,
+.app-card.app-card-stat .app-card-body::after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.app-card.app-card-stat,
+.app-card.app-card-stat * {
+    background-image: none !important;
+    overflow: hidden !important;
+}
+
+.app-card.app-card-stat img,
+.app-card.app-card-stat svg,
+.app-card.app-card-stat picture,
+.app-card.app-card-stat figure {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Ensure cards don't overflow */
+.container-xl .row.g-4 > .col-6 {
+    overflow: hidden !important;
+}
+
+.container-xl .row.g-4 > .col-6 > .app-card {
+    overflow: hidden !important;
+    position: relative;
+}
+</style>
+{% endblock %}
+
 {% block admin_body %}
     <div class="container-xl">
         <div class="application-sticky">
@@ -100,4 +148,37 @@
 
 {% block footer_scripts %}
     <script src="{{ asset('assets/admin/plugins/chart.js/chart.min.js') }}"></script>
+    <script>
+    // Force remove decorative icons after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Remove all decorative elements from stat cards
+        const statCards = document.querySelectorAll('.app-card.app-card-stat');
+        statCards.forEach(function(card) {
+            // Remove all images and SVGs
+            const images = card.querySelectorAll('img, svg, picture, figure');
+            images.forEach(function(img) {
+                img.style.display = 'none';
+                img.remove();
+            });
+            
+            // Remove pseudo-elements by removing background images
+            card.style.backgroundImage = 'none';
+            const cardBody = card.querySelector('.app-card-body');
+            if (cardBody) {
+                cardBody.style.backgroundImage = 'none';
+            }
+            
+            // Force overflow hidden
+            card.style.overflow = 'hidden';
+            card.style.position = 'relative';
+        });
+        
+        // Also hide any elements with decorative classes
+        const decorativeElements = document.querySelectorAll('.app-card.app-card-stat [class*="icon"], .app-card.app-card-stat [class*="Icon"]');
+        decorativeElements.forEach(function(el) {
+            el.style.display = 'none';
+            el.remove();
+        });
+    });
+    </script>
 {% endblock %}

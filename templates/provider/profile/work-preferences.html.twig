@@ -4,51 +4,319 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* Layout reset to match dashboard spacing */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
+    padding-top: 80px !important;
+    padding-bottom: 48px !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 1199.98px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+/* Modern card styles matching other pages */
+.card.app-card-settings {
+    border: none;
+    background: #fff;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.card.app-card-settings .card-body {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: #0f172a;
+}
+
+.app-page-title {
+    color: #0f172a;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 32px 4px;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: 500;
+    color: #0f172a;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    outline: none;
+}
+
+/* Button styling */
+.btn-primary {
+    background: #85BB65;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: #6FA050;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+/* Work preferences summary styling */
+.work-preferences-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.work-preferences-summary > div {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.work-preferences-summary > div:last-child {
+    border-bottom: none;
+}
+
+.work-preferences-summary .text-uppercase {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.work-preferences-summary .fw-semibold {
+    font-size: 0.95rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Form section styling */
+.work-preferences-form-section {
+    display: none !important;
+    margin-top: 20px;
+}
+
+.work-preferences-form-section.show {
+    display: block !important;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6B7280;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+/* Action buttons */
+.action-btn {
+    min-width: 32px;
+    min-height: 32px;
+    width: auto;
+    height: auto;
+    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 6px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background: #85BB65;
+    border-color: #85BB65;
+    transform: translateY(-1px);
+    color: white;
+}
+
+.action-btn img {
+    width: 16px;
+    height: 16px;
 }
 </style>
+
     <div class="container-xl">
         <h1 class="app-page-title">Work Preferences</h1>
-        <div class="section-intro">Set your work preferences to help us connect you with the right locum
-            opportunities.
+
+        {# Work Preferences Summary Card #}
+        <div class="card app-card-settings">
+            <div class="card-body">
+                <div class="card-header-row">
+                    <h5 class="card-title">My Work Preferences</h5>
+                    <button id="add-work-preferences-btn" class="btn btn-primary" type="button">
+                        {% set hasPreferences = provider.profession or provider.desiredPayRate or provider.desiredHour or (provider.desiredStates is not empty) %}
+                        {{ hasPreferences ? 'Edit' : 'Add New' }}
+                    </button>
+                </div>
+
+                <div id="work-preferences-summary-container">
+                    {% include 'provider/profile/_work_preferences_summary.html.twig' with { provider: provider } %}
+                </div>
+            </div>
         </div>
 
-        <hr class="mb-4">
+        {# Work Preferences Form Section (Hidden by default) #}
+        <div class="card app-card-settings work-preferences-form-section" id="work-preferences-form-section" style="display: none;">
+            <div class="card-body">
+                <div class="card-header-row">
+                    <h5 class="card-title">{{ provider.profession ? 'Edit Work Preferences' : 'Add Work Preferences' }}</h5>
+                    <button id="cancel-work-preferences-btn" class="btn btn-secondary" type="button">
+                        Cancel
+                    </button>
+                </div>
 
-        {{ form_start(form, {'attr': {'class': 'work-preferences-form needs-validation', 'novalidate': 'novalidate'}}) }}
+                {{ form_start(form, {'attr': {'class': 'work-preferences-form needs-validation', 'novalidate': 'novalidate'}}) }}
+                {{ form_errors(form) }}
 
-        {{ form_errors(form) }}
-
-        <div class="app-card app-card-settings shadow-sm p-4">
-            <div class="app-card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                <div class="row g-4">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.profession, 'Profession', {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.profession, {'attr': {'class': 'form-control', 'placeholder': 'Enter profession'}}) }}
                             {{ form_errors(form.profession) }}
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
-                            {{ form_label(form.specialities, '', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_label(form.specialities, 'Specialities', {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.specialities, {'attr': {'class': 'form-control select2', 'placeholder': 'Enter speciality'}}) }}
                             {{ form_errors(form.specialities) }}
                             <div class="invalid-feedback">Select your specialities</div>
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.desiredPayRate, null, {'label_attr': {'class': 'form-label'}}) }}
                             <div class="radio-group">
@@ -61,7 +329,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.desiredHour, null, {'label_attr': {'class': 'form-label'}}) }}
                             <div class="radio-group">
@@ -74,16 +342,15 @@
                         </div>
                     </div>
 
-
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.payRateDaily, null, {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.payRateDaily, {'attr':{'class': 'form-control'}}) }}
                             {{ form_errors(form.payRateDaily) }}
                         </div>
-                        </div>
+                    </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.payRateHourly, null, {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.payRateHourly, {'attr':{'class': 'form-control'}}) }}
@@ -91,15 +358,15 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.availabilityToStart, null, {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.availabilityToStart, {'attr':{'class': 'form-control js-datepicker'}}) }}
                             {{ form_errors(form.availabilityToStart) }}
                         </div>
-                        </div>
+                    </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.preferredPatientVolume, null, {'label_attr': {'class': 'form-label'}}) }}
                             {{ form_widget(form.preferredPatientVolume, {'attr':{'class': 'form-control'}}) }}
@@ -107,33 +374,34 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.desiredStates, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.desiredStates, {'attr':{'class': 'form-control select2'}}) }}
+                            {{ form_widget(form.desiredStates, {'attr': {'class': 'form-control select2'}}) }}
                             {{ form_errors(form.desiredStates) }}
                         </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             {{ form_label(form.willingToTravel, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.willingToTravel, {'attr':{'class': 'checkbox'}}) }}
+                            <div class="mt-2">
+                                {{ form_widget(form.willingToTravel, {'attr':{'class': 'checkbox'}}) }}
+                            </div>
                             {{ form_errors(form.willingToTravel) }}
                         </div>
                     </div>
-
-                    </div>
                 </div>
 
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="button" id="cancel-form-btn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">{{ button_label|default('Save') }}</button>
+                    <button type="submit" name="save_continue" value="1" class="btn btn-primary">{{ button_label|default('Save and Continue') }}</button>
+                </div>
+
+                {{ form_end(form) }}
             </div>
-
-
-        <button class="btn btn-primary mt-2">{{ button_label|default('Save') }}</button>
-        <button class="btn btn-primary mt-2" name="save_continue" value="1">{{ button_label|default('Save and Continue') }}</button>
-        {{ form_end(form) }}
-    </div>
-
+        </div>
     </div>
 {% endblock %}
 
@@ -141,16 +409,72 @@
     <script src="{{ asset('assets/admin/js/form-validation.js') }}"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2();
-        });
-    </script>
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
-        $(".js-datepicker").flatpickr();
+        // Hide form immediately on page load (before DOM ready)
+        (function() {
+            var formSection = document.getElementById('work-preferences-form-section');
+            if (formSection) {
+                formSection.style.display = 'none';
+            }
+        })();
+
+        $(document).ready(function() {
+            // Double-check form is hidden on page load (unless there are form errors)
+            var hasFormErrors = $('.work-preferences-form').find('.is-invalid, .alert-danger, .form-error').length > 0;
+            if (!hasFormErrors) {
+                $('#work-preferences-form-section').hide().css('display', 'none');
+            } else {
+                // If there are errors, show the form
+                $('#work-preferences-form-section').show().addClass('show');
+                $('#work-preferences-summary-container').closest('.card').hide();
+                $('#add-work-preferences-btn').hide();
+            }
+
+            // Initialize Select2
+            $('.select2').select2();
+
+            // Initialize flatpickr
+            $(".js-datepicker").flatpickr();
+
+            // Show form when "Add New" or "Edit" is clicked
+            $('#add-work-preferences-btn').on('click', function(e) {
+                e.preventDefault();
+                $('#work-preferences-form-section').show().addClass('show');
+                $('#work-preferences-summary-container').closest('.card').hide();
+                $(this).hide();
+                // Scroll to form
+                setTimeout(function() {
+                    $('html, body').animate({
+                        scrollTop: $('#work-preferences-form-section').offset().top - 100
+                    }, 300);
+                }, 100);
+            });
+
+            // Hide form when "Cancel" is clicked
+            $('#cancel-work-preferences-btn, #cancel-form-btn').on('click', function(e) {
+                e.preventDefault();
+                $('#work-preferences-form-section').hide().removeClass('show');
+                $('#work-preferences-summary-container').closest('.card').show();
+                $('#add-work-preferences-btn').show();
+                // Scroll to top
+                $('html, body').animate({
+                    scrollTop: $('.app-page-title').offset().top - 100
+                }, 300);
+            });
+
+            // Form validation
+            $('.work-preferences-form').on('submit', function(e) {
+                var form = this;
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.classList.add('was-validated');
+                    return false;
+                }
+            });
+        });
     </script>
 {% endblock %}

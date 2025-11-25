@@ -143,27 +143,49 @@ div.container-xl,
 .analytics-chart-card {
     background: #fff;
     border: 1px solid #e6eef6;
-    transition: box-shadow 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 12px;
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.analytics-metric-card:nth-child(1) { animation-delay: 0.1s; }
+.analytics-metric-card:nth-child(2) { animation-delay: 0.2s; }
+.analytics-metric-card:nth-child(3) { animation-delay: 0.3s; }
+.analytics-metric-card:nth-child(4) { animation-delay: 0.4s; }
+
+.analytics-chart-card:nth-child(1) { animation-delay: 0.2s; }
+.analytics-chart-card:nth-child(2) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .analytics-metric-card:hover,
 .analytics-chart-card:hover {
-    box-shadow: 0 4px 12px rgba(11, 22, 40, 0.08) !important;
+    box-shadow: 0 8px 24px rgba(133, 187, 101, 0.15) !important;
+    transform: translateY(-4px) !important;
+    border-color: #85BB65 !important;
 }
 
 /* Consistent card padding and spacing - improved */
 .analytics-metric-card {
-    padding: 24px !important;
-    min-height: 140px;
+    padding: 16px !important;
+    min-height: 120px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin-bottom: 0 !important;
 }
 
 .analytics-chart-card {
-    padding: 24px !important;
-    min-height: 400px;
+    padding: 20px !important;
+    min-height: 420px;
+    margin-bottom: 0 !important;
 }
 
 /* Metric card content alignment */
@@ -176,7 +198,7 @@ div.container-xl,
 }
 
 .analytics-metric-card .metric-value {
-    font-size: 2rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #121C0C;
     line-height: 1.2;
@@ -185,13 +207,18 @@ div.container-xl,
 
 .analytics-metric-card .metric-icon {
     flex-shrink: 0;
-    width: 45px;
-    height: 45px;
+    width: 28px !important;
+    height: 28px !important;
     background: #EAF3E4;
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.analytics-metric-card .metric-icon svg {
+    width: 14px !important;
+    height: 14px !important;
 }
 
 .analytics-metric-card .metric-change {
@@ -216,9 +243,14 @@ div.container-xl,
 .analytics-chart-card .form-select-sm {
     font-size: 13px;
     padding: 6px 12px;
+    padding-right: 12px !important;
     border: 1px solid #e6eef6;
     border-radius: 6px;
     color: #121C0C;
+    background-image: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
 }
 
 /* Chart container alignment */
@@ -232,7 +264,7 @@ div.container-xl,
 .stats-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
 .stats-grid .stat-item {
@@ -240,11 +272,37 @@ div.container-xl,
     border: 1px solid #e6eef6;
     border-radius: 10px;
     padding: 20px;
-    transition: box-shadow 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInScale 0.5s ease-out forwards;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.stats-grid .stat-item:nth-child(1) { animation-delay: 0.1s; }
+.stats-grid .stat-item:nth-child(2) { animation-delay: 0.2s; }
+.stats-grid .stat-item:nth-child(3) { animation-delay: 0.3s; }
+.stats-grid .stat-item:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInScale {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .stats-grid .stat-item:hover {
-    box-shadow: 0 2px 8px rgba(11, 22, 40, 0.06) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.12) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    border-color: #85BB65 !important;
+}
+
+.stats-grid .stat-item:hover > div > div:last-child {
+    background: #85BB65 !important;
+    transform: scale(1.1) rotate(5deg);
+}
+
+.stats-grid .stat-item:hover > div > div:last-child svg path {
+    fill: #fff !important;
 }
 
 .stats-grid .stat-item .text-muted {
@@ -263,20 +321,32 @@ div.container-xl,
 }
 
 .stats-grid .row.g-2 {
-    margin-top: 16px;
+    margin-top: 20px;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    --bs-gutter-x: 0.5rem !important;
-    --bs-gutter-y: 0.5rem !important;
+    --bs-gutter-x: 0.75rem !important;
+    --bs-gutter-y: 0.75rem !important;
+    gap: 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
 }
 
 .stats-grid .row.g-2 > [class*="col-"] {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    margin-bottom: 0.75rem !important;
+    flex: 0 0 48% !important;
+    max-width: 48% !important;
 }
 
-.stats-grid .row.g-2 > [class*="col-"]:first-child {
+.stats-grid .row.g-2 > [class*="col-"]:nth-child(odd) {
     padding-left: 0 !important;
+    padding-right: 6px !important;
+}
+
+.stats-grid .row.g-2 > [class*="col-"]:nth-child(even) {
+    padding-right: 0 !important;
+    padding-left: 6px !important;
 }
 
 .stats-grid .stat-item.text-center {
@@ -291,12 +361,27 @@ div.container-xl,
 .performance-metrics {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
 }
 
 .performance-metrics .metric-bar {
     margin-bottom: 0;
     padding-bottom: 0;
+    animation: fadeInLeft 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.performance-metrics .metric-bar:nth-child(1) { animation-delay: 0.1s; }
+.performance-metrics .metric-bar:nth-child(2) { animation-delay: 0.2s; }
+.performance-metrics .metric-bar:nth-child(3) { animation-delay: 0.3s; }
+.performance-metrics .metric-bar:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .performance-metrics .metric-bar .fw-medium {
@@ -318,6 +403,19 @@ div.container-xl,
     background-color: #F4F9F1;
     border-radius: 5px;
     margin-top: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.performance-metrics .progress-bar {
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    animation: progressBarFill 1.2s ease-out forwards;
+}
+
+@keyframes progressBarFill {
+    from {
+        width: 0 !important;
+    }
 }
 
 /* Skills list alignment */
@@ -353,16 +451,19 @@ div.container-xl,
 
 /* Row spacing consistency - improved gap spacing */
 .container-xl .row.g-4 {
-    --bs-gutter-x: 1rem !important;
-    --bs-gutter-y: 1rem !important;
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
 }
 
 .container-xl .row.g-4 > [class*="col-"] {
     padding-left: 12px !important;
     padding-right: 12px !important;
+    margin-bottom: 1.5rem !important;
 }
 
 /* Remove left padding from first column in each row */
@@ -370,14 +471,53 @@ div.container-xl,
     padding-left: 0 !important;
 }
 
+/* Add margin bottom to last row items */
+.container-xl .row.g-4:last-child > [class*="col-"] {
+    margin-bottom: 0 !important;
+}
+
+/* Ensure bottom cards are side by side */
+.container-xl .row.g-4:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+}
+
+.container-xl .row.g-4:last-child > [class*="col-lg-6"] {
+    flex: 0 0 calc(50% - 0.75rem) !important;
+    max-width: calc(50% - 0.75rem) !important;
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 991.98px) {
+    .container-xl .row.g-4:last-child > [class*="col-lg-6"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
 /* Page title alignment */
 .app-card-title {
     font-size: 24px;
     font-weight: 700;
     color: #121C0C;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     line-height: 1.3;
     padding-left: 0 !important;
+    animation: fadeInDown 0.6s ease-out forwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Ensure consistent card heights */
@@ -405,112 +545,71 @@ div.container-xl,
     
    
     <!-- Key Metrics Row -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <!-- Impressions Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="analytics-metric-card shadow-sm rounded-3 p-4 h-100">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <div class="metric-label text-muted small mb-1">Total Impressions</div>
-                        <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ impressions }}</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ impressions }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.72-2.92 0-1.21-.49-2.19-3.55-2.68z" fill="#85BB65"/>
                         </svg>
                     </div>
-                </div>
-                <div class="metric-change text-success small">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
-                    </svg>
-                    {% if trends.total_impressions > 0 %}
-                        +{{ trends.total_impressions|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Profile Views Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="analytics-metric-card shadow-sm rounded-3 p-4 h-100">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <div class="metric-label text-muted small mb-1">Profile Views</div>
-                        <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ profileViews }}</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ profileViews }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#85BB65"/>
                         </svg>
                     </div>
-                </div>
-                <div class="metric-change text-success small">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
-                    </svg>
-                    {% if trends.profile_views > 0 %}
-                        +{{ trends.profile_views|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Resume Downloads Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="analytics-metric-card shadow-sm rounded-3 p-4 h-100">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <div class="metric-label text-muted small mb-1">Resume Downloads</div>
-                        <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ resumeDownloads }}</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ resumeDownloads }}</div>
                     </div>
-                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#85BB65"/>
                         </svg>
-                        
                     </div>
-                </div>
-                <div class="metric-change text-success small">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
-                    </svg>
-                    {% if trends.resume_downloads > 0 %}
-                        +{{ trends.resume_downloads|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Response Rate Card -->
         <div class="col-12 col-md-6 col-lg-3">
-            <div class="analytics-metric-card shadow-sm rounded-3 p-4 h-100">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <div class="metric-label text-muted small mb-1">Response Rate</div>
-                        <div class="metric-value fw-bold" style="font-size: 2rem; color: #121C0C;">{{ responseRate }}%</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ responseRate }}%</div>
                     </div>
-                    <div class="metric-icon" style="width: 45px; height: 45px; background: #EAF3E4; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#85BB65"/>
                         </svg>
                     </div>
-                </div>
-                <div class="metric-change text-success small">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle;">
-                        <path d="M6 2L10 6H7V10H5V6H2L6 2Z" fill="#85BB65"/>
-                    </svg>
-                    {% if trends.response_rate is defined and trends.response_rate > 0 %}
-                        +{{ trends.response_rate|round(1) }}% from last month
-                    {% else %}
-                        No change from last month
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -523,7 +622,7 @@ div.container-xl,
     {% endif %}
 
     <!-- Charts Row -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <!-- Application to Interview Ratio -->
         <div class="col-12 col-lg-6">
             <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
@@ -534,8 +633,11 @@ div.container-xl,
                         <option value="interview_to_application">Interview to Application Ratio</option>
                     </select>
                 </div>
-                <div class="chart-container" style="height: 300px; position: relative;">
-                    <canvas id="ratioChart"></canvas>
+                <div class="chart-container" style="height: 300px; position: relative; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="ratioChart" style="position: relative;"></canvas>
+                    <div id="ratioChartCenter" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; max-width: 120px; width: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        <div style="font-size: 12px; font-weight: 700; color: #121C0C; line-height: 1.4; text-align: center;" id="ratioChartValue">Applied=0<br>Interview=0<br>Pending=0</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -554,7 +656,7 @@ div.container-xl,
     </div>
     
     <!-- Monthly Trends -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <!-- Monthly Application Trends -->
         <div class="col-12">
             <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
@@ -585,33 +687,33 @@ div.container-xl,
     </div>
     
     <!-- Detailed Statistics Row -->
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
         <!-- Application Statistics -->
         <div class="col-12 col-lg-6">
             <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
                 <h6 class="mb-4 fw-semibold">Application Statistics</h6>
                 <div class="stats-grid">
-                    <div class="stat-item p-3 mb-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
+                    <div class="stat-item p-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="text-muted small mb-1">Total Applications</div>
                                 <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalApplications }}</div>
                             </div>
-                            <div style="width: 37px; height: 37px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div style="width: 28px !important; height: 28px !important; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#85BB65"/>
                                 </svg>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-item p-3 mb-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
+                    <div class="stat-item p-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <div class="text-muted small mb-1">Saved Jobs</div>
                                 <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalBookmarks }}</div>
                             </div>
-                            <div style="width: 37px; height: 37px; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <div style="width: 28px !important; height: 28px !important; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#85BB65"/>
                                 </svg>
                             </div>
@@ -619,27 +721,27 @@ div.container-xl,
                     </div>
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-item p-3 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6;">
-                                <div class="text-muted small mb-1">Applied</div>
-                                <div class="fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ statusCounts.applied }}</div>
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Applied</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.applied }}</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-item p-3 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6;">
-                                <div class="text-muted small mb-1">Interview</div>
-                                <div class="fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ statusCounts.interview }}</div>
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Interview</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.interview }}</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-item p-3 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6;">
-                                <div class="text-muted small mb-1">Accepted</div>
-                                <div class="fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ statusCounts.accepted }}</div>
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Pending</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ pendingApplications }}</div>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-item p-3 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6;">
-                                <div class="text-muted small mb-1">Completed</div>
-                                <div class="fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ statusCounts.completed }}</div>
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Completed</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.completed }}</div>
                             </div>
                         </div>
                     </div>
@@ -648,9 +750,9 @@ div.container-xl,
         </div>
         
         <!-- Performance Metrics -->
-<div class="col-12 col-lg-6">
-    <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
-        <h6 class="mb-4 fw-semibold">Performance Metrics</h6>
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <h6 class="mb-4 fw-semibold">Performance Metrics</h6>
         <div class="performance-metrics">
             <!-- Profile Completion - ACTUAL DATA -->
             <div class="metric-bar mb-4">
@@ -775,6 +877,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const config = ratioConfigs[mode] || ratioConfigs['app_to_interview'];
         if (!config) {
             return;
+        }
+
+        // Get the actual counts for center display
+        let applied, interviews, pending;
+        if (mode === 'app_to_interview') {
+            // Data order: Interviews, Applied, Pending
+            interviews = config.data[0];
+            applied = config.data[1];
+            pending = config.data[2];
+        } else {
+            // Data order: Applied, Interviews, Pending
+            applied = config.data[0];
+            interviews = config.data[1];
+            pending = config.data[2];
+        }
+        
+        // Update center text with actual counts
+        const centerValue = document.getElementById('ratioChartValue');
+        if (centerValue) {
+            centerValue.innerHTML = `Applied=${applied}<br>Interview=${interviews}<br>Pending=${pending}`;
         }
 
         if (!ratioChartInstance) {

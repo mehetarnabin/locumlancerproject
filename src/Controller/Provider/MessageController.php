@@ -339,7 +339,7 @@ class MessageController extends AbstractController
         if ($receiverId) {
             $receiver = $em->getRepository(User::class)->find($receiverId);
             if ($receiver) {
-                $message->setReceiver($receiver);
+                $message->setReceiver($receiver ?? null);
                 $message->setEmployer($receiver->getEmployer());
             }
         }

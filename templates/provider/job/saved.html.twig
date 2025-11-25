@@ -234,7 +234,6 @@ div.container-xl,
 }
 .job-check {
     margin-right: 8px;
-    transform: scale(1.2);
 }
 #toggleActions {
     padding: 6px 16px;
@@ -315,8 +314,8 @@ div.container-xl,
 .custom-dropdown {
   position: absolute !important;
   top: 110% !important;
-  left: auto !important;
-  right: 0 !important;
+  left: 0 !important;
+  right: auto !important;
   background: #fff;
   padding: 10px;
   min-width: 150px;
@@ -558,20 +557,34 @@ div.container-xl,
   transform: rotate(45deg);
 }
 
+/* Col-check checkboxes use the same styling as job-check */
 .col-check input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #cfd9e3;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .col-check input[type="checkbox"]:hover {
   border-color: #85BB65;
+  background-color: #f7fef4;
+}
+
+.col-check input[type="checkbox"]:focus {
+  outline: none;
 }
 
 .col-check input[type="checkbox"]:checked {
@@ -582,64 +595,90 @@ div.container-xl,
 .col-check input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+  width: 5px;
+  height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  box-sizing: border-box;
 }
 
 /* Consistent rounded rectangle style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
+.job-list-container input[type="checkbox"].job-checkbox,
 .split-job-list input[type="checkbox"].job-checkbox {
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 1px solid #cfd9e3;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cfd9e3;
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
   margin: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
   line-height: 1;
   padding: 0;
+  flex-shrink: 0;
 }
 
 /* Hover state - green border */
 .job-list-container input[type="checkbox"].job-check:hover,
+.job-list-container input[type="checkbox"].job-checkbox:hover,
 .split-job-list input[type="checkbox"].job-checkbox:hover {
   border-color: #85BB65;
+  background-color: #f7fef4;
+}
+
+/* Focus state */
+.job-list-container input[type="checkbox"].job-check:focus,
+.job-list-container input[type="checkbox"].job-checkbox:focus,
+.split-job-list input[type="checkbox"].job-checkbox:focus {
+  outline: none;
 }
 
 /* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
+.job-list-container input[type="checkbox"].job-checkbox:checked,
 .split-job-list input[type="checkbox"].job-checkbox:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
+.job-list-container input[type="checkbox"].job-checkbox:checked::after,
 .split-job-list input[type="checkbox"].job-checkbox:checked::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 6px;
-  width: 4px;
-  height: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+  width: 5px;
+  height: 10px;
   border: solid #fff;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  box-sizing: border-box;
 }
 
-/* Remove previous scale that distorted shape */
-.job-check { transform: none; margin-right: 8px; }
+/* Ensure checkboxes are properly aligned in their container */
+.col-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-check {
+  margin: 0;
+}
 
 .job-title {
     color: #121C0C;
@@ -701,8 +740,8 @@ div.container-xl,
 
 .todo-popup {
     position: fixed;
-    background: #121C0C;
-    color: white;
+    background: white;
+    color: black;
     border-radius: 8px;
     padding: 12px 16px;
     font-size: 13px;
@@ -711,6 +750,7 @@ div.container-xl,
     max-width: 250px;
     display: none;
     pointer-events: none;
+    border: 1px solid #e5e7eb;
 }
 
 .todo-popup.show {
@@ -724,7 +764,7 @@ div.container-xl,
     align-items: center;
     margin-bottom: 8px;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .todo-popup-title {
@@ -735,7 +775,7 @@ div.container-xl,
 .todo-popup-close {
     background: none;
     border: none;
-    color: white;
+    color: black;
     cursor: pointer;
     font-size: 18px;
     line-height: 1;
@@ -1131,20 +1171,52 @@ div.container-xl,
 .job-row > div {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
   box-sizing: border-box;
-  padding: 2px 8px;
   min-width: 0;
   overflow: hidden;
-  min-height: 40px;
-  height: auto;
 }
 
+/* Ensure all columns have consistent padding to align headers with data */
+.job-header > div,
+.job-row > div {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Checkbox column alignment */
+.job-header .col-check,
+.job-row .col-check {
+  width: 30px !important;
+  flex-shrink: 0 !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+/* Job column - left aligned */
 .job-header .col-job,
 .job-row .col-job {
-  justify-content: flex-start;
-  text-align: left;
+  width: 200px !important;
+  flex-shrink: 0 !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+/* Center aligned columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  padding: 0 8px !important;
 }
 
 /* Ensure consistent vertical alignment */
@@ -1153,11 +1225,10 @@ div.container-xl,
   height: 40px;
 }
 
-/* Center content for numeric/text columns */
-.job-header .col-start.col-center,
-.job-row .col-start.col-center {
-  justify-content: center;
-  text-align: center;
+.job-header > div,
+.job-row > div {
+  min-height: 40px;
+  height: 40px;
 }
 
 /* Job column specific styling */
@@ -1669,7 +1740,9 @@ window.addEventListener('resize', function() {
           <div class="d-flex align-items-center job-lists">
             <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
               <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-                <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                </div>
+                <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
                 <div class="col-start col-center sortable" data-sort="location" data-column="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
@@ -1678,7 +1751,7 @@ window.addEventListener('resize', function() {
                 <div class="col-start col-center sortable" data-sort="employer" data-column="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Employer<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center sortable" data-sort="applied" data-column="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center sortable" data-sort="category" data-column="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
+                <div class="col-start col-center sortable" data-sort="todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer; gap: 4px;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center col-rank sortable" data-sort="rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
                 <div class="col-start col-center sortable" data-sort="status" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -1747,11 +1820,6 @@ window.addEventListener('resize', function() {
                     data-original-value="{{ bookmark.rank is not null ? bookmark.rank : '' }}"
                     oninput="if (this.value > 10) this.value = 10; if (this.value < 1) this.value = 1;"
                   />
-                    <button type="button" class="rank-save-btn" data-job-id="{{ job.id }}" title="Save">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
                   </div>
                 </div>
                 <div class="col-start col-center" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
@@ -1765,7 +1833,7 @@ window.addEventListener('resize', function() {
         {% else %}
             <p class="mb-0">Saved jobs not found.</p>
         {% endif %}
-        <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
+        <div class="job-actions hidden-buttons ml-15-px" style="display: none !important;">
           <button id="save-btn" class="action-btn" title="Save">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -2816,15 +2884,10 @@ window.addEventListener('resize', function() {
         const anyChecked = checkedCount > 0;
         const splitViewContainer = document.getElementById('split-view-container');
         const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-        // Buttons visibility panel (compact row) still toggles by selection in list view only
+        // Buttons visibility panel (compact row) - always hidden
         actionsDivs.forEach(div => {
-            if (isSplitActive) {
-                // Hide duplicate compact buttons in split view
-                div.style.display = 'none';
-            } else {
-                div.style.display = 'flex';
-                div.style.visibility = anyChecked ? 'visible' : 'hidden';
-            }
+            div.style.display = 'none !important';
+            div.style.visibility = 'hidden';
         });
         
         // Show/hide Apply and Note - use visibility to maintain layout
@@ -3880,13 +3943,9 @@ function toggleActionsVisibility() {
   
   const actionsDivs = document.querySelectorAll('.hidden-buttons');
   actionsDivs.forEach(div => {
-    if (isSplitActive) {
-      // Hide duplicate compact buttons in split view
+    // Always hide the buttons panel
       div.style.display = 'none';
-    } else {
-      div.style.display = 'flex';
-      div.style.visibility = anyChecked ? 'visible' : 'hidden';
-    }
+    div.style.visibility = 'hidden';
   });
   
   // Show/hide Apply and Note buttons
@@ -4435,7 +4494,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.success) {
           // ✅ Update UI
           if (display) {
-          display.textContent = value + '/10';
+          display.textContent = value;
             display.classList.remove('hidden');
           }
           input.value = value;
@@ -4497,25 +4556,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Tick button click handlers
-  document.querySelectorAll('.rank-save-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const jobId = this.dataset.jobId;
-      const wrapper = this.closest('.rank-input-wrapper');
-      const input = wrapper ? wrapper.querySelector('.rank-input') : null;
-      if (input && input.dataset.jobId === jobId) {
+  // ✅ Auto-save on blur (when clicking outside the input)
+  rankInputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      // Small delay to allow click events to process first
+      setTimeout(() => {
         saveRank(input);
-      }
-    });
+      }, 200);
   });
 
-  // ✅ Handle key events (no blur save - only tick button or Enter)
-  rankInputs.forEach(input => {
     input.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        saveRank(input);
+        input.blur(); // Trigger blur which will save
       }
       if (e.key === 'Escape') {
         const wrapper = input.closest('.rank-input-wrapper');
@@ -5251,7 +5304,7 @@ function startSavedJobsTour() {
                 <div class="todo-popup-content">
                     <div class="todo-popup-loading" style="text-align: center; padding: 10px;">Loading...</div>
                     <div class="todo-popup-documents" style="display: none;"></div>
-                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #999;">No document requests</div>
+                                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #666;">No document requests</div>
                     <div class="todo-popup-action" style="display: none;"></div>
                 </div>
             `;
@@ -5331,13 +5384,13 @@ function startSavedJobsTour() {
                                             '<span style="color: #85BB65;">✓ Provided</span>' : 
                                             '<span style="color: #ffc107;">Pending</span>';
                                         html += `
-                                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                                <div style="font-weight: 600; margin-bottom: 4px;">${req.name}</div>
-                                                <div style="font-size: 11px; color: #ccc;">
+                                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                                                <div style="font-weight: 600; margin-bottom: 4px; color: black;">${req.name}</div>
+                                                <div style="font-size: 11px; color: #666;">
                                                     Requested: ${new Date(req.createdAt).toLocaleDateString()}
                                                     ${req.providedAt ? ' | Provided: ' + new Date(req.providedAt).toLocaleDateString() : ''}
                                                 </div>
-                                                <div style="font-size: 11px; margin-top: 4px;">${statusText}</div>
+                                                <div style="font-size: 11px; margin-top: 4px; color: black;">${statusText}</div>
                                             </div>
                                         `;
                                     });
@@ -5368,19 +5421,23 @@ function startSavedJobsTour() {
                         }
                     }
                     
-                    // Position popup to the left of the icon
-                    const rect = todoIcon.getBoundingClientRect();
-                    const popupWidth = 300;
-                    const popupHeight = 200;
-                    // Position to the left of the icon
-                    let left = rect.left - popupWidth - 10;
-                    // Align vertically with the icon
-                    let top = rect.top + (rect.height / 2) - (popupHeight / 2);
+                    // Position popup to the left of the cursor and aligned at top
+                    // Use requestAnimationFrame to ensure popup is rendered before getting dimensions
+                    requestAnimationFrame(() => {
+                        // Get actual popup dimensions after it's rendered
+                        const popupRect = window.todoPopup.getBoundingClientRect();
+                        const popupWidth = popupRect.width || 300;
+                        const popupHeight = popupRect.height || 200;
+                        
+                        // Position to the left of the cursor
+                        let left = e.clientX - popupWidth - 10;
+                        // Align top with cursor
+                        let top = e.clientY;
                     
                     // Adjust if popup goes off screen
                     if (left < 10) {
                         // If not enough space on left, show to the right
-                        left = rect.right + 10;
+                            left = e.clientX + 10;
                     }
                     if (left + popupWidth > window.innerWidth - 10) {
                         left = window.innerWidth - popupWidth - 10;
@@ -5394,6 +5451,11 @@ function startSavedJobsTour() {
                     
                     window.todoPopup.style.left = left + 'px';
                     window.todoPopup.style.top = top + 'px';
+                    });
+                    
+                    // Show popup first (positioned initially at cursor, will be adjusted in requestAnimationFrame)
+                    window.todoPopup.style.left = (e.clientX - 300) + 'px';
+                    window.todoPopup.style.top = e.clientY + 'px';
                     window.todoPopup.classList.add('show');
                 }
                 return;

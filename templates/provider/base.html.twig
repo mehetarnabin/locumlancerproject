@@ -211,9 +211,9 @@
             z-index: 99999 !important;
             position: fixed !important;
             top: auto !important;
-            right: 18px !important;
+            right: auto !important;
             left: auto !important;
-            margin-top: 10px !important;
+            margin-top: 0 !important;
             min-width: 320px;
             max-width: 400px;
             max-height: 500px;
@@ -223,6 +223,48 @@
         
         .app-notifications-dropdown.show .dropdown-menu {
             display: block !important;
+        }
+        
+        /* Documents dropdown - same positioning as notifications */
+        .app-documents-dropdown {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .app-documents-dropdown .dropdown-toggle {
+            position: relative;
+            z-index: 99998;
+        }
+        
+        .app-documents-dropdown .dropdown-menu {
+            z-index: 99998 !important;
+            position: fixed !important;
+            top: auto !important;
+            right: 18px !important;
+            left: auto !important;
+            margin-top: 0 !important;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: none;
+            transform: none !important;
+        }
+        
+        .app-documents-dropdown.show .dropdown-menu {
+            display: block !important;
+        }
+        
+        .app-documents-dropdown .dropdown-item {
+            padding: 8px 16px;
+            font-size: 14px;
+            color: #121C0C;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .app-documents-dropdown .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #85BB65;
         }
         
         /* Ensure parent containers don't clip the dropdown */
@@ -283,6 +325,20 @@
         /* Prevent any text duplication in rank display */
         .col-rank {
             overflow: hidden !important;
+        }
+        
+        /* Center align all table data in provider templates */
+        .table thead th,
+        .table tbody td,
+        .document-table thead th,
+        .document-table tbody td {
+            text-align: center !important;
+        }
+        
+        /* Exclude job title column from center alignment */
+        .col-job {
+            text-align: left !important;
+            justify-content: flex-start !important;
         }
         
         .col-rank > * {
@@ -573,6 +629,50 @@
             transition: color 0.3s ease, fill 0.3s ease;
         }
 
+        /* Logo text colors - LOCUM in green, LANCER in black */
+        .text-logo-first {
+            color: #85BB65 !important;
+        }
+        
+        .text-logo-second {
+            color: #121C0C !important;
+        }
+
+        /* Sidebar animation - app-wrapper shifts right when sidebar expands on hover */
+        /* Match admin/employer pattern but adapted for provider's collapsed sidebar (60px -> 250px) */
+        /* Use maximum specificity to override page-specific styles */
+        @media (min-width: 1200px) {
+            body.app .app-wrapper,
+            body .app-wrapper,
+            .app-wrapper {
+                margin-left: 60px !important; /* Collapsed sidebar width */
+                transform: none !important; /* Remove transform from page-specific overrides */
+                width: auto !important; /* Remove width constraints */
+                transition: margin-left 0.4s ease-in-out !important;
+            }
+            
+            /* When sidebar is hovered (expanded) or nav item is hovered, shift to 250px */
+            body.nav-hover-active .app-wrapper,
+            body.nav-hover-active body.app .app-wrapper,
+            body.sidebar-hovered .app-wrapper,
+            body.sidebar-hovered body.app .app-wrapper {
+                margin-left: 250px !important; /* Expanded sidebar width */
+                transform: none !important; /* Remove transform */
+                width: auto !important;
+            }
+        }
+        
+        /* On smaller screens, no margin when sidebar is hidden */
+        @media (max-width: 1199.98px) {
+            body.app .app-wrapper,
+            body .app-wrapper,
+            .app-wrapper {
+                margin-left: 0 !important;
+                transform: none !important;
+                width: auto !important;
+            }
+        }
+
     </style>
 
     {% block header_scripts %}{% endblock %}
@@ -738,6 +838,23 @@
                             </a>
                         </div>
 
+                        <div class="app-utility-item app-documents-dropdown dropdown">
+                            <a class="dropdown-toggle no-toggle-arrow" id="documents-dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" title="Documents">
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 13H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 17H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10 9H9H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="label-text">Documents</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="documents-dropdown-toggle">
+                                <li><a class="dropdown-item" href="{{ path('app_provider_documents') }}#my-documents-tab">My Documents</a></li>
+                                <li><a class="dropdown-item" href="{{ path('app_provider_documents') }}#history-tab">History</a></li>
+                            </ul>
+                        </div>
+
                         <div class="app-utility-item">
                             <a href="{{ path('app_provider_messages') }}" title="Inbox">
                                 <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -887,7 +1004,7 @@
                     </li> #}
 
                     <li class="nav-item">
-                        <a class="nav-link #">
+                        <a class="nav-link {% if app.request.get('_route') == 'app_provider_analytics' %}active{% endif %}" href="{{ path('app_provider_analytics') }}">
 						        <span class="nav-icon">
                                 <svg fill="currentcolor" class="icon-image" viewBox="0 0 32 32" id="icon" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title>analytics</title><path d="M4,2H2V28a2,2,0,0,0,2,2H30V28H4Z"/><path d="M30,9H23v2h3.59L19,18.59l-4.29-4.3a1,1,0,0,0-1.42,0L6,21.59,7.41,23,14,16.41l4.29,4.3a1,1,0,0,0,1.42,0L28,12.41V16h2Z"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" /></svg>
 						         </span>
@@ -1232,6 +1349,89 @@
 <script src="{{ asset('assets/admin/js/app.js') }}"></script>
 
 <script>
+    // Sidebar hover detection for app-wrapper animation
+    // This works in conjunction with nav-hover-active from app.js
+    // Override page-specific JavaScript that sets inline styles
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidePanel = document.getElementById('app-sidepanel');
+        const sidePanelInner = sidePanel ? sidePanel.querySelector('.sidepanel-inner') : null;
+        const appWrapper = document.querySelector('.app-wrapper');
+        
+        // Override any inline styles set by page-specific JavaScript
+        function applyAnimationStyles() {
+            if (window.innerWidth >= 1200 && appWrapper) {
+                // Remove transform and width constraints that interfere with animation
+                appWrapper.style.setProperty('transform', 'none', 'important');
+                appWrapper.style.setProperty('width', 'auto', 'important');
+                
+                // Set initial margin based on sidebar state
+                if (document.body.classList.contains('nav-hover-active') || 
+                    document.body.classList.contains('sidebar-hovered')) {
+                    appWrapper.style.setProperty('margin-left', '250px', 'important');
+                } else {
+                    appWrapper.style.setProperty('margin-left', '60px', 'important');
+                }
+            } else if (appWrapper) {
+                appWrapper.style.setProperty('margin-left', '0', 'important');
+                appWrapper.style.setProperty('transform', 'none', 'important');
+                appWrapper.style.setProperty('width', 'auto', 'important');
+            }
+        }
+        
+        function handleSidebarHover() {
+            if (window.innerWidth >= 1200 && sidePanelInner) {
+                // Add class when sidebar inner is hovered (expanded)
+                sidePanelInner.addEventListener('mouseenter', function() {
+                    document.body.classList.add('sidebar-hovered');
+                    applyAnimationStyles();
+                });
+                
+                // Remove class when mouse leaves sidebar
+                sidePanelInner.addEventListener('mouseleave', function() {
+                    // Small delay to allow nav-hover-active to take over if hovering nav items
+                    setTimeout(function() {
+                        if (!document.querySelector('.app-nav .nav-item:hover')) {
+                            document.body.classList.remove('sidebar-hovered');
+                            applyAnimationStyles();
+                        }
+                    }, 50);
+                });
+            }
+        }
+        
+        // Override page-specific styles immediately
+        applyAnimationStyles();
+        
+        // Watch for nav-hover-active changes (from app.js)
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    applyAnimationStyles();
+                }
+            });
+        });
+        
+        if (document.body) {
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+        
+        handleSidebarHover();
+        
+        // Re-apply on window resize
+        window.addEventListener('resize', function() {
+            applyAnimationStyles();
+            handleSidebarHover();
+        });
+        
+        // Re-apply periodically to override any page-specific JavaScript
+        setInterval(applyAnimationStyles, 100);
+    });
+</script>
+
+<script>
     // SweetAlert2 Configuration - Consistent design across all alerts
     const SwalConfig = {
         confirmButtonColor: '#85BB65',
@@ -1462,15 +1662,24 @@
                     // Get notification button position
                     const toggleRect = notificationDropdownToggle.getBoundingClientRect();
                     const toggleRight = toggleRect.right;
+                    const toggleLeft = toggleRect.left;
                     
-                    // Calculate position: below header with some spacing
-                    const spacing = 10; // 10px spacing below header (small gap for better visual appearance)
+                    // Calculate position: just below header border
+                    const spacing = 0; // No spacing - appear directly below toolbar border
                     const topPosition = headerBottom + spacing;
+                    
+                    // Get dropdown width to calculate proper alignment
+                    const dropdownWidth = notificationDropdownMenu.offsetWidth || 320; // fallback to min-width
+                    
+                    // Position dropdown so its right edge aligns with the notification icon's right edge
+                    // Add a small offset to shift it slightly to the right
+                    const rightOffset = 0; // Align right edge with icon
+                    const rightPosition = window.innerWidth - toggleRight + rightOffset;
                     
                     // Set position with !important to override any CSS
                     notificationDropdownMenu.style.setProperty('top', topPosition + 'px', 'important');
-                    notificationDropdownMenu.style.setProperty('margin-top', '10px', 'important');
-                    notificationDropdownMenu.style.setProperty('right', (window.innerWidth - toggleRight + 18) + 'px', 'important');
+                    notificationDropdownMenu.style.setProperty('margin-top', '0', 'important');
+                    notificationDropdownMenu.style.setProperty('right', rightPosition + 'px', 'important');
                 }
                 
                 // Function to open dropdown
@@ -1548,6 +1757,126 @@
                 notificationDropdownMenu.addEventListener('mouseleave', function(e) {
                     e.stopPropagation();
                     closeNotificationDropdown();
+                });
+            }
+            
+            // Initialize documents dropdown with hover behavior (same as notifications)
+            const documentsDropdownToggle = document.getElementById('documents-dropdown-toggle');
+            const documentsDropdown = document.querySelector('.app-documents-dropdown');
+            const documentsDropdownMenu = documentsDropdown ? documentsDropdown.querySelector('.dropdown-menu') : null;
+            
+            if (documentsDropdownToggle && documentsDropdownMenu && documentsDropdown) {
+                // Remove Bootstrap's default data-bs-toggle to prevent conflicts
+                documentsDropdownToggle.removeAttribute('data-bs-toggle');
+                
+                // Ensure dropdown is hidden initially
+                documentsDropdownMenu.classList.remove('show');
+                documentsDropdownToggle.setAttribute('aria-expanded', 'false');
+                
+                let documentsHoverTimeout = null;
+                
+                // Function to calculate and set dropdown position (same as notifications)
+                function setDocumentsDropdownPosition() {
+                    if (!documentsDropdownMenu) return;
+                    
+                    // Get header element
+                    const header = document.querySelector('.app-header');
+                    if (!header) return;
+                    
+                    // Get header dimensions
+                    const headerRect = header.getBoundingClientRect();
+                    const headerHeight = headerRect.height;
+                    const headerBottom = headerRect.bottom;
+                    
+                    // Get documents button position
+                    const toggleRect = documentsDropdownToggle.getBoundingClientRect();
+                    const toggleRight = toggleRect.right;
+                    
+                    // Calculate position: just below header border (same as notifications)
+                    const spacing = 0; // No spacing - appear directly below toolbar border
+                    const topPosition = headerBottom + spacing;
+                    
+                    // Set position with !important to override any CSS
+                    documentsDropdownMenu.style.setProperty('top', topPosition + 'px', 'important');
+                    documentsDropdownMenu.style.setProperty('margin-top', '0', 'important');
+                    documentsDropdownMenu.style.setProperty('right', (window.innerWidth - toggleRight + 18) + 'px', 'important');
+                }
+                
+                // Function to open dropdown
+                function openDocumentsDropdown() {
+                    if (documentsHoverTimeout) {
+                        clearTimeout(documentsHoverTimeout);
+                        documentsHoverTimeout = null;
+                    }
+                    
+                    // Close all other dropdowns first
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== documentsDropdownMenu && menu !== userDropdownMenu) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Calculate and set position before showing
+                    setDocumentsDropdownPosition();
+                    
+                    // Open documents dropdown
+                    documentsDropdownMenu.classList.add('show');
+                    documentsDropdown.classList.add('show');
+                    documentsDropdownToggle.setAttribute('aria-expanded', 'true');
+                }
+                
+                // Function to close dropdown
+                function closeDocumentsDropdown() {
+                    if (documentsHoverTimeout) {
+                        clearTimeout(documentsHoverTimeout);
+                    }
+                    documentsHoverTimeout = setTimeout(function() {
+                        documentsDropdownMenu.classList.remove('show');
+                        documentsDropdown.classList.remove('show');
+                        documentsDropdownToggle.setAttribute('aria-expanded', 'false');
+                        documentsHoverTimeout = null;
+                    }, 200); // Small delay to allow moving mouse to dropdown
+                }
+                
+                // Recalculate position on window resize
+                window.addEventListener('resize', function() {
+                    if (documentsDropdownMenu && documentsDropdownMenu.classList.contains('show')) {
+                        setDocumentsDropdownPosition();
+                    }
+                });
+                
+                // Recalculate position on scroll (in case header is fixed)
+                window.addEventListener('scroll', function() {
+                    if (documentsDropdownMenu && documentsDropdownMenu.classList.contains('show')) {
+                        setDocumentsDropdownPosition();
+                    }
+                }, true);
+                
+                // Open on hover over toggle button
+                documentsDropdownToggle.addEventListener('mouseenter', function(e) {
+                    e.stopPropagation();
+                    openDocumentsDropdown();
+                });
+                
+                // Keep open when hovering over dropdown menu
+                documentsDropdownMenu.addEventListener('mouseenter', function(e) {
+                    e.stopPropagation();
+                    if (documentsHoverTimeout) {
+                        clearTimeout(documentsHoverTimeout);
+                        documentsHoverTimeout = null;
+                    }
+                });
+                
+                // Close when mouse leaves the entire dropdown area
+                documentsDropdown.addEventListener('mouseleave', function(e) {
+                    e.stopPropagation();
+                    closeDocumentsDropdown();
+                });
+                
+                // Also close when mouse leaves the menu
+                documentsDropdownMenu.addEventListener('mouseleave', function(e) {
+                    e.stopPropagation();
+                    closeDocumentsDropdown();
                 });
             }
             

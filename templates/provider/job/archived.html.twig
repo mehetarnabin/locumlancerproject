@@ -811,66 +811,6 @@ div.container-xl,
 
 {% block footer_scripts %}
 <script>
-// Force apply styles via JavaScript - COMPLETE OVERRIDE - Run multiple times to ensure it sticks
-function applySpacingStyles() {
-    // Reset and apply container-xl styles
-    const container = document.querySelector('.container-xl');
-    if (container) {
-        container.style.setProperty('position', 'relative', 'important');
-        container.style.setProperty('padding-left', '0', 'important');
-        container.style.setProperty('padding-right', '30px', 'important');
-        container.style.setProperty('margin-left', '0', 'important');
-        container.style.setProperty('margin-right', '0', 'important');
-        container.style.setProperty('transform', 'none', 'important');
-        container.style.setProperty('max-width', '100%', 'important');
-        container.style.setProperty('width', '100%', 'important');
-    }
-    
-    // Reset app-content
-    const appContent = document.querySelector('.app-content');
-    if (appContent) {
-        appContent.style.setProperty('position', 'relative', 'important');
-        appContent.style.setProperty('padding-left', '0', 'important');
-        appContent.style.setProperty('padding-right', '0', 'important');
-        appContent.style.setProperty('margin-left', '0', 'important');
-        appContent.style.setProperty('margin-right', '0', 'important');
-        appContent.style.setProperty('max-width', '100%', 'important');
-        appContent.style.setProperty('width', '100%', 'important');
-    }
-    
-    // Reset app-wrapper
-    const appWrapper = document.querySelector('.app-wrapper');
-    if (appWrapper) {
-        appWrapper.style.setProperty('position', 'relative', 'important');
-        if (window.innerWidth >= 1200) {
-            appWrapper.style.setProperty('margin-left', '250px', 'important');
-            appWrapper.style.setProperty('transform', 'translateX(-150px)', 'important');
-            appWrapper.style.setProperty('width', 'calc(100% - 250px + 150px)', 'important');
-        } else {
-            appWrapper.style.setProperty('margin-left', '0', 'important');
-            appWrapper.style.setProperty('transform', 'none', 'important');
-            appWrapper.style.setProperty('width', '100%', 'important');
-        }
-        appWrapper.style.setProperty('margin-right', '0', 'important');
-        appWrapper.style.setProperty('padding-left', '0', 'important');
-        appWrapper.style.setProperty('padding-right', '0', 'important');
-    }
-}
-
-// Run immediately
-document.addEventListener('DOMContentLoaded', applySpacingStyles);
-
-// Run after a short delay to override any late-loading styles
-setTimeout(applySpacingStyles, 100);
-setTimeout(applySpacingStyles, 500);
-
-// Re-apply on window resize to override any responsive changes
-window.addEventListener('resize', function() {
-    setTimeout(applySpacingStyles, 50);
-});
-</script>
-
-<script>
 // Rank editing functionality for archived applications - using event delegation
 (function() {
     if (window.archivedRankEditingInitialized) {
@@ -960,20 +900,6 @@ window.addEventListener('resize', function() {
 
     // Use event delegation for all rank editing interactions
     document.addEventListener('click', function(e) {
-        // Handle save button click FIRST (before rank display)
-        const saveBtn = e.target.closest('.rank-save-btn');
-        if (saveBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const applicationId = saveBtn.dataset.applicationId;
-            const wrapper = saveBtn.closest('.rank-input-wrapper');
-            const input = wrapper ? wrapper.querySelector('.rank-input') : null;
-            if (input && input.dataset.applicationId === applicationId) {
-                saveRank(input);
-            }
-            return false;
-        }
-
         // Handle rank display click
         const rankDisplay = e.target.closest('.rank-display');
         if (rankDisplay && !rankDisplay.classList.contains('hidden')) {
@@ -1006,7 +932,7 @@ window.addEventListener('resize', function() {
 
         if (e.key === 'Enter') {
             e.preventDefault();
-            saveRank(rankInput);
+            rankInput.blur(); // Trigger blur which will save
         } else if (e.key === 'Escape') {
             const wrapper = rankInput.closest('.rank-input-wrapper');
             const display = wrapper ? wrapper.previousElementSibling : rankInput.previousElementSibling;
@@ -1020,12 +946,19 @@ window.addEventListener('resize', function() {
         }
     });
 
-    // Initialize original values for existing inputs
+    // Initialize original values for existing inputs and set up auto-save on blur
     function initializeRankValues() {
         document.querySelectorAll('.rank-input').forEach(input => {
             if (!input.dataset.originalValue) {
                 input.dataset.originalValue = input.value || '';
             }
+            // Add blur event listener for auto-save
+            input.addEventListener('blur', function() {
+                // Small delay to allow click events to process first
+                setTimeout(() => {
+                    saveRank(input);
+                }, 200);
+            });
         });
     }
 
