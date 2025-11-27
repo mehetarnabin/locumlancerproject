@@ -2884,15 +2884,10 @@ window.addEventListener('resize', function() {
                         <div class="modal-body">
                             <p>This action will:</p>
                             <ul>
-                                <li>Mark providers as hired for jobs you've applied to</li>
-                                <li>Move successfully processed jobs to "Accepted" status</li>
+                                
                                 <li>Notify the admin about the hire</li>
                             </ul>
-                            <div class="alert alert-warning">
-                                <strong>Note:</strong> Only jobs you have already applied to can be processed. 
-                                Jobs without applications will be skipped.
-                            </div>
-                            <p>Are you sure you want to proceed?</p>
+                            
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -3781,25 +3776,18 @@ window.addEventListener('resize', function() {
     }
 
     // Single-selection feature: prevent multiple checkboxes from being selected
-    // Delegated change listener to catch any checkbox state changes reliably
-    document.addEventListener('change', (e) => {
-      const target = e.target;
-      if (!target) return;
-      if (target.classList && target.classList.contains('job-checkbox')) {
-        // Enforce single selection
-        if (target.checked) {
-          // Get all checkboxes (including split view ones)
-          const allCheckboxes = document.querySelectorAll('.job-checkbox');
-          const otherChecked = Array.from(allCheckboxes).find(cb => cb !== target && cb.checked);
-          if (otherChecked) {
-            // Prevent this checkbox from being checked and show alert
-            target.checked = false;
-                   showWarningAlert('Multiple Selection', 'You cannot select multiple values');
-            return;
-          }
-        }
+    document.addEventListener("change", function (e) {
+        const clicked = e.target;
+
+        if (!clicked.classList.contains("job-checkbox")) return;
+
+        // Uncheck all others
+        const all = document.querySelectorAll(".job-checkbox");
+        all.forEach(cb => {
+            if (cb !== clicked) cb.checked = false;
+        });
+
         toggleActionsVisibility();
-      }
     });
 
     // Initial check in case some boxes are pre-checked
