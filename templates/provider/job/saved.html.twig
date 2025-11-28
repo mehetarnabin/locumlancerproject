@@ -53,7 +53,7 @@ body.app .app-wrapper .app-content,
 @media (min-width: 1200px) {
     body.app .app-wrapper .app-content,
     .app-wrapper .app-content,
-.app-content {
+    .app-content {
         width: 100% !important;
         max-width: 100% !important;
     }
@@ -234,7 +234,6 @@ div.container-xl,
 }
 .job-check {
     margin-right: 8px;
-    transform: scale(1.2);
 }
 #toggleActions {
     padding: 6px 16px;
@@ -315,8 +314,8 @@ div.container-xl,
 .custom-dropdown {
   position: absolute !important;
   top: 110% !important;
-  left: auto !important;
-  right: 0 !important;
+  left: 0 !important;
+  right: auto !important;
   background: #fff;
   padding: 10px;
   min-width: 150px;
@@ -558,20 +557,34 @@ div.container-xl,
   transform: rotate(45deg);
 }
 
+/* Col-check checkboxes use the same styling as job-check */
 .col-check input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #cfd9e3;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cfd9e3;
   border-radius: 4px;
   background-color: #fff;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .col-check input[type="checkbox"]:hover {
   border-color: #85BB65;
+  background-color: #f7fef4;
+}
+
+.col-check input[type="checkbox"]:focus {
+  outline: none;
 }
 
 .col-check input[type="checkbox"]:checked {
@@ -582,64 +595,90 @@ div.container-xl,
 .col-check input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 5px;
-  width: 4px;
-  height: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+  width: 5px;
+  height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  box-sizing: border-box;
 }
 
 /* Consistent rounded rectangle style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
+.job-list-container input[type="checkbox"].job-checkbox,
 .split-job-list input[type="checkbox"].job-checkbox {
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 1px solid #cfd9e3;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cfd9e3;
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   vertical-align: middle;
   margin: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.2s ease;
   box-sizing: border-box;
   line-height: 1;
   padding: 0;
+  flex-shrink: 0;
 }
 
 /* Hover state - green border */
 .job-list-container input[type="checkbox"].job-check:hover,
+.job-list-container input[type="checkbox"].job-checkbox:hover,
 .split-job-list input[type="checkbox"].job-checkbox:hover {
   border-color: #85BB65;
+  background-color: #f7fef4;
+}
+
+/* Focus state */
+.job-list-container input[type="checkbox"].job-check:focus,
+.job-list-container input[type="checkbox"].job-checkbox:focus,
+.split-job-list input[type="checkbox"].job-checkbox:focus {
+  outline: none;
 }
 
 /* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
+.job-list-container input[type="checkbox"].job-checkbox:checked,
 .split-job-list input[type="checkbox"].job-checkbox:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
+.job-list-container input[type="checkbox"].job-checkbox:checked::after,
 .split-job-list input[type="checkbox"].job-checkbox:checked::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 6px;
-  width: 4px;
-  height: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%) rotate(45deg);
+  width: 5px;
+  height: 10px;
   border: solid #fff;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  box-sizing: border-box;
 }
 
-/* Remove previous scale that distorted shape */
-.job-check { transform: none; margin-right: 8px; }
+/* Ensure checkboxes are properly aligned in their container */
+.col-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-check {
+  margin: 0;
+}
 
 .job-title {
     color: #121C0C;
@@ -701,8 +740,8 @@ div.container-xl,
 
 .todo-popup {
     position: fixed;
-    background: #121C0C;
-    color: white;
+    background: white;
+    color: black;
     border-radius: 8px;
     padding: 12px 16px;
     font-size: 13px;
@@ -711,6 +750,7 @@ div.container-xl,
     max-width: 250px;
     display: none;
     pointer-events: none;
+    border: 1px solid #e5e7eb;
 }
 
 .todo-popup.show {
@@ -724,7 +764,7 @@ div.container-xl,
     align-items: center;
     margin-bottom: 8px;
     padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .todo-popup-title {
@@ -735,7 +775,7 @@ div.container-xl,
 .todo-popup-close {
     background: none;
     border: none;
-    color: white;
+    color: black;
     cursor: pointer;
     font-size: 18px;
     line-height: 1;
@@ -1131,20 +1171,52 @@ div.container-xl,
 .job-row > div {
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
   box-sizing: border-box;
-  padding: 2px 8px;
   min-width: 0;
   overflow: hidden;
-  min-height: 40px;
-  height: auto;
 }
 
+/* Ensure all columns have consistent padding to align headers with data */
+.job-header > div,
+.job-row > div {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Checkbox column alignment */
+.job-header .col-check,
+.job-row .col-check {
+  width: 30px !important;
+  flex-shrink: 0 !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+/* Job column - left aligned */
 .job-header .col-job,
 .job-row .col-job {
-  justify-content: flex-start;
-  text-align: left;
+  width: 200px !important;
+  flex-shrink: 0 !important;
+  padding: 0 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  box-sizing: border-box !important;
+}
+
+/* Center aligned columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  padding: 0 8px !important;
 }
 
 /* Ensure consistent vertical alignment */
@@ -1153,11 +1225,10 @@ div.container-xl,
   height: 40px;
 }
 
-/* Center content for numeric/text columns */
-.job-header .col-start.col-center,
-.job-row .col-start.col-center {
-  justify-content: center;
-  text-align: center;
+.job-header > div,
+.job-row > div {
+  min-height: 40px;
+  height: 40px;
 }
 
 /* Job column specific styling */
@@ -1669,7 +1740,9 @@ window.addEventListener('resize', function() {
           <div class="d-flex align-items-center job-lists">
             <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
               <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
-                <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                </div>
+                <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
                 <div class="col-start col-center sortable" data-sort="location" data-column="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
@@ -1678,7 +1751,7 @@ window.addEventListener('resize', function() {
                 <div class="col-start col-center sortable" data-sort="employer" data-column="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Employer<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center sortable" data-sort="applied" data-column="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center sortable" data-sort="category" data-column="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-                <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">To Do</div>
+                <div class="col-start col-center sortable" data-sort="todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer; gap: 4px;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                 <div class="col-start col-center col-rank sortable" data-sort="rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </div>
                 <div class="col-start col-center sortable" data-sort="status" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="CurrentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -1770,11 +1843,6 @@ window.addEventListener('resize', function() {
                     data-original-value="{{ bookmark.rank is not null ? bookmark.rank : '' }}"
                     oninput="if (this.value > 10) this.value = 10; if (this.value < 1) this.value = 1;"
                   />
-                    <button type="button" class="rank-save-btn" data-job-id="{{ job.id }}" title="Save">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
                   </div>
                 </div>
                 <div class="col-start col-center" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000;">
@@ -1789,7 +1857,7 @@ window.addEventListener('resize', function() {
             <p class="mb-0">Saved jobs not found.</p>
         {% endif %}
         <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
-          <button id="save-btn-bottom" class="action-btn" title="Notify of hire">
+          <button id="save-btn" class="action-btn" title="Save">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
@@ -1900,25 +1968,24 @@ window.addEventListener('resize', function() {
                 <div id="job-detail-content" style="display: none;"></div>
                 
                 <!-- Notes Drawer -->
-                <!-- Notes side panel -->
-            <aside id="notes-panel" class="notes-panel" aria-hidden="true">
-                <div class="notes-panel-header">
-                    <span>Job Notes</span>
+                <aside id="notes-panel" class="notes-panel" aria-hidden="true">
+                  <div class="notes-panel-header">
+                    <span>Notes</span>
                     <button type="button" class="notes-panel-close" onclick="closeNotesPanel()">×</button>
-                </div>
-                <div class="notes-panel-body"> 
+                  </div>
+                  <div class="notes-panel-body">
                     <div class="notes-title">
-                        <h6>Add notes for this job</h6>
-                        <p class="text-muted">Your notes are saved automatically and only visible to you.</p>
+                      <h6>Add notes for this job</h6>
+                      <p class="text-muted">Your notes are saved automatically and only visible to you.</p>
                     </div>
                     <textarea id="notes-textarea" class="notes-textarea" placeholder="Write your notes here..."></textarea>
-                    <div class="notes-footer mt-3">
+                    <div class="notes-footer">
                       <div class="last-saved" style="display: none;">
-                          Last saved <span class="last-saved-time"></span>
+                        Last saved <span class="last-saved-time"></span>
                       </div>
+                    </div>
                   </div>
-                </div>
-            </aside>
+                </aside>
             </div>
         </div>
     </div>
@@ -2466,7 +2533,7 @@ window.addEventListener('resize', function() {
   .email-modal-body textarea { min-height: 180px; resize: vertical; }
   .email-modal-footer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid #e6eef6; }
   .email-modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #666; }
-</style>
+  </style>
 
 <script>
 // =============================================
@@ -2765,13 +2832,7 @@ function applyToSelectedJobs() {
     const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
     const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId).filter(id => id);
     
-    // Allow applying to the currently selected job in split view
     if (selectedIds.length === 0) {
-        const splitSelectedId = window.selectedJobId || null;
-        if (splitSelectedId) {
-            applyToJob(splitSelectedId);
-            return;
-        }
         showToast('Please select at least one job to apply to.', 'warning');
         return;
     }
@@ -2859,7 +2920,7 @@ function updateButtonStates() {
   const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
   
   let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-  const showApply = checkedCount >= 1 || !!window.selectedJobId; // support split view selection
+  const showApply = checkedCount >= 1; // Allow multiple applications
   const showNote = checkedCount === 1;
 
   // Update all apply buttons
@@ -2910,9 +2971,13 @@ function toggleActionsVisibility() {
   // Update the compact buttons panel
   const actionsDivs = document.querySelectorAll('.hidden-buttons');
   actionsDivs.forEach(div => {
-      // Keep compact buttons visible in split view since detail actions were removed
-      div.style.display = 'flex';
-      div.style.visibility = anyChecked || !!window.selectedJobId ? 'visible' : 'hidden';
+      if (isSplitActive) {
+          // Hide duplicate compact buttons in split view
+          div.style.display = 'none';
+      } else {
+          div.style.display = 'flex';
+          div.style.visibility = anyChecked ? 'visible' : 'hidden';
+      }
   });
   
   // Update button states
@@ -3020,281 +3085,302 @@ document.addEventListener('DOMContentLoaded', function () {
     emailBtn.addEventListener('click', () => openEmailModal(1));
   }
 
-  // Initial check in case some boxes are pre-checked
-  toggleActionsVisibility();
+    // Initial check in case some boxes are pre-checked
+    toggleActionsVisibility();
 
-  function updateActions() {
-    const checked = Array.from(checkboxes).filter(cb => cb.checked);
-    const applyButtons = document.querySelectorAll('#apply-btn');
-    const noteButtons = document.querySelectorAll('#note-btn');
-    const splitViewContainer = document.getElementById('split-view-container');
-    const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-    const showApply = (checked.length === 1);
-    const showNote = (checked.length === 1);
-    applyButtons.forEach(btn => { 
-        btn.disabled = !showApply;
-        if (showApply) {
-            btn.classList.remove('hidden-btn');
-            btn.style.visibility = 'visible';
-            btn.style.opacity = '1';
-            btn.style.pointerEvents = 'auto';
-        } else {
-            btn.classList.add('hidden-btn');
-            btn.style.visibility = 'hidden';
-            btn.style.opacity = '0';
-            btn.style.pointerEvents = 'none';
-        }
-    });
-    noteButtons.forEach(btn => { 
-        if (showNote) {
-            btn.classList.remove('hidden-btn');
-            btn.style.visibility = 'visible';
-            btn.style.opacity = '1';
-            btn.style.pointerEvents = 'auto';
-        } else {
-            btn.classList.add('hidden-btn');
-            btn.style.visibility = 'hidden';
-            btn.style.opacity = '0';
-            btn.style.pointerEvents = 'none';
-        }
-    });
-  }
-
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', updateActions);
-  });
-
-  // Safety net: recompute UI on any click within the listings area
-  const listingsRoot = document;
-  listingsRoot.addEventListener('click', () => {
-    try { toggleActionsVisibility(); updateButtonStates(); } catch(e) {}
-  });
-
-  // Ensure notes panel is closed by default
-  try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
-
-  // Change blue NEW badge to green
-  function changeNewBadgeToGreen() {
-      // Find all elements that might contain "NEW" text
-      const allElements = document.querySelectorAll('span, div, .badge, [class*="badge"]');
-      allElements.forEach(element => {
-          const text = element.textContent.trim().toUpperCase();
-          if (text === 'NEW') {
-              // Check if it has a blue background
-              const style = window.getComputedStyle(element);
-              const bgColor = style.backgroundColor;
-              // Check for blue colors (common blue hex codes)
-              if (bgColor.includes('rgb(13, 110, 253)') || 
-                  bgColor.includes('rgb(0, 123, 255)') || 
-                  bgColor.includes('rgb(6, 182, 212)') ||
-                  element.style.backgroundColor === '#0d6efd' ||
-                  element.style.backgroundColor === '#007bff' ||
-                  element.style.backgroundColor === '#06b6d4' ||
-                  element.style.backgroundColor.includes('#0d6efd') ||
-                  element.style.backgroundColor.includes('#007bff') ||
-                  element.style.backgroundColor.includes('#06b6d4')) {
-                  element.style.backgroundColor = '#85BB65';
-                  element.style.color = '#fff';
-              }
-          }
-      });
-  }
-  
-  // Run on page load
-  changeNewBadgeToGreen();
-  
-  // Also run after a short delay to catch dynamically added badges
-  setTimeout(changeNewBadgeToGreen, 500);
-  setTimeout(changeNewBadgeToGreen, 1000);
-
-  // Set up note auto-save functionality
-  setupNoteAutoSave();
-  
-  // Delete button handler
-  if (deleteBtn) {
-      deleteBtn.addEventListener('click', () => {
-          const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-          const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId);
-          
-          if (selectedIds.length === 0) {
-              showToast('Please select at least one job to delete.', 'warning');
-              return;
-          }
-          
-          // Show confirmation modal
-          const modal = document.getElementById('deleteConfirmModal');
-          if (modal) {
-              const bsModal = new bootstrap.Modal(modal);
-              bsModal.show();
-              
-              // Handle confirm delete
-              const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-              if (confirmDeleteBtn) {
-                  const handleConfirm = () => {
-                      // Set the bookmark IDs in the form
-                      const bookmarkIdsInput = document.getElementById('bookmark-ids-input');
-                      if (bookmarkIdsInput) {
-                          bookmarkIdsInput.value = selectedIds.join(',');
-                      }
-                      
-                      // Submit the form
-                      const deleteForm = document.getElementById('delete-bookmarks-form');
-                      if (deleteForm) {
-                          deleteForm.submit();
-                      } else {
-                          // Fallback: use fetch API
-                          fetch('{{ path("app_provider_bookmarks_delete") }}', {
-                              method: 'POST',
-                              headers: {
-                                  'Content-Type': 'application/x-www-form-urlencoded',
-                                  'X-Requested-With': 'XMLHttpRequest'
-                              },
-                              body: new URLSearchParams({
-                                  '_token': '{{ csrf_token("delete_bookmarks") }}',
-                                  'bookmark_ids': selectedIds.join(',')
-                              })
-                          })
-                          .then(response => response.json())
-                          .then(data => {
-                              if (data.success) {
-                                  showToast('Jobs deleted successfully!', 'success');
-                                  // Remove deleted jobs from UI
-                                  selectedCheckboxes.forEach(cb => {
-                                      const row = cb.closest('.job-lists');
-                                      if (row) row.remove();
-                                      const card = cb.closest('.split-job-card');
-                                      if (card) card.remove();
-                                  });
-                                  // Uncheck all checkboxes
-                                  document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                                  toggleActionsVisibility();
-                                  updateButtonStates();
-                              } else {
-                                  showToast('Error: ' + (data.message || 'Failed to delete jobs'), 'error');
-                              }
-                          })
-                          .catch(error => {
-                              console.error('Error:', error);
-                              showToast('Network error. Please try again.', 'error');
-                          });
-                      }
-                      
-                      bsModal.hide();
-                      confirmDeleteBtn.removeEventListener('click', handleConfirm);
-                  };
-                  
-                  confirmDeleteBtn.addEventListener('click', handleConfirm, { once: true });
-              }
+    function updateActions() {
+      const checked = Array.from(checkboxes).filter(cb => cb.checked);
+      const applyButtons = document.querySelectorAll('#apply-btn');
+      const noteButtons = document.querySelectorAll('#note-btn');
+      const splitViewContainer = document.getElementById('split-view-container');
+      const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+      const showApply = (checked.length === 1);
+      const showNote = (checked.length === 1);
+      applyButtons.forEach(btn => { 
+          btn.disabled = !showApply;
+          if (showApply) {
+              btn.classList.remove('hidden-btn');
+              btn.style.visibility = 'visible';
+              btn.style.opacity = '1';
+              btn.style.pointerEvents = 'auto';
           } else {
-              // Fallback: direct confirmation
-              if (confirm('Are you sure you want to delete the selected jobs? This action cannot be undone.')) {
-                  const bookmarkIdsInput = document.getElementById('bookmark-ids-input');
-                  const deleteForm = document.getElementById('delete-bookmarks-form');
-                  if (bookmarkIdsInput && deleteForm) {
-                      bookmarkIdsInput.value = selectedIds.join(',');
-                      deleteForm.submit();
-                  }
-              }
+              btn.classList.add('hidden-btn');
+              btn.style.visibility = 'hidden';
+              btn.style.opacity = '0';
+              btn.style.pointerEvents = 'none';
           }
       });
-  }
-  
-  // Archive button handler - Using exact same implementation as applications page
-  const archiveBtn = document.getElementById('archive-btn');
-  if (archiveBtn) {
-      archiveBtn.addEventListener('click', async function () {
-          // 1️⃣ Collect selected bookmark IDs
-          const selectedIds = Array.from(document.querySelectorAll(".job-check.job-checkbox:checked, .job-checkbox:checked"))
-                                   .map(cb => cb.dataset.bookmarkId || cb.dataset.jobId)
-                                   .filter(id => id); // Filter out undefined values
-          
-          if (selectedIds.length === 0) {
-              showWarningAlert('No Selection', 'Please select at least one job to archive.');
-              return;
+      noteButtons.forEach(btn => { 
+          if (showNote) {
+              btn.classList.remove('hidden-btn');
+              btn.style.visibility = 'visible';
+              btn.style.opacity = '1';
+              btn.style.pointerEvents = 'auto';
+          } else {
+              btn.classList.add('hidden-btn');
+              btn.style.visibility = 'hidden';
+              btn.style.opacity = '0';
+              btn.style.pointerEvents = 'none';
           }
-          
-          showConfirmAlert(
-              'Archive Jobs',
-              `Are you sure you want to archive ${selectedIds.length} job(s)?`,
-              'Archive',
-              'Cancel',
-              async function(confirmed) {
-                  if (!confirmed) return;
-                  
-                  try {
-                      // 2️⃣ Send archive request
-                      const response = await fetch('{{ path("app_provider_bookmarks_archive") }}', {
-                          method: "POST",
-                  headers: {
-                              "Content-Type": "application/json",
-                              "X-Requested-With": "XMLHttpRequest"
-                          },
-                          body: JSON.stringify({ bookmark_ids: selectedIds })
-                      });
-
-                      const result = await response.json();
-
-                      if (result.success) {
-                          showSuccessAlert('Success', result.message);
-
-                          // 3️⃣ Remove archived rows from DOM
-                          selectedIds.forEach(id => {
-                              // Try to find by bookmark-id first, then by job-id
-                              let checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
-                              if (!checkbox) {
-                                  checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
-                              }
-                              if (!checkbox) {
-                                  checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
-                              }
-                              if (!checkbox) {
-                                  checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
-                              }
-                              
-                              if (checkbox) {
-                                  // Remove the entire job-lists container (parent of job-row)
-                                  const jobList = checkbox.closest(".job-lists");
-                                  if (jobList) {
-                                      jobList.remove();
-                                  } else {
-                                      // Fallback: remove just the job-row or split-job-card
-                                      const row = checkbox.closest(".job-row");
-                          if (row) row.remove();
-                                      const card = checkbox.closest(".split-job-card");
-                          if (card) card.remove();
-                                  }
-                              }
-                          });
-                          
-                          // Update UI after removal
-                          const remainingRows = document.querySelectorAll('.job-lists');
-                          if (remainingRows.length === 0) {
-                              const container = document.querySelector('.job-list-container');
-                              if (container) {
-                                  container.innerHTML = '<p class="mb-0">Saved jobs not found.</p>';
-                              }
-                          }
-                          
-                          // Uncheck all checkboxes and update button states
-                      document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                          if (typeof toggleActionsVisibility === 'function') {
-                      toggleActionsVisibility();
-                          }
-                          if (typeof updateButtonStates === 'function') {
-                      updateButtonStates();
-                          }
-
-                  } else {
-                          showErrorAlert('Error', result.message || "Something went wrong.");
-                      }
-                  } catch (error) {
-                      console.error("Error archiving jobs:", error);
-                      showErrorAlert('Error', 'An error occurred while archiving jobs.');
-                  }
-              }
-          );
       });
-  }
+    }
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', updateActions);
+    });
+
+    // Safety net: recompute UI on any click within the listings area
+    const listingsRoot = document;
+    listingsRoot.addEventListener('click', () => {
+      try { toggleActionsVisibility(); updateButtonStates(); } catch(e) {}
+    });
+
+    // Delegated change listener to catch any checkbox state changes reliably
+    // Single-selection feature: prevent multiple checkboxes from being selected
+    document.addEventListener("change", function (e) {
+        const clicked = e.target;
+
+        if (!clicked.classList.contains("job-checkbox")) return;
+
+        // Uncheck all others
+        const all = document.querySelectorAll(".job-checkbox");
+        all.forEach(cb => {
+            if (cb !== clicked) cb.checked = false;
+        });
+
+        toggleActionsVisibility();
+    });
+
+    // Ensure notes panel is closed by default
+    try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
+
+    // Change blue NEW badge to green
+    function changeNewBadgeToGreen() {
+        // Find all elements that might contain "NEW" text
+        const allElements = document.querySelectorAll('span, div, .badge, [class*="badge"]');
+        allElements.forEach(element => {
+            const text = element.textContent.trim().toUpperCase();
+            if (text === 'NEW') {
+                // Check if it has a blue background
+                const style = window.getComputedStyle(element);
+                const bgColor = style.backgroundColor;
+                // Check for blue colors (common blue hex codes)
+                if (bgColor.includes('rgb(13, 110, 253)') || 
+                    bgColor.includes('rgb(0, 123, 255)') || 
+                    bgColor.includes('rgb(6, 182, 212)') ||
+                    element.style.backgroundColor === '#0d6efd' ||
+                    element.style.backgroundColor === '#007bff' ||
+                    element.style.backgroundColor === '#06b6d4' ||
+                    element.style.backgroundColor.includes('#0d6efd') ||
+                    element.style.backgroundColor.includes('#007bff') ||
+                    element.style.backgroundColor.includes('#06b6d4')) {
+                    element.style.backgroundColor = '#85BB65';
+                    element.style.color = '#fff';
+                }
+            }
+        });
+    }
+    
+    // Run on page load
+    changeNewBadgeToGreen();
+    
+    // Also run after a short delay to catch dynamically added badges
+    setTimeout(changeNewBadgeToGreen, 500);
+    setTimeout(changeNewBadgeToGreen, 1000);
+
+    // Set up note auto-save functionality
+    setupNoteAutoSave();
+    
+    // Apply button handler
+    if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+            const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId);
+            
+            if (selectedIds.length === 0) {
+                showToast('Please select at least one job to apply to.', 'warning');
+                return;
+            }
+            
+            if (selectedIds.length === 1) {
+                // Single job: redirect to apply page
+                const jobId = selectedIds[0];
+                // window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
+                window.location.href = '/provider/jobs/' + jobId + '/apply?redirect_route=app_provider_jobs_saved';
+            } else {
+                // Multiple jobs: use batch apply
+                // Hide all action buttons when confirm is shown
+                const allActionButtons = document.querySelectorAll('.action-btn, .conditional-btn, #apply-btn, #note-btn, #email-btn, #archive-btn, #save-btn');
+                allActionButtons.forEach(btn => {
+                    if (btn) {
+                        const wasVisible = btn.style.display !== 'none' && !btn.classList.contains('hidden-btn');
+                        btn.setAttribute('data-was-visible', wasVisible ? 'true' : 'false');
+                        btn.style.display = 'none';
+                    }
+                });
+                
+                // Helper function to restore buttons
+                const restoreButtons = () => {
+                    allActionButtons.forEach(btn => {
+                        if (btn) {
+                            const wasVisible = btn.getAttribute('data-was-visible') === 'true';
+                            if (wasVisible || !btn.classList.contains('hidden-btn')) {
+                                btn.style.display = '';
+                                btn.removeAttribute('data-was-visible');
+                            }
+                        }
+                    });
+                };
+                
+                if (confirm(`Are you sure you want to apply to ${selectedIds.length} jobs?`)) {
+                    // Use fetch API with JSON format (preferred method)
+                    fetch('{{ path("app_provider_saved_jobs_apply") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            jobIds: selectedIds
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(`Successfully applied to ${data.appliedCount || selectedIds.length} job(s)!`, 'success');
+                            // Remove applied jobs from UI
+                            selectedCheckboxes.forEach(cb => {
+                                const row = cb.closest('.job-lists');
+                                if (row) row.remove();
+                                const card = cb.closest('.split-job-card');
+                                if (card) card.remove();
+                            });
+                            // Uncheck all checkboxes
+                            document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                            toggleActionsVisibility();
+                            updateButtonStates();
+                            // Restore buttons after successful operation
+                            restoreButtons();
+                            // Refresh page after a delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else {
+                            showToast('Error: ' + (data.message || 'Failed to apply to jobs'), 'error');
+                            restoreButtons();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Network error. Please try again.', 'error');
+                        restoreButtons();
+                    });
+                } else {
+                    // User cancelled - restore buttons
+                    restoreButtons();
+                }
+            }
+        });
+    }
+
+    // Note: save-btn click is now handled by notify hire functionality below
+    
+    // Archive button handler - Using exact same implementation as applications page
+    const archiveBtn = document.getElementById('archive-btn');
+    if (archiveBtn) {
+        archiveBtn.addEventListener('click', async function () {
+            // 1️⃣ Collect selected bookmark IDs
+            const selectedIds = Array.from(document.querySelectorAll(".job-check.job-checkbox:checked, .job-checkbox:checked"))
+                                     .map(cb => cb.dataset.bookmarkId || cb.dataset.jobId)
+                                     .filter(id => id); // Filter out undefined values
+            
+            if (selectedIds.length === 0) {
+                showWarningAlert('No Selection', 'Please select at least one job to archive.');
+                return;
+            }
+            
+            showConfirmAlert(
+                'Archive Jobs',
+                `Are you sure you want to archive ${selectedIds.length} job(s)?`,
+                'Archive',
+                'Cancel',
+                async function(confirmed) {
+                    if (!confirmed) return;
+                    
+                    try {
+                        // 2️⃣ Send archive request
+                        const response = await fetch('{{ path("app_provider_bookmarks_archive") }}', {
+                            method: "POST",
+                    headers: {
+                                "Content-Type": "application/json",
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: JSON.stringify({ bookmark_ids: selectedIds })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            showSuccessAlert('Success', result.message);
+
+                            // 3️⃣ Remove archived rows from DOM
+                            selectedIds.forEach(id => {
+                                // Try to find by bookmark-id first, then by job-id
+                                let checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
+                                if (!checkbox) {
+                                    checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
+                                }
+                                if (!checkbox) {
+                                    checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
+                                }
+                                if (!checkbox) {
+                                    checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
+                                }
+                                
+                                if (checkbox) {
+                                    // Remove the entire job-lists container (parent of job-row)
+                                    const jobList = checkbox.closest(".job-lists");
+                                    if (jobList) {
+                                        jobList.remove();
+                                    } else {
+                                        // Fallback: remove just the job-row or split-job-card
+                                        const row = checkbox.closest(".job-row");
+                            if (row) row.remove();
+                                        const card = checkbox.closest(".split-job-card");
+                            if (card) card.remove();
+                                    }
+                                }
+                            });
+                            
+                            // Update UI after removal
+                            const remainingRows = document.querySelectorAll('.job-lists');
+                            if (remainingRows.length === 0) {
+                                const container = document.querySelector('.job-list-container');
+                                if (container) {
+                                    container.innerHTML = '<p class="mb-0">Saved jobs not found.</p>';
+                                }
+                            }
+                            
+                            // Uncheck all checkboxes and update button states
+                        document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                            if (typeof toggleActionsVisibility === 'function') {
+                        toggleActionsVisibility();
+                            }
+                            if (typeof updateButtonStates === 'function') {
+                        updateButtonStates();
+                            }
+
+                    } else {
+                            showErrorAlert('Error', result.message || "Something went wrong.");
+                        }
+                    } catch (error) {
+                        console.error("Error archiving jobs:", error);
+                        showErrorAlert('Error', 'An error occurred while archiving jobs.');
+                    }
+                }
+            );
+        });
+    }
 
   // Re-initialize apply button when switching to split view
   const gridViewBtn = document.getElementById('grid-view-btn');
@@ -3424,96 +3510,6 @@ document.addEventListener('DOMContentLoaded', function () {
       window.open(url, '_blank');
     });
   });
-  
-  // Enhanced email sending via backend
-  document.querySelectorAll('[data-send-email]').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const subSel = btn.getAttribute('data-sub');
-      const bodySel = btn.getAttribute('data-body');
-      const templateId = btn.getAttribute('data-template');
-      const subEl = document.querySelector(subSel);
-      const bodyEl = document.querySelector(bodySel);
-
-      const subject = subEl ? subEl.value : '';
-      const body = bodyEl ? bodyEl.value : '';
-
-      if (!subject || !body) {
-        showToast('Please fill in both subject and message', 'error');
-        return;
-      }
-
-      const selectedJob = getSelectedJob();
-      if (!selectedJob) {
-        showToast('Please select a job first', 'error');
-        return;
-      }
-
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Sending...';
-      btn.disabled = true;
-
-      try {
-        const response = await fetch('{{ path("app_provider_send_employer_email") }}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          body: JSON.stringify({
-            job_id: selectedJob.id,
-            subject: subject,
-            message: body,
-            template_id: templateId,
-            _token: '{{ csrf_token("send_employer_email") }}'
-          })
-        });
-
-        const result = await response.json();
-        if (result && result.success) {
-          showToast('Email sent successfully to employer!', 'success');
-          closeAllEmailModals();
-          trackEmailSent(selectedJob.id, templateId);
-        } else {
-          showToast('Failed to send email: ' + (result.message || 'Unknown error'), 'error');
-        }
-      } catch (error) {
-        console.error('Error sending email:', error);
-        showToast('Network error. Please try again.', 'error');
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-      }
-    });
-  });
-
-  function getSelectedJob() {
-    const activeCard = document.querySelector('.split-job-card.active');
-    if (activeCard) {
-      const jobId = activeCard.dataset.jobId;
-      const jobTitle = activeCard.querySelector('.split-job-card-title')?.textContent || '';
-      const company = activeCard.querySelector('.split-job-card-company')?.textContent || '';
-      return { id: jobId, title: jobTitle, company: company };
-    }
-    const checkedCheckbox = document.querySelector('.job-checkbox:checked');
-    if (checkedCheckbox) {
-      const jobId = checkedCheckbox.dataset.jobId;
-      const jobRow = checkedCheckbox.closest('.job-row');
-      if (jobRow) {
-        const jobTitle = jobRow.querySelector('.job-title')?.textContent || '';
-        const employer = jobRow.querySelector('[data-column="employer"]')?.textContent || '';
-        return { id: jobId, title: jobTitle, company: employer };
-      }
-    }
-    return null;
-  }
-
-  function trackEmailSent(jobId, templateId) {
-    fetch('{{ path("app_provider_track_email_sent") }}', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ job_id: jobId, template_id: templateId, _token: '{{ csrf_token("track_email") }}' })
-    }).catch(error => console.error('Tracking error:', error));
-  }
 });
 
 // Alert helper functions
@@ -3604,12 +3600,16 @@ function showToast(message, type = 'info') {
                     <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Grid View
+                Split View
             `;
             // Remove scrollable class for list view
             if (actionsContainer) {
                 actionsContainer.classList.remove('scrollable');
             }
+            // Hide split-view-only menu items
+            document.querySelectorAll('.split-view-only').forEach(el => {
+                el.style.display = 'none';
+            });
             window.selectedJobId = null;
             try { closeNotesPanel && closeNotesPanel(); } catch (e) {}
             try { toggleActionsVisibility && toggleActionsVisibility(); } catch (e) {}
@@ -3631,38 +3631,55 @@ function showToast(message, type = 'info') {
             if (actionsContainer) {
                 actionsContainer.classList.add('scrollable');
             }
+            // Show split-view-only menu items
+            document.querySelectorAll('.split-view-only').forEach(el => {
+                if (el.classList.contains('menu-item')) {
+                    el.style.display = 'flex';
+                } else if (el.classList.contains('menu-divider')) {
+                    el.style.display = 'block';
+                }
+            });
             // Auto-select the first job card
-            const firstJobCard = splitJobList.querySelector('.split-job-card');
-            if (firstJobCard) {
-                selectJobCard(firstJobCard);
-            } else {
-                selectedJobId = null;
-                window.selectedJobId = null;
+          setTimeout(function() {
+                const firstJobCard = splitJobList.querySelector('.split-job-card');
+                  if (firstJobCard && typeof window.selectJobCard === 'function') {
+                      window.selectJobCard(firstJobCard);
+                } else {
+                    selectedJobId = null;
+                    window.selectedJobId = null;
             }
+          }, 200);
             // Ensure Note button visibility is updated
             try { closeNotesPanel && closeNotesPanel(); toggleActionsVisibility && toggleActionsVisibility(); updateButtonStates && updateButtonStates(); } catch (e) {}
         }
-    });
+          });
   }
   
   // Job card selection
-  splitJobList.addEventListener('click', function (e) {
-      const jobCard = e.target.closest('.split-job-card');
-      if (jobCard && !e.target.classList.contains('job-checkbox')) {
-          selectJobCard(jobCard);
-      }
-  });
+  if (splitJobList) {
+      splitJobList.addEventListener('click', function (e) {
+          const jobCard = e.target.closest('.split-job-card');
+          if (jobCard && !e.target.classList.contains('job-checkbox')) {
+              if (typeof window.selectJobCard === 'function') {
+                  window.selectJobCard(jobCard);
+              }
+          }
+      });
+  }
   
-  function selectJobCard(jobCard) {
+  window.selectJobCard = function(jobCard) {
       // Remove active class from all cards
       document.querySelectorAll('.split-job-card').forEach(card => {
           card.classList.remove('active');
       });
       
       // Uncheck all checkboxes in split view
-      splitJobList.querySelectorAll('.job-checkbox').forEach(checkbox => {
-          checkbox.checked = false;
-      });
+      const splitJobList = document.getElementById('split-job-list');
+      if (splitJobList) {
+          splitJobList.querySelectorAll('.job-checkbox').forEach(checkbox => {
+              checkbox.checked = false;
+          });
+      }
       
       // Add active class to selected card
       jobCard.classList.add('active');
@@ -3682,15 +3699,19 @@ function showToast(message, type = 'info') {
       // If notes panel is open, load notes for the newly selected job
       const notesPanel = document.getElementById('notes-panel');
       if (notesPanel && notesPanel.classList.contains('open')) {
-          openNotesPanel(selectedJobId);
+          if (typeof openNotesPanel === 'function') {
+              openNotesPanel(selectedJobId);
+          }
       }
-      loadJobDetails(selectedJobId);
+      if (typeof loadJobDetails === 'function') {
+          loadJobDetails(selectedJobId);
+      }
   }
-  
+
   function loadJobDetails(jobId) {
       // Show loading state
       noJobSelected.style.display = 'none';
-      jobDetailContent.style.display = 'block';
+          jobDetailContent.style.display = 'block';
       jobDetailContent.innerHTML = `
           <div class="text-center py-5">
               <div class="spinner-border text-primary" role="status">
@@ -3702,12 +3723,12 @@ function showToast(message, type = 'info') {
       
       // Simulate AJAX call to fetch job details
       // In a real application, you would make an API call here
-      setTimeout(() => {
+          setTimeout(() => {
           renderJobDetails(jobId);
-      }, 500);
-  }
+          }, 500);
+      }
   
-  function renderJobDetails(jobId) {
+  window.renderJobDetails = function(jobId) {
     console.log('Loading job details for ID:', jobId);
     
     const jobDetailContent = document.getElementById('job-detail-content');
@@ -3762,149 +3783,1153 @@ function showToast(message, type = 'info') {
             jobDetailContent.style.display = 'block';
             if (noJobSelected) noJobSelected.style.display = 'none';
         });
-  }
+}
+
+  window.loadJobDetails = function(jobId) {
+      renderJobDetails(jobId);
+  };
   
-  // Handle list collapse functionality
-  function setupListCollapse() {
+  }); // Close DOMContentLoaded
+  
+  // Global functions (defined outside DOMContentLoaded so they're available everywhere)
+  function printJobDetails() {
+      const jobId = window.selectedJobId || selectedJobId;
+      if (!jobId) {
+          alert('Please select a job to print');
+          return;
+      }
+      
+      // Fetch job details
+      const url = '/provider/jobs/' + jobId + '/detail-content';
+      fetch(url)
+          .then(response => response.text())
+          .then(html => {
+              // Create a new window for printing
+              const printWindow = window.open('', '_blank');
+              
+              // Extract job details from HTML
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              
+              // Get job title
+              const jobTitle = (doc.querySelector('.job-title, h1, h2, h3, h4') && doc.querySelector('.job-title, h1, h2, h3, h4').textContent) || 'Job Details';
+              
+              // Create print-friendly HTML - using string concatenation to avoid Twig issues
+              // Split script tag to prevent Twig from interpreting it
+              const scriptStart = '<scr' + 'ipt>';
+              const scriptEnd = '</scr' + 'ipt>';
+              const printHTML = '<!DOCTYPE html><html><head><title>' + jobTitle + ' - Job Details</title><style>@media print {@page {margin: 1cm;}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;}h1, h2, h3, h4, h5, h6 {color: #000;margin-top: 1em;margin-bottom: 0.5em;}.job-detail-section {margin-bottom: 1.5em;page-break-inside: avoid;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}img {max-width: 100%;height: auto;}a {color: #000;text-decoration: none;}button, .btn, .action-btn {display: none !important;}.no-print {display: none !important;}}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;padding: 20px;max-width: 800px;margin: 0 auto;}h1 {border-bottom: 2px solid #000;padding-bottom: 10px;margin-bottom: 20px;}.job-detail-section {margin-bottom: 1.5em;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}</style></head><body><h1>' + jobTitle + '</h1>' + html + scriptStart + 'window.onload = function() {window.print();};' + scriptEnd + '</body></html>';
+              
+              printWindow.document.write(printHTML);
+              printWindow.document.close();
+              
+              // Wait for content to load, then print
+              printWindow.onload = function() {
+                  setTimeout(function() {
+                      printWindow.print();
+                  }, 250);
+              };
+          })
+          .catch(error => {
+              console.error('Error loading job details for print:', error);
+              alert('Error loading job details. Please try again.');
+        });
+  }
+
+  // Generate PDF from job details and open print window
+  function generateJobPDF(jobId) {
+      if (!jobId) {
+          alert('Please select a job first');
+          return;
+      }
+      
+      // Fetch job details
+      const url = '/provider/jobs/' + jobId + '/detail-content';
+      fetch(url)
+          .then(response => response.text())
+          .then(html => {
+              // Parse the HTML to extract job details
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              
+              // Extract job information
+              const jobTitle = doc.querySelector('.job-detail-title, h1, h2, h3, h4')?.textContent?.trim() || 'Job Details';
+              const jobCompany = doc.querySelector('.job-detail-company, .company-name')?.textContent?.trim() || '';
+              const jobLocation = doc.querySelector('.job-detail-meta-item')?.textContent?.trim() || '';
+              
+              // Get all job detail sections
+              const sections = doc.querySelectorAll('.job-detail-section, .job-detail-meta-item');
+              let jobDetailsHTML = '';
+              
+              sections.forEach(section => {
+                  // Clone and clean the section
+                  const clone = section.cloneNode(true);
+                  // Remove buttons and action elements
+                  clone.querySelectorAll('button, .btn, .action-btn, .no-print').forEach(el => el.remove());
+                  jobDetailsHTML += clone.outerHTML;
+              });
+              
+              // If no sections found, use the full HTML
+              if (!jobDetailsHTML) {
+                  const fullContent = doc.body.cloneNode(true);
+                  fullContent.querySelectorAll('button, .btn, .action-btn, .no-print, script, style').forEach(el => el.remove());
+                  jobDetailsHTML = fullContent.innerHTML;
+              }
+              
+              // Create a clean HTML document for PDF
+              const scriptStart = '<scr' + 'ipt>';
+              const scriptEnd = '</scr' + 'ipt>';
+              const pdfHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${jobTitle} - Job Details</title>
+    <style>
+        @page {
+            margin: 1.5cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #000;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24pt;
+            color: #121C0C;
+            border-bottom: 3px solid #85BB65;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18pt;
+            color: #121C0C;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e6eef6;
+            padding-bottom: 5px;
+        }
+        .job-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e6eef6;
+        }
+        .job-company {
+            font-size: 16pt;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .job-detail-section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        .job-detail-label {
+            font-weight: bold;
+            color: #121C0C;
+            margin-right: 8px;
+        }
+        .job-detail-meta-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #85BB65;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        button, .btn, .action-btn, .no-print {
+            display: none !important;
+        }
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="job-header">
+        <h1>${jobTitle}</h1>
+        ${jobCompany ? '<div class="job-company">' + jobCompany + '</div>' : ''}
+        ${jobLocation ? '<div style="color: #666; margin-top: 5px;">' + jobLocation + '</div>' : ''}
+    </div>
+    ${jobDetailsHTML}
+    ${scriptStart}
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    ${scriptEnd}
+</body>
+</html>`;
+              
+              // Open in new window and trigger print
+              const printWindow = window.open('', '_blank', 'width=800,height=600');
+              printWindow.document.write(pdfHTML);
+              printWindow.document.close();
+              
+              // Wait for content to load, then print
+              printWindow.onload = function() {
+                  setTimeout(function() {
+                      printWindow.print();
+                  }, 500);
+              };
+          })
+          .catch(error => {
+              console.error('Error generating PDF:', error);
+              alert('Error loading job details. Please try again.');
+          });
+  }
+
+  function applyToJob(jobId) {
+    // Hide all action buttons when confirm is shown
+    const allActionButtons = document.querySelectorAll('.action-btn, .conditional-btn, #apply-btn, .btn-apply, button');
+    allActionButtons.forEach(btn => {
+        if (btn) {
+            const wasVisible = btn.style.display !== 'none' && !btn.classList.contains('hidden-btn');
+            btn.setAttribute('data-was-visible', wasVisible ? 'true' : 'false');
+            btn.style.display = 'none';
+        }
+    });
+    
+    if (confirm('Are you sure you want to apply to this job?')) {
+        // Show loading state on button
+        const applyBtn = document.querySelector('.btn-apply');
+        if (applyBtn) {
+            const originalText = applyBtn.innerHTML;
+            applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
+            applyBtn.disabled = true;
+        }
+        
+        //window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
+        window.location.href = '/provider/jobs/' + jobId + '/apply?redirect_route=app_provider_jobs_saved';
+    }
+}
+
+function saveJob(jobId) {
+    const saveBtn = document.querySelector('.btn-save');
+    const originalText = saveBtn.innerHTML;
+    
+    // Show loading state
+    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Saving...';
+    saveBtn.disabled = true;
+
+    fetch('/provider/jobs/' + jobId + '/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Job saved successfully!', 'success');
+            saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg> Saved';
+            saveBtn.classList.add('btn-applied');
+            saveBtn.onclick = null;
+        } else {
+            showToast('Error: ' + data.error, 'error');
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error saving job:', error);
+        showToast('Error saving job. Please try again.', 'error');
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+function openNotesPanel(jobId) {
+    const panel = document.getElementById('notes-panel');
+    const textarea = document.getElementById('notes-textarea');
+    const jobDetails = document.getElementById('split-job-details');
+    if (!panel || !textarea) return;
+    panel.dataset.jobId = jobId;
+    const saved = localStorage.getItem('provider_job_notes_' + jobId) || '';
+    textarea.value = saved;
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    // Add class to job details container to adjust layout
+    if (jobDetails) {
+        jobDetails.classList.add('notes-open');
+    }
+    textarea.focus();
+}
+
+function closeNotesPanel() {
+    const panel = document.getElementById('notes-panel');
+    const jobDetails = document.getElementById('split-job-details');
+    if (!panel) return;
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.dataset.jobId = '';
+    // Remove class from job details container to restore layout
+    if (jobDetails) {
+        jobDetails.classList.remove('notes-open');
+    }
+}
+
+function handleNoteClick() {
+    // Prefer selected card in split view; fallback to a single checked checkbox
+    const splitViewContainer = document.getElementById('split-view-container');
+    const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+    let jobId = null;
+    if (isSplitActive) {
+        jobId = window.selectedJobId || null;
+        if (!jobId) {
+            const activeCard = document.querySelector('.split-job-card.active');
+            if (activeCard) jobId = activeCard.dataset.jobId;
+        }
+    }
+    if (!jobId) {
+        const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+        if (single.length === 1) jobId = single[0].dataset.jobId;
+    }
+    if (jobId) {
+        openNotesPanel(jobId);
+    }
+}
+
+// Inline note panel on each split job card
+function openInlineNote(jobId, btn) {
+  const card = btn.closest('.split-job-card');
+  if (!card) return;
+  const panel = card.querySelector('.card-note-panel');
+  const textarea = panel.querySelector('.card-note-textarea');
+  // Load saved note
+  const key = 'provider_job_notes_' + jobId;
+  textarea.value = localStorage.getItem(key) || '';
+  panel.classList.toggle('open');
+  textarea.addEventListener('input', () => {
+    localStorage.setItem(key, textarea.value);
+  }, { once: true });
+}
+</script>
+<script>
+// Global utility functions
+function updateButtonStates() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const showApply = checkedCount === 1;
+  const showNote = checkedCount === 1;
+
+  // Show/hide and enable/disable Apply and Note buttons
+  const applyButtons = document.querySelectorAll('#apply-btn');
+  const noteButtons = document.querySelectorAll('#note-btn');
+  
+  applyButtons.forEach(btn => { 
+    btn.disabled = !showApply;
+    if (showApply) {
+        btn.classList.remove('hidden-btn');
+        btn.style.visibility = 'visible';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+    } else {
+        btn.classList.add('hidden-btn');
+        btn.style.visibility = 'hidden';
+        btn.style.opacity = '0';
+        btn.style.pointerEvents = 'none';
+    }
+  });
+  
+  noteButtons.forEach(btn => { 
+    if (showNote) { 
+        btn.classList.remove('hidden-btn', 'd-none');
+        btn.classList.add('d-flex');
+        btn.style.visibility = 'visible';
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+    } else { 
+        btn.classList.add('hidden-btn', 'd-none');
+        btn.classList.remove('d-flex');
+        btn.style.visibility = 'hidden';
+        btn.style.opacity = '0';
+        btn.style.pointerEvents = 'none';
+    }
+  });
+}
+
+function toggleActionsVisibility() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const anyChecked = checkedCount > 0;
+  const splitViewContainer = document.getElementById('split-view-container');
+  const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+  
+  // Show/hide based strictly on selections, regardless of split view
+  
+  const actionsDivs = document.querySelectorAll('.hidden-buttons');
+  actionsDivs.forEach(div => {
+    // Always hide the buttons panel
+      div.style.display = 'none';
+    div.style.visibility = 'hidden';
+  });
+  
+  // Show/hide Apply and Note buttons
+  updateButtonStates();
+}
+
+// Add Note button event handler
+document.addEventListener('DOMContentLoaded', function() {
+  const noteBtn = document.getElementById('note-btn');
+  if (noteBtn) {
+    noteBtn.addEventListener('click', function() {
+      let jobId = null;
+      const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+      if (single.length === 1) jobId = single[0].dataset.jobId;
+      if (!jobId) {
+        jobId = window.selectedJobId || null;
+        if (!jobId) {
+          const activeCard = document.querySelector('.split-job-card.active');
+          if (activeCard) jobId = activeCard.dataset.jobId;
+        }
+      }
+      if (jobId) { openNotesPanel(jobId); }
+    });
+  }
+  const detailNoteBtn = document.getElementById('detail-note-btn');
+  if (detailNoteBtn) {
+    detailNoteBtn.addEventListener('click', function() {
+      // Collapse the list when note button is clicked
       const container = document.getElementById('split-view-container');
-      const toggleBtn = document.getElementById('list-toggle-btn');
-      const noteBtn = document.getElementById('note-btn');
-      
-      if (!container || !toggleBtn || !noteBtn) return;
-  
-      // Function to update toggle button position and visibility (made globally accessible)
-      window.updateToggleButtonPosition = function() {
-          if (container.style.display !== 'grid') {
-              toggleBtn.style.display = 'none';
-              return;
-          }
-          
-          const isCollapsed = container.classList.contains('list-collapsed');
-          const splitJobList = document.getElementById('split-job-list');
-          const splitJobDetails = document.getElementById('split-job-details');
-          
-          // Only show toggle button when list is collapsed
-          if (isCollapsed) {
-              toggleBtn.style.display = 'flex';
-              // Position at the absolute left edge of the details container
-              if (splitJobDetails) {
-                  const detailsRect = splitJobDetails.getBoundingClientRect();
-                  const buttonWidth = 36; // Width of the toggle button
-                  toggleBtn.style.position = 'fixed';
-                  // Position at the absolute left edge (button's center at the left edge, so half width to the left)
-                  toggleBtn.style.left = (detailsRect.left - (buttonWidth / 2)) + 'px';
-                  // Position at the top left, with some offset from the top edge
-                  toggleBtn.style.top = (detailsRect.top + 20) + 'px';
-                  toggleBtn.style.transform = 'none';
-              }
-          } else {
-              // Hide toggle button when list is visible (default state)
-              toggleBtn.style.display = 'none';
-          }
+      if (container && container.style.display === 'grid') {
+        // Collapse the list
+        container.classList.add('list-collapsed');
+        const splitJobList = document.getElementById('split-job-list');
+        const splitJobDetails = document.getElementById('split-job-details');
+        if (splitJobList) {
+          splitJobList.style.display = 'none';
+          splitJobList.style.width = '0';
+          splitJobList.style.minWidth = '0';
+          splitJobList.style.maxWidth = '0';
+          splitJobList.style.padding = '0';
+          splitJobList.style.margin = '0';
+          splitJobList.style.visibility = 'hidden';
+        }
+        if (splitJobDetails) {
+          splitJobDetails.style.gridColumn = '1 / -1';
+          splitJobDetails.style.width = '100%';
+          splitJobDetails.style.maxWidth = '100%';
+        }
+        // Show and position the toggle button at the edge of the flexbox
+        const toggleBtn = document.getElementById('list-toggle-btn');
+        if (toggleBtn) {
+          toggleBtn.style.display = 'flex';
+          toggleBtn.style.alignItems = 'center';
+          toggleBtn.style.justifyContent = 'center';
+          // Position the button at the far left edge of the details container
+          setTimeout(() => {
+            if (splitJobDetails) {
+              const detailsRect = splitJobDetails.getBoundingClientRect();
+              const buttonWidth = 30;
+              toggleBtn.style.position = 'fixed';
+          // Position at the far left edge - button's right edge aligns with container's left edge
+          toggleBtn.style.left = (detailsRect.left - buttonWidth - 59) + 'px';
+              toggleBtn.style.top = (detailsRect.top + 35) + 'px';
+              toggleBtn.style.zIndex = '1001';
+            }
+          }, 100);
+        }
+      }
+      const jobId = window.selectedJobId;
+      if (jobId) { 
+        if (typeof openNotesPanel === 'function') {
+          openNotesPanel(jobId); 
+        }
+      }
+    });
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const headers = document.querySelectorAll('.sortable');
+  let currentSort = { key: null, direction: 'asc' };
+
+  headers.forEach(header => {
+    header.addEventListener('click', () => {
+      const key = header.dataset.sort;
+      const direction = (currentSort.key === key && currentSort.direction === 'asc') ? 'desc' : 'asc';
+      currentSort = { key, direction };
+
+      // Reset all arrows to inactive
+      document.querySelectorAll('.sort-toggle .arrow').forEach(a => a.classList.remove('active'));
+      // Activate the appropriate arrow on current header
+      const up = header.querySelector('.sort-toggle .sort-up');
+      const down = header.querySelector('.sort-toggle .sort-down');
+      if (direction === 'asc' && up) up.classList.add('active');
+      if (direction === 'desc' && down) down.classList.add('active');
+
+      sortJobs(key, direction);
+    });
+  });
+
+  function sortJobs(key, direction) {
+    const rows = Array.from(document.querySelectorAll('.job-row')).map(row => {
+      const data = {};
+      row.querySelectorAll('[data-column]').forEach(cell => {
+        const columnKey = cell.dataset.column;
+        data[columnKey] = getCellValue(cell, columnKey);
+      });
+      return {
+        element: row,
+        data
       };
-      
-      // Observe container changes to update toggle button visibility
-      const observer = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-              if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
-                  updateToggleButtonPosition();
-              }
-          });
-      });
-      
-      observer.observe(container, { attributes: true, attributeFilter: ['style', 'class'] });
-      
-      // Update position on resize and scroll (only when visible)
-      window.addEventListener('resize', updateToggleButtonPosition);
-      window.addEventListener('scroll', updateToggleButtonPosition, true);
-      
-      // Initialize: Hide toggle button by default
-      updateToggleButtonPosition();
-  
-      // Helper function to collapse the list
-      function collapseList() {
-          if (!container.classList.contains('list-collapsed')) {
-              container.classList.add('list-collapsed');
-              const splitJobList = document.getElementById('split-job-list');
-              const splitJobDetails = document.getElementById('split-job-details');
-              if (splitJobList) {
-                  splitJobList.style.display = 'none';
-                  splitJobList.style.width = '0';
-                  splitJobList.style.minWidth = '0';
-                  splitJobList.style.maxWidth = '0';
-                  splitJobList.style.padding = '0';
-                  splitJobList.style.margin = '0';
-                  splitJobList.style.visibility = 'hidden';
-              }
-              if (splitJobDetails) {
-                  splitJobDetails.style.gridColumn = '1 / -1';
-                  splitJobDetails.style.width = '100%';
-                  splitJobDetails.style.maxWidth = '100%';
-              }
-              updateToggleButtonPosition();
-          }
+    });
+
+    rows.sort((a, b) => {
+      const valA = a.data[key];
+      const valB = b.data[key];
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return direction === 'asc' ? valA - valB : valB - valA;
       }
-  
-      // Helper function to expand the list
-      function expandList() {
-          if (container.classList.contains('list-collapsed')) {
-              container.classList.remove('list-collapsed');
-              const splitJobList = document.getElementById('split-job-list');
-              const splitJobDetails = document.getElementById('split-job-details');
-              if (splitJobList) {
-                  splitJobList.style.display = 'block';
-                  splitJobList.style.width = '';
-                  splitJobList.style.minWidth = '';
-                  splitJobList.style.maxWidth = '';
-                  splitJobList.style.padding = '';
-                  splitJobList.style.margin = '';
-                  splitJobList.style.visibility = 'visible';
-              }
-              if (splitJobDetails) {
-                  splitJobDetails.style.gridColumn = '';
-                  splitJobDetails.style.width = '';
-                  splitJobDetails.style.maxWidth = '';
-              }
-              // Hide toggle button when list is expanded
-              updateToggleButtonPosition();
-          }
+      return direction === 'asc'
+        ? String(valA).localeCompare(String(valB))
+        : String(valB).localeCompare(String(valA));
+    });
+
+    const container = document.querySelector('.job-list-container .table-responsive-wrapper');
+    rows.forEach(row => {
+      const wrapper = row.element.closest('.job-lists');
+      if (container && wrapper) {
+        container.appendChild(wrapper);
       }
-  
-      // Toggle list collapse - completely hide/show the left sidebar
-      toggleBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isCollapsed = container.classList.contains('list-collapsed');
-          
-          if (isCollapsed) {
-              expandList();
-          } else {
-              collapseList();
-          }
-          
-          // Update button position after toggle
-          setTimeout(updateToggleButtonPosition, 100);
-      });
-  
-      // Collapse list when note button is clicked
-      noteBtn.addEventListener('click', () => {
-          collapseList();
-      });
-      
-      // Collapse list when detail note button is clicked
-      const detailNoteBtn = document.getElementById('detail-note-btn');
-      if (detailNoteBtn) {
-          detailNoteBtn.addEventListener('click', () => {
-              collapseList();
-          });
+    });
+  }
+
+  function getCellValue(cell, key) {
+    if (!cell) return '';
+    switch (key) {
+      case 'salary': {
+        const numeric = parseFloat(cell.textContent.replace(/[^0-9.\\-]/g, ''));
+        return isNaN(numeric) ? 0 : numeric;
       }
+      case 'rank': {
+        const rankText = cell.querySelector('.rank-display')?.textContent.trim();
+        const rankValue = parseFloat(rankText);
+        return isNaN(rankValue) ? 0 : rankValue;
+      }
+      case 'applied': {
+        const text = cell.textContent.trim();
+        const date = new Date(text);
+        return isNaN(date.getTime()) ? text.toLowerCase() : date.getTime();
+      }
+      default:
+        return cell.textContent.trim().toLowerCase();
+    }
+  }
+});
+</script>
+
+<script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtn = document.getElementById('filter-btn');
+  const filterPanel = document.getElementById('filter-panel');
+  const applyBtn = document.getElementById('apply-filter-btn');
+  const clearBtn = document.getElementById('clear-filter-btn');
+  const container = document.querySelector('.job-list-container');
+  
+  if (!filterBtn || !filterPanel) return;
+  
+  // Toggle filter panel - ONLY toggle, don't apply filters
+  filterBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Toggle the hidden class to show/hide the overlay
+    const isHidden = filterPanel.classList.contains('hidden');
+    if (isHidden) {
+      filterPanel.classList.remove('hidden');
+      filterPanel.style.display = 'block';
+    } else {
+      filterPanel.classList.add('hidden');
+      filterPanel.style.display = 'none';
+    }
+  });
+  
+  // Close filter panel when clicking outside
+  document.addEventListener('click', function(e) {
+    if (filterPanel && filterBtn && !filterPanel.contains(e.target) && !filterBtn.contains(e.target)) {
+      filterPanel.classList.add('hidden');
+      filterPanel.style.display = 'none';
+    }
+  });
+  
+  // Apply filters - only when Apply button is clicked
+  if (applyBtn) {
+    applyBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        applyFilters();
+        if (filterPanel) filterPanel.classList.add('hidden');
+        if (filterPanel) filterPanel.style.display = 'none';
+      } catch (error) {
+        console.error('Error applying filters:', error);
+        if (container) {
+          container.innerHTML = `<p class="text-danger p-4">Failed to load filtered jobs.</p>`;
+        }
+      }
+    });
   }
   
-  setupListCollapse();
+  // Clear filters
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Clear all filter inputs
+      ['filter-location','filter-salary-min','filter-salary-max','filter-category','filter-date-posted']
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+      // Reload page without filters
+      window.location.href = "{{ path('app_provider_jobs_saved') }}";
+    });
+  }
   
-  // Float view button functionality
+  // Apply filters via AJAX
+  function applyFilters() {
+    const locationInput = document.getElementById('filter-location');
+    const salaryMinInput = document.getElementById('filter-salary-min');
+    const salaryMaxInput = document.getElementById('filter-salary-max');
+    const categoryInput = document.getElementById('filter-category');
+    const datePostedInput = document.getElementById('filter-date-posted');
+    
+    if (!container) {
+      console.error('Container not found');
+        return;
+      }
+      
+    // Build filter parameters
+    const params = new URLSearchParams();
+    if (locationInput?.value) params.append('location', locationInput.value);
+    if (salaryMinInput?.value) params.append('salaryMin', salaryMinInput.value);
+    if (salaryMaxInput?.value) params.append('salaryMax', salaryMaxInput.value);
+    if (categoryInput?.value) params.append('category', categoryInput.value);
+    if (datePostedInput?.value) params.append('days', datePostedInput.value);
+    
+    // Show loading spinner
+    const listContainer = document.querySelector('.job-list-container');
+    if (listContainer) {
+      listContainer.innerHTML = `
+        <div class="text-center p-4">
+          <div class="spinner-border text-success mb-3" role="status"></div>
+          <p>Filtering jobs...</p>
+        </div>
+      `;
+    }
+    
+    // Use Symfony route dynamically
+    const savedUrl = "{{ path('app_provider_jobs_saved') }}";
+    
+    // Make AJAX request
+    fetch(`${savedUrl}?${params.toString()}`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Filter response received:', data);
+        if (!data || !data.html) {
+          throw new Error('Invalid response format');
+        }
+        
+        if (listContainer) {
+          // The response is already just the job-list-container, so replace it directly
+          listContainer.outerHTML = data.html;
+          // Re-initialize todo popups after AJAX update
+          if (typeof initializeTodoPopups === 'function') {
+            initializeTodoPopups();
+          }
+        } else if (container) {
+          // Find where to insert the new content
+          const oldContainer = container.querySelector('.job-list-container');
+          if (oldContainer) {
+            oldContainer.outerHTML = data.html;
+          } else {
+            // Insert before actions-container or at end
+            const actionsContainer = container.querySelector('.actions-container');
+            if (actionsContainer) {
+              actionsContainer.insertAdjacentHTML('beforebegin', data.html);
+            } else {
+              container.insertAdjacentHTML('beforeend', data.html);
+            }
+          }
+        }
+        if (filterPanel) {
+          filterPanel.classList.add('hidden');
+          filterPanel.style.display = 'none';
+        }
+      })
+      .catch(err => {
+        console.error('Filter error:', err);
+        if (listContainer) {
+          listContainer.innerHTML = `<p class="text-danger p-4">Failed to load filtered jobs. Error: ${err.message}</p>`;
+        }
+      });
+  }
+
+});
+</script>
+
+<script>
+// Handle list collapse functionality
+function setupListCollapse() {
+    const container = document.getElementById('split-view-container');
+    const toggleBtn = document.getElementById('list-toggle-btn');
+    const noteBtn = document.getElementById('note-btn');
+    
+    if (!container || !toggleBtn) return;
+
+    // Function to update toggle button position and visibility (made globally accessible)
+    window.updateToggleButtonPosition = function() {
+        if (container.style.display !== 'grid') {
+            toggleBtn.style.display = 'none';
+            return;
+        }
+        
+        const isCollapsed = container.classList.contains('list-collapsed');
+        const splitJobDetails = document.getElementById('split-job-details');
+        
+        // Only show toggle button when list is collapsed
+        if (isCollapsed) {
+            toggleBtn.style.display = 'flex';
+            toggleBtn.style.alignItems = 'center';
+            toggleBtn.style.justifyContent = 'center';
+            // Position at the absolute left edge of the details container
+            if (splitJobDetails) {
+                const detailsRect = splitJobDetails.getBoundingClientRect();
+                const buttonWidth = 30; // Width of the toggle button
+                toggleBtn.style.position = 'fixed';
+                // Position at the far left edge - button positioned so it's at the edge of the flexbox
+                toggleBtn.style.left = (detailsRect.left - buttonWidth - 59) + 'px';
+                // Position at the top, with some offset from the top edge
+                toggleBtn.style.top = (detailsRect.top + 35) + 'px';
+                toggleBtn.style.zIndex = '1001';
+                toggleBtn.style.transform = 'none';
+            }
+        } else {
+            // Hide toggle button when list is visible (default state)
+            toggleBtn.style.display = 'none';
+        }
+    };
+    
+    // Observe container changes to update toggle button visibility
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                updateToggleButtonPosition();
+            }
+        });
+    });
+    
+    observer.observe(container, { attributes: true, attributeFilter: ['style', 'class'] });
+    
+    // Update position on resize and scroll (only when visible)
+    window.addEventListener('resize', updateToggleButtonPosition);
+    window.addEventListener('scroll', updateToggleButtonPosition, true);
+    
+    // Initialize: Hide toggle button by default
+    updateToggleButtonPosition();
+
+    // Helper function to collapse the list
+    function collapseList() {
+        if (!container.classList.contains('list-collapsed')) {
+            container.classList.add('list-collapsed');
+            const splitJobList = document.getElementById('split-job-list');
+            const splitJobDetails = document.getElementById('split-job-details');
+            if (splitJobList) {
+                splitJobList.style.display = 'none';
+                splitJobList.style.width = '0';
+                splitJobList.style.minWidth = '0';
+                splitJobList.style.maxWidth = '0';
+                splitJobList.style.padding = '0';
+                splitJobList.style.margin = '0';
+                splitJobList.style.visibility = 'hidden';
+            }
+            if (splitJobDetails) {
+                splitJobDetails.style.gridColumn = '1 / -1';
+                splitJobDetails.style.width = '100%';
+                splitJobDetails.style.maxWidth = '100%';
+            }
+            // Show and position the toggle button
+            toggleBtn.style.display = 'flex';
+            setTimeout(() => {
+            updateToggleButtonPosition();
+            }, 50);
+        }
+    }
+
+    // Helper function to expand the list
+    function expandList() {
+        if (container.classList.contains('list-collapsed')) {
+            container.classList.remove('list-collapsed');
+            const splitJobList = document.getElementById('split-job-list');
+            const splitJobDetails = document.getElementById('split-job-details');
+            if (splitJobList) {
+                splitJobList.style.display = 'block';
+                splitJobList.style.width = '';
+                splitJobList.style.minWidth = '';
+                splitJobList.style.maxWidth = '';
+                splitJobList.style.padding = '';
+                splitJobList.style.margin = '';
+                splitJobList.style.visibility = 'visible';
+            }
+            if (splitJobDetails) {
+                splitJobDetails.style.gridColumn = '';
+                splitJobDetails.style.width = '';
+                splitJobDetails.style.maxWidth = '';
+            }
+            // Hide toggle button when list is expanded
+            toggleBtn.style.display = 'none';
+            updateToggleButtonPosition();
+        }
+    }
+
+    // Toggle list collapse - completely hide/show the left sidebar
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isCollapsed = container.classList.contains('list-collapsed');
+        
+        if (isCollapsed) {
+            expandList();
+        } else {
+            collapseList();
+        }
+        
+        // Update button position after toggle
+        setTimeout(updateToggleButtonPosition, 100);
+    });
+
+    // Collapse list when note button is clicked (only if noteBtn exists)
+    if (noteBtn) {
+    noteBtn.addEventListener('click', () => {
+        collapseList();
+        if (typeof handleNoteClick === 'function') {
+        handleNoteClick();
+        }
+    });
+    }
+    
+    // Collapse list when detail note button is clicked
+    const detailNoteBtn = document.getElementById('detail-note-btn');
+    if (detailNoteBtn) {
+        detailNoteBtn.addEventListener('click', () => {
+            collapseList();
+        });
+    }
+}
+
+// Note auto-save functionality
+function setupNoteAutoSave() {
+  const textarea = document.getElementById('notes-textarea');
+  if (!textarea) return;
+
+  let saveTimeout;
+  textarea.addEventListener('input', () => {
+    const panel = document.getElementById('notes-panel');
+    const lastSavedDiv = document.querySelector('.last-saved');
+    const timeSpan = document.querySelector('.last-saved-time');
+    
+    if (!panel || !panel.dataset.jobId) return;
+    
+    // Clear previous timeout if it exists
+    if (saveTimeout) clearTimeout(saveTimeout);
+    
+    // Set new timeout for 500ms after last input
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem('provider_job_notes_' + panel.dataset.jobId, textarea.value);
+      
+      // Show last saved message
+      lastSavedDiv.style.display = 'block';
+      const now = new Date();
+      timeSpan.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      // Hide message after 3 seconds
+      setTimeout(() => {
+        lastSavedDiv.style.display = 'none';
+      }, 3000);
+    }, 500);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  setupListCollapse();
+  const rankDisplays = document.querySelectorAll('.rank-display');
+  const rankInputs = document.querySelectorAll('.rank-input');
+
+  function saveRank(input) {
+    let value = parseFloat(input.value);
+    const jobId = input.dataset.jobId;
+    const wrapper = input.closest('.rank-input-wrapper');
+    const display = wrapper ? wrapper.previousElementSibling : input.previousElementSibling;
+
+    // ✅ Validate and auto-correct range
+    if (isNaN(value)) {
+      showErrorAlert('Invalid Score', 'Score must be a number between 1 and 10.');
+      input.value = input.dataset.originalValue || '';
+      return;
+    }
+
+    if (value < 1) value = 1;
+    if (value > 10) value = 10;
+
+    // ✅ Round to nearest 0.5 step
+    value = Math.round(value * 2) / 2;
+
+    // ✅ Skip update if no change
+    if (
+      input.dataset.originalValue !== undefined &&
+      input.dataset.originalValue !== '' &&
+      value === parseFloat(input.dataset.originalValue)
+    ) {
+      if (wrapper) {
+        wrapper.classList.add('hidden');
+      } else {
+      input.classList.add('hidden');
+      }
+      if (display) display.classList.remove('hidden');
+      return;
+    }
+
+    // ✅ Send to Symfony backend
+    fetch('{{ path("app_update_rank") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ jobId, rank: value })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // ✅ Update UI
+          if (display) {
+          display.textContent = value;
+            display.classList.remove('hidden');
+          }
+          input.value = value;
+          input.dataset.originalValue = value;
+          if (wrapper) {
+            wrapper.classList.add('hidden');
+          } else {
+          input.classList.add('hidden');
+          }
+
+          // ✅ Show success toast
+          let msg = document.getElementById('rank-success-msg');
+          if (!msg) {
+            msg = document.createElement('div');
+            msg.id = 'rank-success-msg';
+            msg.style.position = 'fixed';
+            msg.style.top = '20px';
+            msg.style.right = '20px';
+            msg.style.backgroundColor = '#4CAF50';
+            msg.style.color = 'white';
+            msg.style.padding = '10px 15px';
+            msg.style.borderRadius = '5px';
+            msg.style.zIndex = '9999';
+            document.body.appendChild(msg);
+          }
+          msg.textContent = 'Score updated successfully!';
+          msg.style.display = 'block';
+          setTimeout(() => { msg.style.display = 'none'; }, 2000);
+        } else {
+          showErrorAlert('Update Failed', 'Failed to update score: ' + (data.error || 'Unknown error'));
+          input.value = input.dataset.originalValue || '';
+        }
+      })
+      .catch(err => {
+        console.error('Fetch error:', err);
+        showErrorAlert('Server Error', 'Server error while updating score.');
+        input.value = input.dataset.originalValue || '';
+      });
+  }
+
+  // ✅ Initialize original values
+  rankInputs.forEach(input => {
+    input.dataset.originalValue = input.value || '';
+  });
+
+  // ✅ Click to edit
+  rankDisplays.forEach(display => {
+    display.addEventListener('click', function () {
+      const wrapper = this.nextElementSibling;
+      if (wrapper && wrapper.classList.contains('rank-input-wrapper')) {
+        const input = wrapper.querySelector('.rank-input');
+        wrapper.classList.remove('hidden');
+      this.classList.add('hidden');
+        if (input) {
+      input.focus();
+      input.select();
+        }
+      }
+    });
+  });
+
+  // ✅ Auto-save on blur (when clicking outside the input)
+  rankInputs.forEach(input => {
+    input.addEventListener('blur', function() {
+      // Small delay to allow click events to process first
+      setTimeout(() => {
+        saveRank(input);
+      }, 200);
+  });
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        input.blur(); // Trigger blur which will save
+      }
+      if (e.key === 'Escape') {
+        const wrapper = input.closest('.rank-input-wrapper');
+        const display = wrapper ? wrapper.previousElementSibling : input.previousElementSibling;
+        input.value = input.dataset.originalValue || '';
+        if (wrapper) {
+          wrapper.classList.add('hidden');
+        } else {
+        input.classList.add('hidden');
+        }
+        if (display) display.classList.remove('hidden');
+      }
+    });
+  });
+});
+</script>
+
+<script>
+// Email templates: modal logic and population
+function openEmailModal(templateId) {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modal = document.getElementById(`email-template-${templateId}-modal`);
+  if (!overlay || !modal) return;
+
+  // Prevent body and html scrolling FIRST - before anything else
+  const scrollY = window.scrollY;
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = '100%';
+  
+  // Store scroll position for restoration
+  document.body.dataset.scrollY = scrollY;
+
+  // Build dynamic context from selected job (best effort)
+  const titleEl = document.querySelector('#job-detail-content .job-detail-title');
+  const companyEl = document.querySelector('#job-detail-content .job-detail-company');
+  const jobTitle = (titleEl && titleEl.textContent.trim()) || 'the role';
+  const company = (companyEl && companyEl.textContent.trim()) || 'your company';
+
+  const subjectEl = document.getElementById(`email-t${templateId}-subject`);
+  const messageEl = document.getElementById(`email-t${templateId}-message`);
+  if (!subjectEl || !messageEl) return;
+
+  if (templateId === 1) {
+    subjectEl.value = `Introduction and interest in ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI hope you're doing well. I came across ${jobTitle} at ${company} and it looks like a strong match for my background. I'd welcome the chance to connect and share how I can help.\n\nI've attached my resume for your review. Below is a short paragraph you can paste for introductions if helpful.\n\n[INSERT BRIEF PARAGRAPH IN THE 3RD PERSON HERE.]\n\nThanks in advance for your help — I'd love to catch up soon.\n\nBest,\n[YOUR NAME]`;
+  } else {
+    subjectEl.value = `Following up on ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI wanted to follow up on ${jobTitle} at ${company}. I remain very interested and would be happy to provide any additional details.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`;
+  }
+
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Position modal at top of viewport
+  modal.style.top = '10vh';
+  modal.style.left = '50%';
+  modal.style.right = 'auto';
+  modal.style.bottom = 'auto';
+  modal.style.transform = 'translateX(-50%)';
+  modal.style.maxHeight = '80vh';
+}
+
+function closeAllEmailModals() {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modals = document.querySelectorAll('.email-modal');
+  modals.forEach(m => { m.style.display = 'none'; m.setAttribute('aria-hidden', 'true'); });
+  if (overlay) overlay.style.display = 'none';
+  
+  // Restore body and html scrolling
+  const scrollY = document.body.dataset.scrollY || '0';
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  window.scrollTo(0, parseInt(scrollY, 10));
+  delete document.body.dataset.scrollY;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('email-modal-overlay');
+  if (overlay) overlay.addEventListener('click', closeAllEmailModals);
+
+  document.querySelectorAll('.email-modal [data-close]').forEach(btn => {
+    btn.addEventListener('click', closeAllEmailModals);
+  });
+
+  // Copy handlers
+  document.querySelectorAll('[data-copy-subject]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-subject');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Subject copied', 'success')).catch(()=>{});
+    });
+  });
+  document.querySelectorAll('[data-copy-message]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-message');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Message copied', 'success')).catch(()=>{});
+    });
+  });
+
+  // Open in Gmail
+  document.querySelectorAll('[data-open-gmail]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subSel = btn.getAttribute('data-sub');
+      const bodySel = btn.getAttribute('data-body');
+      const subEl = document.querySelector(subSel);
+      const bodyEl = document.querySelector(bodySel);
+      const su = encodeURIComponent(subEl ? subEl.value : '');
+      const body = encodeURIComponent(bodyEl ? bodyEl.value : '');
+      const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
+      window.open(url, '_blank');
+    });
+  });
+});
+</script>
+<script>
   document.getElementById('float-view-btn').addEventListener('click', function() {
       const url = window.location.href;
-  
+
       // Open in a new window with size and features
       window.open(
           url,
@@ -4123,6 +5148,6 @@ function showToast(message, type = 'info') {
   });
   </script>
   
-<script src="{{ asset('assets/js/notify-hire.js') }}"></script>
-<script>document.addEventListener('DOMContentLoaded', function(){ try { initNotifyHire(); } catch(e){} });</script>
 {% endblock %}
+
+

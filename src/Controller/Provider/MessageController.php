@@ -366,113 +366,49 @@ class MessageController extends AbstractController
     }
 
     // Load draft via AJAX
-#[Route('/messages/draft/{id}', name: 'app_provider_draft_load', methods: ['GET'])]
-public function loadDraft(Message $message, EntityManagerInterface $em): JsonResponse
-{
-    $user = $this->getUser();
-    
-    // Security check - user can only load their own drafts
-    if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
-        return new JsonResponse(['error' => 'Access denied'], 403);
-    }
-
-    // Get upload directory for attachment path
-    $uploadDirectory = $this->getParameter('messages_attachments_directory');
-    $attachmentInfo = null;
-    
-    if ($message->getAttachment()) {
-        $filePath = $uploadDirectory . '/' . $message->getAttachment();
-        $fileExists = file_exists($filePath);
+    #[Route('/messages/draft/{id}', name: 'app_provider_draft_load', methods: ['GET'])]
+    public function loadDraft(Message $message, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
         
-        $attachmentInfo = [
-            'filename' => $message->getAttachment(),
-            'original_filename' => $this->getOriginalFilename($message->getAttachment()),
-            'file_exists' => $fileExists,
-            'file_path' => $filePath,
-            'file_size' => $fileExists ? filesize($filePath) : 0,
-            'download_url' => $this->generateUrl('app_provider_message_attachment', ['filename' => $message->getAttachment()])
-        ];
-    }
-
-    return new JsonResponse([
-        'success' => true,
-        'draft' => [
-            'id' => $message->getId(),
-            'receiver_id' => $message->getReceiver() ? $message->getReceiver()->getId() : null,
-            'subject' => $message->getSubject(),
-            'message' => $message->getText(),
-            'attachment' => $message->getAttachment(),
-            'attachment_info' => $attachmentInfo,
-            'savedAt' => $message->getSavedAt()->format('Y-m-d H:i:s'),
-        ]
-    ]);
-}
-
-#[Route('/messages/attachment/{filename}', name: 'app_provider_message_attachment', methods: ['GET'])]
-public function downloadAttachment(string $filename, #[Autowire('%messages_attachments_directory%')] string $uploadDirectory): Response
-{
-    $user = $this->getUser();
-    
-    // Security: Find the message that contains this attachment
-    $message = $this->entityManager->getRepository(Message::class)
-        ->findOneBy(['attachment' => $filename]);
-    
-    if (!$message) {
-        throw $this->createNotFoundException('Attachment not found');
-    }
-    
-    // Security: User must be sender or receiver of the message
-    if ($message->getSender()->getId() !== $user->getId() && 
-        (!$message->getReceiver() || $message->getReceiver()->getId() !== $user->getId())) {
-        throw $this->createAccessDeniedException('You cannot access this attachment');
-    }
-    
-    $filePath = $uploadDirectory . '/' . $filename;
-    
-    if (!file_exists($filePath)) {
-        throw $this->createNotFoundException('File not found');
-    }
-    
-    // Get original filename
-    $originalFilename = $this->getOriginalFilename($filename);
-    
-    return $this->file($filePath, $originalFilename);
-}
-
-
-
-// Delete draft - Move to trash instead of permanent deletion
-#[Route('/messages/draft/{id}', name: 'app_provider_draft_delete', methods: ['DELETE'])]
-public function deleteDraft(Message $message, EntityManagerInterface $em): JsonResponse
-{
-    $user = $this->getUser();
-    
-    // Security check
-    if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
-        return new JsonResponse(['error' => 'Access denied'], 403);
-    }
-
-    try {
-        // Instead of removing, move to trash
-        $message->setDeleted(true);
-        $message->setDeletedAt(new \DateTime());
-        // Keep isDraft = true so we know it was originally a draft
-        // This helps if we want to restore it back to drafts
-        
-        $em->persist($message);
-        $em->flush();
+        // Security check - user can only load their own drafts
+        if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
 
         return new JsonResponse([
             'success' => true,
-            'message' => 'Draft moved to trash successfully'
+            'draft' => [
+                'id' => $message->getId(),
+                'receiver_id' => $message->getReceiver() ? $message->getReceiver()->getId() : null,
+                'subject' => $message->getSubject(),
+                'message' => $message->getText(),
+                'attachment' => $message->getAttachment(),
+                'savedAt' => $message->getSavedAt()->format('Y-m-d H:i:s'),
+            ]
         ]);
-    } catch (\Exception $e) {
-        return new JsonResponse([
-            'success' => false,
-            'error' => 'Failed to delete draft: ' . $e->getMessage()
-        ], 500);
     }
-}
+
+    // Delete draft
+    #[Route('/messages/draft/{id}', name: 'app_provider_draft_delete', methods: ['DELETE'])]
+    public function deleteDraft(Message $message, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        // Security check
+        if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $em->remove($message);
+        $em->flush();
+
+        return new JsonResponse([
+            'success' => true, 
+            'message' => 'Draft deleted successfully'
+        ]);
+    }
+
     // Get draft count for badge
     #[Route('/messages/drafts/count', name: 'app_provider_drafts_count', methods: ['GET'])]
     public function getDraftCount(EntityManagerInterface $em): JsonResponse
@@ -600,43 +536,40 @@ public function deleteDraft(Message $message, EntityManagerInterface $em): JsonR
     }
 
     // Restore message from trash
-#[Route('/messages/restore/{id}', name: 'app_provider_message_restore', methods: ['POST'])]
-public function restoreMessage(Message $message, EntityManagerInterface $em): JsonResponse
-{
-    $user = $this->getUser();
-    
-    // Security check - user can only restore their own messages
-    if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
-        return new JsonResponse(['error' => 'Access denied'], 403);
-    }
-
-    // Additional check: message must be in trash
-    if (!$message->isDeleted()) {
-        return new JsonResponse(['error' => 'Message is not in trash'], 400);
-    }
-
-    try {
-        $message->setDeleted(false);
-        $message->setDeletedAt(null);
+    #[Route('/messages/restore/{id}', name: 'app_provider_message_restore', methods: ['POST'])]
+    public function restoreMessage(Message $message, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
         
-        // If it was originally a draft, it stays as a draft when restored
-        // If it was a sent message, it goes back to sent folder
-        
-        $em->persist($message);
-        $em->flush();
+        // Security check - user can only restore their own messages
+        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
 
-        return new JsonResponse([
-            'success' => true,
-            'message' => 'Message restored successfully',
-            'was_draft' => $message->isDraft() // Frontend can use this to redirect appropriately
-        ]);
-    } catch (\Exception $e) {
-        return new JsonResponse([
-            'success' => false,
-            'error' => 'Failed to restore message: ' . $e->getMessage()
-        ], 500);
+        // Additional check: message must be in trash
+        if (!$message->isDeleted()) {
+            return new JsonResponse(['error' => 'Message is not in trash'], 400);
+        }
+
+        try {
+            $message->setDeleted(false);
+            $message->setDeletedAt(null);
+            
+            $em->persist($message);
+            $em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Message restored successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to restore message: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
     // Permanently delete message from trash
     #[Route('/messages/permanent-delete/{id}', name: 'app_provider_message_permanent_delete', methods: ['DELETE'])]
     public function permanentDelete(Message $message, EntityManagerInterface $em): JsonResponse
@@ -669,30 +602,30 @@ public function restoreMessage(Message $message, EntityManagerInterface $em): Js
         }
     }
 
-    // Empty trash - This should already work since it deletes all messages marked as deleted
-#[Route('/messages/empty-trash', name: 'app_provider_empty_trash', methods: ['DELETE'])]
-public function emptyTrash(EntityManagerInterface $em): JsonResponse
-{
-    $user = $this->getUser();
-    
-    // Find all deleted messages for this user (both regular messages and drafts)
-    $messages = $em->getRepository(Message::class)->findBy([
-        'deleted' => true,
-        'user' => $user->getId()
-    ]);
+    // Empty trash
+    #[Route('/messages/empty-trash', name: 'app_provider_empty_trash', methods: ['DELETE'])]
+    public function emptyTrash(EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        $messages = $em->getRepository(Message::class)->findBy([
+            'deleted' => true,
+            'user' => $user->getId()
+        ]);
 
-    foreach ($messages as $message) {
-        $em->remove($message);
+        foreach ($messages as $message) {
+            $em->remove($message);
+        }
+        
+        $em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Trash emptied successfully',
+            'deleted_count' => count($messages)
+        ]);
     }
-    
-    $em->flush();
 
-    return new JsonResponse([
-        'success' => true,
-        'message' => 'Trash emptied successfully',
-        'deleted_count' => count($messages)
-    ]);
-}
     // Mark message as read
     #[Route('/message/{id}/mark-read', name: 'app_provider_message_mark_read', methods: ['POST'])]
     public function markAsRead(Message $message, EntityManagerInterface $em): JsonResponse
