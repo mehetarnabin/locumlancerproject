@@ -1602,7 +1602,7 @@ window.addEventListener('resize', function() {
                   </div>
                   </div>
                 </div>
-              <button id="save-btn" class="action-btn" title="Save" style="display: none;">
+              <button id="save-btn" class="action-btn" title="Notify of hire">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
@@ -1795,14 +1795,37 @@ window.addEventListener('resize', function() {
                   {% endif %}
                 </div>
                 <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
-                  <div class="todo-icon-wrapper">
-                    <div class="todo-icon" data-todo-action="Apply for the job" data-todo-type="saved">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                  {% set jobDocumentRequests = [] %}
+                  {% set hasEmployerDocRequest = false %}
+                  {% for todo in pendingTodos|default([]) %}
+                    {% if todo.documentRequest and todo.documentRequest.application.job.id == job.id %}
+                      {% set hasEmployerDocRequest = true %}
+                      {% if todo.documentRequest.name %}
+                        {% set jobDocumentRequests = jobDocumentRequests|merge([todo.documentRequest.name]) %}
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+
+                  {% if not hasEmployerDocRequest %}
+                    {% for application in applications|default([]) %}
+                      {% if application.job and application.job.id == job.id and application.documentRequestedAt and not application.documentProvidedAt %}
+                        {% set hasEmployerDocRequest = true %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+
+                  {% if hasEmployerDocRequest %}
+                    <div class="todo-icon-wrapper">
+                      <div class="todo-icon" data-todo-action="{{ jobDocumentRequests|length > 0 ? jobDocumentRequests|join(', ') : 'Employer requested documents' }}" data-todo-type="saved">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
                     </div>
-                  </div>
+                  {% else %}
+                    —
+                  {% endif %}
                 </div>
                 <div class="col-start col-center col-rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
                   <span class="rank-display" data-job-id="{{ job.id }}" style="font-size: 12px;">
@@ -1833,7 +1856,7 @@ window.addEventListener('resize', function() {
         {% else %}
             <p class="mb-0">Saved jobs not found.</p>
         {% endif %}
-        <div class="job-actions hidden-buttons ml-15-px" style="display: none !important;">
+        <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
           <button id="save-btn" class="action-btn" title="Save">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -1841,7 +1864,7 @@ window.addEventListener('resize', function() {
                 <path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-              </button>
+          </button>
               <button id="apply-btn" class="action-btn hidden-btn" disabled title="Apply">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
@@ -1977,13 +2000,13 @@ window.addEventListener('resize', function() {
     </div>
     <div class="email-modal-body">
       <label>Subject</label>
-      <input id="email-t1-subject" type="text" readonly>
+      <input id="email-t1-subject" type="text">
       <label>Message</label>
-      <textarea id="email-t1-message" readonly></textarea>
+      <textarea id="email-t1-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-subject="#email-t1-subject">Copy Subject</button>
       <button class="dropdown-cstm" data-copy-message="#email-t1-message">Copy Message</button>
+      <button class="action-btn" data-send-email data-sub="#email-t1-subject" data-body="#email-t1-message">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t1-subject" data-body="#email-t1-message">Open in Gmail</button>
     </div>
   </div>
@@ -1994,13 +2017,13 @@ window.addEventListener('resize', function() {
     </div>
     <div class="email-modal-body">
       <label>Subject</label>
-      <input id="email-t2-subject" type="text" readonly>
+      <input id="email-t2-subject" type="text">
       <label>Message</label>
-      <textarea id="email-t2-message" readonly></textarea>
+      <textarea id="email-t2-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-subject="#email-t2-subject">Copy Subject</button>
       <button class="dropdown-cstm" data-copy-message="#email-t2-message">Copy Message</button>
+      <button class="action-btn" data-send-email data-sub="#email-t2-subject" data-body="#email-t2-message">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t2-subject" data-body="#email-t2-message">Open in Gmail</button>
     </div>
   </div>
@@ -2511,426 +2534,556 @@ window.addEventListener('resize', function() {
   .email-modal-footer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid #e6eef6; }
   .email-modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #666; }
   </style>
-    <script>
-  // Set route information from Twig
-  const isSavedPage = {% if app.request.get('_route') == 'app_provider_jobs_saved' %}true{% else %}false{% endif %};
+
+<script>
+// =============================================
+// FIXED NOTE FUNCTIONS
+// =============================================
+
+// Add the missing showNoteSaveSuccess function
+function showNoteSaveSuccess() {
+  const lastSaved = document.querySelector('.last-saved');
+  const lastSavedTime = document.querySelector('.last-saved-time');
   
-  document.addEventListener('DOMContentLoaded', function () {
-    const checkboxes = document.querySelectorAll('.job-checkbox');
-    const applyBtn = document.getElementById('apply-btn');
-    const saveBtn = document.getElementById('save-btn');
-    const emailBtn = document.getElementById('email-btn');
-    const actionsDivs = document.querySelectorAll('.hidden-buttons');
-    const columnsBtn = document.querySelector('.columns-dropdown-btn');
-    const menuBtn = document.querySelector('.menu-dropdown-btn');
-    const columnsPanel = document.querySelector('.columns-panel');
-    const menuPanel = document.querySelector('.menu-panel');
+  if (lastSaved && lastSavedTime) {
+      lastSavedTime.textContent = new Date().toLocaleTimeString();
+      lastSaved.style.display = 'flex';
+      
+      // Hide after 3 seconds
+      setTimeout(() => {
+          lastSaved.style.display = 'none';
+      }, 3000);
+  }
+  
+  // Also show a toast notification
+  showToast('Note saved successfully', 'success');
+}
 
-    function toggleDropdown(panel, btn) {
-        const isOpen = !panel.classList.contains('hidden');
-        closeAllDropdowns();
-        if (!isOpen) {
-            panel.classList.remove('hidden');
-            // Position dropdown correctly in split view
-            const splitViewContainer = document.getElementById('split-view-container');
-            const isSplitView = splitViewContainer && splitViewContainer.style.display === 'grid';
-            if (isSplitView && panel.classList.contains('menu-panel')) {
-                // Force panel to be visible first to get accurate dimensions
-                panel.style.display = 'block';
-                panel.style.visibility = 'hidden';
-                panel.style.position = 'fixed';
-                panel.style.top = '-9999px';
-                panel.style.left = '-9999px';
-                
-                // Use double requestAnimationFrame + setTimeout to ensure browser has fully rendered before measuring
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        setTimeout(() => {
-                            // Use fixed positioning in split view to prevent clipping
-                            const btnRect = btn.getBoundingClientRect();
-                            const panelRect = panel.getBoundingClientRect();
-                            const viewportWidth = window.innerWidth;
-                            const viewportHeight = window.innerHeight;
-                            
-                            // Align dropdown to the right edge of the button (like in list view)
-                            // Calculate left position to align right edge of dropdown with right edge of button
-                            let left = btnRect.right - panelRect.width;
-                            // ALWAYS position below the button in split view - no exceptions
-                            let top = btnRect.bottom + 8;
-                            
-                            // Adjust if dropdown would go off right edge - keep it aligned to button's right edge
-                            if (left + panelRect.width > viewportWidth - 10) {
-                                // If dropdown is wider than viewport, align to right edge of viewport
-                                left = Math.max(10, viewportWidth - panelRect.width - 10);
-                            }
-                            
-                            // If dropdown would go off left edge, align to left edge of button instead
-                            if (left < 10) {
-                                left = btnRect.left;
-                            }
-                            
-                            // Ensure dropdown doesn't go off left edge
-                            if (left < 10) {
-                                left = 10;
-                            }
-                            
-                            // Apply final positioning - ALWAYS below button
-                            panel.style.position = 'fixed';
-                            panel.style.top = top + 'px';
-                            panel.style.left = left + 'px';
-                            panel.style.right = 'auto';
-                            panel.style.bottom = 'auto';
-                            panel.style.zIndex = '99999';
-                            panel.style.visibility = 'visible';
-                            panel.style.display = 'block';
-                            
-                            // Force all parent containers to allow overflow
-                            let parent = panel.parentElement;
-                            const parentsToFix = [];
-                            while (parent && parent !== document.body) {
-                                if (parent.style) {
-                                    const computedStyle = window.getComputedStyle(parent);
-                                    if (computedStyle.overflow === 'hidden' || computedStyle.overflowX === 'hidden' || computedStyle.overflowY === 'hidden') {
-                                        parentsToFix.push({
-                                            element: parent,
-                                            originalOverflow: parent.style.overflow || '',
-                                            originalOverflowX: parent.style.overflowX || '',
-                                            originalOverflowY: parent.style.overflowY || ''
-                                        });
-                                        parent.style.overflow = 'visible';
-                                        parent.style.overflowX = 'visible';
-                                        parent.style.overflowY = 'visible';
-                                    }
-                                }
-                                parent = parent.parentElement;
-                            }
-                            
-                            // Store reference to restore later
-                            panel.dataset.parentsFixed = 'true';
-                            panel._parentsToFix = parentsToFix;
-                        }, 10);
-                    });
-                });
-            } else {
-                // Reset to default positioning for list view (absolute, relative to button)
-                panel.style.position = 'absolute';
-                panel.style.top = '110%';
-                panel.style.left = 'auto';
-                panel.style.right = '0';
-                panel.style.bottom = 'auto';
-                panel.style.zIndex = '10000';
-                panel.style.visibility = '';
-                
-                // Restore parent overflow styles if they were modified
-                if (panel._parentsToFix) {
-                    panel._parentsToFix.forEach(({element, originalOverflow, originalOverflowX, originalOverflowY}) => {
-                        element.style.overflow = originalOverflow;
-                        element.style.overflowX = originalOverflowX;
-                        element.style.overflowY = originalOverflowY;
-                    });
-                    panel._parentsToFix = null;
-                    delete panel.dataset.parentsFixed;
-                }
-            }
-        }
-    }
-    
-    // Update dropdown position on scroll/resize in split view
-    function updateDropdownPosition(panel, btn) {
-        if (!panel || !btn || panel.classList.contains('hidden')) return;
-        
-        const splitViewContainer = document.getElementById('split-view-container');
-        const isSplitView = splitViewContainer && splitViewContainer.style.display === 'grid';
-        if (isSplitView && panel.classList.contains('menu-panel')) {
-            const btnRect = btn.getBoundingClientRect();
-            const panelRect = panel.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            
-            // Align dropdown to the right edge of the button (like in list view)
-            let left = btnRect.right - panelRect.width;
-            // ALWAYS position below the button in split view - no exceptions
-            let top = btnRect.bottom + 8;
-            
-            // Adjust if dropdown would go off right edge - keep it aligned to button's right edge
-            if (left + panelRect.width > viewportWidth - 10) {
-                // If dropdown is wider than viewport, align to right edge of viewport
-                left = Math.max(10, viewportWidth - panelRect.width - 10);
-            }
-            
-            // If dropdown would go off left edge, align to left edge of button instead
-            if (left < 10) {
-                left = btnRect.left;
-            }
-            
-            // Final check: ensure dropdown doesn't go off left edge
-            if (left < 10) {
-                left = 10;
-            }
-            
-            panel.style.position = 'fixed';
-            panel.style.top = top + 'px';
-            panel.style.left = left + 'px';
-            panel.style.right = 'auto';
-            panel.style.bottom = 'auto';
-            panel.style.zIndex = '99999';
-            panel.style.visibility = 'visible';
-            panel.style.display = 'block';
-        }
-    }
-    
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            const menuPanel = document.querySelector('.menu-panel');
-            const menuBtn = document.querySelector('.menu-dropdown-btn');
-            if (menuPanel && menuBtn) {
-                updateDropdownPosition(menuPanel, menuBtn);
-            }
-        }, 100);
-    });
+// Fixed saveJobNote function with proper success handling
+function saveJobNote(jobId, content) {
+  if (!jobId || window.isSavingNote) return;
+  
+  window.isSavingNote = true;
+  
+  // Remove any problematic characters but keep basic formatting
+  const sanitizedContent = content
+      .replace(/[^\x00-\x7F]/g, "") // Remove non-ASCII characters
+      .trim();
+  
+  // If content is empty after sanitization, don't save
+  if (sanitizedContent === '') {
+      console.log('Empty content, not saving');
+      window.isSavingNote = false;
+      return;
+  }
+  
+  console.log('Saving note for job:', jobId, 'Content:', sanitizedContent);
+  
+  fetch(`/provider/api/job/${String(jobId)}/note`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({ content: sanitizedContent })
+  })
+  .then(response => {
+      console.log('Save response status:', response.status);
+      if (!response.ok) {
+          return response.text().then(text => {
+              throw new Error(`HTTP error! status: ${response.status}. Response: ${text}`);
+          });
+      }
+      return response.json();
+  })
+  .then(data => {
+      console.log('Save response data:', data);
+      if (data.success) {
+          showNoteSaveSuccess();
+          // Update the last saved content reference
+          window.lastSavedContent = sanitizedContent;
+      } else {
+          console.error('Failed to save note:', data.message);
+          showToast('Failed to save note: ' + data.message, 'error');
+      }
+  })
+  .catch(error => {
+      console.error('Error saving note:', error);
+      showToast('Error saving note. Please try again.', 'error');
+  })
+  .finally(() => {
+      window.isSavingNote = false;
+  });
+}
 
-    function closeAllDropdowns() {
-        // Restore parent overflow styles before closing
-        if (menuPanel._parentsToFix) {
-            menuPanel._parentsToFix.forEach(({element, originalOverflow, originalOverflowX, originalOverflowY}) => {
-                element.style.overflow = originalOverflow;
-                element.style.overflowX = originalOverflowX;
-                element.style.overflowY = originalOverflowY;
-            });
-            menuPanel._parentsToFix = null;
-            delete menuPanel.dataset.parentsFixed;
-        }
-        
-        columnsPanel.classList.add('hidden');
-        menuPanel.classList.add('hidden');
-    }
+// Fixed loadJobNote function to properly handle the response
+function loadJobNote(jobId, textarea) {
+  // Show loading state
+  textarea.value = 'Loading note...';
+  textarea.disabled = true;
+  
+  fetch(`/provider/api/job/${String(jobId)}/note`, {
+      method: 'GET',
+      headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      cache: 'no-store'
+  })
+  .then(response => {
+      console.log('Note response status:', response.status);
+      if (!response.ok) {
+          if (response.status === 404) {
+              // Note doesn't exist yet, which is fine
+              return { success: true, content: '' };
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+  })
+  .then(data => {
+      console.log('Note data received:', data);
+      if (data.success) {
+          const content = data.content || '';
+          textarea.value = content;
+          // Update the last saved content reference
+          window.lastSavedContent = content;
+          console.log('Note loaded successfully:', content ? 'Content exists' : 'No content');
+      } else {
+          textarea.value = ''; // No note exists or error
+          window.lastSavedContent = '';
+          console.log('No note found for job:', jobId);
+      }
+      textarea.disabled = false;
+  })
+  .catch(error => {
+      console.error('Error loading note:', error);
+      textarea.value = '';
+      textarea.disabled = false;
+      window.lastSavedContent = '';
+  });
+}
 
-    columnsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleDropdown(columnsPanel, columnsBtn);
-    });
+// Improved note auto-save with better content comparison
+function setupNoteAutoSave() {
+  const textarea = document.getElementById('notes-textarea');
+  if (!textarea) return;
 
-    menuBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleDropdown(menuPanel, menuBtn);
-    });
-
-    document.addEventListener('click', e => {
-        // Only close if click is outside both dropdowns and buttons
-        if (
-          !columnsPanel.contains(e.target) &&
-          !columnsBtn.contains(e.target) &&
-          !menuPanel.contains(e.target) &&
-          !menuBtn.contains(e.target)
-        ) {
-            closeAllDropdowns();
-        }
+  let saveTimeout;
+  window.lastSavedContent = textarea.value; // Initialize
+  
+  textarea.addEventListener('input', () => {
+      const panel = document.getElementById('notes-panel');
+      if (!panel || !panel.dataset.jobId) return;
+      
+      const currentContent = textarea.value.trim();
+      
+      // Only save if content actually changed and is not empty
+      if (currentContent === window.lastSavedContent) {
+          console.log('Content unchanged, skipping save');
+          return;
+      }
+      
+      // Don't save if content is too short (optional)
+      if (currentContent.length < 2 && currentContent !== '') return;
+      
+      console.log('Textarea input detected - content changed:', {
+          currentContent: currentContent,
+          lastSavedContent: window.lastSavedContent,
+          hasChanged: currentContent !== window.lastSavedContent,
+          jobId: panel.dataset.jobId
+      });
+      
+      // Clear previous timeout if it exists
+      if (saveTimeout) clearTimeout(saveTimeout);
+      
+      // Set new timeout for 1.5 seconds after last input
+      saveTimeout = setTimeout(() => {
+          if (currentContent !== window.lastSavedContent) {
+              console.log('Auto-saving note...');
+              saveJobNote(panel.dataset.jobId, currentContent);
+              // Don't update lastSavedContent here - wait for success callback
+          }
+      }, 1500);
   });
 
-    // Handle Print/Share button click
-    const printShareBtn = document.getElementById('print-share-job-btn');
-    if (printShareBtn) {
-        printShareBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Get the selected job ID from multiple sources
-            let selectedJobId = window.selectedJobId || null;
-            
-            // If not found, try to find from active split job card
-            if (!selectedJobId) {
-                const activeCard = document.querySelector('.split-job-card.active');
-                if (activeCard) {
-                    selectedJobId = activeCard.getAttribute('data-job-id');
-                }
-            }
-            
-            // If still not found, try to find from checked checkbox
-            if (!selectedJobId) {
-                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
-                if (checkedCheckbox) {
-                    selectedJobId = checkedCheckbox.getAttribute('data-job-id');
-                }
-            }
-            
-            if (selectedJobId) {
-                // Generate PDF and open print window
-                generateJobPDF(selectedJobId);
-            } else {
-                alert('Please select a job first');
-            }
-            closeAllDropdowns();
-        });
+  // Also save on blur (when user clicks away from textarea)
+  textarea.addEventListener('blur', () => {
+      const panel = document.getElementById('notes-panel');
+      if (!panel || !panel.dataset.jobId) return;
+      
+      const currentContent = textarea.value.trim();
+      if (currentContent !== window.lastSavedContent && currentContent.length > 0) {
+          console.log('Blur event - saving note...');
+          saveJobNote(panel.dataset.jobId, currentContent);
+      }
+  });
+}
+
+// Enhanced openNotesPanel function
+function openNotesPanel(jobId) {
+  const panel = document.getElementById('notes-panel');
+  const textarea = document.getElementById('notes-textarea');
+  const jobDetails = document.getElementById('split-job-details');
+  if (!panel || !textarea) return;
+  
+  panel.dataset.jobId = jobId;
+  
+  // Reset last saved content
+  window.lastSavedContent = '';
+  
+  // Load note from server via AJAX
+  loadJobNote(jobId, textarea);
+  
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  
+  // Add class to job details container to adjust layout
+  if (jobDetails) {
+      jobDetails.classList.add('notes-open');
+  }
+  
+  // Focus after a short delay to ensure content is loaded
+  setTimeout(() => {
+      textarea.focus();
+  }, 100);
+}
+
+// Close notes panel function
+function closeNotesPanel() {
+  const panel = document.getElementById('notes-panel');
+  const jobDetails = document.getElementById('split-job-details');
+  if (!panel) return;
+  
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  
+  // Remove class from job details container
+  if (jobDetails) {
+      jobDetails.classList.remove('notes-open');
+  }
+}
+
+// Remove manual save button functionality since we have auto-save
+function setupManualSave() {
+  // Remove manual save button entirely since we have auto-save
+  const manualSaveBtn = document.getElementById('manual-save-btn');
+  if (manualSaveBtn) {
+      manualSaveBtn.remove();
+  }
+}
+
+// =============================================
+// FIXED APPLY TO JOB FUNCTION (MISSING FUNCTION)
+// =============================================
+
+// Apply to job function - handles both single job applications
+function applyToJob(jobId, element = null) {
+    if (!jobId) {
+        console.error('No job ID provided to applyToJob function');
+        showToast('Invalid job ID', 'error');
+        return;
     }
     
-    // Handle Timeline button click
-    const timelineBtn = document.getElementById('timeline-job-btn');
-    if (timelineBtn) {
-        timelineBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Get job ID from selected job or active card
-            let jobId = window.selectedJobId || null;
-            
-            // If not found, try to find from active split job card
-            if (!jobId) {
-                const activeCard = document.querySelector('.split-job-card.active');
-                if (activeCard) {
-                    jobId = activeCard.getAttribute('data-job-id');
-                }
-            }
-            
-            // If still not found, try to find from checked checkbox
-            if (!jobId) {
-                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
-                if (checkedCheckbox) {
-                    jobId = checkedCheckbox.getAttribute('data-job-id');
-                }
-            }
-            
-            // Check if we're in the saved section (status is 'saved')
-            // Check by route name (passed from Twig) or by URL path
-            const currentRoute = window.location.pathname;
-            const isSavedSection = currentRoute.includes('/jobs/saved') || 
-                                   currentRoute.endsWith('/saved') ||
-                                   isSavedPage;
-            
-            if (isSavedSection && jobId) {
-                // Show alert that user must apply for the job
-                alert('You must apply for the job to view the timeline. Please apply for this job first.');
-                closeAllDropdowns();
-                return;
-            }
-            
-            // Build calendar URL with job ID and status
-            let calendarUrl = timelineBtn.getAttribute('href');
-            if (jobId) {
-                // Check if this is a saved job (not applied)
-                if (isSavedSection) {
-                    calendarUrl += '?jobId=' + encodeURIComponent(jobId) + '&status=saved';
-                } else {
-                    // For other sections, try to get application status
-                    calendarUrl += '?jobId=' + encodeURIComponent(jobId);
-                }
-            } else {
-                if (isSavedSection) {
-                    calendarUrl += '?status=saved';
-                }
-            }
-            
-            window.open(calendarUrl, '_blank');
-            closeAllDropdowns();
-        });
+    // Show loading state if element is provided
+    if (element) {
+        const originalText = element.innerHTML;
+        element.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Applying...';
+        element.disabled = true;
     }
-
-    // Handle Export Report button click - only export visible jobs
-    const exportReportBtn = document.getElementById('export-report-btn');
-    if (exportReportBtn) {
-        exportReportBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Collect all visible job IDs from the page
-            const visibleJobIds = [];
-            
-            // Get job IDs from list view (job-checkbox elements)
-            const listViewCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox[data-job-id]');
-            listViewCheckboxes.forEach(checkbox => {
-                const jobId = checkbox.getAttribute('data-job-id');
-                if (jobId && !visibleJobIds.includes(jobId)) {
-                    visibleJobIds.push(jobId);
-                }
-            });
-            
-            // Get job IDs from split view (split-job-card elements)
-            const splitViewCards = document.querySelectorAll('.split-job-card[data-job-id]');
-            splitViewCards.forEach(card => {
-                const jobId = card.getAttribute('data-job-id');
-                if (jobId && !visibleJobIds.includes(jobId)) {
-                    visibleJobIds.push(jobId);
-                }
-            });
-            
-            // Build the download URL with visible job IDs
-            let downloadUrl = "{{ path('app_provider_download_data', {'type': 'saved'}) }}";
-            if (visibleJobIds.length > 0) {
-                downloadUrl += '?job_ids=' + visibleJobIds.join(',');
-            }
-            
-            // Open in new window
-            window.open(downloadUrl, '_blank');
-            
-            closeAllDropdowns();
-        });
-    }
-
-    // Link email button to email modal
-    if (emailBtn) {
-      emailBtn.addEventListener('click', () => openEmailModal(1));
-    }
-    // Note: save-btn is now handled by the notify hire functionality below
-
-    // Select all checkbox has been removed from the UI
-
-    // Update the toggleActionsVisibility function
-    function toggleActionsVisibility() {
-        const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
-        const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
-        const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
-        let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-        const anyChecked = checkedCount > 0;
-        const splitViewContainer = document.getElementById('split-view-container');
-        const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-        // Buttons visibility panel (compact row) - always hidden
-        actionsDivs.forEach(div => {
-            div.style.display = 'none !important';
-            div.style.visibility = 'hidden';
-        });
+    
+    // Show confirmation modal or direct confirmation
+    const modal = document.getElementById('applyConfirmModal');
+    if (modal) {
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
         
-        // Show/hide Apply and Note - use visibility to maintain layout
-        const applyButtons = document.querySelectorAll('#apply-btn');
-        const noteButtons = document.querySelectorAll('#note-btn');
-        const showApply = checkedCount === 1;
-        // Show Note only when exactly one job is selected
-        const showNote = checkedCount === 1;
-        applyButtons.forEach(btn => { 
-            if (showApply) {
-                btn.classList.remove('hidden-btn');
-                btn.style.visibility = 'visible';
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-            } else {
-                btn.classList.add('hidden-btn');
-                btn.style.visibility = 'hidden';
-                btn.style.opacity = '0';
-                btn.style.pointerEvents = 'none';
+        // Handle confirm apply
+        const confirmApplyBtn = document.getElementById('confirm-apply-btn');
+        if (confirmApplyBtn) {
+            const handleConfirm = () => {
+                // Redirect to apply page
+                window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
+                bsModal.hide();
+                confirmApplyBtn.removeEventListener('click', handleConfirm);
+            };
+            
+            confirmApplyBtn.addEventListener('click', handleConfirm, { once: true });
+        }
+    } else {
+        // Fallback: direct confirmation
+        if (confirm('Are you sure you want to apply to this job?')) {
+            window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
+        } else {
+            // Reset button state if user cancels
+            if (element) {
+                element.innerHTML = originalText;
+                element.disabled = false;
             }
-        });
-        noteButtons.forEach(btn => { 
-            if (showNote) {
-                btn.classList.remove('hidden-btn');
-                btn.style.visibility = 'visible';
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-            } else {
-                btn.classList.add('hidden-btn');
-                btn.style.visibility = 'hidden';
-                btn.style.opacity = '0';
-                btn.style.pointerEvents = 'none';
-            }
-        });
-        
-        // Leave Email button behavior unchanged
+        }
     }
+}
 
-    // updateButtonStates is defined globally below - no need to redefine here
+// Batch apply function for multiple jobs
+function applyToSelectedJobs() {
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId).filter(id => id);
+    
+    if (selectedIds.length === 0) {
+        showToast('Please select at least one job to apply to.', 'warning');
+        return;
+    }
+    
+    if (selectedIds.length === 1) {
+        // Single job: use the single apply function
+        applyToJob(selectedIds[0]);
+    } else {
+        // Multiple jobs: use batch apply
+        handleApplyAction();
+    }
+}
 
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', toggleActionsVisibility);
+// =============================================
+// FIXED SPLIT VIEW APPLY BUTTON FUNCTIONALITY
+// =============================================
+
+// Enhanced apply button handler that works for both list and split views
+function setupApplyButton() {
+  const applyButtons = document.querySelectorAll('#apply-btn');
+  
+  applyButtons.forEach(applyBtn => {
+      // Remove any existing listeners to prevent duplicates
+      const newApplyBtn = applyBtn.cloneNode(true);
+      applyBtn.parentNode.replaceChild(newApplyBtn, applyBtn);
+  });
+  
+  // Re-select the buttons after cloning
+  document.querySelectorAll('#apply-btn').forEach(applyBtn => {
+      applyBtn.addEventListener('click', applyToSelectedJobs);
+  });
+}
+
+// Enhanced checkbox change handler for split view
+function setupSplitViewCheckboxes() {
+  // Use event delegation for dynamically loaded content
+  document.addEventListener('change', function(e) {
+      if (e.target.classList.contains('job-checkbox')) {
+          const checkbox = e.target;
+          
+          // Handle single selection enforcement
+          if (checkbox.checked) {
+              // Get all checkboxes from both views
+              const allCheckboxes = document.querySelectorAll('.job-checkbox');
+              const otherChecked = Array.from(allCheckboxes).find(cb => cb !== checkbox && cb.checked);
+              
+              if (otherChecked) {
+                  // Prevent multiple selection
+                  checkbox.checked = false;
+                  showWarningAlert('Multiple Selection', 'You cannot select multiple values');
+                  return;
+              }
+          }
+          
+          // Update UI states
+          if (typeof toggleActionsVisibility === 'function') toggleActionsVisibility();
+          if (typeof updateButtonStates === 'function') updateButtonStates();
+          
+          // If this is a split view checkbox and it's checked, select the card
+          if (checkbox.checked && checkbox.closest('#split-job-list')) {
+              const jobCard = checkbox.closest('.split-job-card');
+              if (jobCard) {
+                  // Remove active class from all cards
+                  document.querySelectorAll('.split-job-card').forEach(card => {
+                      card.classList.remove('active');
+                  });
+                  
+                  // Add active class to selected card
+                  jobCard.classList.add('active');
+                  
+                  // Load job details
+                  const jobId = jobCard.dataset.jobId;
+                  window.selectedJobId = jobId;
+                  loadJobDetails(jobId);
+              }
+          }
+      }
+  });
+}
+
+// Enhanced button state updates for split view
+function updateButtonStates() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const showApply = checkedCount >= 1; // Allow multiple applications
+  const showNote = checkedCount === 1;
+
+  // Update all apply buttons
+  const applyButtons = document.querySelectorAll('#apply-btn');
+  applyButtons.forEach(btn => { 
+      btn.disabled = !showApply;
+      if (showApply) {
+          btn.classList.remove('hidden-btn');
+          btn.style.visibility = 'visible';
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+      } else {
+          btn.classList.add('hidden-btn');
+          btn.style.visibility = 'hidden';
+          btn.style.opacity = '0';
+          btn.style.pointerEvents = 'none';
+      }
+  });
+  
+  // Update note buttons
+  const noteButtons = document.querySelectorAll('#note-btn');
+  noteButtons.forEach(btn => { 
+      if (showNote) {
+          btn.classList.remove('hidden-btn');
+          btn.style.visibility = 'visible';
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+      } else {
+          btn.classList.add('hidden-btn');
+          btn.style.visibility = 'hidden';
+          btn.style.opacity = '0';
+          btn.style.pointerEvents = 'none';
+      }
+  });
+}
+
+// Enhanced toggle actions visibility for split view
+function toggleActionsVisibility() {
+  const listCheckboxes = document.querySelectorAll('.job-list-container .job-checkbox');
+  const splitCheckboxes = document.querySelectorAll('#split-job-list .job-checkbox');
+  const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
+  
+  let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
+  const anyChecked = checkedCount > 0;
+  const splitViewContainer = document.getElementById('split-view-container');
+  const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+  
+  // Update the compact buttons panel
+  const actionsDivs = document.querySelectorAll('.hidden-buttons');
+  actionsDivs.forEach(div => {
+      if (isSplitActive) {
+          // Hide duplicate compact buttons in split view
+          div.style.display = 'none';
+      } else {
+          div.style.display = 'flex';
+          div.style.visibility = anyChecked ? 'visible' : 'hidden';
+      }
+  });
+  
+  // Update button states
+  updateButtonStates();
+}
+
+// =============================================
+// MAIN INITIALIZATION
+// =============================================
+
+// Initialize note functionality when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Note button handlers
+  const noteBtn = document.getElementById('note-btn');
+  if (noteBtn) {
+      noteBtn.addEventListener('click', function() {
+          let jobId = null;
+          const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+          if (single.length === 1) jobId = single[0].dataset.jobId;
+          if (!jobId) {
+              jobId = window.selectedJobId || null;
+              if (!jobId) {
+                  const activeCard = document.querySelector('.split-job-card.active');
+                  if (activeCard) jobId = activeCard.dataset.jobId;
+              }
+          }
+          if (jobId) { 
+              openNotesPanel(jobId); 
+          } else {
+              showToast('Please select a job to add notes', 'warning');
+          }
       });
+  }
+  
+  const detailNoteBtn = document.getElementById('detail-note-btn');
+  if (detailNoteBtn) {
+      detailNoteBtn.addEventListener('click', function() {
+          const jobId = window.selectedJobId;
+          if (jobId) { 
+              openNotesPanel(jobId); 
+          } else {
+              showToast('Please select a job to add notes', 'warning');
+          }
+      });
+  }
+  
+  // Initialize note auto-save and remove manual save
+  setupNoteAutoSave();
+  setupManualSave();
+  
+  // Initialize apply button functionality
+  setupApplyButton();
+  setupSplitViewCheckboxes();
+  
+  console.log('Note system and apply button functionality initialized');
+});
+
+// Rest of your existing JavaScript code...
+document.addEventListener('DOMContentLoaded', function () {
+  const checkboxes = document.querySelectorAll('.job-checkbox');
+  const saveBtn = document.getElementById('save-btn');
+  const deleteBtn = document.getElementById('delete-btn');
+  const emailBtn = document.getElementById('email-btn');
+  const actionsDivs = document.querySelectorAll('.hidden-buttons');
+  const columnsBtn = document.querySelector('.columns-dropdown-btn');
+  const menuBtn = document.querySelector('.menu-dropdown-btn');
+  const columnsPanel = document.querySelector('.columns-panel');
+  const menuPanel = document.querySelector('.menu-panel');
+
+  function toggleDropdown(panel, btn) {
+      const isOpen = !panel.classList.contains('hidden');
+      closeAllDropdowns();
+      if (!isOpen) panel.classList.remove('hidden');
+  }
+
+  function closeAllDropdowns() {
+      columnsPanel.classList.add('hidden');
+      menuPanel.classList.add('hidden');
+  }
+
+  columnsBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleDropdown(columnsPanel, columnsBtn);
+  });
+
+  menuBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleDropdown(menuPanel, menuBtn);
+  });
+
+  document.addEventListener('click', e => {
+      // Only close if click is outside both dropdowns and buttons
+      if (
+        !columnsPanel.contains(e.target) &&
+        !columnsBtn.contains(e.target) &&
+        !menuPanel.contains(e.target) &&
+        !menuBtn.contains(e.target)
+      ) {
+          closeAllDropdowns();
+      }
+  });
+
+  // Link email button to email modal
+  if (emailBtn) {
+    emailBtn.addEventListener('click', () => openEmailModal(1));
+  }
 
     // Initial check in case some boxes are pre-checked
     toggleActionsVisibility();
@@ -3229,108 +3382,193 @@ window.addEventListener('resize', function() {
         });
     }
 
-    // Delete button handler with alert confirmation
-    const deleteBtn = document.getElementById('delete-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', async function () {
-            // 1️⃣ Collect selected bookmark IDs
-            const selectedIds = Array.from(document.querySelectorAll(".job-check.job-checkbox:checked, .job-checkbox:checked"))
-                                     .map(cb => cb.dataset.bookmarkId || cb.dataset.jobId)
-                                     .filter(id => id); // Filter out undefined values
-            
-            if (selectedIds.length === 0) {
-                showWarningAlert('No Selection', 'Please select at least one job to delete.');
-                return;
-            }
-            
-            // Show confirmation alert
-            showConfirmAlert(
-                'Confirm Deletion',
-                `Are you sure you want to delete ${selectedIds.length} selected job(s)? This action cannot be undone.`,
-                'Delete',
-                'Cancel',
-                async function(confirmed) {
-                    if (!confirmed) return;
-                    
-                    try {
-                        // 2️⃣ Send delete request using fetch API
-                        const response = await fetch('{{ path("app_provider_bookmarks_delete") }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: new URLSearchParams({
-                                '_token': '{{ csrf_token("delete_bookmarks") }}',
-                                'bookmark_ids': JSON.stringify(selectedIds)
-                            })
-                        });
+  // Re-initialize apply button when switching to split view
+  const gridViewBtn = document.getElementById('grid-view-btn');
+  if (gridViewBtn) {
+      const originalClickHandler = gridViewBtn.onclick;
+      gridViewBtn.addEventListener('click', function() {
+          setTimeout(() => {
+              setupApplyButton();
+              updateButtonStates();
+          }, 100);
+      });
+  }
+});
 
-                        const result = await response.json();
+// Email templates: modal logic and population
+function openEmailModal(templateId) {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modal = document.getElementById(`email-template-${templateId}-modal`);
+  if (!overlay || !modal) return;
 
-                        if (result.success || response.ok) {
-                            showSuccessAlert('Success!', `Successfully deleted ${selectedIds.length} job(s)!`);
+  // Build dynamic context from selected job (best effort)
+  const titleEl = document.querySelector('#job-detail-content .job-detail-title');
+  const companyEl = document.querySelector('#job-detail-content .job-detail-company');
+  const jobTitle = (titleEl && titleEl.textContent.trim()) || 'the role';
+  const company = (companyEl && companyEl.textContent.trim()) || 'your company';
 
-                            // 3️⃣ Remove deleted rows from DOM
-                            selectedIds.forEach(id => {
-                                // Try to find by bookmark-id first, then by job-id
-                                let checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
-                                if (!checkbox) {
-                                    checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
-                                }
-                                if (!checkbox) {
-                                    checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
-                                }
-                                if (!checkbox) {
-                                    checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
-                                }
-                                
-                                if (checkbox) {
-                                    // Remove the entire job-lists container (parent of job-row)
-                                    const jobList = checkbox.closest(".job-lists");
-                                    if (jobList) {
-                                        jobList.remove();
-                                    } else {
-                                        // Fallback: remove just the job-row or split-job-card
-                                        const row = checkbox.closest(".job-row");
-                                        if (row) row.remove();
-                                        const card = checkbox.closest(".split-job-card");
-                                        if (card) card.remove();
-                                    }
-                                }
-                            });
-                            
-                            // Update UI after removal
-                            const remainingRows = document.querySelectorAll('.job-lists');
-                            if (remainingRows.length === 0) {
-                                const container = document.querySelector('.job-list-container');
-                                if (container) {
-                                    container.innerHTML = '<p class="mb-0">Saved jobs not found.</p>';
-                                }
-                            }
-                            
-                            // Uncheck all checkboxes and update button states
-                            document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                            if (typeof toggleActionsVisibility === 'function') {
-                                toggleActionsVisibility();
-                            }
-                            if (typeof updateButtonStates === 'function') {
-                                updateButtonStates();
-                            }
-                        } else {
-                            showErrorAlert('Error!', result.message || 'Failed to delete jobs');
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        showErrorAlert('Error!', 'Network error. Please try again.');
-                    }
-                }
-            );
-        });
-    }
+  const subjectEl = document.getElementById(`email-t${templateId}-subject`);
+  const messageEl = document.getElementById(`email-t${templateId}-message`);
+  if (!subjectEl || !messageEl) return;
+
+  if (templateId === 1) {
+    subjectEl.value = `Introduction and interest in ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI hope you're doing well. I came across ${jobTitle} at ${company} and it looks like a strong match for my background. I'd welcome the chance to connect and share how I can help.\n\nI've attached my resume for your review. Below is a short paragraph you can paste for introductions if helpful.\n\n[INSERT BRIEF PARAGRAPH IN THE 3RD PERSON HERE.]\n\nThanks in advance for your help — I'd love to catch up soon.\n\nBest,\n[YOUR NAME]`;
+  } else {
+    subjectEl.value = `Following up on ${jobTitle}`;
+    messageEl.value = `Hi there,\n\nI wanted to follow up on ${jobTitle} at ${company}. I remain very interested and would be happy to provide any additional details.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`;
+  }
+
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+  
+  // Reset modal position to center
+  modal.style.top = '50%';
+  modal.style.left = '50%';
+  modal.style.right = 'auto';
+  modal.style.bottom = 'auto';
+  modal.style.transform = 'translate(-50%, -50%)';
+  
+  // Ensure modal is visible in viewport - scroll into view smoothly
+  setTimeout(() => {
+    modal.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    
+    // After scrolling, check if modal needs position adjustment
+    setTimeout(() => {
+      const rect = modal.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const padding = 20;
+      
+      // Adjust vertical position if needed
+      if (rect.top < padding) {
+        modal.style.top = padding + 'px';
+        modal.style.transform = 'translate(-50%, 0)';
+      } else if (rect.bottom > viewportHeight - padding) {
+        modal.style.top = 'auto';
+        modal.style.bottom = padding + 'px';
+        modal.style.transform = 'translate(-50%, 0)';
+      }
+      
+      // Adjust horizontal position if needed
+      if (rect.left < padding) {
+        modal.style.left = padding + 'px';
+        modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
+      } else if (rect.right > viewportWidth - padding) {
+        modal.style.right = padding + 'px';
+        modal.style.left = 'auto';
+        modal.style.transform = modal.style.transform.replace('translate(-50%', 'translate(0');
+      }
+    }, 300); // Wait for scroll animation to complete
+  }, 10);
+}
+
+function closeAllEmailModals() {
+  const overlay = document.getElementById('email-modal-overlay');
+  const modals = document.querySelectorAll('.email-modal');
+  modals.forEach(m => { m.style.display = 'none'; m.setAttribute('aria-hidden', 'true'); });
+  if (overlay) overlay.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('email-modal-overlay');
+  if (overlay) overlay.addEventListener('click', closeAllEmailModals);
+
+  document.querySelectorAll('.email-modal [data-close]').forEach(btn => {
+    btn.addEventListener('click', closeAllEmailModals);
   });
-</script>
-<script>
+
+  // Copy handlers
+  document.querySelectorAll('[data-copy-subject]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-subject');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Subject copied', 'success')).catch(()=>{});
+    });
+  });
+  document.querySelectorAll('[data-copy-message]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sel = btn.getAttribute('data-copy-message');
+      const input = document.querySelector(sel);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value || '').then(() => showToast && showToast('Message copied', 'success')).catch(()=>{});
+    });
+  });
+
+  // Open in Gmail
+  document.querySelectorAll('[data-open-gmail]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subSel = btn.getAttribute('data-sub');
+      const bodySel = btn.getAttribute('data-body');
+      const subEl = document.querySelector(subSel);
+      const bodyEl = document.querySelector(bodySel);
+      const su = encodeURIComponent(subEl ? subEl.value : '');
+      const body = encodeURIComponent(bodyEl ? bodyEl.value : '');
+      const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
+      window.open(url, '_blank');
+    });
+  });
+});
+
+// Alert helper functions
+function showWarningAlert(title, message) {
+    showToast(message, 'warning');
+}
+
+function showErrorAlert(title, message) {
+    showToast(message, 'error');
+}
+
+function showSuccessAlert(title, message) {
+    showToast(message, 'success');
+}
+
+function showConfirmAlert(title, message, confirmText, cancelText, callback) {
+    if (confirm(message)) {
+        callback(true);
+    } else {
+        callback(false);
+    }
+}
+
+// Toast notification function (if not defined elsewhere)
+function showToast(message, type = 'info') {
+    // Create toast element if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
+    toast.show();
+    
+    // Remove toast from DOM after it's hidden
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+  
+ 
+  
   // Split View Functionality
   document.addEventListener('DOMContentLoaded', function () {
   const gridViewBtn = document.getElementById('grid-view-btn');
@@ -4711,7 +4949,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 </script>
 
-
 <!-- Notify Hire JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -5535,6 +5772,215 @@ document.addEventListener('DOMContentLoaded', function() {
     <input type="hidden" name="bookmark_ids" id="bookmark-ids-input">
 </form>
 
+  
+  <!-- Quick Tour and Todo functionality -->
+  <script>
+  // Quick Tour Functionality
+  function startSavedJobsTour() {
+      // Wait a bit to ensure all elements are rendered
+      setTimeout(() => {
+          introJs().setOptions({
+              steps: [
+                  {
+                      intro: "<h3>Welcome to Saved Jobs!</h3><p>Let's take a quick tour to help you navigate this page effectively.</p>"
+                  },
+                  {
+                      element: document.querySelector('.application'),
+                      intro: "<h4>Application Status Cards</h4><p>These cards show the count of jobs in different stages: All, Saved, Applied, Interview, Negotiating, Accepted, and Completed. Click any card to filter jobs by that status.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('#filter-btn'),
+                      intro: "<h4>Filter Button</h4><p>Click here to open the filter panel. You can filter jobs by location, salary range, category, and date posted to find exactly what you're looking for.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('#email-btn') || document.querySelector('.job-actions-left'),
+                      intro: "<h4>Action Buttons</h4><p>These buttons allow you to perform actions on selected jobs: <strong>Notify of hire</strong> to mark jobs as hired, <strong>Email</strong> to send job details via email, and <strong>Apply</strong> to submit applications to selected jobs.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('#archive-btn'),
+                      intro: "<h4>Archive & Delete</h4><p>Use <strong>Archive</strong> to move jobs to your archived list, or <strong>Delete</strong> to permanently remove jobs from your saved list.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('#grid-view-btn'),
+                      intro: "<h4>View Options</h4><p><strong>Split View</strong> opens a side-by-side view, <strong>New Window</strong> opens the job in a popup window, and <strong>Note</strong> lets you add personal notes to jobs.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('.menu-dropdown'),
+                      intro: "<h4>Menu Dropdown</h4><p>Access additional options like Quick Tour, Archived Jobs, Export Report, and Download Data from this menu.</p>",
+                      position: 'left'
+                  },
+                  {
+                      element: document.querySelector('.job-header'),
+                      intro: "<h4>Job Listings Table</h4><p>This table displays all your saved jobs with columns for Job title, Location, Posted date, Expiry date, Salary, Category, and Score. Click column headers to sort.</p>",
+                      position: 'bottom'
+                  },
+                  {
+                      element: document.querySelector('.job-checkbox'),
+                      intro: "<h4>Job Selection</h4><p>Use the checkboxes to select individual jobs for bulk actions. You can select multiple jobs and apply filters or actions to all of them at once.</p>",
+                      position: 'right'
+                  },
+                  {
+                      intro: "<h3>You're All Set!</h3><p>You now know how to navigate the Saved Jobs page. Start exploring and managing your job applications efficiently!</p>"
+                  }
+              ],
+              showProgress: false,
+              showBullets: false,
+              exitOnOverlayClick: true,
+              exitOnEsc: true,
+              nextLabel: 'Next',
+              prevLabel: '',
+              skipLabel: 'End Tour',
+              doneLabel: 'Got it!'
+          }).start();
+      }, 300);
+  }
+  
+  // Initialize todo popup functionality - runs immediately and on DOM ready
+  (function() {
+      // Create popup element if it doesn't exist
+      function createTodoPopup() {
+          if (!window.todoPopup) {
+              window.todoPopup = document.getElementById('todo-popup');
+          }
+          if (!window.todoPopup) {
+              window.todoPopup = document.createElement('div');
+              window.todoPopup.id = 'todo-popup';
+              window.todoPopup.className = 'todo-popup';
+              window.todoPopup.innerHTML = `
+                  <div class="todo-popup-header">
+                      <div class="todo-popup-title">To Do Action</div>
+                      <button class="todo-popup-close" type="button">&times;</button>
+                  </div>
+                  <div class="todo-popup-content"></div>
+              `;
+              if (document.body) {
+                  document.body.appendChild(window.todoPopup);
+              } else {
+                  document.addEventListener('DOMContentLoaded', function() {
+                      document.body.appendChild(window.todoPopup);
+                  });
+              }
+              
+              // Close button handler
+              const closeBtn = window.todoPopup.querySelector('.todo-popup-close');
+              if (closeBtn) {
+                  closeBtn.addEventListener('click', function(e) {
+                      e.stopPropagation();
+                      window.todoPopup.classList.remove('show');
+                  });
+              }
+          }
+      }
+      
+      // Initialize popup click handler using event delegation
+      function initTodoPopupHandler() {
+          if (window.todoPopupHandlerInitialized) {
+              return;
+          }
+          
+          // Use event delegation on document to catch all clicks
+          document.addEventListener('click', function(e) {
+              // Check if click is on todo icon or its children
+              const todoIcon = e.target.closest('.todo-icon');
+              if (todoIcon) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  
+                  // Ensure popup exists
+                  if (!window.todoPopup) {
+                      createTodoPopup();
+                  }
+                  
+                  const action = todoIcon.dataset.todoAction;
+                  if (action && window.todoPopup) {
+                      const content = window.todoPopup.querySelector('.todo-popup-content');
+                      if (content) {
+                          content.textContent = action;
+                          
+                          // Position popup near the icon
+                          const rect = todoIcon.getBoundingClientRect();
+                          const popupWidth = 250;
+                          const popupHeight = 100;
+                          let left = rect.left + (rect.width / 2) - (popupWidth / 2);
+                          let top = rect.top - popupHeight - 10;
+                          
+                          // Adjust if popup goes off screen
+                          if (left < 10) left = 10;
+                          if (left + popupWidth > window.innerWidth - 10) {
+                              left = window.innerWidth - popupWidth - 10;
+                          }
+                          if (top < 10) {
+                              top = rect.bottom + 10;
+                          }
+                          
+                          window.todoPopup.style.left = left + 'px';
+                          window.todoPopup.style.top = top + 'px';
+                          window.todoPopup.classList.add('show');
+                      }
+                  }
+                  return;
+              }
+              
+              // Close popup if clicking outside
+              if (window.todoPopup && window.todoPopup.classList.contains('show') && 
+                  !window.todoPopup.contains(e.target) && 
+                  !e.target.closest('.todo-icon')) {
+                  window.todoPopup.classList.remove('show');
+              }
+          });
+          
+          window.todoPopupHandlerInitialized = true;
+      }
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+              createTodoPopup();
+              initTodoPopupHandler();
+          });
+      } else {
+          createTodoPopup();
+          initTodoPopupHandler();
+      }
+  })();
+  
+  // Initialize tour when Quick Tour button is clicked
+  document.addEventListener('DOMContentLoaded', function() {
+      const quickTourBtn = document.getElementById('start-page-tour');
+      if (quickTourBtn) {
+          quickTourBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              startSavedJobsTour();
+          });
+      }
+      
+      // Also add click handler to Quick Tour in menu dropdown
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+          if (item.textContent.trim().includes('Quick Tour')) {
+              item.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  startSavedJobsTour();
+                  // Close the dropdown if it's open
+                  const dropdown = item.closest('.menu-dropdown');
+                  if (dropdown) {
+                      const dropdownPanel = dropdown.querySelector('.dropdown-panel');
+                      if (dropdownPanel) {
+                          dropdownPanel.classList.add('hidden');
+                      }
+                  }
+              });
+          }
+      });
+  });
+  </script>
+  
 {% endblock %}
 
 

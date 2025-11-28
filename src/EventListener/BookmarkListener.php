@@ -22,10 +22,11 @@ final class BookmarkListener
         $bookmark = $event->getBookmark();
 
         // Notify the provider to apply saved job
+        $jobTitle = $bookmark->getJob()->getTitle() ?: 'Job';
         $this->notificationService->sendNotification(
             $bookmark->getUser(),
             Notification::BOOKMARK_CREATED,
-            'Apply to your saved job '.$bookmark->getJob(),
+            'Apply to your saved job '.$jobTitle,
             false,
             [
                 'bookmark' => $bookmark->getId(),

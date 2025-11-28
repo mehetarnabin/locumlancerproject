@@ -18,27 +18,63 @@ class ToDoRepository extends ServiceEntityRepository
         parent::__construct($registry, ToDo::class);
     }
 
+    /**
+     * Find all pending to-do items for a provider related to document requests
+     */
     public function findPendingByProvider(Provider $provider): array
     {
         return $this->createQueryBuilder('t')
-            ->andWhere('t.provider = :provider')
-            ->andWhere('t.isCompleted = :isCompleted')
+            ->leftJoin('t.documentRequest', 'dr')
+            ->leftJoin('dr.application', 'a')
+            ->leftJoin('a.job', 'j')
+            ->leftJoin('a.employer', 'e')
+            ->addSelect('dr', 'a', 'j', 'e')
+            ->where('t.provider = :provider')
+            ->andWhere('t.isCompleted = :completed')
+            ->andWhere('t.type = :type')
             ->setParameter('provider', $provider)
-            ->setParameter('isCompleted', false)
+            ->setParameter('completed', false)
+            ->setParameter('type', 'document_request')
             ->orderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
-    public function countPendingByProvider(Provider $provider): int
+    public function findPendingDocumentRequestsByJob(Provider $provider, $jobId): array
     {
         return $this->createQueryBuilder('t')
-            ->select('COUNT(t.id)')
-            ->andWhere('t.provider = :provider')
-            ->andWhere('t.isCompleted = :isCompleted')
+            ->leftJoin('t.documentRequest', 'dr')
+            ->leftJoin('dr.application', 'a')
+            ->leftJoin('a.job', 'j')
+            ->where('t.provider = :provider')
+            ->andWhere('t.isCompleted = :completed')
+            ->andWhere('t.type = :type')
+            ->andWhere('j.id = :jobId')
             ->setParameter('provider', $provider)
-            ->setParameter('isCompleted', false)
+            ->setParameter('completed', false)
+            ->setParameter('type', 'document_request')
+            ->setParameter('jobId', $jobId)
+            ->orderBy('t.createdAt', 'DESC')
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getResult();
+    }
+
+    public function save(ToDo $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ToDo $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }
+

@@ -271,7 +271,7 @@
                                                     </g>
                                                 </g>
                                             </svg>
-                                            <span class="save-msg">Sign in to save this job</span>
+                                            <span class="save-msg">{{ app.user ? 'Save this job' : 'Sign in to save this job' }}</span>
                                             </dv>
                                     </button>
                                     <div>
@@ -355,7 +355,7 @@
                                                             </g>
                                                         </g>
                                                     </svg>
-                                                    <span class="save-msg">Sign in to save this job</span>
+                                                    <span class="save-msg">{{ app.user ? 'Save this job' : 'Sign in to save this job' }}</span>
                                                 </div>
                                             </button>
                                             <div class="share-btn">
@@ -527,7 +527,8 @@
     </style>
     {% if jobDetail is defined and jobDetail is not null %}
     <script>
-        document.getElementById("apply-button").addEventListener("click", function () {
+        const applyBtnTop = document.getElementById("apply-button");
+        if (applyBtnTop) applyBtnTop.addEventListener("click", function () {
             const jobId = '{{ jobDetail.id }}';
             const userId = '{{ app.user ? app.user.id : 0 }}';
             if(userId == 0){
@@ -538,7 +539,8 @@
                 window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
             }, 1000);
         });
-        document.getElementById("apply-button-below").addEventListener("click", function () {
+        const applyBtnBottom = document.getElementById("apply-button-below");
+        if (applyBtnBottom) applyBtnBottom.addEventListener("click", function () {
             const jobId = '{{ jobDetail.id }}';
             const userId = '{{ app.user ? app.user.id : 0 }}';
             if(userId == 0){
@@ -598,12 +600,20 @@
                     },
                     body: JSON.stringify({jobId: jobId}),
                 })
-                .then((response) => response.json())
-                .then((data) => {
-                    showToast(data.status, data.message);
+                .then(async (response) => {
+                    const ct = response.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) {
+                        const data = await response.json();
+                        showToast(data.status || (response.ok ? 'success' : 'error'), data.message || (response.ok ? 'Job saved successfully' : 'Unexpected response'));
+                    } else {
+                        const text = await response.text();
+                        console.warn('Non-JSON response for save:', text);
+                        showToast(response.ok ? 'success' : 'error', response.ok ? 'Job saved successfully' : 'Unexpected response from server');
+                    }
                 })
                 .catch((error) => {
-                    showToast('error', error);
+                    console.error('Save job error:', error);
+                    showToast('error', 'Network error while saving job');
                 });
             }
         });

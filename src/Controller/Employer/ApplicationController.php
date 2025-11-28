@@ -59,18 +59,38 @@ class ApplicationController extends AbstractController
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
-        $documentRequest = new DocumentRequest();
+        $documentName = $request->get('document_name');
+        
+        if (empty($documentName)) {
+            $this->addFlash('error', 'Document name is required.');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+        }
 
-        $documentRequest->setName($request->get('document_name'));
+        $documentRequest = new DocumentRequest();
+        $documentRequest->setName($documentName);
         $documentRequest->setProvider($application->getProvider());
         $documentRequest->setApplication($application);
 
         $em->persist($documentRequest);
         $em->flush();
 
+        // Create ToDo for provider - ENHANCED VERSION
+        $todo = new \App\Entity\ToDo();
+        $todo->setProvider($application->getProvider());
+        $todo->setEmployer($currentEmployer->getCompanyName()); // Store employer name as string
+        $todo->setDocumentRequest($documentRequest);
+        $todo->setTitle('📄 Document Required: ' . $documentName);
+        $todo->setDescription($documentName); // This will show as the specific document name in notification
+        $todo->setType('document_request');
+        $todo->setCreatedAt(new \DateTimeImmutable());
+        $todo->setIsCompleted(false);
+        
+        $em->persist($todo);
+        $em->flush();
+
         $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_DOCUMENT_REQUESTED);
 
-        $this->addFlash('success', 'Document requested from provider successfully.');
+        $this->addFlash('success', 'Document "' . $documentName . '" requested from provider successfully.');
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
     }
 

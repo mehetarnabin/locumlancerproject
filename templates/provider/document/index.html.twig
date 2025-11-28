@@ -1293,7 +1293,7 @@ div.container-xl,
 </style>
 
     <div class="container-xl">
-    <h1 class="app-page-title">Documents</h1>
+    
 
    {# Document Requests Table - Only Pending Requests #}
 <div class="card app-card-settings">
@@ -1315,28 +1315,30 @@ div.container-xl,
             <table class="table document-table align-middle">
                 <thead>
                     <tr>
-                        <th>S. No</th>
+                        <th>Requested At</th>
                         <th>Document Name</th>
                         <th>Job</th>
                         <th>Requested By</th>
                         <th>Requested At</th>
                         <th>Status</th>
-                        <th>Assign Document</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% set pendingDocumentRequests = documentRequests|filter(request => request.providedAt is null) %}
-                    {% if pendingDocumentRequests|length > 0 %}
+                    {% set rowIndex = 0 %}
+                    {% set hasRows = (pendingDocumentRequests|length > 0) or (credentialingLinks|length > 0) %}
+                    {% if hasRows %}
                         {% for documentRequest in pendingDocumentRequests %}
-                            {% set document = documentRequest.document %}
+                            {% set rowIndex = rowIndex + 1 %}
                             <tr>
-                                <td>{{ loop.index }}</td>
+                                <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
                                 <td><strong>{{ documentRequest.name }}</strong></td>
                                 <td>
                                     {% if documentRequest.application and documentRequest.application.job %}
                                         {{ documentRequest.application.job.title }}
                                     {% else %}
-                                        <span class="text-muted">N/A</span>
+                                        <span class="text-muted">-</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -1354,25 +1356,55 @@ div.container-xl,
                                             </small>
                                         </div>
                                     {% else %}
-                                        <span class="text-muted">N/A</span>
+                                        <span class="text-muted">-</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
-                                <td>
-                                    <span class="text-warning">Pending</span>
-                                </td>
+                                <td><span class="text-warning">Pending</span></td>
                                 <td>
                                     <select class="form-control form-select document-select" 
                                             data-request-id="{{ documentRequest.id }}"
                                             style="min-width: 200px;">
                                         <option value="">Select Document</option>
                                         {% for documentObj in documents %}
-                                            <option {% if documentObj == documentRequest.document %}selected{% endif %} 
-                                                    value="{{ documentObj.id }}">
+                                            <option {% if documentObj == documentRequest.document %}selected{% endif %} value="{{ documentObj.id }}">
                                                 {{ documentObj.category ?: documentObj.name }}
                                             </option>
                                         {% endfor %}
                                     </select>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        {% for link in credentialingLinks %}
+                            {% set rowIndex = rowIndex + 1 %}
+                            <tr>
+                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
+                                <td>
+                                    <div>
+                                        <strong>{{ link.title }}</strong>
+                                        {% if link.description %}
+                                            <small class="text-muted d-block">{{ link.description }}</small>
+                                        {% endif %}
+                                        <small class="text-muted d-block">{{ link.url|replace({'https://': '', 'http://': ''})|slice(0, 60) }}{{ link.url|length > 60 ? '...' : '' }}</small>
+                                    </div>
+                                </td>
+                                <td><span class="text-muted">-</span></td>
+                                <td>
+                                    <div>
+                                        <strong>External Source</strong><br/>
+                                        <small class="text-muted">{{ link.sender ?: 'System' }}</small>
+                                    </div>
+                                </td>
+                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
+                                <td><span class="text-warning">Pending</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn" title="Open Link">
+                                            Open Link
+                                        </a>
+                                        <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL">Copy</button>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -1382,14 +1414,6 @@ div.container-xl,
                                 <div class="empty-state-icon">📋</div>
                                 <p class="mb-0">No pending document requests found.</p>
                                 <p class="text-muted small mt-2">All document requests have been provided.</p>
-                                <div class="mt-3">
-                                    <p class="small text-info">
-                                        <strong>How to get document requests:</strong><br>
-                                        1. Apply to jobs<br>
-                                        2. Employers may request additional documents<br>
-                                        3. Check back after submitting applications
-                                    </p>
-                                </div>
                             </td>
                         </tr>
                     {% endif %}
@@ -1576,7 +1600,7 @@ div.container-xl,
                 <table class="table document-table align-middle">
                     <thead>
                         <tr>
-                            <th>S. No</th>
+                            <th>Uploaded At</th>
                             <th>Document Name</th>
                             <th>Issue Date</th>
                             <th>Expiration Date</th>
@@ -1586,7 +1610,7 @@ div.container-xl,
                     <tbody>
                         {% for document in documents %}
                             <tr>
-                                <td>{{ loop.index }}</td>
+                                <td>{{ document.createdAt|date('m/d/Y') }}</td>
                                 <td>
                                     <strong>{{ document.category ?: document.name }}</strong>
                                 </td>
@@ -1694,27 +1718,10 @@ div.container-xl,
         </div>
     </div>
 
-    {# Tabs Section - Only My Documents, History, and Credentials #}
-    <div class="documents-tabs">
-        <button class="documents-tab active" data-tab="my-documents">My Documents</button>
-        <button class="documents-tab" data-tab="history">History</button>
-        <button class="documents-tab" data-tab="credentials">Credentials</button>
-    </div>
+    
 
-    {# My Documents Tab - This is just a placeholder since we already show documents above #}
-    <div class="tab-content active" id="my-documents-tab">
-        <div class="card app-card-settings">
-            <div class="card-body">
-                <div class="card-header-row">
-                    <h5 class="card-title">My Documents Overview</h5>
-                </div>
-                <p class="text-muted">Your documents are displayed in the sections above. Use the upload form to add new documents or manage existing ones in the table.</p>
-            </div>
-        </div>
-    </div>
-
-    {# History Tab #}
-    <div class="tab-content" id="history-tab">
+    {# History Section #}
+    <div class="tab-content active" id="history-tab">
         <div class="card app-card-settings">
             <div class="card-body">
                 <div class="card-header-row">

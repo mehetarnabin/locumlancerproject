@@ -1,142 +1,230 @@
 {# templates/provider/todo/index.html.twig #}
 {% extends 'provider/base.html.twig' %}
 
-{% block title %}To-Do List{% endblock %}
-
-{% block provider_body %}
+{% block stylesheets %}
 <style>
-.todo-container {
-    max-width: 800px;
-    margin: 0 auto;
+.todo-bell {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: #007bff;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+    border: none;
 }
 
-.todo-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    border-left: 4px solid #85BB65;
+.todo-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.todo-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 320px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+    z-index: 1000;
+    display: none;
+}
+
+.todo-notification.show {
+    display: block;
 }
 
 .todo-header {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.todo-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #0f172a;
-    margin: 0;
-}
-
-.todo-meta {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-.todo-description {
-    color: #374151;
-    margin-bottom: 16px;
-}
-
-.todo-actions {
-    display: flex;
-    gap: 12px;
     align-items: center;
 }
 
-.btn-complete {
-    background: #85BB65;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.875rem;
+.todo-body {
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
 }
 
-.btn-complete:hover {
-    background: #6FA050;
+.todo-item {
+    padding: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    background: #fafafa;
 }
 
-.btn-action {
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.875rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.todo-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
-.btn-action:hover {
-    background: #e5e7eb;
-    color: #121C0C;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
-}
-
-.empty-state-icon {
-    font-size: 3rem;
-    margin-bottom: 16px;
-    opacity: 0.5;
+.btn-tiny {
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 4px;
 }
 </style>
+{% endblock %}
 
-<div class="container-xl">
-    <h1 class="app-page-title">To-Do List</h1>
+{% block body %}
+<button class="todo-bell" id="todoBell">
+    <i class="fas fa-bell"></i>
+    <div class="todo-badge" id="todoBadge">0</div>
+</button>
 
-    <div class="todo-container">
-        {% if todos|length > 0 %}
-            {% for todo in todos %}
-                <div class="todo-card">
-                    <div class="todo-header">
-                        <div>
-                            <h3 class="todo-title">{{ todo.title }}</h3>
-                            <div class="todo-meta">
-                                Requested by {{ todo.employer.companyName }} • {{ todo.createdAt|date('M d, Y') }}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="todo-description">
-                        {{ todo.description }}
-                    </div>
-                    
-                    <div class="todo-actions">
-                        <form method="post" action="{{ path('app_provider_todo_complete', {'id': todo.id}) }}" style="display: inline;">
-                            <button type="submit" class="btn-complete" onclick="return confirm('Mark this task as completed?')">
-                                Mark Complete
-                            </button>
-                        </form>
-                        
-                        <a href="{{ path('app_provider_todo_redirect', {'id': todo.id}) }}" class="btn-action">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Take Action
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">✅</div>
-                <h3>All caught up!</h3>
-                <p>You don't have any pending tasks at the moment.</p>
-            </div>
-        {% endif %}
+<div class="todo-notification" id="todoNotification">
+    <div class="todo-header">
+        <strong>📄 Document Requests</strong>
+        <button class="btn btn-sm btn-outline-secondary" onclick="hideNotification()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="todo-body" id="todoList">
+        <div class="text-center text-muted">Loading document requests...</div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+let isNotificationVisible = false;
+
+// Toggle notification
+document.getElementById('todoBell').addEventListener('click', function() {
+    if (!isNotificationVisible) {
+        loadTodos();
+        document.getElementById('todoNotification').classList.add('show');
+        isNotificationVisible = true;
+    } else {
+        hideNotification();
+    }
+});
+
+function hideNotification() {
+    document.getElementById('todoNotification').classList.remove('show');
+    isNotificationVisible = false;
+}
+
+// Close when clicking outside
+document.addEventListener('click', function(event) {
+    const notification = document.getElementById('todoNotification');
+    const bell = document.getElementById('todoBell');
+    
+    if (!notification.contains(event.target) && !bell.contains(event.target) && isNotificationVisible) {
+        hideNotification();
+    }
+});
+
+function loadTodos() {
+    fetch('{{ path('app_provider_todo_pending') }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateTodoList(data.data);
+                updateBadge(data.count);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading todos:', error);
+        });
+}
+
+function updateTodoList(todos) {
+    const todoList = document.getElementById('todoList');
+    
+    if (todos.length === 0) {
+        todoList.innerHTML = '<div class="text-center text-muted p-3">No pending document requests 🎉</div>';
+        return;
+    }
+
+    todoList.innerHTML = todos.map(todo => `
+        <div class="todo-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div style="flex: 1;">
+                    <strong style="font-size: 14px;">${todo.title}</strong>
+                    <div class="text-primary mt-1" style="font-size: 13px;">
+                        <i class="fas fa-file-alt"></i> ${todo.description}
+                    </div>
+                </div>
+                <button class="btn btn-success btn-tiny complete-btn" data-id="${todo.id}" title="Mark as complete">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+            <div class="text-muted small mb-2">
+                <div>📁 ${todo.jobTitle}</div>
+                <div>🏢 ${todo.employer}</div>
+                <div>⏰ ${todo.createdAt}</div>
+            </div>
+            <a href="${todo.actionUrl}" class="btn btn-primary btn-tiny w-100">
+                <i class="fas fa-upload"></i> ${todo.actionText}
+            </a>
+        </div>
+    `).join('');
+
+    // Add event listeners for complete buttons
+    document.querySelectorAll('.complete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const todoId = this.getAttribute('data-id');
+            completeTodo(todoId);
+        });
+    });
+}
+
+function completeTodo(todoId) {
+    fetch(`/provider/todo/${todoId}/complete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadTodos(); // Reload the list
+        }
+    });
+}
+
+function updateBadge(count) {
+    const badge = document.getElementById('todoBadge');
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// Auto-load todos every 30 seconds
+setInterval(loadTodos, 30000);
+
+// Load initially when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadTodos();
+});
+</script>
 {% endblock %}
