@@ -3052,8 +3052,8 @@ window.addEventListener('resize', function() {
             if (selectedIds.length === 1) {
                 // Single job: redirect to apply page
                 const jobId = selectedIds[0];
-                // window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
-                window.location.href = '/provider/jobs/' + jobId + '/apply?redirect_route=app_provider_jobs_saved';
+                // Corrected URL to match route: /provider/jobs/apply/{id}
+                window.location.href = '/provider/jobs/apply/' + jobId + '?redirect_route=app_provider_jobs_saved';
             } else {
                 // Multiple jobs: use batch apply
                 // Hide all action buttons when confirm is shown
@@ -3509,18 +3509,28 @@ window.addEventListener('resize', function() {
     const url = `/provider/jobs/${jobId}/detail-content`;
     
     fetch(url)
-        .then(response => response.text().then(text => {
-            console.log('Raw response:', text);
-            
+        .then(response => {
             if (!response.ok) {
-                // Show the actual server error message
-                throw new Error(`Server returned: ${text}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return text;
-        }))
+            return response.text();
+        })
         .then(html => {
+            console.log('Received HTML, length:', html.length);
+            console.log('First 100 chars:', html.substring(0, 100));
+            
+            // Clear existing content first
+            jobDetailContent.innerHTML = '';
+            
+            // Force re-flow
+            jobDetailContent.offsetHeight;
+            
+            // Set new HTML content
             jobDetailContent.innerHTML = html;
             jobDetailContent.style.display = 'block';
+            
+            console.log('HTML set successfully, element:', jobDetailContent);
+            
             if (noJobSelected) noJobSelected.style.display = 'none';
             if (detailNoteBtn) { detailNoteBtn.style.display = 'flex'; }
             // Update toggle button position after content loads
@@ -4867,6 +4877,8 @@ function processNotifyHire(jobIds) {
             removeSuccessfulJobsFromUI(data.results.successful);
             // Uncheck all checkboxes
             uncheckAllCheckboxes();
+            // Update counters after all UI changes are complete
+            updateJobCounters();
         } else {
             showToast('Error: ' + (data.message || 'Unknown error'), 'error');
         }
@@ -4998,8 +5010,7 @@ function removeSuccessfulJobsFromUI(successfulJobs) {
         }
     });
     
-    // Update counters
-    updateJobCounters();
+    // Don't update counters here - will be done after unchecking checkboxes
 }
 
 function uncheckAllCheckboxes() {
@@ -5010,7 +5021,18 @@ function uncheckAllCheckboxes() {
 
 function updateJobCounters() {
     // Update the saved jobs count in the status cards
-    const remainingBookmarks = document.querySelectorAll('.job-checkbox').length;
+    // Count unique jobs by their job-id (not all checkboxes, since there are 2 per job - list & split view)
+    const allCheckboxes = document.querySelectorAll('.job-checkbox[data-job-id]');
+    const uniqueJobIds = new Set();
+    
+    allCheckboxes.forEach(checkbox => {
+        const jobId = checkbox.getAttribute('data-job-id');
+        if (jobId) {
+            uniqueJobIds.add(jobId);
+        }
+    });
+    
+    const remainingBookmarks = uniqueJobIds.size;
     const savedCountElement = document.querySelector('.is-card.is-saved .card-text');
     if (savedCountElement) {
         savedCountElement.textContent = remainingBookmarks;

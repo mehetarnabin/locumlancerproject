@@ -698,11 +698,14 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content')]
-    public function jobDetailContent($id, EntityManagerInterface $em): Response
+    public function jobDetailContent($id, EntityManagerInterface $em, Request $request): Response
     {
         try {
             // Validate UUID
             if (!Uuid::isValid($id)) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Invalid job ID format'], 400);
+                }
                 return new Response(
                     '<div class="alert alert-danger">Invalid job ID format</div>',
                     400
@@ -713,6 +716,9 @@ class JobController extends AbstractController
             $job = $em->getRepository(Job::class)->find($id);
             
             if (!$job) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Job not found'], 404);
+                }
                 return new Response(
                     '<div class="alert alert-danger">Job not found</div>',
                     404
@@ -722,22 +728,36 @@ class JobController extends AbstractController
             // Get applied jobs IDs
             $appliedJobsIds = $this->getAppliedJobsIds($em);
 
-            return $this->render('provider/job/_job_detail_content.html.twig', [
+            // Render the HTML content
+            $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
                 'job' => $job,
                 'appliedJobsIds' => $appliedJobsIds
             ]);
+
+            // For AJAX requests, return JSON with HTML
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true,
+                    'html' => $htmlContent
+                ]);
+            }
+
+            // For direct requests, return the HTML directly
+            return new Response($htmlContent);
             
         } catch (\Exception $e) {
             // Log the error for debugging
             error_log('Job detail content error: ' . $e->getMessage());
             
-            return new Response(
-                '<div class="alert alert-danger">Error loading job details. Please try again.</div>',
-                500
-            );
+            $errorMessage = '<div class="alert alert-danger">Error loading job details. Please try again.</div>';
+            
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['error' => $errorMessage], 500);
+            }
+            
+            return new Response($errorMessage, 500);
         }
     }
-
     private function getAppliedJobsIds(EntityManagerInterface $em): array
     {
         try {
