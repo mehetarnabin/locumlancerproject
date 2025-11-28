@@ -15,53 +15,66 @@ use Symfony\Component\Routing\Attribute\Route;
 class ToDoController extends AbstractController
 {
     #[Route('/', name: 'app_provider_todo')]
-    public function index(ToDoRepository $todoRepository): Response
+    public function index(): Response
+    {
+        return $this->render('provider/todo/index.html.twig');
+    }
+
+    #[Route('/pending.json', name: 'app_provider_todo_pending', methods: ['GET'])]
+    public function pendingJson(ToDoRepository $todoRepository): Response
     {
         $provider = $this->getUser()->getProvider();
         $todos = $todoRepository->findPendingByProvider($provider);
 
-        return $this->render('provider/todo/index.html.twig', [
-            'todos' => $todos,
+        $data = array_map(function (ToDo $todo) {
+            return $this->formatTodoData($todo);
+        }, $todos);
+
+        return $this->json([
+            'success' => true, 
+            'data' => $data,
+            'count' => count($data)
         ]);
     }
 
     #[Route('/{id}/complete', name: 'app_provider_todo_complete', methods: ['POST'])]
-    public function complete(ToDo $todo, EntityManagerInterface $em, Request $request): Response
+    public function complete(ToDo $todo, EntityManagerInterface $em): Response
     {
         $provider = $this->getUser()->getProvider();
 
-        // Security check - ensure the todo belongs to the current provider
         if ($todo->getProvider() !== $provider) {
-            $this->addFlash('error', 'You do not have permission to complete this task.');
-            return $this->redirectToRoute('app_provider_todo');
+            return $this->json(['success' => false, 'error' => 'Permission denied'], 403);
         }
 
         $todo->setIsCompleted(true);
         $em->flush();
 
-        $this->addFlash('success', 'Task marked as completed.');
-        return $this->redirectToRoute('app_provider_todo');
+        return $this->json(['success' => true, 'message' => 'Task completed']);
     }
 
-    #[Route('/{id}/redirect', name: 'app_provider_todo_redirect', methods: ['GET'])]
-    public function redirectToAction(ToDo $todo): Response
-    {
-        $provider = $this->getUser()->getProvider();
+    private function formatTodoData(ToDo $todo): array
+{
+    $documentRequest = $todo->getDocumentRequest();
+    $application = $documentRequest ? $documentRequest->getApplication() : null;
+    $job = $application ? $application->getJob() : null;
 
-        // Security check
-        if ($todo->getProvider() !== $provider) {
-            $this->addFlash('error', 'You do not have permission to access this task.');
-            return $this->redirectToRoute('app_provider_todo');
-        }
+    $baseData = [
+        'id' => (string)$todo->getId(),
+        'title' => $todo->getTitle(),
+        'description' => $todo->getDescription(), // This shows the specific document name
+        'type' => $todo->getType(),
+        'createdAt' => $todo->getCreatedAt()->format('M j, g:i A'),
+    ];
 
-        // Redirect based on todo type
-        switch ($todo->getType()) {
-            case 'document_request':
-                return $this->redirectToRoute('app_provider_documents');
-            // Add more cases for other todo types
-            default:
-                $this->addFlash('warning', 'No specific action defined for this task type.');
-                return $this->redirectToRoute('app_provider_todo');
-        }
+    // For document requests - show specific document information
+    if ($todo->getType() === 'document_request') {
+        $baseData['jobTitle'] = $job ? $job->getTitle() : 'Unknown Job';
+        $baseData['employer'] = $todo->getEmployerName() ?: 'Unknown Employer'; // Use the helper method
+        $baseData['actionUrl'] = $this->generateUrl('app_provider_documents');
+        $baseData['actionText'] = 'Upload Document';
+        $baseData['icon'] = '📄';
     }
+
+    return $baseData;
+}
 }

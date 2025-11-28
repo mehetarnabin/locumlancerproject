@@ -24,6 +24,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Form\DocumentType;
 use App\Entity\Document;
+use App\Entity\Education;
+use App\Entity\License;
 
 #[Route('/provider/profile')]
 class ProfileController extends AbstractController
@@ -593,4 +595,213 @@ class ProfileController extends AbstractController
             || $provider->getProfession() !== null
             || ($provider->getSpecialities() && $provider->getSpecialities()->count() > 0);
     }
+
+
+    // Add these routes to your existing ProfileController class
+
+// EDUCATION ROUTES
+#[Route('/education/new', name: 'app_provider_education_new', methods: ['GET', 'POST'])]
+public function newEducation(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $education = new Education();
+    $form = $this->createForm(EducationType::class, $education);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $education->setUser($this->getUser());
+        $em->persist($education);
+        $em->flush();
+
+        return $this->json([
+            'status' => 'success', 
+            'message' => 'Education added successfully!'
+        ]);
+    }
+
+    $formHtml = $this->renderView('provider/profile/_education_form.html.twig', [
+        'form' => $form->createView(),
+    ]);
+
+    return $this->json(['form' => $formHtml]);
+}
+
+#[Route('/education/{id}/edit', name: 'app_provider_education_edit', methods: ['GET', 'POST'])]
+public function editEducation(Request $request, Education $education, EntityManagerInterface $em): JsonResponse
+{
+    // Check if the education belongs to the current user
+    if ($education->getUser() !== $this->getUser()) {
+        return $this->json(['error' => 'Access denied'], 403);
+    }
+
+    $form = $this->createForm(EducationType::class, $education);
+    
+    if ($request->isMethod('POST')) {
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            return $this->json([
+                'status' => 'success', 
+                'message' => 'Education updated successfully!'
+            ]);
+        }
+    }
+
+    $formHtml = $this->renderView('provider/profile/_education_form.html.twig', [
+        'form' => $form->createView(),
+    ]);
+
+    return $this->json(['form' => $formHtml]);
+}
+
+#[Route('/education/{id}/delete', name: 'app_provider_education_delete', methods: ['GET'])]
+public function deleteEducation(Education $education, EntityManagerInterface $em): JsonResponse
+{
+    // Check if the education belongs to the current user
+    if ($education->getUser() !== $this->getUser()) {
+        return $this->json(['error' => 'Access denied'], 403);
+    }
+
+    $em->remove($education);
+    $em->flush();
+
+    return $this->json([
+        'status' => 'success', 
+        'message' => 'Education deleted successfully!'
+    ]);
+}
+
+#[Route('/education/list', name: 'app_provider_education_list', methods: ['GET'])]
+public function educationList(EntityManagerInterface $em): Response
+{
+    $user = $this->getUser();
+    $educations = $em->getRepository(Education::class)->findBy(
+        ['user' => $user], 
+        ['startDate' => 'DESC']
+    );
+
+    return $this->render('provider/profile/_education_list.html.twig', [
+        'educations' => $educations,
+    ]);
+}
+
+// LICENSE ROUTES
+#[Route('/license/new', name: 'app_provider_license_new', methods: ['POST'])]
+public function newLicense(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $license = new License();
+    
+    $data = $request->request->all()['license'] ?? [];
+    
+    if (empty($data)) {
+        return $this->json(['success' => false, 'message' => 'No data received'], 400);
+    }
+
+    try {
+        $license->setName($data['name'] ?? '');
+        $license->setNumber($data['number'] ?? '');
+        $license->setIssueDate(new \DateTime($data['issueDate'] ?? 'now'));
+        $license->setExpirationDate(new \DateTime($data['expirationDate'] ?? 'now'));
+        $license->setUser($this->getUser());
+        
+        $em->persist($license);
+        $em->flush();
+
+        return $this->json([
+            'success' => true, 
+            'message' => 'License added successfully!',
+            'license' => [
+                'id' => $license->getId(),
+                'name' => $license->getName(),
+                'number' => $license->getNumber(),
+                'issueDate' => $license->getIssueDate()->format('m/d/Y'),
+                'expirationDate' => $license->getExpirationDate()->format('m/d/Y'),
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return $this->json([
+            'success' => false, 
+            'message' => 'Error saving license: ' . $e->getMessage()
+        ], 400);
+    }
+}
+
+#[Route('/license/{id}/delete', name: 'app_provider_license_delete', methods: ['GET'])]
+public function deleteLicense(License $license, EntityManagerInterface $em): JsonResponse
+{
+    if ($license->getUser() !== $this->getUser()) {
+        return $this->json(['error' => 'Access denied'], 403);
+    }
+
+    $em->remove($license);
+    $em->flush();
+
+    return $this->json([
+        'success' => true, 
+        'message' => 'License deleted successfully!'
+    ]);
+}
+
+// INSURANCE ROUTES
+#[Route('/insurance/new', name: 'app_provider_insurance_new', methods: ['POST'])]
+public function newInsurance(Request $request, EntityManagerInterface $em): JsonResponse
+{
+    $insurance = new Insurance();
+    
+    $data = $request->request->all()['insurance'] ?? [];
+    
+    if (empty($data)) {
+        return $this->json(['success' => false, 'message' => 'No data received'], 400);
+    }
+
+    try {
+        $insurance->setCarrier($data['carrier'] ?? '');
+        $insurance->setPolicyNumber($data['policyNumber'] ?? '');
+        $insurance->setAmount($data['amount'] ?? null);
+        $insurance->setState($data['state'] ?? '');
+        $insurance->setCity($data['city'] ?? '');
+        $insurance->setEffectiveDate(new \DateTime($data['effectiveDate'] ?? 'now'));
+        $insurance->setExpirationDate(new \DateTime($data['expirationDate'] ?? 'now'));
+        $insurance->setUser($this->getUser());
+        
+        $em->persist($insurance);
+        $em->flush();
+
+        return $this->json([
+            'success' => true, 
+            'message' => 'Insurance added successfully!',
+            'insurance' => [
+                'id' => $insurance->getId(),
+                'carrier' => $insurance->getCarrier(),
+                'policyNumber' => $insurance->getPolicyNumber(),
+                'amount' => $insurance->getAmount(),
+                'state' => $insurance->getState(),
+                'city' => $insurance->getCity(),
+                'effectiveDate' => $insurance->getEffectiveDate()->format('m/d/Y'),
+                'expirationDate' => $insurance->getExpirationDate()->format('m/d/Y'),
+            ]
+        ]);
+    } catch (\Exception $e) {
+        return $this->json([
+            'success' => false, 
+            'message' => 'Error saving insurance: ' . $e->getMessage()
+        ], 400);
+    }
+}
+
+#[Route('/insurance/{id}/delete', name: 'app_provider_insurance_delete', methods: ['GET'])]
+public function deleteInsurance(Insurance $insurance, EntityManagerInterface $em): JsonResponse
+{
+    if ($insurance->getUser() !== $this->getUser()) {
+        return $this->json(['error' => 'Access denied'], 403);
+    }
+
+    $em->remove($insurance);
+    $em->flush();
+
+    return $this->json([
+        'success' => true, 
+        'message' => 'Insurance deleted successfully!'
+    ]);
+}
 }

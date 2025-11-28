@@ -5,22 +5,19 @@ namespace App\Entity;
 use App\Repository\CredentialingLinkRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Job;
 
-#[ORM\Table(name: 'credentialing_links')]
 #[ORM\Entity(repositoryClass: CredentialingLinkRepository::class)]
+#[ORM\Table(name: 'b_credentialing_links')]
 class CredentialingLink
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Provider::class)]
-    #[ORM\JoinColumn(
-        name: 'provider_id', 
-        referencedColumnName: 'id', 
-        nullable: false
-    )]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Provider $provider = null;
 
     #[ORM\Column(length: 255)]
@@ -35,12 +32,17 @@ class CredentialingLink
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(length: 50, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $sender = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\ManyToOne(targetEntity: Job::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Job $job = null;
+
+    // Getters and setters...
     public function getId(): ?int
     {
         return $this->id;
@@ -112,7 +114,7 @@ class CredentialingLink
         return $this;
     }
 
-    public function getIsActive(): ?bool
+    public function getIsActive(): bool
     {
         return $this->isActive;
     }
@@ -120,6 +122,17 @@ class CredentialingLink
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getJob(): ?Job
+    {
+        return $this->job;
+    }
+
+    public function setJob(?Job $job): self
+    {
+        $this->job = $job;
         return $this;
     }
 }

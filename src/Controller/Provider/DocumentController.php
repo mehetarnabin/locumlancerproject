@@ -5,6 +5,7 @@ namespace App\Controller\Provider;
 use App\Entity\Document;
 use App\Entity\DocumentRequest;
 use App\Entity\CredentialingLink;
+use App\Entity\Application;
 use App\Event\ApplicationEvent;
 use App\Form\DocumentType;
 use App\Repository\DocumentRepository;
@@ -38,24 +39,6 @@ class DocumentController extends AbstractController
         $user = $this->getUser();
         $provider = $user->getProvider();
         
-        // TEMPORARY: Test if CredentialingLink works
-        try {
-            $testLink = new CredentialingLink();
-            $testLink->setProvider($provider);
-            $testLink->setTitle('Test Link - Please Delete');
-            $testLink->setUrl('https://example.com/test');
-            $testLink->setDescription('This is a test link to verify the entity works');
-            $testLink->setCreatedAt(new \DateTime());
-            $testLink->setSender('System');
-            $testLink->setIsActive(true);
-            
-            $em->persist($testLink);
-            $em->flush();
-            
-            $this->addFlash('success', '✅ CredentialingLink entity is working! Test link saved.');
-        } catch (\Exception $e) {
-            $this->addFlash('error', '❌ CredentialingLink error: ' . $e->getMessage());
-        }
         
         $document = new Document();
         $form = $this->createForm(DocumentType::class, $document);
@@ -254,6 +237,7 @@ class DocumentController extends AbstractController
             'documents' => $em->getRepository(Document::class)->findBy(['user' => $user], ['createdAt' => 'DESC']),
             'editMode' => true,
             'editId' => $document->getId(),
+            'editDocument' => $document,
             'documentRequests' => $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']),
             'credentialingLinks' => $credentialingLinks,
         ]);
@@ -540,5 +524,52 @@ class DocumentController extends AbstractController
         return $this->render('provider/profile/upload_cv.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/documents/application/{id}/requests', name: 'app_provider_application_document_requests', methods: ['GET'])]
+    public function applicationDocumentRequests(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $provider = $this->getUser()->getProvider();
+        if (!$provider || $application->getProvider() !== $provider) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $requests = $em->getRepository(DocumentRequest::class)->findBy([
+            'application' => $application,
+            'provider' => $provider,
+        ], ['createdAt' => 'DESC']);
+
+        $data = array_map(function (DocumentRequest $req) {
+            return [
+                'id' => (string)$req->getId(),
+                'name' => $req->getName(),
+                'createdAt' => $req->getCreatedAt()?->format('c'),
+                'providedAt' => $req->getProvidedAt()?->format('c'),
+            ];
+        }, $requests);
+
+        $job = $application->getJob();
+        $links = [];
+        if ($job) {
+            $links = $em->getRepository(\App\Entity\CredentialingLink::class)->findBy([
+                'provider' => $provider,
+                'isActive' => true,
+                'job' => $job,
+            ], ['createdAt' => 'DESC']);
+        }
+        $linksData = array_map(function (\App\Entity\CredentialingLink $link) {
+            return [
+                'id' => $link->getId(),
+                'title' => $link->getTitle(),
+                'url' => $link->getUrl(),
+                'description' => $link->getDescription(),
+                'createdAt' => $link->getCreatedAt()?->format('c'),
+            ];
+        }, $links);
+
+        return $this->json(['success' => true, 'documentRequests' => $data, 'credentialLinks' => $linksData]);
     }
 }

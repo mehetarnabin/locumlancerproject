@@ -1531,7 +1531,7 @@ window.addEventListener('resize', function() {
                   </div>
                   </div>
                 </div>
-              <button id="save-btn" class="action-btn" title="Save" style="display: none;">
+              <button id="save-btn" class="action-btn" title="Notify of hire">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
@@ -1722,14 +1722,37 @@ window.addEventListener('resize', function() {
                   {% endif %}
                 </div>
                 <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
-                  <div class="todo-icon-wrapper">
-                    <div class="todo-icon" data-todo-action="Apply for the job" data-todo-type="saved">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
+                  {% set jobDocumentRequests = [] %}
+                  {% set hasEmployerDocRequest = false %}
+                  {% for todo in pendingTodos|default([]) %}
+                    {% if todo.documentRequest and todo.documentRequest.application.job.id == job.id %}
+                      {% set hasEmployerDocRequest = true %}
+                      {% if todo.documentRequest.name %}
+                        {% set jobDocumentRequests = jobDocumentRequests|merge([todo.documentRequest.name]) %}
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+
+                  {% if not hasEmployerDocRequest %}
+                    {% for application in applications|default([]) %}
+                      {% if application.job and application.job.id == job.id and application.documentRequestedAt and not application.documentProvidedAt %}
+                        {% set hasEmployerDocRequest = true %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+
+                  {% if hasEmployerDocRequest %}
+                    <div class="todo-icon-wrapper">
+                      <div class="todo-icon" data-todo-action="{{ jobDocumentRequests|length > 0 ? jobDocumentRequests|join(', ') : 'Employer requested documents' }}" data-todo-type="saved">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
                     </div>
-                  </div>
+                  {% else %}
+                    —
+                  {% endif %}
                 </div>
                 <div class="col-start col-center col-rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
                   <span class="rank-display" data-job-id="{{ job.id }}" style="font-size: 12px;">
@@ -1766,14 +1789,14 @@ window.addEventListener('resize', function() {
             <p class="mb-0">Saved jobs not found.</p>
         {% endif %}
         <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
-          <button id="save-btn" class="action-btn" title="Save">
+          <button id="save-btn-bottom" class="action-btn" title="Notify of hire">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
                 <path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-              </button>
+          </button>
               <button id="apply-btn" class="action-btn hidden-btn" disabled title="Apply">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
@@ -1910,13 +1933,13 @@ window.addEventListener('resize', function() {
     </div>
     <div class="email-modal-body">
       <label>Subject</label>
-      <input id="email-t1-subject" type="text" readonly>
+      <input id="email-t1-subject" type="text">
       <label>Message</label>
-      <textarea id="email-t1-message" readonly></textarea>
+      <textarea id="email-t1-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-subject="#email-t1-subject">Copy Subject</button>
       <button class="dropdown-cstm" data-copy-message="#email-t1-message">Copy Message</button>
+      <button class="action-btn" data-send-email data-sub="#email-t1-subject" data-body="#email-t1-message">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t1-subject" data-body="#email-t1-message">Open in Gmail</button>
     </div>
   </div>
@@ -1927,13 +1950,13 @@ window.addEventListener('resize', function() {
     </div>
     <div class="email-modal-body">
       <label>Subject</label>
-      <input id="email-t2-subject" type="text" readonly>
+      <input id="email-t2-subject" type="text">
       <label>Message</label>
-      <textarea id="email-t2-message" readonly></textarea>
+      <textarea id="email-t2-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-subject="#email-t2-subject">Copy Subject</button>
       <button class="dropdown-cstm" data-copy-message="#email-t2-message">Copy Message</button>
+      <button class="action-btn" data-send-email data-sub="#email-t2-subject" data-body="#email-t2-message">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t2-subject" data-body="#email-t2-message">Open in Gmail</button>
     </div>
   </div>
@@ -2443,7 +2466,7 @@ window.addEventListener('resize', function() {
   .email-modal-body textarea { min-height: 180px; resize: vertical; }
   .email-modal-footer { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid #e6eef6; }
   .email-modal-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: #666; }
-  </style>
+</style>
 
 <script>
 // =============================================
@@ -2742,7 +2765,13 @@ function applyToSelectedJobs() {
     const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
     const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId).filter(id => id);
     
+    // Allow applying to the currently selected job in split view
     if (selectedIds.length === 0) {
+        const splitSelectedId = window.selectedJobId || null;
+        if (splitSelectedId) {
+            applyToJob(splitSelectedId);
+            return;
+        }
         showToast('Please select at least one job to apply to.', 'warning');
         return;
     }
@@ -2830,7 +2859,7 @@ function updateButtonStates() {
   const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
   
   let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-  const showApply = checkedCount >= 1; // Allow multiple applications
+  const showApply = checkedCount >= 1 || !!window.selectedJobId; // support split view selection
   const showNote = checkedCount === 1;
 
   // Update all apply buttons
@@ -2881,13 +2910,9 @@ function toggleActionsVisibility() {
   // Update the compact buttons panel
   const actionsDivs = document.querySelectorAll('.hidden-buttons');
   actionsDivs.forEach(div => {
-      if (isSplitActive) {
-          // Hide duplicate compact buttons in split view
-          div.style.display = 'none';
-      } else {
-          div.style.display = 'flex';
-          div.style.visibility = anyChecked ? 'visible' : 'hidden';
-      }
+      // Keep compact buttons visible in split view since detail actions were removed
+      div.style.display = 'flex';
+      div.style.visibility = anyChecked || !!window.selectedJobId ? 'visible' : 'hidden';
   });
   
   // Update button states
@@ -3399,6 +3424,96 @@ document.addEventListener('DOMContentLoaded', function () {
       window.open(url, '_blank');
     });
   });
+  
+  // Enhanced email sending via backend
+  document.querySelectorAll('[data-send-email]').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const subSel = btn.getAttribute('data-sub');
+      const bodySel = btn.getAttribute('data-body');
+      const templateId = btn.getAttribute('data-template');
+      const subEl = document.querySelector(subSel);
+      const bodyEl = document.querySelector(bodySel);
+
+      const subject = subEl ? subEl.value : '';
+      const body = bodyEl ? bodyEl.value : '';
+
+      if (!subject || !body) {
+        showToast('Please fill in both subject and message', 'error');
+        return;
+      }
+
+      const selectedJob = getSelectedJob();
+      if (!selectedJob) {
+        showToast('Please select a job first', 'error');
+        return;
+      }
+
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Sending...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('{{ path("app_provider_send_employer_email") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({
+            job_id: selectedJob.id,
+            subject: subject,
+            message: body,
+            template_id: templateId,
+            _token: '{{ csrf_token("send_employer_email") }}'
+          })
+        });
+
+        const result = await response.json();
+        if (result && result.success) {
+          showToast('Email sent successfully to employer!', 'success');
+          closeAllEmailModals();
+          trackEmailSent(selectedJob.id, templateId);
+        } else {
+          showToast('Failed to send email: ' + (result.message || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        console.error('Error sending email:', error);
+        showToast('Network error. Please try again.', 'error');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+  });
+
+  function getSelectedJob() {
+    const activeCard = document.querySelector('.split-job-card.active');
+    if (activeCard) {
+      const jobId = activeCard.dataset.jobId;
+      const jobTitle = activeCard.querySelector('.split-job-card-title')?.textContent || '';
+      const company = activeCard.querySelector('.split-job-card-company')?.textContent || '';
+      return { id: jobId, title: jobTitle, company: company };
+    }
+    const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+    if (checkedCheckbox) {
+      const jobId = checkedCheckbox.dataset.jobId;
+      const jobRow = checkedCheckbox.closest('.job-row');
+      if (jobRow) {
+        const jobTitle = jobRow.querySelector('.job-title')?.textContent || '';
+        const employer = jobRow.querySelector('[data-column="employer"]')?.textContent || '';
+        return { id: jobId, title: jobTitle, company: employer };
+      }
+    }
+    return null;
+  }
+
+  function trackEmailSent(jobId, templateId) {
+    fetch('{{ path("app_provider_track_email_sent") }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job_id: jobId, template_id: templateId, _token: '{{ csrf_token("track_email") }}' })
+    }).catch(error => console.error('Tracking error:', error));
+  }
 });
 
 // Alert helper functions
@@ -4008,4 +4123,6 @@ function showToast(message, type = 'info') {
   });
   </script>
   
+<script src="{{ asset('assets/js/notify-hire.js') }}"></script>
+<script>document.addEventListener('DOMContentLoaded', function(){ try { initNotifyHire(); } catch(e){} });</script>
 {% endblock %}

@@ -29,7 +29,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $adminUser,
             Notification::JOB_APPLIED,
-            $application->getProvider().' applied for job '.$application->getJob().' from employer '.$application->getEmployer(),
+            $application->getProvider().' applied for job '.($application->getJob()?->getTitle() ?? '—').' from employer '.($application->getEmployer()?->getName() ?? '—'),
             false,
             [
                 'application' => $application->getId(),
@@ -44,7 +44,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $employerUser,
             Notification::JOB_APPLIED,
-            $application->getProvider().' applied for job '.$application->getJob(),
+            $application->getProvider().' applied for job '.($application->getJob()?->getTitle() ?? '—'),
             false,
             [
                 'application' => $application->getId(),
@@ -64,7 +64,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $application->getProvider()->getUser(),
             Notification::DOCUMENT_REQUESTED,
-            $application->getEmployer().' asks for documents for your job application '.$application->getJob(),
+            ($application->getEmployer()?->getName() ?? 'Employer').' asks for documents for your job application '.($application->getJob()?->getTitle() ?? '—'),
             true,
             [
                 'application' => $application->getId(),
@@ -85,7 +85,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $employerUser,
             Notification::DOCUMENT_PROVIDED,
-            $application->getProvider().' provides documents for job application '.$application->getJob(),
+            $application->getProvider().' provides documents for job application '.($application->getJob()?->getTitle() ?? '—'),
             false,
             [
                 'application' => $application->getId(),
@@ -105,7 +105,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $application->getProvider()->getUser(),
             Notification::ONE_FILE_REQUESTED,
-            $application->getEmployer().' asks for one file for your job application '.$application->getJob(),
+            ($application->getEmployer()?->getName() ?? 'Employer').' asks for one file for your job application '.($application->getJob()?->getTitle() ?? '—'),
             true,
             [
                 'application' => $application->getId(),
@@ -126,7 +126,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $employerUser,
             Notification::ONE_FILE_PROVIDED,
-            $application->getProvider().' provides one file for job application '.$application->getJob(),
+            $application->getProvider().' provides one file for job application '.($application->getJob()?->getTitle() ?? '—'),
             false,
             [
                 'application' => $application->getId(),
@@ -146,7 +146,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $application->getProvider()->getUser(),
             Notification::CONTRACT_SENT,
-            $application->getEmployer().' sent contract for your job application '.$application->getJob(),
+            ($application->getEmployer()?->getName() ?? 'Employer').' sent contract for your job application '.($application->getJob()?->getTitle() ?? '—'),
             true,
             [
                 'application' => $application->getId(),
@@ -167,7 +167,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $employerUser,
             Notification::CONTRACT_SIGNED_SENT,
-            $application->getProvider().' sends signed contract for job application '.$application->getJob(),
+            $application->getProvider().' sends signed contract for job application '.($application->getJob()?->getTitle() ?? '—'),
             false,
             [
                 'application' => $application->getId(),
@@ -187,7 +187,7 @@ final class ApplicationListener
         $this->notificationService->sendNotification(
             $application->getProvider()->getUser(),
             Notification::INTERVIEW_SCHEDULED,
-            $application->getEmployer().' sent interview schedule for your job application '.$application->getJob(),
+            ($application->getEmployer()?->getName() ?? 'Employer').' sent interview schedule for your job application '.($application->getJob()?->getTitle() ?? '—'),
             true,
             [
                 'application' => $application->getId(),

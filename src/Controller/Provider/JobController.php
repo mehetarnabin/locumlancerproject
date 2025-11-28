@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Uid\Uuid;
@@ -145,7 +147,7 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs/saved', name: 'app_provider_jobs_saved')]
-    public function savedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em, Request $request): Response
+    public function savedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em, Request $request, ToDoRepository $todoRepository): Response
     {
         $user = $this->getUser();
         $provider = $user->getProvider();
@@ -209,10 +211,14 @@ class JobController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
+        // Pending document request todos for this provider
+        $pendingTodos = $todoRepository->findPendingByProvider($provider);
+
         if ($request->isXmlHttpRequest()) {
             $html = $this->renderView('provider/job/_saved_job_list.html.twig', [
                 'bookmarks' => $bookmarks,
                 'appliedJobsIds' => $appliedJobsIds,
+                'pendingTodos' => $pendingTodos,
             ]);
             
             return $this->json(['html' => $html]);
@@ -226,6 +232,7 @@ class JobController extends AbstractController
             'applications' => $applications,
             'messages' => $messages,
             'notifications' => $notifications,
+            'pendingTodos' => $pendingTodos,
         ]);
     }
 
@@ -233,7 +240,8 @@ class JobController extends AbstractController
     public function applications(
         BookmarkRepository $bookmarkRepository,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ToDoRepository $todoRepository
     ): Response
     {
         $user = $this->getUser();
@@ -265,6 +273,9 @@ class JobController extends AbstractController
         }
 
         $applications = $em->getRepository(Application::class)->getAll($offset, $perPage, $filters);
+
+        // Get pending todos for document requests
+        $pendingTodos = $todoRepository->findPendingByProvider($provider);
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($this->getUser()->getProvider()->getId());
          $statusCounts[] = [
             'status' => 'saved',
@@ -279,6 +290,7 @@ class JobController extends AbstractController
             $html = $this->renderView('provider/job/_application_list.html.twig', [
                 'applications' => $applications,
                 'status' => $request->query->get('status', ''),
+                'pendingTodosForApplications' => $pendingTodos,
             ]);
             return $this->json(['html' => $html]);
         }
@@ -287,6 +299,7 @@ class JobController extends AbstractController
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
+            'pendingTodosForApplications' => $pendingTodos,
         ]);
     }
 
@@ -642,6 +655,80 @@ class JobController extends AbstractController
             error_log('Error in getAppliedJobsIds: ' . $e->getMessage());
             return [];
         }
+    }
+
+    #[Route('/provider/send-employer-email', name: 'app_provider_send_employer_email', methods: ['POST'])]
+    public function sendEmployerEmail(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?: [];
+
+        $jobId = $data['job_id'] ?? null;
+        $subject = $data['subject'] ?? '';
+        $message = $data['message'] ?? '';
+        $templateId = $data['template_id'] ?? null;
+
+        if (!$jobId || !$subject || !$message) {
+            return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
+        }
+
+        try {
+            $job = $entityManager->getRepository(Job::class)->find($jobId);
+            if (!$job) {
+                return $this->json(['success' => false, 'message' => 'Job not found'], 404);
+            }
+
+            $employer = $job->getEmployer();
+            $employerEmail = null;
+            if ($employer) {
+                $employerEmail = $employer->getContactEmail() ?: $employer->getEmail();
+            }
+
+            if (!$employerEmail) {
+                return $this->json(['success' => false, 'message' => 'No employer email found for this job'], 404);
+            }
+
+            $user = $this->getUser();
+            $senderName = $user?->getName() ?: ($user?->getEmail() ?: 'LocumLancer Provider');
+            $senderEmail = $user?->getEmail() ?: 'notifications@locumlancer.com';
+
+            $email = (new Email())
+                ->from('notifications@locumlancer.com')
+                ->replyTo($senderEmail, $senderName)
+                ->to($employerEmail)
+                ->subject($subject . ' - LocumLancer')
+                ->html($this->renderView('emails/message_notification.html.twig', [
+                    'subject' => $subject,
+                    'message_text' => $message,
+                    'sender_name' => $senderName,
+                    'sender_email' => $senderEmail,
+                    'has_attachment' => false,
+                    'attachment_name' => null,
+                ]));
+
+            $mailer->send($email);
+
+            return $this->json(['success' => true, 'message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'message' => 'Error sending email: ' . $e->getMessage()], 500);
+        }
+    }
+
+    #[Route('/provider/track-email-sent', name: 'app_provider_track_email_sent', methods: ['POST'])]
+    public function trackEmailSent(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?: [];
+        $jobId = $data['job_id'] ?? null;
+        $templateId = $data['template_id'] ?? null;
+        $user = $this->getUser();
+
+        error_log(sprintf(
+            'Email sent track: job=%s, template=%s, by=%s',
+            (string)($jobId ?? 'unknown'),
+            (string)($templateId ?? 'unknown'),
+            $user?->getEmail() ?? 'anonymous'
+        ));
+
+        return $this->json(['success' => true]);
     }
     
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]

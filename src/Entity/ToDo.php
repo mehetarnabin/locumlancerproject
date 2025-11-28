@@ -8,88 +8,86 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ToDoRepository::class)]
+#[ORM\Table(name: 'to_do')]
 class ToDo
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private Uuid $id;
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Provider::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private Provider $provider;
+    #[ORM\ManyToOne(targetEntity: Provider::class, inversedBy: 'todos')]
+    #[ORM\JoinColumn(name: 'provider_id', nullable: false)]
+    private ?Provider $provider = null;
 
     #[ORM\ManyToOne(targetEntity: Employer::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private Employer $employer;
-
-    #[ORM\ManyToOne(targetEntity: DocumentRequest::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private DocumentRequest $documentRequest;
+    #[ORM\JoinColumn(name: 'employer_id', nullable: false)]
+    private ?Employer $employer = null;
 
     #[ORM\Column(length: 255)]
-    private string $title;
+    private ?string $title = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(length: 50)]
-    private string $type = 'document_request';
+    private ?string $type = null;
 
-    #[ORM\Column]
-    private bool $isCompleted = false;
+    #[ORM\ManyToOne(targetEntity: DocumentRequest::class)]
+    #[ORM\JoinColumn(name: 'document_request_id', nullable: true)]
+    private ?DocumentRequest $documentRequest = null;
 
-    #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    #[ORM\Column(name: 'is_completed')]
+    private ?bool $isCompleted = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $completedAt = null;
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    private ?\DateTimeInterface $createdAt;
+
+    #[ORM\Column(name: 'completed_at', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $completedAt = null;
 
     public function __construct()
     {
-        $this->id = Uuid::v6();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTime();
+        $this->isCompleted = false;
     }
 
-    // Getters and setters
-    public function getId(): Uuid
+    // Getters and Setters
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
 
-    public function getProvider(): Provider
+    public function getProvider(): ?Provider
     {
         return $this->provider;
     }
 
-    public function setProvider(Provider $provider): static
+    public function setProvider(?Provider $provider): static
     {
         $this->provider = $provider;
         return $this;
     }
 
-    public function getEmployer(): Employer
+    public function getEmployer(): ?Employer
     {
         return $this->employer;
     }
 
-    public function setEmployer(Employer $employer): static
+    public function setEmployer(?Employer $employer): static
     {
         $this->employer = $employer;
         return $this;
     }
 
-    public function getDocumentRequest(): DocumentRequest
+    // Helper method to get employer name as string
+    public function getEmployerName(): ?string
     {
-        return $this->documentRequest;
+        return $this->employer ? ($this->employer->getCompanyName() ?: $this->employer->getName()) : null;
     }
 
-    public function setDocumentRequest(DocumentRequest $documentRequest): static
-    {
-        $this->documentRequest = $documentRequest;
-        return $this;
-    }
-
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -111,7 +109,7 @@ class ToDo
         return $this;
     }
 
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -122,7 +120,18 @@ class ToDo
         return $this;
     }
 
-    public function isCompleted(): bool
+    public function getDocumentRequest(): ?DocumentRequest
+    {
+        return $this->documentRequest;
+    }
+
+    public function setDocumentRequest(?DocumentRequest $documentRequest): static
+    {
+        $this->documentRequest = $documentRequest;
+        return $this;
+    }
+
+    public function isCompleted(): ?bool
     {
         return $this->isCompleted;
     }
@@ -130,17 +139,29 @@ class ToDo
     public function setIsCompleted(bool $isCompleted): static
     {
         $this->isCompleted = $isCompleted;
-        $this->completedAt = $isCompleted ? new \DateTimeImmutable() : null;
+        $this->completedAt = $isCompleted ? new \DateTime() : null;
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function getCompletedAt(): ?\DateTimeImmutable
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeInterface
     {
         return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTimeInterface $completedAt): static
+    {
+        $this->completedAt = $completedAt;
+        return $this;
     }
 }
