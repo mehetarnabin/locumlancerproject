@@ -22,6 +22,9 @@ use Symfony\Component\Mime\Email;
 #[Route('/provider')]
 class MessageController extends AbstractController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager
+    ) {}
     
     #[Route('/messages', name: 'app_provider_messages')]
     public function index(Request $request, EntityManagerInterface $em)
@@ -365,7 +368,7 @@ class MessageController extends AbstractController
         ]);
     }
 
-    // Load draft via AJAX
+    // Load draft via AJAX - ENHANCED WITH ATTACHMENT SUPPORT
     #[Route('/messages/draft/{id}', name: 'app_provider_draft_load', methods: ['GET'])]
     public function loadDraft(Message $message, EntityManagerInterface $em): JsonResponse
     {
@@ -376,6 +379,24 @@ class MessageController extends AbstractController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
+        // Get upload directory for attachment path
+        $uploadDirectory = $this->getParameter('messages_attachments_directory');
+        $attachmentInfo = null;
+        
+        if ($message->getAttachment()) {
+            $filePath = $uploadDirectory . '/' . $message->getAttachment();
+            $fileExists = file_exists($filePath);
+            
+            $attachmentInfo = [
+                'filename' => $message->getAttachment(),
+                'original_filename' => $this->getOriginalFilename($message->getAttachment()),
+                'file_exists' => $fileExists,
+                'file_path' => $filePath,
+                'file_size' => $fileExists ? filesize($filePath) : 0,
+                'download_url' => $this->generateUrl('app_provider_message_attachment', ['filename' => $message->getAttachment()])
+            ];
+        }
+
         return new JsonResponse([
             'success' => true,
             'draft' => [
@@ -384,12 +405,13 @@ class MessageController extends AbstractController
                 'subject' => $message->getSubject(),
                 'message' => $message->getText(),
                 'attachment' => $message->getAttachment(),
+                'attachment_info' => $attachmentInfo,
                 'savedAt' => $message->getSavedAt()->format('Y-m-d H:i:s'),
             ]
         ]);
     }
 
-    // Delete draft
+    // Delete draft - ENHANCED WITH TRASH FUNCTIONALITY
     #[Route('/messages/draft/{id}', name: 'app_provider_draft_delete', methods: ['DELETE'])]
     public function deleteDraft(Message $message, EntityManagerInterface $em): JsonResponse
     {
@@ -400,13 +422,26 @@ class MessageController extends AbstractController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $em->remove($message);
-        $em->flush();
+        try {
+            // Instead of removing, move to trash
+            $message->setDeleted(true);
+            $message->setDeletedAt(new \DateTime());
+            // Keep isDraft = true so we know it was originally a draft
+            // This helps if we want to restore it back to drafts
+            
+            $em->persist($message);
+            $em->flush();
 
-        return new JsonResponse([
-            'success' => true, 
-            'message' => 'Draft deleted successfully'
-        ]);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Draft moved to trash successfully'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Failed to delete draft: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // Get draft count for badge
@@ -555,12 +590,16 @@ class MessageController extends AbstractController
             $message->setDeleted(false);
             $message->setDeletedAt(null);
             
+            // If it was originally a draft, it stays as a draft when restored
+            // If it was a sent message, it goes back to sent folder
+            
             $em->persist($message);
             $em->flush();
 
             return new JsonResponse([
                 'success' => true,
-                'message' => 'Message restored successfully'
+                'message' => 'Message restored successfully',
+                'was_draft' => $message->isDraft() // Frontend can use this to redirect appropriately
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -608,6 +647,7 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
         
+        // Find all deleted messages for this user (both regular messages and drafts)
         $messages = $em->getRepository(Message::class)->findBy([
             'deleted' => true,
             'user' => $user->getId()
@@ -738,6 +778,38 @@ class MessageController extends AbstractController
             'message' => $message,
             'employers' => $employers,
         ]);
+    }
+
+    // Download attachment
+    #[Route('/messages/attachment/{filename}', name: 'app_provider_message_attachment', methods: ['GET'])]
+    public function downloadAttachment(string $filename, #[Autowire('%messages_attachments_directory%')] string $uploadDirectory): Response
+    {
+        $user = $this->getUser();
+        
+        // Security: Find the message that contains this attachment
+        $message = $this->entityManager->getRepository(Message::class)
+            ->findOneBy(['attachment' => $filename]);
+        
+        if (!$message) {
+            throw $this->createNotFoundException('Attachment not found');
+        }
+        
+        // Security: User must be sender or receiver of the message
+        if ($message->getSender()->getId() !== $user->getId() && 
+            (!$message->getReceiver() || $message->getReceiver()->getId() !== $user->getId())) {
+            throw $this->createAccessDeniedException('You cannot access this attachment');
+        }
+        
+        $filePath = $uploadDirectory . '/' . $filename;
+        
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('File not found');
+        }
+        
+        // Get original filename
+        $originalFilename = $this->getOriginalFilename($filename);
+        
+        return $this->file($filePath, $originalFilename);
     }
 
     private function buildForwardedContent(Message $originalMessage, string $forwardText): string

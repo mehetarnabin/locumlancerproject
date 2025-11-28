@@ -2005,8 +2005,7 @@ window.addEventListener('resize', function() {
       <textarea id="email-t1-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-message="#email-t1-message">Copy Message</button>
-      <button class="action-btn" data-send-email data-sub="#email-t1-subject" data-body="#email-t1-message">Send</button>
+      <button class="action-btn" data-send-email data-sub="#email-t1-subject" data-body="#email-t1-message" data-template="intro">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t1-subject" data-body="#email-t1-message">Open in Gmail</button>
     </div>
   </div>
@@ -2022,8 +2021,7 @@ window.addEventListener('resize', function() {
       <textarea id="email-t2-message"></textarea>
     </div>
     <div class="email-modal-footer">
-      <button class="dropdown-cstm" data-copy-message="#email-t2-message">Copy Message</button>
-      <button class="action-btn" data-send-email data-sub="#email-t2-subject" data-body="#email-t2-message">Send</button>
+      <button class="action-btn" data-send-email data-sub="#email-t2-subject" data-body="#email-t2-message" data-template="followup">Send</button>
       <button class="action-btn" data-open-gmail data-sub="#email-t2-subject" data-body="#email-t2-message">Open in Gmail</button>
     </div>
   </div>
@@ -3508,6 +3506,54 @@ document.addEventListener('DOMContentLoaded', function () {
       const body = encodeURIComponent(bodyEl ? bodyEl.value : '');
       const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
       window.open(url, '_blank');
+    });
+  });
+
+  function getSelectedJobId() {
+    if (window.selectedJobId) return window.selectedJobId;
+    const activeCard = document.querySelector('.split-job-card.active');
+    if (activeCard && activeCard.dataset.jobId) return activeCard.dataset.jobId;
+    const checked = document.querySelector('.job-checkbox:checked');
+    if (checked && checked.dataset.jobId) return checked.dataset.jobId;
+    const detail = document.querySelector('#job-detail-content [data-job-id]');
+    if (detail && detail.getAttribute('data-job-id')) return detail.getAttribute('data-job-id');
+    return null;
+  }
+
+  document.querySelectorAll('[data-send-email]').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const subSel = btn.getAttribute('data-sub');
+      const bodySel = btn.getAttribute('data-body');
+      const templateId = btn.getAttribute('data-template');
+      const subEl = document.querySelector(subSel);
+      const bodyEl = document.querySelector(bodySel);
+      const subject = subEl ? subEl.value : '';
+      const message = bodyEl ? bodyEl.value : '';
+      if (!subject || !message) { showToast('Please fill in both subject and message', 'error'); return; }
+      const jobId = getSelectedJobId();
+      if (!jobId) { showToast('Please select a job first', 'error'); return; }
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Sending...';
+      btn.disabled = true;
+      try {
+        const response = await fetch('{{ path("app_provider_send_employer_email") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: JSON.stringify({ job_id: jobId, subject: subject, message: message, template_id: templateId, _token: '{{ csrf_token("send_employer_email") }}' })
+        });
+        const result = await response.json();
+        if (result && result.success) {
+          showToast('Email sent successfully to employer!', 'success');
+          closeAllEmailModals();
+        } else {
+          showToast('Failed to send email: ' + (result.message || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showToast('Network error. Please try again.', 'error');
+      } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }
     });
   });
 });

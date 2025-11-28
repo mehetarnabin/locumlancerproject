@@ -2394,13 +2394,13 @@ window.addEventListener('resize', function() {
       </div>
       <div class="email-modal-body">
         <label for="template-request-subject">Subject</label>
-        <input id="template-request-subject" type="text" readonly>
+        <input id="template-request-subject" type="text">
         <label for="template-request-message">Message</label>
-        <textarea id="template-request-message" readonly></textarea>
+        <textarea id="template-request-message"></textarea>
       </div>
       <div class="email-modal-footer">
         <button class="dropdown-cstm" data-copy-subject="#template-request-subject">Copy Subject</button>
-        <button class="dropdown-cstm" data-copy-message="#template-request-message">Copy Message</button>
+        <button class="action-btn" data-send-email data-sub="#template-request-subject" data-body="#template-request-message" data-template="request">Send</button>
         <button class="action-btn" data-open-gmail data-sub="#template-request-subject" data-body="#template-request-message">Open in Gmail</button>
       </div>
     </div>
@@ -2412,13 +2412,13 @@ window.addEventListener('resize', function() {
       </div>
       <div class="email-modal-body">
         <label for="template-thank-subject">Subject</label>
-        <input id="template-thank-subject" type="text" readonly>
+        <input id="template-thank-subject" type="text">
         <label for="template-thank-message">Message</label>
-        <textarea id="template-thank-message" readonly></textarea>
+        <textarea id="template-thank-message"></textarea>
       </div>
       <div class="email-modal-footer">
         <button class="dropdown-cstm" data-copy-subject="#template-thank-subject">Copy Subject</button>
-        <button class="dropdown-cstm" data-copy-message="#template-thank-message">Copy Message</button>
+        <button class="action-btn" data-send-email data-sub="#template-thank-subject" data-body="#template-thank-message" data-template="thank">Send</button>
         <button class="action-btn" data-open-gmail data-sub="#template-thank-subject" data-body="#template-thank-message">Open in Gmail</button>
       </div>
     </div>
@@ -2430,13 +2430,13 @@ window.addEventListener('resize', function() {
       </div>
       <div class="email-modal-body">
         <label for="template-follow-subject">Subject</label>
-        <input id="template-follow-subject" type="text" readonly>
+        <input id="template-follow-subject" type="text">
         <label for="template-follow-message">Message</label>
-        <textarea id="template-follow-message" readonly></textarea>
+        <textarea id="template-follow-message"></textarea>
       </div>
       <div class="email-modal-footer">
         <button class="dropdown-cstm" data-copy-subject="#template-follow-subject">Copy Subject</button>
-        <button class="dropdown-cstm" data-copy-message="#template-follow-message">Copy Message</button>
+        <button class="action-btn" data-send-email data-sub="#template-follow-subject" data-body="#template-follow-message" data-template="follow">Send</button>
         <button class="action-btn" data-open-gmail data-sub="#template-follow-subject" data-body="#template-follow-message">Open in Gmail</button>
       </div>
     </div>
@@ -2448,13 +2448,13 @@ window.addEventListener('resize', function() {
       </div>
       <div class="email-modal-body">
         <label for="template-details-subject">Subject</label>
-        <input id="template-details-subject" type="text" readonly>
+        <input id="template-details-subject" type="text">
         <label for="template-details-message">Message</label>
-        <textarea id="template-details-message" readonly></textarea>
+        <textarea id="template-details-message"></textarea>
       </div>
       <div class="email-modal-footer">
         <button class="dropdown-cstm" data-copy-subject="#template-details-subject">Copy Subject</button>
-        <button class="dropdown-cstm" data-copy-message="#template-details-message">Copy Message</button>
+        <button class="action-btn" data-send-email data-sub="#template-details-subject" data-body="#template-details-message" data-template="details">Send</button>
         <button class="action-btn" data-open-gmail data-sub="#template-details-subject" data-body="#template-details-message">Open in Gmail</button>
       </div>
     </div>
@@ -2466,13 +2466,13 @@ window.addEventListener('resize', function() {
       </div>
       <div class="email-modal-body">
         <label for="template-review-subject">Subject</label>
-        <input id="template-review-subject" type="text" readonly>
+        <input id="template-review-subject" type="text">
         <label for="template-review-message">Message</label>
-        <textarea id="template-review-message" readonly></textarea>
+        <textarea id="template-review-message"></textarea>
       </div>
       <div class="email-modal-footer">
         <button class="dropdown-cstm" data-copy-subject="#template-review-subject">Copy Subject</button>
-        <button class="dropdown-cstm" data-copy-message="#template-review-message">Copy Message</button>
+        <button class="action-btn" data-send-email data-sub="#template-review-subject" data-body="#template-review-message" data-template="review">Send</button>
         <button class="action-btn" data-open-gmail data-sub="#template-review-subject" data-body="#template-review-message">Open in Gmail</button>
       </div>
     </div>
@@ -2763,7 +2763,55 @@ window.addEventListener('resize', function() {
           const su = encodeURIComponent(subEl ? subEl.value : '');
           const body = encodeURIComponent(bodyEl ? bodyEl.value : '');
           const url = `https://mail.google.com/mail/?view=cm&fs=1&su=${su}&body=${body}`;
-          window.open(url, '_blank');
+        window.open(url, '_blank');
+      });
+      });
+
+      function getSelectedJobIdForEmail() {
+        if (window.selectedJobId) return window.selectedJobId;
+        const activeCard = document.querySelector('.split-job-card.active');
+        if (activeCard && activeCard.dataset.jobId) return activeCard.dataset.jobId;
+        const checked = document.querySelector('.job-checkbox:checked');
+        if (checked && checked.dataset.jobId) return checked.dataset.jobId;
+        const detail = document.querySelector('#job-detail-content [data-job-id]');
+        if (detail && detail.getAttribute('data-job-id')) return detail.getAttribute('data-job-id');
+        return null;
+      }
+
+      document.querySelectorAll('[data-send-email]').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const subSel = btn.getAttribute('data-sub');
+          const bodySel = btn.getAttribute('data-body');
+          const templateId = btn.getAttribute('data-template');
+          const subEl = document.querySelector(subSel);
+          const bodyEl = document.querySelector(bodySel);
+          const subject = subEl ? subEl.value : '';
+          const message = bodyEl ? bodyEl.value : '';
+          if (!subject || !message) { if (typeof showToast === 'function') showToast('Please fill in both subject and message', 'error'); else alert('Please fill in both subject and message'); return; }
+          const jobId = getSelectedJobIdForEmail();
+          if (!jobId) { if (typeof showToast === 'function') showToast('Please select a job first', 'error'); else alert('Please select a job first'); return; }
+          const original = btn.innerHTML;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Sending...';
+          btn.disabled = true;
+          try {
+            const response = await fetch('{{ path("app_provider_send_employer_email") }}', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+              body: JSON.stringify({ job_id: jobId, subject: subject, message: message, template_id: templateId, _token: '{{ csrf_token("send_employer_email") }}' })
+            });
+            const result = await response.json();
+            if (result && result.success) {
+              if (typeof showToast === 'function') showToast('Email sent successfully to employer!', 'success');
+              closeAllTemplateModals();
+            } else {
+              if (typeof showToast === 'function') showToast('Failed to send email: ' + (result.message || 'Unknown error'), 'error');
+            }
+          } catch (e) {
+            if (typeof showToast === 'function') showToast('Network error. Please try again.', 'error');
+          } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
+          }
         });
       });
     });

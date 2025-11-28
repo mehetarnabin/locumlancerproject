@@ -232,6 +232,9 @@ class JobController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
+            // Pending document request todos for this provider
+        $pendingTodos = $todoRepository->findPendingByProvider($provider);
+
         if ($request->isXmlHttpRequest()) {
             // Render only the job list container for AJAX (using partial template)
             $html = $this->renderView('provider/job/_saved_job_list.html.twig', [
@@ -315,6 +318,8 @@ class JobController extends AbstractController
         $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
+
+            $pendingTodos = $todoRepository->findPendingByProvider($provider);
 
         // -------------------------------
         // Handle AJAX request
