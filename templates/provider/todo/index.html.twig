@@ -3,90 +3,90 @@
 
 {% block stylesheets %}
 <style>
-.todo-bell {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1001;
-    background: #007bff;
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
-    border: none;
-}
+    .todo-bell {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        background: #007bff;
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        border: none;
+    }
 
-.todo-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #dc3545;
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
+    .todo-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #dc3545;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
 
-.todo-notification {
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    width: 320px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border-left: 4px solid #007bff;
-    z-index: 1000;
-    display: none;
-}
+    .todo-notification {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 320px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #007bff;
+        z-index: 1000;
+        display: none;
+    }
 
-.todo-notification.show {
-    display: block;
-}
+    .todo-notification.show {
+        display: block;
+    }
 
-.todo-header {
-    padding: 12px 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 10px 10px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    .todo-header {
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 10px 10px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.todo-body {
-    padding: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-}
+    .todo-body {
+        padding: 10px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
 
-.todo-item {
-    padding: 10px;
-    border-bottom: 1px solid #f1f1f1;
-    border-radius: 5px;
-    margin-bottom: 8px;
-    background: #fafafa;
-}
+    .todo-item {
+        padding: 10px;
+        border-bottom: 1px solid #f1f1f1;
+        border-radius: 5px;
+        margin-bottom: 8px;
+        background: #fafafa;
+    }
 
-.todo-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
+    .todo-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
 
-.btn-tiny {
-    padding: 3px 8px;
-    font-size: 11px;
-    border-radius: 4px;
-}
+    .btn-tiny {
+        padding: 3px 8px;
+        font-size: 11px;
+        border-radius: 4px;
+    }
 </style>
 {% endblock %}
 
@@ -111,57 +111,57 @@
 
 {% block javascripts %}
 <script>
-let isNotificationVisible = false;
+    let isNotificationVisible = false;
 
-// Toggle notification
-document.getElementById('todoBell').addEventListener('click', function() {
-    if (!isNotificationVisible) {
-        loadTodos();
-        document.getElementById('todoNotification').classList.add('show');
-        isNotificationVisible = true;
-    } else {
-        hideNotification();
-    }
-});
+    // Toggle notification
+    document.getElementById('todoBell').addEventListener('click', function () {
+        if (!isNotificationVisible) {
+            loadTodos();
+            document.getElementById('todoNotification').classList.add('show');
+            isNotificationVisible = true;
+        } else {
+            hideNotification();
+        }
+    });
 
-function hideNotification() {
-    document.getElementById('todoNotification').classList.remove('show');
-    isNotificationVisible = false;
-}
-
-// Close when clicking outside
-document.addEventListener('click', function(event) {
-    const notification = document.getElementById('todoNotification');
-    const bell = document.getElementById('todoBell');
-    
-    if (!notification.contains(event.target) && !bell.contains(event.target) && isNotificationVisible) {
-        hideNotification();
-    }
-});
-
-function loadTodos() {
-    fetch('{{ path('app_provider_todo_pending') }}')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateTodoList(data.data);
-                updateBadge(data.count);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading todos:', error);
-        });
-}
-
-function updateTodoList(todos) {
-    const todoList = document.getElementById('todoList');
-    
-    if (todos.length === 0) {
-        todoList.innerHTML = '<div class="text-center text-muted p-3">No pending document requests 🎉</div>';
-        return;
+    function hideNotification() {
+        document.getElementById('todoNotification').classList.remove('show');
+        isNotificationVisible = false;
     }
 
-    todoList.innerHTML = todos.map(todo => `
+    // Close when clicking outside
+    document.addEventListener('click', function (event) {
+        const notification = document.getElementById('todoNotification');
+        const bell = document.getElementById('todoBell');
+
+        if (!notification.contains(event.target) && !bell.contains(event.target) && isNotificationVisible) {
+            hideNotification();
+        }
+    });
+
+    function loadTodos() {
+        fetch('{{ path('app_provider_todo_pending') }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateTodoList(data.data);
+                    updateBadge(data.count);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading todos:', error);
+            });
+    }
+
+    function updateTodoList(todos) {
+        const todoList = document.getElementById('todoList');
+
+        if (todos.length === 0) {
+            todoList.innerHTML = '<div class="text-center text-muted p-3">No pending document requests 🎉</div>';
+            return;
+        }
+
+        todoList.innerHTML = todos.map(todo => `
         <div class="todo-item">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div style="flex: 1;">
@@ -185,46 +185,46 @@ function updateTodoList(todos) {
         </div>
     `).join('');
 
-    // Add event listeners for complete buttons
-    document.querySelectorAll('.complete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const todoId = this.getAttribute('data-id');
-            completeTodo(todoId);
+        // Add event listeners for complete buttons
+        document.querySelectorAll('.complete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const todoId = this.getAttribute('data-id');
+                completeTodo(todoId);
+            });
         });
-    });
-}
-
-function completeTodo(todoId) {
-    fetch(`/provider/todo/${todoId}/complete`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            loadTodos(); // Reload the list
-        }
-    });
-}
-
-function updateBadge(count) {
-    const badge = document.getElementById('todoBadge');
-    if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
     }
-}
 
-// Auto-load todos every 30 seconds
-setInterval(loadTodos, 30000);
+    function completeTodo(todoId) {
+        fetch(`/provider/todo/${todoId}/complete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadTodos(); // Reload the list
+                }
+            });
+    }
 
-// Load initially when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadTodos();
-});
+    function updateBadge(count) {
+        const badge = document.getElementById('todoBadge');
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // Auto-load todos every 30 seconds
+    setInterval(loadTodos, 30000);
+
+    // Load initially when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        loadTodos();
+    });
 </script>
 {% endblock %}

@@ -258,11 +258,10 @@ class JobController extends AbstractController
     }
 
     #[Route('/applications', name: 'app_provider_jobs_applications')]
-    public function applications(
+    public function applicationsNew(
         BookmarkRepository $bookmarkRepository,
         Request $request,
-        EntityManagerInterface $em,
-        ToDoRepository $todoRepository
+        EntityManagerInterface $em
     ): Response
     {
         $user = $this->getUser();
@@ -270,13 +269,11 @@ class JobController extends AbstractController
         
         $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
 
-        // -------------------------------
         // Filter parameters from query string (AJAX or normal)
-        // -------------------------------
         $location = $request->query->get('location');
         $salaryMin = $request->query->get('salaryMin');
         $salaryMax = $request->query->get('salaryMax');
-        $days = $request->query->get('days'); // Applied date filter
+        $days = $request->query->get('days');
 
         $offset = $request->query->get('page', 1);
         $perPage = $request->get('per_page', 10);
@@ -294,7 +291,6 @@ class JobController extends AbstractController
             $filters['status'] = array_values(array_unique($statusFilters));
         }
 
-        // Add filter parameters
         if ($location) {
             $filters['location'] = $location;
         }
@@ -310,25 +306,20 @@ class JobController extends AbstractController
 
         $applications = $em->getRepository(Application::class)->getAll($offset, $perPage, $filters);
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($this->getUser()->getProvider()->getId());
-         $statusCounts[] = [
+        $statusCounts[] = [
             'status' => 'saved',
             'count' => count($bookmarks),
         ];
 
         $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
-            ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
+            ->setParameter('provider', $this->getUser()->getProvider()->getId())
             ->getSingleScalarResult();
 
-            $pendingTodos = $todoRepository->findPendingByProvider($provider);
-
-        // -------------------------------
         // Handle AJAX request
-        // -------------------------------
         if ($request->isXmlHttpRequest()) {
             $html = $this->renderView('provider/job/_application_list.html.twig', [
                 'applications' => $applications,
                 'status' => $request->query->get('status', ''),
-                'pendingTodosForApplications' => $pendingTodos,
             ]);
             return $this->json(['html' => $html]);
         }
@@ -337,7 +328,6 @@ class JobController extends AbstractController
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
-            'pendingTodosForApplications' => $pendingTodos,
         ]);
     }
 
@@ -1453,7 +1443,7 @@ class JobController extends AbstractController
         
         try {
             $debugLog = "Flushing entity manager...\n";
-            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            file_put_contents('D:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
             
             $entityManager->flush();
             
@@ -1464,7 +1454,7 @@ class JobController extends AbstractController
             $debugLog .= "Already applied job IDs: " . print_r($alreadyAppliedJobIds, true) . "\n";
             $debugLog .= "Removed bookmark IDs: " . print_r($removedBookmarkIds, true) . "\n";
             $debugLog .= '=== APPLY JOBS REQUEST END ===' . "\n\n";
-            file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
+            file_put_contents('D:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
             
             // Build success message
             $message = "";
@@ -1998,6 +1988,78 @@ class JobController extends AbstractController
         ]);
     }
 
+    #[Route('/jobs/{id}/timeline-data', name: 'app_provider_job_timeline_data', methods: ['GET'])]
+    public function getJobTimelineData(string $id, EntityManagerInterface $em, ApplicationRepository $applicationRepository): JsonResponse
+    {
+        try {
+            $user = $this->getUser();
+            $provider = $user->getProvider();
+            
+            // Get the job
+            $job = $em->getRepository(Job::class)->find($id);
+            
+            if (!$job) {
+                return $this->json(['error' => 'Job not found'], 404);
+            }
+            
+            // Get application for this job
+            $application = $applicationRepository->findOneBy([
+                'job' => $job,
+                'provider' => $provider
+            ]);
+            
+            // Get bookmark info
+            $bookmark = $em->getRepository(Bookmark::class)->findOneBy([
+                'job' => $job,
+                'user' => $user
+            ]);
+            
+            $timelineData = [
+                'jobId' => $id,
+                'applicationStatus' => $application ? ucfirst($application->getStatus()) : 'Not Applied',
+                'applicationDate' => $application && $application->getAppliedAt() ? $application->getAppliedAt()->format('M d, Y') : null,
+                'bookmarkDate' => $bookmark && $bookmark->getCreatedAt() ? $bookmark->getCreatedAt()->format('M d, Y') : 'Recently',
+                'interviews' => []
+            ];
+            
+            // Get interview information if application exists
+            if ($application) {
+                $interview = $application->getInterview();
+                
+                // Check for interview
+                if ($interview && $interview->getDate()) {
+                    $timelineData['interviews'][] = [
+                        'type' => 'Interview Scheduled',
+                        'date' => $interview->getDate()->format('M d, Y'),
+                        'time' => $interview->getDate()->format('h:i A'),
+                        'status' => 'scheduled',
+                        'platform' => $interview->getMeetingPlatform() ?? 'Not specified',
+                        'meetingUrl' => $interview->getMeetingUrl()
+                    ];
+                }
+                
+                // Add other important dates
+                if ($application->getHiredAt()) {
+                    $timelineData['hiredDate'] = $application->getHiredAt()->format('M d, Y');
+                }
+                
+                if ($application->getContractSentAt()) {
+                    $timelineData['contractSentDate'] = $application->getContractSentAt()->format('M d, Y');
+                }
+                
+                if ($application->getContractSignedAt()) {
+                    $timelineData['contractSignedDate'] = $application->getContractSignedAt()->format('M d, Y');
+                }
+            }
+            
+            return $this->json($timelineData);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => 'Failed to load timeline data',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 
 
     

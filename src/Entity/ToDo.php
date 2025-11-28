@@ -38,8 +38,8 @@ class ToDo
     #[ORM\JoinColumn(name: 'document_request_id', nullable: true)]
     private ?DocumentRequest $documentRequest = null;
 
-    #[ORM\Column(name: 'is_completed')]
-    private ?bool $isCompleted = false;
+    #[ORM\Column(name: 'is_completed', type: 'boolean')]
+    private bool $isCompleted = false;
 
     #[ORM\Column(name: 'created_at', type: 'datetime')]
     private ?\DateTimeInterface $createdAt;
@@ -81,7 +81,6 @@ class ToDo
         return $this;
     }
 
-    // Helper method to get employer name as string
     public function getEmployerName(): ?string
     {
         return $this->employer ? ($this->employer->getCompanyName() ?: $this->employer->getName()) : null;
@@ -131,7 +130,7 @@ class ToDo
         return $this;
     }
 
-    public function isCompleted(): ?bool
+    public function isCompleted(): bool
     {
         return $this->isCompleted;
     }

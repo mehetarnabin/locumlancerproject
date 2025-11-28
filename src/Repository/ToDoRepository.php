@@ -25,10 +25,7 @@ class ToDoRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->leftJoin('t.documentRequest', 'dr')
-            ->leftJoin('dr.application', 'a')
-            ->leftJoin('a.job', 'j')
-            ->leftJoin('a.employer', 'e')
-            ->addSelect('dr', 'a', 'j', 'e')
+            ->addSelect('dr')
             ->where('t.provider = :provider')
             ->andWhere('t.isCompleted = :completed')
             ->andWhere('t.type = :type')
@@ -44,16 +41,13 @@ class ToDoRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->leftJoin('t.documentRequest', 'dr')
-            ->leftJoin('dr.application', 'a')
-            ->leftJoin('a.job', 'j')
+            ->addSelect('dr')
             ->where('t.provider = :provider')
             ->andWhere('t.isCompleted = :completed')
             ->andWhere('t.type = :type')
-            ->andWhere('j.id = :jobId')
             ->setParameter('provider', $provider)
             ->setParameter('completed', false)
             ->setParameter('type', 'document_request')
-            ->setParameter('jobId', $jobId)
             ->orderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
@@ -77,4 +71,3 @@ class ToDoRepository extends ServiceEntityRepository
         }
     }
 }
-
