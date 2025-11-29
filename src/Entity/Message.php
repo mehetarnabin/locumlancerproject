@@ -34,6 +34,10 @@ class Message
     #[ORM\ManyToOne]
     private ?Employer $employer = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: "job_uuid", referencedColumnName: "id", nullable: true)]
+    private ?Job $job = null;
+
     #[ORM\Column(type: Types::TEXT)]
     private ?string $text = null;
 
@@ -67,7 +71,6 @@ class Message
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $originalSubject = null;
-
 
     public function __construct()
     {
@@ -128,6 +131,17 @@ class Message
         return $this;
     }
 
+    public function getJob(): ?Job
+    {
+        return $this->job;
+    }
+
+    public function setJob(?Job $job): static
+    {
+        $this->job = $job;
+        return $this;
+    }
+
     public function getText(): ?string
     {
         return $this->text;
@@ -169,7 +183,7 @@ class Message
     public function setIsDraft(bool $isDraft): static
     {
         $this->isDraft = $isDraft;
-        
+
         if ($isDraft) {
             $this->savedAt = new \DateTime();
             $this->sentAt = null;
@@ -178,7 +192,7 @@ class Message
             $this->sentAt = $this->sentAt ?: new \DateTime();
             $this->seen = false;
         }
-        
+
         return $this;
     }
 
@@ -204,14 +218,12 @@ class Message
         return $this;
     }
 
-    // Helper method to send a draft
     public function send(): static
     {
         $this->setIsDraft(false);
         return $this;
     }
 
-    // Helper method to check if message can be sent (has receiver and text)
     public function canBeSent(): bool
     {
         return $this->getReceiver() !== null && !empty(trim($this->getText()));
@@ -255,27 +267,25 @@ class Message
         return $this;
     }
 
-   
+    public function isForwarded(): bool
+    {
+        return $this->isForwarded;
+    }
 
-public function isForwarded(): bool
-{
-    return $this->isForwarded;
-}
+    public function setIsForwarded(bool $isForwarded): self
+    {
+        $this->isForwarded = $isForwarded;
+        return $this;
+    }
 
-public function setIsForwarded(bool $isForwarded): self
-{
-    $this->isForwarded = $isForwarded;
-    return $this;
-}
+    public function getOriginalSubject(): ?string
+    {
+        return $this->originalSubject;
+    }
 
-public function getOriginalSubject(): ?string
-{
-    return $this->originalSubject;
-}
-
-public function setOriginalSubject(?string $originalSubject): self
-{
-    $this->originalSubject = $originalSubject;
-    return $this;
-}
+    public function setOriginalSubject(?string $originalSubject): self
+    {
+        $this->originalSubject = $originalSubject;
+        return $this;
+    }
 }

@@ -2218,6 +2218,14 @@ window.addEventListener('resize', function() {
             
             <!-- Right Side: Job Details -->
             <div class="split-job-details" id="split-job-details">
+                <button id="detail-timeline-btn" class="action-btn" title="Timeline" style="position: absolute; top: 10px; right: 120px; display: none; cursor: pointer;">
+                  <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  Timeline
+                </button>
                 <button id="detail-note-btn" class="action-btn" title="Add Note" style="position: absolute; top: 10px; right: 10px; display: none; cursor: pointer;">
                   <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
@@ -2255,6 +2263,165 @@ window.addEventListener('resize', function() {
                     </div>
                   </div>
                 </aside>
+
+                <!-- Timeline Drawer -->
+                <aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
+                    <div class="timeline-header">
+                        <h3 class="timeline-title">Job Timeline</h3>
+                        <button type="button" class="timeline-close" onclick="closeTimelinePanel()">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="timeline-body" id="timeline-content">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading timeline...</p>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Timeline Panel Overlay -->
+                <div id="timeline-overlay" class="timeline-panel-overlay" onclick="closeTimelinePanel()"></div>
+                
+                <!-- Notes Panel -->
+                <aside id="notes-panel" class="notes-panel" aria-hidden="true">
+                  <div class="notes-panel-header">
+                    <span>Notes</span>
+                    <button type="button" class="notes-panel-close" onclick="closeNotesPanel()">×</button>
+                  </div>
+                  <div class="notes-panel-body">
+                    <div class="notes-title">
+                      <h6>Add notes for this job</h6>
+                      <p class="text-muted">Your notes are saved automatically and only visible to you.</p>
+                    </div>
+                    <textarea id="notes-textarea" class="notes-textarea" placeholder="Write your notes here..."></textarea>
+                    <div class="notes-footer">
+                      <div class="last-saved" style="display: none;">
+                        Last saved <span class="last-saved-time"></span>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+                
+                <!-- Panel Styles -->
+                <style>
+                  /* Timeline and Notes Panel Styles */
+                  .timeline-panel, .notes-panel {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    height: 100%;
+                    width: 400px;
+                    max-width: 90vw;
+                    background: #fff;
+                    border-left: 1px solid #e6eef6;
+                    box-shadow: -2px 0 8px rgba(11,22,40,0.06);
+                    transform: translateX(100%);
+                    transition: transform 0.2s ease;
+                    display: flex;
+                    flex-direction: column;
+                    z-index: 10;
+                    visibility: hidden;
+                    overflow-y: auto;
+                    pointer-events: none;
+                  }
+                  
+                  .timeline-panel.open, .notes-panel.open { 
+                    transform: translateX(0); 
+                    visibility: visible;
+                    pointer-events: auto;
+                  }
+                  
+                  .timeline-header, .notes-panel-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 14px;
+                    border-bottom: 1px solid #e6eef6;
+                    font-weight: 600;
+                  }
+                  
+                  .timeline-close, .notes-panel-close { 
+                    background: transparent; 
+                    border: none; 
+                    font-size: 22px; 
+                    cursor: pointer;
+                    color: #666;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                  }
+                  
+                  .timeline-close:hover, .notes-panel-close:hover {
+                    background: #f5f5f5;
+                    color: #333;
+                  }
+                  
+                  .timeline-body, .notes-panel-body { 
+                    padding: 16px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    height: 100%; 
+                  }
+                  
+                  .notes-title {
+                    margin-bottom: 16px;
+                  }
+                  
+                  .notes-title h6 {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #333;
+                    margin-bottom: 4px;
+                  }
+                  
+                  .notes-title p {
+                    font-size: 12px;
+                    margin: 0;
+                  }
+                  
+                  .notes-textarea {
+                    width: 100%;
+                    flex: 1;
+                    resize: none;
+                    border: 1px solid #e6eef6;
+                    border-radius: 8px;
+                    padding: 12px;
+                    outline: none;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    min-height: 200px;
+                  }
+                  
+                  .notes-textarea:focus {
+                    border-color: #85BB65;
+                    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.1);
+                  }
+                  
+                  .notes-footer {
+                    margin-top: 12px;
+                    color: #666;
+                    font-size: 12px;
+                  }
+                  
+                  .notes-footer .last-saved {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                  }
+                  
+                  .notes-footer .last-saved::before {
+                    content: "✓";
+                    color: #85BB65;
+                  }
+                </style>
             </div>
         </div>
     </div>
@@ -5077,7 +5244,10 @@ document.addEventListener('DOMContentLoaded', function () {
             jobDetailContent.innerHTML = html;
             jobDetailContent.style.display = 'block';
             if (noJobSelected) noJobSelected.style.display = 'none';
+            if (noJobSelected) noJobSelected.style.display = 'none';
             if (detailNoteBtn) { detailNoteBtn.style.display = 'flex'; }
+            const detailTimelineBtn = document.getElementById('detail-timeline-btn');
+            if (detailTimelineBtn) { detailTimelineBtn.style.display = 'flex'; }
             // Update toggle button position after content loads
             setTimeout(() => {
                 if (typeof updateToggleButtonPosition === 'function') {
@@ -5105,6 +5275,378 @@ document.addEventListener('DOMContentLoaded', function () {
   window.loadJobDetails = function(jobId) {
       renderJobDetails(jobId);
   };
+
+  // Timeline Panel Functions
+  window.openTimelinePanel = function(jobId) {
+      const timelinePanel = document.getElementById('timeline-panel');
+      const timelineContent = document.getElementById('timeline-content');
+      
+      if (!timelinePanel || !timelineContent) return;
+      
+      // Show loading state
+      timelineContent.innerHTML = `
+          <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2 text-muted">Loading timeline...</p>
+          </div>
+      `;
+      
+      // Open the panel
+      timelinePanel.classList.add('open');
+      timelinePanel.setAttribute('aria-hidden', 'false');
+      
+      // Fetch job timeline data from API
+      fetch(`/provider/jobs/${jobId}/timeline-data`)
+          .then(response => response.json())
+          .then(data => {
+              // Build interview section HTML
+              let interviewsHTML = '';
+              if (data.interviews && data.interviews.length > 0) {
+                  interviewsHTML = data.interviews.map(interview => `
+                      <div class="timeline-detail-item">
+                          <span class="timeline-detail-label">${interview.type}:</span>
+                          <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
+                      </div>
+                      ${interview.platform ? `
+                      <div class="timeline-detail-item">
+                          <span class="timeline-detail-label">Platform:</span>
+                          <span class="timeline-detail-value">${interview.platform}</span>
+                      </div>
+                      ` : ''}
+                      ${interview.meetingUrl ? `
+                      <div class="timeline-detail-item">
+                          <span class="timeline-detail-label">Meeting Link:</span>
+                          <span class="timeline-detail-value">
+                              <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
+                          </span>
+                      </div>
+                      ` : ''}
+                  `).join('');
+              } else {
+                  interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
+              }
+              
+              // Build timeline content with real data
+              timelineContent.innerHTML = `
+                  <div class="timeline-events">
+                      <!-- Job ID Section -->
+                      <div class="timeline-info-box">
+                          <div class="timeline-info-label">Job ID</div>
+                          <div class="timeline-info-value">${data.jobId}</div>
+                      </div>
+                      
+                      <div class="timeline-event-divider"></div>
+                      
+                      <!-- Application Overview -->
+                      <div class="timeline-event">
+                          <div class="timeline-event-icon">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                          </div>
+                          <div class="timeline-event-content">
+                              <h6 class="timeline-event-title">Application Overview</h6>
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Status:</span>
+                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}">${data.applicationStatus}</span>
+                              </div>
+                              ${data.applicationDate ? `
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Applied On:</span>
+                                  <span class="timeline-detail-value">${data.applicationDate}</span>
+                              </div>
+                              ` : ''}
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Job Saved:</span>
+                                  <span class="timeline-detail-value">${data.bookmarkDate}</span>
+                              </div>
+                              ${data.hiredDate ? `
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Hired Date:</span>
+                                  <span class="timeline-detail-value">${data.hiredDate}</span>
+                              </div>
+                              ` : ''}
+                              ${data.contractSentDate ? `
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Contract Sent:</span>
+                                  <span class="timeline-detail-value">${data.contractSentDate}</span>
+                              </div>
+                              ` : ''}
+                              ${data.contractSignedDate ? `
+                              <div class="timeline-detail-item">
+                                  <span class="timeline-detail-label">Contract Signed:</span>
+                                  <span class="timeline-detail-value">${data.contractSignedDate}</span>
+                              </div>
+                              ` : ''}
+                          </div>
+                      </div>
+                      
+                      <div class="timeline-event-divider"></div>
+                      
+                      <!-- Interview Information -->
+                      <div class="timeline-event">
+                          <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
+                                  <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
+                                  <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
+                              </svg>
+                          </div>
+                          <div class="timeline-event-content">
+                              <h6 class="timeline-event-title">Interview Schedule</h6>
+                              ${interviewsHTML}
+                              <a href="{{ path('app_provider_interview_calendar') }}?jobId=${data.jobId}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
+                                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                      <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                  </svg>
+                                  View Full Calendar
+                              </a>
+                          </div>
+                      </div>
+                      
+                      <div class="timeline-event-divider"></div>
+                      
+                      <!-- Quick Actions -->
+                      <div class="timeline-event">
+                          <div class="timeline-event-icon">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
+                                  <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
+                              </svg>
+                          </div>
+                          <div class="timeline-event-content">
+                              <h6 class="timeline-event-title">Quick Actions</h6>
+                              <div class="timeline-actions">
+                                  <a href="/provider/jobs/${data.jobId}/detail" class="btn btn-sm btn-outline-secondary">
+                                      View Full Details
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  
+                  <style>
+                      .timeline-events {
+                          padding: 10px 0;
+                      }
+                      .timeline-info-box {
+                          background: #f8f9fa;
+                          border-left: 3px solid #85BB65;
+                          padding: 12px 15px;
+                          border-radius: 6px;
+                          margin-bottom: 10px;
+                      }
+                      .timeline-info-label {
+                          font-size: 11px;
+                          text-transform: uppercase;
+                          color: #6c757d;
+                          font-weight: 600;
+                          margin-bottom: 4px;
+                          letter-spacing: 0.5px;
+                      }
+                      .timeline-info-value {
+                          font-size: 13px;
+                          color: #121C0C;
+                          font-weight: 500;
+                          font-family: monospace;
+                      }
+                      .timeline-event {
+                          display: flex;
+                          gap: 15px;
+                          padding: 15px 0;
+                      }
+                      .timeline-event-icon {
+                          flex-shrink: 0;
+                          width: 40px;
+                          height: 40px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          background: #f8f9fa;
+                          border-radius: 50%;
+                      }
+                      .timeline-event-icon.has-interview {
+                          background: #e8f5e9;
+                      }
+                      .timeline-event-content {
+                          flex: 1;
+                      }
+                      .timeline-event-title {
+                          font-size: 14px;
+                          font-weight: 600;
+                          margin-bottom: 8px;
+                          color: #121C0C;
+                      }
+                      .timeline-detail-item {
+                          display: flex;
+                          gap: 8px;
+                          margin-bottom: 6px;
+                          font-size: 13px;
+                      }
+                      .timeline-detail-label {
+                          color: #6c757d;
+                          font-weight: 500;
+                      }
+                      .timeline-detail-value {
+                          color: #121C0C;
+                      }
+                      .timeline-detail-value.status-interview,
+                      .timeline-detail-value.status-offered,
+                      .timeline-detail-value.status-accepted,
+                      .timeline-detail-value.status-hired {
+                          color: #85BB65;
+                          font-weight: 600;
+                      }
+                      .timeline-detail-value.status-rejected {
+                          color: #dc3545;
+                          font-weight: 600;
+                      }
+                      .timeline-event-date {
+                          font-size: 12px;
+                          margin-bottom: 6px;
+                      }
+                      .timeline-event-description {
+                          font-size: 13px;
+                          color: #6c757d;
+                          margin-bottom: 0;
+                      }
+                      .timeline-event-divider {
+                          height: 1px;
+                          background: #e6eef6;
+                          margin: 10px 0;
+                      }
+                      .timeline-actions {
+                          display: flex;
+                          gap: 8px;
+                          flex-wrap: wrap;
+                          margin-top: 8px;
+                      }
+                      .timeline-actions .btn {
+                          font-size: 12px;
+                          padding: 6px 12px;
+                      }
+                  </style>
+              `;
+          })
+          .catch(error => {
+              console.error('Error loading timeline:', error);
+              timelineContent.innerHTML = `
+                  <div class="timeline-events">
+                      <!-- Job ID Section -->
+                      <div class="timeline-info-box">
+                          <div class="timeline-info-label">Job ID</div>
+                          <div class="timeline-info-value">${jobId}</div>
+                      </div>
+                      
+                      <div class="timeline-event-divider"></div>
+                      
+                      <div class="alert alert-warning">
+                          <p class="mb-0">Unable to load detailed timeline information.</p>
+                          <a href="/provider/jobs/${jobId}/detail" class="btn btn-sm btn-outline-primary mt-2">
+                              View Job Details
+                          </a>
+                      </div>
+                  </div>
+              `;
+          });
+  }
+
+  window.closeTimelinePanel = function() {
+      const timelinePanel = document.getElementById('timeline-panel');
+      if (timelinePanel) {
+          timelinePanel.classList.remove('open');
+          timelinePanel.setAttribute('aria-hidden', 'true');
+      }
+  }
+
+  // Timeline button click handler
+  document.addEventListener('click', function(e) {
+      if (e.target.closest('#detail-timeline-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Get the selected job ID
+          let jobId = window.selectedJobId || null;
+          if (jobId) {
+              // Close notes panel if open
+              const notesPanel = document.getElementById('notes-panel');
+              if (notesPanel && notesPanel.classList.contains('open')) {
+                  notesPanel.classList.remove('open');
+                  notesPanel.setAttribute('aria-hidden', 'true');
+              }
+              openTimelinePanel(jobId);
+          }
+      }
+  });
+  
+  // Note Panel Functions
+  window.openNotesPanel = function(jobId) {
+      const panel = document.getElementById('notes-panel');
+      const textarea = document.getElementById('notes-textarea');
+      const jobDetails = document.getElementById('split-job-details');
+      if (!panel || !textarea) return;
+      
+      // Close timeline panel if open
+      const timelinePanel = document.getElementById('timeline-panel');
+      if (timelinePanel && timelinePanel.classList.contains('open')) {
+          timelinePanel.classList.remove('open');
+          timelinePanel.setAttribute('aria-hidden', 'true');
+      }
+      
+      panel.dataset.jobId = jobId;
+      const saved = localStorage.getItem('provider_job_notes_' + jobId) || '';
+      textarea.value = saved;
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      
+      // Add class to job details container to adjust layout
+      if (jobDetails) {
+          jobDetails.classList.add('notes-open');
+      }
+      textarea.focus();
+      
+      // Auto-save on input
+      textarea.oninput = function() {
+          localStorage.setItem('provider_job_notes_' + jobId, textarea.value);
+          const lastSaved = panel.querySelector('.last-saved');
+          const lastSavedTime = panel.querySelector('.last-saved-time');
+          if (lastSaved && lastSavedTime) {
+              lastSaved.style.display = 'block';
+              lastSavedTime.textContent = new Date().toLocaleTimeString();
+          }
+      };
+  }
+  
+  window.closeNotesPanel = function() {
+      const panel = document.getElementById('notes-panel');
+      const jobDetails = document.getElementById('split-job-details');
+      if (!panel) return;
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      panel.dataset.jobId = '';
+      
+      // Remove class from job details container to restore layout
+      if (jobDetails) {
+          jobDetails.classList.remove('notes-open');
+      }
+  }
+  
+  // Note button click handler
+  document.addEventListener('click', function(e) {
+      if (e.target.closest('#detail-note-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const jobId = window.selectedJobId || null;
+          if (jobId) {
+              openNotesPanel(jobId);
+          }
+      }
+  });
 });
 </script>
 {% endblock %}
