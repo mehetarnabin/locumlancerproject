@@ -783,60 +783,92 @@ class JobController extends AbstractController
     }
 
     #[Route('/provider/send-employer-email', name: 'app_provider_send_employer_email', methods: ['POST'])]
-    public function sendEmployerEmail(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true) ?: [];
+public function sendEmployerEmail(
+    Request $request,
+    EntityManagerInterface $entityManager,
+    MailerInterface $mailer
+): JsonResponse {
 
-        $jobId = $data['job_id'] ?? null;
-        $subject = $data['subject'] ?? '';
-        $message = $data['message'] ?? '';
-        $templateId = $data['template_id'] ?? null;
+    $data = json_decode($request->getContent(), true) ?: [];
 
-        if (!$jobId || !$subject || !$message) {
-            return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
-        }
+    $jobId = $data['job_id'] ?? null;
+    $subject = trim($data['subject'] ?? '');
+    $message = trim($data['message'] ?? '');
 
-        try {
-            $job = $entityManager->getRepository(Job::class)->find($jobId);
-            if (!$job) {
-                return $this->json(['success' => false, 'message' => 'Job not found'], 404);
-            }
-
-            $employer = $job->getEmployer();
-            $employerEmail = null;
-            if ($employer) {
-                $employerEmail = $employer->getContactEmail() ?: $employer->getEmail();
-            }
-
-            if (!$employerEmail) {
-                return $this->json(['success' => false, 'message' => 'No employer email found for this job'], 404);
-            }
-
-            $user = $this->getUser();
-            $senderName = $user?->getName() ?: ($user?->getEmail() ?: 'LocumLancer Provider');
-            $senderEmail = $user?->getEmail() ?: 'notifications@locumlancer.com';
-
-            $email = (new Email())
-                ->from('notifications@locumlancer.com')
-                ->replyTo($senderEmail, $senderName)
-                ->to($employerEmail)
-                ->subject($subject . ' - LocumLancer')
-                ->html($this->renderView('emails/message_notification.html.twig', [
-                    'subject' => $subject,
-                    'message_text' => $message,
-                    'sender_name' => $senderName,
-                    'sender_email' => $senderEmail,
-                    'has_attachment' => false,
-                    'attachment_name' => null,
-                ]));
-
-            $mailer->send($email);
-
-            return $this->json(['success' => true, 'message' => 'Email sent successfully']);
-        } catch (\Exception $e) {
-            return $this->json(['success' => false, 'message' => 'Error sending email: ' . $e->getMessage()], 500);
-        }
+    if (!$jobId || !$subject || !$message) {
+        return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
     }
+
+    try {
+        // -------------------------------
+        // 1️⃣ Fetch Job and Employer Email
+        // -------------------------------
+        $job = $entityManager->getRepository(Job::class)->find($jobId);
+        if (!$job) {
+            return $this->json(['success' => false, 'message' => 'Job not found'], 404);
+        }
+
+        $employer = $job->getEmployer();
+        if (!$employer) {
+            return $this->json(['success' => false, 'message' => 'Employer not found'], 404);
+        }
+
+        // Employer email: contactEmail → email
+        $employerEmail = trim(
+            $employer->getContactEmail() ?: $employer->getEmail()
+        );
+
+        if (!filter_var($employerEmail, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'message' => 'Invalid employer email: ' . $employerEmail], 400);
+        }
+
+        // -------------------------------
+        // 2️⃣ Fetch Provider (logged-in user) Email
+        // -------------------------------
+        $user = $this->getUser();
+
+        $providerName = $user?->getName() ?: 'Provider';
+        $providerEmail = trim($user?->getEmail() ?? '');
+
+        // Provider email fallback
+        if (!filter_var($providerEmail, FILTER_VALIDATE_EMAIL)) {
+            $providerEmail = 'notifications@locumlancer.com';
+            $providerName = 'LocumLancer Provider';
+        }
+
+        // -------------------------------
+        // 3️⃣ Build Email
+        // -------------------------------
+        $email = (new Email())
+            ->from($providerEmail)              // Provider is real sender
+            ->to($employerEmail)               // Employer is receiver
+            ->subject($subject)
+            ->html(
+                $this->renderView('emails/message_notification.html.twig', [
+                    'subject'        => $subject,
+                    'message_text'   => $message,
+                    'sender_name'    => $providerName,
+                    'sender_email'   => $providerEmail,
+                    'has_attachment' => false,
+                    'attachment_name'=> null,
+                ])
+            );
+
+        // -------------------------------
+        // 4️⃣ Send Email
+        // -------------------------------
+        $mailer->send($email);
+
+        return $this->json(['success' => true, 'message' => 'Email sent successfully']);
+
+    } catch (\Exception $e) {
+        return $this->json([
+            'success' => false,
+            'message' => 'Error sending email: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
 
     #[Route('/provider/track-email-sent', name: 'app_provider_track_email_sent', methods: ['POST'])]
     public function trackEmailSent(Request $request): JsonResponse

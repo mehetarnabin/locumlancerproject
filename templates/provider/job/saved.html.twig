@@ -4832,11 +4832,15 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filter-btn');
   const filterPanel = document.getElementById('filter-panel');
+  
+  if (!filterBtn || !filterPanel) {
+    console.log('Filter button or panel not found, skipping filter initialization');
+    return;
+  }
+  
   const applyBtn = document.getElementById('apply-filter-btn');
   const clearBtn = document.getElementById('clear-filter-btn');
   const container = document.querySelector('.job-list-container');
-  
-  if (!filterBtn || !filterPanel) return;
   
   // Toggle filter panel - ONLY toggle, don't apply filters
   filterBtn.addEventListener('click', function(e) {
@@ -6457,6 +6461,382 @@ document.addEventListener('DOMContentLoaded', function() {
                       }
                   }
               });
+          }
+      });
+
+      // Archive and Delete button handlers - EXACT COPY from applications.html.twig
+      const archiveBtn = document.getElementById('archive-btn');
+      const deleteBtn = document.getElementById('delete-btn');
+      
+      // Archive button handler
+      if (archiveBtn) {
+          archiveBtn.addEventListener('click', () => {
+              const selectedCheckboxes = Array.from(document.querySelectorAll('.job-list-container .job-checkbox:checked'));
+              const selectedIds = selectedCheckboxes.map(cb => cb.dataset.bookmarkId).filter(id => id);
+              
+              if (selectedIds.length === 0) {
+                  if (typeof showToast === 'function') {
+                      showToast('Please select at least one job to archive.', 'warning');
+                  } else {
+                      alert('Please select at least one job to archive.');
+                  }
+                  return;
+              }
+              
+              // Show confirmation
+              if (typeof showConfirmAlert === 'function') {
+                  showConfirmAlert(
+                      'Confirm Archive',
+                      `Are you sure you want to archive ${selectedIds.length} selected job(s)?`,
+                      'Archive',
+                      'Cancel',
+                      async (confirmed) => {
+                          if (!confirmed) return;
+                          
+                          try {
+                              const response = await fetch('{{ path("app_provider_bookmarks_archive") }}', {
+                                  method: 'POST',
+                                  headers: {
+                                      'Content-Type': 'application/x-www-form-urlencoded',
+                                      'X-Requested-With': 'XMLHttpRequest'
+                                  },
+                                  body: new URLSearchParams({
+                                      '_token': '{{ csrf_token("archive_bookmarks") }}',
+                                      'bookmark_ids': JSON.stringify(selectedIds)
+                                  })
+                              });
+
+                              const data = await response.json();
+
+                              if (data.success || response.ok) {
+                                  if (typeof showSuccessAlert === 'function') {
+                                      showSuccessAlert('Success!', `Successfully archived ${selectedIds.length} job(s)!`);
+                                  } else {
+                                      alert('Successfully archived ' + selectedIds.length + ' job(s)!');
+                                  }
+                                  
+                                  // Remove archived jobs from UI
+                                  selectedIds.forEach(id => {
+                                      const checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
+                                      if (checkbox) {
+                                          const jobList = checkbox.closest(".job-lists");
+                                          if (jobList) {
+                                              jobList.remove();
+                                          }
+                                      }
+                                  });
+                                  
+                                  // Update UI after removal
+                                  const remainingRows = document.querySelectorAll('.job-lists');
+                                  if (remainingRows.length === 0) {
+                                      const container = document.querySelector('.job-list-container');
+                                      if (container) {
+                                          container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
+                                      }
+                                  }
+                                  
+                                  // Uncheck all and update states
+                                  document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                                  if (typeof toggleActionsVisibility === 'function') {
+                                      toggleActionsVisibility();
+                                  }
+                                  if (typeof updateButtonStates === 'function') {
+                                      updateButtonStates();
+                                  }
+                              } else {
+                                  if (typeof showErrorAlert === 'function') {
+                                      showErrorAlert('Error!', data.message || 'Failed to archive jobs');
+                                  } else {
+                                      alert('Error: ' + (data.message || 'Failed to archive jobs'));
+                                  }
+                              }
+                          } catch (error) {
+                              console.error('Error:', error);
+                              if (typeof showErrorAlert === 'function') {
+                                  showErrorAlert('Error!', 'Network error. Please try again.');
+                              } else {
+                                  alert('Network error. Please try again.');
+                              }
+                          }
+                      }
+                  );
+              } else {
+                  if (confirm(`Are you sure you want to archive ${selectedIds.length} selected job(s)?`)) {
+                      fetch('{{ path("app_provider_bookmarks_archive") }}', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/x-www-form-urlencoded',
+                              'X-Requested-With': 'XMLHttpRequest'
+                          },
+                          body: new URLSearchParams({
+                              '_token': '{{ csrf_token("archive_bookmarks") }}',
+                              'bookmark_ids': JSON.stringify(selectedIds)
+                          })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              alert('Successfully archived ' + selectedIds.length + ' job(s)!');
+                              window.location.reload();
+                          } else {
+                              alert('Error: ' + (data.message || 'Failed to archive jobs'));
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                          alert('Network error. Please try again.');
+                      });
+                  }
+              }
+          });
+      }
+
+      // Delete button handler (for both top and bottom buttons)
+      console.log('🔍 Initializing delete buttons...');
+      console.log('deleteBtn element:', deleteBtn);
+      const deleteButtons = [deleteBtn, document.getElementById('delete-btn-bottom')].filter(btn => btn);
+      console.log('Total delete buttons found:', deleteButtons.length, deleteButtons);
+      
+      deleteButtons.forEach((deleteBtn, index) => {
+          console.log(`Setting up delete button ${index + 1}:`, deleteBtn);
+          if (deleteBtn) {
+              // Force the button to be clickable
+              deleteBtn.style.pointerEvents = 'auto';
+              deleteBtn.style.cursor = 'pointer';
+              deleteBtn.style.position = 'relative';
+              deleteBtn.style.zIndex = '1000';
+              
+              const computedStyle = window.getComputedStyle(deleteBtn);
+              console.log(`Delete button ${index + 1} pointer-events:`, computedStyle.pointerEvents);
+              console.log(`Delete button ${index + 1} z-index:`, computedStyle.zIndex);
+              
+              console.log(`Adding click listener to delete button ${index + 1}`);
+              deleteBtn.addEventListener('click', (e) => {
+              console.log('🔴 DELETE BUTTON CLICKED!', e);
+              e.preventDefault();
+              e.stopPropagation();
+              const selectedCheckboxes = Array.from(document.querySelectorAll('.job-list-container .job-checkbox:checked'));
+              const selectedIds = selectedCheckboxes.map(cb => cb.dataset.bookmarkId).filter(id => id);
+              
+              if (selectedIds.length === 0) {
+                  if (typeof showToast === 'function') {
+                      showToast('Please select at least one job to delete.', 'warning');
+                  } else {
+                      alert('Please select at least one job to delete.');
+                  }
+                  return;
+              }
+              
+              // Show confirmation alert
+              if (typeof showConfirmAlert === 'function') {
+                  showConfirmAlert(
+                      'Confirm Deletion',
+                      `Are you sure you want to delete ${selectedIds.length} selected job(s)? This action cannot be undone.`,
+                      'Delete',
+                      'Cancel',
+                      async (confirmed) => {
+                          if (!confirmed) return;
+                          
+                          try {
+                              // Use fetch API to delete
+                              const response = await fetch('{{ path("app_provider_bookmarks_delete") }}', {
+                                  method: 'POST',
+                                  headers: {
+                                      'Content-Type': 'application/x-www-form-urlencoded',
+                                      'X-Requested-With': 'XMLHttpRequest'
+                                  },
+                                  body: new URLSearchParams({
+                                      '_token': '{{ csrf_token("delete_bookmarks") }}',
+                                      'bookmark_ids': JSON.stringify(selectedIds)
+                                  })
+                              });
+
+                              const data = await response.json();
+
+                              if (data.success || response.ok) {
+                                  if (typeof showSuccessAlert === 'function') {
+                                      showSuccessAlert('Success!', `Successfully deleted ${selectedIds.length} job(s)!`);
+                                  } else {
+                                      alert('Successfully deleted ' + selectedIds.length + ' job(s)!');
+                                  }
+                                  
+                                  // Remove deleted jobs from UI immediately
+                                  selectedIds.forEach(id => {
+                                      const checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
+                                      if (checkbox) {
+                                          const jobList = checkbox.closest(".job-lists");
+                                          if (jobList) {
+                                              jobList.remove();
+                                          } else {
+                                              const row = checkbox.closest(".job-row");
+                                              if (row) row.remove();
+                                          }
+                                      }
+                                  });
+                                  
+                                  // Update UI after removal
+                                  const remainingRows = document.querySelectorAll('.job-lists');
+                                  if (remainingRows.length === 0) {
+                                      const container = document.querySelector('.job-list-container');
+                                      if (container) {
+                                          container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
+                                      }
+                                  }
+                                  
+                                  // Uncheck all checkboxes and update button states
+                                  document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                                  if (typeof toggleActionsVisibility === 'function') {
+                                      toggleActionsVisibility();
+                                  }
+                                  if (typeof updateButtonStates === 'function') {
+                                      updateButtonStates();
+                                  }
+                              } else {
+                                  if (typeof showErrorAlert === 'function') {
+                                      showErrorAlert('Error!', data.message || 'Failed to delete jobs');
+                                  } else {
+                                      alert('Error: ' + (data.message || 'Failed to delete jobs'));
+                                  }
+                              }
+                          } catch (error) {
+                              console.error('Error:', error);
+                              if (typeof showErrorAlert === 'function') {
+                                  showErrorAlert('Error!', 'Network error. Please try again.');
+                              } else {
+                                  alert('Network error. Please try again.');
+                              }
+                          }
+                      }
+                  );
+              } else {
+                  if (confirm(`Are you sure you want to delete ${selectedIds.length} selected job(s)? This action cannot be undone.`)) {
+                      // Fallback: use fetch if showConfirmAlert is not available
+                      fetch('{{ path("app_provider_bookmarks_delete") }}', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/x-www-form-urlencoded',
+                              'X-Requested-With': 'XMLHttpRequest'
+                          },
+                          body: new URLSearchParams({
+                              '_token': '{{ csrf_token("delete_bookmarks") }}',
+                              'bookmark_ids': JSON.stringify(selectedIds)
+                          })
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              alert('Successfully deleted ' + selectedIds.length + ' job(s)!');
+                              window.location.reload();
+                          } else {
+                              alert('Error: ' + (data.message || 'Failed to delete jobs'));
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                          alert('Network error. Please try again.');
+                      });
+                  }
+              }
+          });
+          }
+      });
+  });
+  </script>
+  
+  <script>
+  // Archive and Delete button handlers - Run when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+      const archiveBtn = document.getElementById('archive-btn');
+      const deleteBtn = document.getElementById('delete-btn');
+      
+      console.log('🚀 Initializing archive and delete buttons');
+      console.log('Archive button:', archiveBtn);
+      console.log('Delete button:', deleteBtn);
+      
+      // Archive button handler
+      if (archiveBtn) {
+          archiveBtn.addEventListener('click', function() {
+              const selectedCheckboxes = Array.from(document.querySelectorAll('.job-list-container .job-checkbox:checked'));
+              const selectedIds = selectedCheckboxes.map(cb => cb.dataset.bookmarkId).filter(id => id);
+              
+              if (selectedIds.length === 0) {
+                  alert('Please select at least one job to archive.');
+                  return;
+              }
+              
+              if (confirm(`Are you sure you want to archive ${selectedIds.length} selected job(s)?`)) {
+                  fetch('{{ path("app_provider_bookmarks_archive") }}', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded',
+                          'X-Requested-With': 'XMLHttpRequest'
+                      },
+                      body: new URLSearchParams({
+                          '_token': '{{ csrf_token("archive_bookmarks") }}',
+                          'bookmark_ids': JSON.stringify(selectedIds)
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert('Successfully archived ' + selectedIds.length + ' job(s)!');
+                          window.location.reload();
+                      } else {
+                          alert('Error: ' + (data.message || 'Failed to archive jobs'));
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Network error. Please try again.');
+                  });
+              }
+          });
+      }
+
+      // Delete button handler (for both top and bottom buttons)
+      const deleteButtons = [deleteBtn, document.getElementById('delete-btn-bottom')].filter(btn => btn);
+      console.log('Delete buttons found:', deleteButtons.length);
+      
+      deleteButtons.forEach(function(btn, index) {
+          console.log(`Setting up delete button ${index + 1}`);
+          if (btn) {
+              btn.addEventListener('click', function() {
+              console.log('🔴 DELETE BUTTON CLICKED!');
+              const selectedCheckboxes = Array.from(document.querySelectorAll('.job-list-container .job-checkbox:checked'));
+              const selectedIds = selectedCheckboxes.map(cb => cb.dataset.bookmarkId).filter(id => id);
+              
+              if (selectedIds.length === 0) {
+                  alert('Please select at least one job to delete.');
+                  return;
+              }
+              
+              if (confirm(`Are you sure you want to delete ${selectedIds.length} selected job(s)? This action cannot be undone.`)) {
+                  fetch('{{ path("app_provider_bookmarks_delete") }}', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded',
+                          'X-Requested-With': 'XMLHttpRequest'
+                      },
+                      body: new URLSearchParams({
+                          '_token': '{{ csrf_token("delete_bookmarks") }}',
+                          'bookmark_ids': JSON.stringify(selectedIds)
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert('Successfully deleted ' + selectedIds.length + ' job(s)!');
+                          window.location.reload();
+                      } else {
+                          alert('Error: ' + (data.message || 'Failed to delete jobs'));
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('Network error. Please try again.');
+                  });
+              }
+          });
           }
       });
   });
