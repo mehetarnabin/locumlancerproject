@@ -26,144 +26,139 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Route('/provider')]
 class DocumentController extends AbstractController
 {
-    #[Route('/documents', name: 'app_provider_documents')]
-    public function index(
-        DocumentRepository $documentRepository,
-        DocumentRequestRepository $documentRequestRepository,
-        Request $request,
-        EntityManagerInterface $em, // Use EntityManager instead of CredentialingLinkRepository
-        SluggerInterface $slugger,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
-        $user = $this->getUser();
-        $provider = $user->getProvider();
-        
-        
-        $document = new Document();
-        $form = $this->createForm(DocumentType::class, $document);
-        $form->handleRequest($request);
+#[Route('/documents', name: 'app_provider_documents')]
+public function index(
+    DocumentRepository $documentRepository,
+    DocumentRequestRepository $documentRequestRepository,
+    Request $request,
+    EntityManagerInterface $em,
+    SluggerInterface $slugger,
+    #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+): Response
+{
+    $user = $this->getUser();
+    $provider = $user->getProvider();
 
-        if($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $file */
-            $file = $form->get('fileName')->getData();
+    $document = new Document();
+    $form = $this->createForm(DocumentType::class, $document);
+    $form->handleRequest($request);
 
-            if ($file) {
-                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+    if ($form->isSubmitted() && $form->isValid()) {
+        /** @var UploadedFile $file */
+        $file = $form->get('fileName')->getData();
 
-                try {
-                    $userUploadDir = $uploadDirectory . '/' . $user->getId();
-                    if (!file_exists($userUploadDir)) {
-                        mkdir($userUploadDir, 0777, true);
-                    }
-                    
-                    $file->move($userUploadDir, $newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'File upload failed: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_provider_documents');
+        if ($file) {
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+
+            try {
+                $userUploadDir = $uploadDirectory . '/' . $user->getId();
+                if (!file_exists($userUploadDir)) {
+                    mkdir($userUploadDir, 0777, true);
                 }
-
-                $document->setFileName($newFilename);
-                $document->setMimeType($file->getClientMimeType());
+                $file->move($userUploadDir, $newFilename);
+            } catch (FileException $e) {
+                if ($request->isXmlHttpRequest()) {
+                    return $this->json(['success' => false, 'message' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+                $this->addFlash('error', 'File upload failed: ' . $e->getMessage());
+                return $this->redirectToRoute('app_provider_documents');
             }
 
-            $document->setUser($user);
-            
-            if (!$document->getName() && $document->getCategory()) {
-                $document->setName($document->getCategory());
+            $document->setFileName($newFilename);
+            $document->setMimeType($file->getClientMimeType());
+        }
+
+        $document->setUser($user);
+        if (!$document->getName() && $document->getCategory()) {
+            $document->setName($document->getCategory());
+        }
+
+        // Auto-expiry logic
+        $autoExpiryDocuments = [
+            'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
+            'Influenza vaccine proof',
+            'COVID-19 vaccine proof',
+            'Mask fit testing'
+        ];
+
+        if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
+            if ($document->getIssueDate() && !$document->getExpirationDate()) {
+                $expirationDate = clone $document->getIssueDate();
+                $expirationDate->modify('+1 year');
+                $document->setExpirationDate($expirationDate);
             }
+        }
 
-            $autoExpiryDocuments = [
-                'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
-                'Influenza vaccine proof',
-                'COVID-19 vaccine proof',
-                'Mask fit testing'
-            ];
+        $em->persist($document);
+        $em->flush();
 
-            if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
-                if ($document->getIssueDate() && !$document->getExpirationDate()) {
-                    $expirationDate = clone $document->getIssueDate();
-                    $expirationDate->modify('+1 year');
-                    $document->setExpirationDate($expirationDate);
-                }
-            }
+        // AJAX response for CV upload
+        if ($request->isXmlHttpRequest()) {
+            $cvListHtml = '';
+            $latestCV = null;
 
-            $em->persist($document);
-            $em->flush();
-            
-            // Handle AJAX request
-            if ($request->isXmlHttpRequest()) {
-                // Get updated CV documents if category is CV
-                $cvListHtml = '';
-                if ($document->getCategory() === 'CV') {
-                    $cvDocuments = $documentRepository->findBy(
-                        ['user' => $user, 'category' => 'CV'],
-                        ['createdAt' => 'DESC']
-                    );
-                    
-                    // Render the CV list HTML
-                    $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
-                        'cvDocuments' => $cvDocuments,
-                    ]);
-                }
-                
-                return $this->json([
-                    'success' => true,
-                    'message' => 'Document uploaded successfully.',
-                    'fileName' => $document->getName() ?: $file->getClientOriginalName(),
-                    'cvListHtml' => $cvListHtml
+            if ($document->getCategory() === 'CV') {
+                // Get all CV documents for the list
+                $cvDocuments = $documentRepository->findBy(
+                    ['user' => $user, 'category' => 'CV'],
+                    ['createdAt' => 'DESC']
+                );
+
+                $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
+                    'cvDocuments' => $cvDocuments,
+                    'uploadDirectory' => '/uploads/' . $user->getId()
                 ]);
-            }
-            
-            $this->addFlash('success', 'Document uploaded successfully.');
-            return $this->redirectToRoute('app_provider_documents');
-        }
 
-        // Get document requests for the current provider
-        $documentRequests = $documentRequestRepository->findBy(
-            ['provider' => $provider],
-            ['createdAt' => 'DESC']
-        );
+                // Get the latest CV document (most recently uploaded)
+                $latestCVDocument = $documentRepository->findOneBy(
+                    ['user' => $user, 'category' => 'CV'],
+                    ['createdAt' => 'DESC']
+                );
 
-        // Group pending document requests by employer for the dashboard cards
-        $pendingDocumentRequests = array_filter($documentRequests, static function (DocumentRequest $request) {
-            return $request->getProvidedAt() === null;
-        });
-
-        $groupedDocumentRequests = [];
-        foreach ($pendingDocumentRequests as $request) {
-            $employer = $request->getApplication()?->getEmployer();
-            $groupKey = $employer
-                ? $employer->getId()?->toRfc4122()
-                : 'unassigned_' . spl_object_id($request);
-
-            if (!isset($groupedDocumentRequests[$groupKey])) {
-                $groupedDocumentRequests[$groupKey] = [
-                    'employer' => $employer,
-                    'requests' => [],
-                ];
+                if ($latestCVDocument) {
+                    $latestCV = [
+                        'fileName' => $latestCVDocument->getFileName(),
+                        'userId' => $user->getId()
+                    ];
+                }
             }
 
-            $groupedDocumentRequests[$groupKey]['requests'][] = $request;
+            return $this->json([
+                'success' => true,
+                'message' => 'Document uploaded successfully.',
+                'fileName' => $document->getName() ?: $file->getClientOriginalName(),
+                'cvListHtml' => $cvListHtml,
+                'latestCV' => $latestCV
+            ]);
         }
 
-        // Get credentialing links using EntityManager instead of repository
-        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
-            'provider' => $provider,
-            'isActive' => true
-        ], ['createdAt' => 'DESC']);
-
-        return $this->render('provider/document/index.html.twig', [
-            'form' => $form->createView(),
-            'documents' => $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']),
-            'documentRequests' => $documentRequests,
-            'groupedDocumentRequests' => $groupedDocumentRequests,
-            'credentialingLinks' => $credentialingLinks,
-            'editMode' => false,
-        ]);
+        $this->addFlash('success', 'Document uploaded successfully.');
+        return $this->redirectToRoute('app_provider_documents');
     }
+
+    // Fetch other data for the page (document requests, credentialing links, etc.)
+    $documentRequests = $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']);
+    $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy(['provider' => $provider, 'isActive' => true], ['createdAt' => 'DESC']);
+    $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+
+    // Get the latest CV document for initial page load
+    $latestCV = $documentRepository->findOneBy(
+        ['user' => $user, 'category' => 'CV'],
+        ['createdAt' => 'DESC']
+    );
+
+    return $this->render('provider/document/index.html.twig', [
+        'form' => $form->createView(),
+        'documents' => $documents,
+        'documentRequests' => $documentRequests,
+        'credentialingLinks' => $credentialingLinks,
+        'editMode' => false,
+        'uploadDirectory' => '/uploads/' . $user->getId(),
+        'latestCV' => $latestCV  // This was missing!
+    ]);
+}
 
     #[Route('/documents/edit/{id}', name: 'app_provider_document_edit')]
     public function edit(

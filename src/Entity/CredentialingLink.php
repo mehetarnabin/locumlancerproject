@@ -11,6 +11,13 @@ use App\Entity\Job;
 #[ORM\Table(name: 'b_credentialing_links')]
 class CredentialingLink
 {
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+    }
+
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -29,18 +36,19 @@ class CredentialingLink
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $sender = null;
-
-    #[ORM\Column]
-    private bool $isActive = true;
 
     #[ORM\ManyToOne(targetEntity: Job::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Job $job = null;
+
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(name: 'is_active')]
+    private bool $isActive = true;
+
 
     // Getters and setters...
     public function getId(): ?int
