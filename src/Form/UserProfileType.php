@@ -29,9 +29,11 @@ class UserProfileType extends AbstractType
             ])
             ->add('phone1', TextType::class, [
                 'required' => false,
+                'empty_data' => '',
             ])
             ->add('phone2', TextType::class, [
                 'required' => false,
+                'empty_data' => '',
             ])
             ->add('address', TextType::class, [
                 'required' => false,

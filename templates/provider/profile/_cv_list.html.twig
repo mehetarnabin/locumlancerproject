@@ -1,25 +1,67 @@
 {% if cvDocuments is not empty %}
 <div class="mt-4">
-    <h6 class="fw-semibold mb-2">Uploaded CVs</h6>
-    <ul class="list-group list-group-flush">
+    <h6 class="fw-semibold mb-3" style="color: #252930; font-size: 0.95rem;">Uploaded CVs</h6>
+    <div class="d-flex flex-column gap-2">
         {% for cv in cvDocuments %}
-        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-            <div>
-                <div class="fw-semibold text-dark">{{ cv.name }}</div>
-                <small class="text-muted">Uploaded {{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</small>
+        <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between bg-white hover-shadow transition-all" style="border-color: #e5e7eb !important;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #F4F9F1; color: #85BB65;">
+                    <i class="fa fa-file-pdf fa-lg"></i>
+                </div>
+                <div>
+                    <div class="fw-medium text-dark" style="font-size: 0.95rem;">{{ cv.name }}</div>
+                    <div class="text-muted small d-flex align-items-center gap-2">
+                        <span><i class="fa fa-clock me-1"></i>{{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</span>
+                    </div>
+                </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ path('app_provider_document_view', {'id': cv.id}) }}" class="btn btn-link btn-sm text-decoration-none">View</a>
-                <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" download class="btn btn-link btn-sm text-decoration-none">Download</a>
-                <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Remove this CV?');">
+                <button type="button" 
+                        class="btn btn-light btn-sm text-primary d-flex align-items-center gap-1 view-cv-btn" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#viewCvModal" 
+                        data-cv-url="{{ path('app_provider_document_view', {'id': cv.id}) }}"
+                        data-cv-name="{{ cv.name }}"
+                        title="View CV">
+                    <i class="fa fa-eye"></i>
+                    <span class="d-none d-md-inline">View</span>
+                </button>
+                
+                <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" 
+                   download 
+                   class="btn btn-light btn-sm text-success d-flex align-items-center gap-1"
+                   title="Download CV">
+                    <i class="fa fa-download"></i>
+                    <span class="d-none d-md-inline">Download</span>
+                </a>
+                
+                <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this CV?');" class="d-inline">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
-                    <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                    <button type="submit" class="btn btn-light btn-sm text-danger d-flex align-items-center gap-1" title="Delete CV">
+                        <i class="fa fa-trash"></i>
+                        <span class="d-none d-md-inline">Delete</span>
+                    </button>
                 </form>
             </div>
-        </li>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>
 {% else %}
-<p>No CV uploaded yet.</p>
+<div class="mt-4 text-center py-4 rounded-3" style="background-color: #f9fafb; border: 1px dashed #e5e7eb;">
+    <div class="text-muted mb-2">
+        <i class="fa fa-folder-open fa-2x opacity-50"></i>
+    </div>
+    <p class="text-muted mb-0 small">No CV uploaded yet.</p>
+</div>
 {% endif %}
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-color: #85BB65 !important;
+    }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+</style>

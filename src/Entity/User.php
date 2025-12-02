@@ -319,7 +319,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->phone1;
     }
 
-    public function setPhone1(string $phone1): static
+    public function setPhone1(?string $phone1): static
     {
         $this->phone1 = $phone1;
 
