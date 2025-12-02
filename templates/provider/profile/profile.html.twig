@@ -1249,6 +1249,9 @@ input[type="checkbox"]:checked::after,
                 <div class="card-title-wrapper">
                   <h5 class="card-title mb-0">CV Upload</h5>
                 </div>
+                <div>
+                  <button type="button" id="viewLatestCvBtn" class="btn btn-sm btn-outline-primary" style="white-space: nowrap; display: none;">View Latest CV</button>
+                </div>
               </div>
               <div class="card-body" style="padding: 24px !important;">
                 <!-- Drag and Drop Area -->
@@ -3655,6 +3658,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const cvFileNameDisplay = document.getElementById('cvFileNameDisplay');
   const cvDocumentsList = document.getElementById('cvDocumentsList');
   const cvDragDropContent = document.getElementById('cvDragDropContent');
+  const viewLatestCvBtn = document.getElementById('viewLatestCvBtn');
+  const cvIframe = document.getElementById('cvIframe');
   
   // Keep references to old modal elements for backward compatibility
   const cvUploadModal = document.getElementById('cvUploadModal');
@@ -3669,6 +3674,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (firstCv) {
       updateCvDisplay(firstCv.name);
     }
+    if (viewLatestCvBtn) {
+      const latestCvViewUrl = '{{ path('app_provider_document_view', {'id': cvDocuments|first.id }) }}';
+      viewLatestCvBtn.dataset.url = latestCvViewUrl;
+      viewLatestCvBtn.style.display = 'inline-block';
+    }
   {% else %}
     // Show drag drop content if no CV is uploaded
     if (cvDragDropContent) {
@@ -3677,21 +3687,41 @@ document.addEventListener('DOMContentLoaded', function () {
   {% endif %}
 
   function updateCvDisplay(fileName) {
-    if (cvButtonText) {
-      cvButtonText.textContent = 'Update CV';
-    }
-    if (cvFileNameDisplay) {
-      cvFileNameDisplay.textContent = fileName;
-    }
+    if (cvButtonText) { cvButtonText.textContent = 'Update CV'; }
+    if (cvFileNameDisplay) { cvFileNameDisplay.textContent = fileName; }
     if (cvDisplayArea) {
       cvDisplayArea.classList.remove('d-none');
       cvDisplayArea.style.display = 'block';
     }
-    // Hide drag drop content when file is uploaded
-    if (cvDragDropContent) {
-      cvDragDropContent.style.display = 'none';
+    if (cvDragDropContent) { cvDragDropContent.style.display = 'none'; }
+    if (cvDocumentsList) { cvDocumentsList.style.display = 'block'; }
+  }
+
+  function updateLatestCvButtonFromList() {
+    if (!cvDocumentsList || !viewLatestCvBtn) return;
+    const anchor = cvDocumentsList.querySelector('a[href*="/provider/documents/view"]');
+    if (anchor) {
+      viewLatestCvBtn.dataset.url = anchor.getAttribute('href');
+      viewLatestCvBtn.style.display = 'inline-block';
     }
-    // Keep the button visible - don't hide it
+  }
+
+  function viewLatestCV(viewUrl = null) {
+    let url = viewUrl;
+    if (!url) {
+      const btn = document.getElementById('viewLatestCvBtn');
+      if (btn && btn.dataset.url) { url = btn.dataset.url; }
+      if (!url && cvDocumentsList) {
+        const a = cvDocumentsList.querySelector('a[href*="/provider/documents/view"]');
+        if (a) url = a.getAttribute('href');
+      }
+    }
+    if (!url) return;
+    const modalEl = document.getElementById('cvViewModal');
+    if (!modalEl) { window.open(url, '_blank'); return; }
+    if (cvIframe) cvIframe.src = url;
+    if (window.bootstrap && bootstrap.Modal) { const modal = new bootstrap.Modal(modalEl); modal.show(); }
+    else { modalEl.classList.add('show'); modalEl.style.display = 'block'; }
   }
 
   function fetchUpdatedCvList() {
@@ -3710,6 +3740,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const updatedList = doc.getElementById('cvDocumentsList');
       if (updatedList && cvDocumentsList) {
         cvDocumentsList.innerHTML = updatedList.innerHTML;
+        updateLatestCvButtonFromList();
+        cvDocumentsList.style.display = 'block';
       }
     })
     .catch(error => {
@@ -3769,24 +3801,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // Create FormData - use same structure as the modal form
       const formData = new FormData();
-      formData.append('fileName', file);
-      formData.append('category', 'CV');
-      formData.append('name', 'CV');
-      formData.append('documentType', 'CV');
-      
-      // Try to get CSRF token from the modal form if it exists
-      const modalForm = document.querySelector('#uploadModal form');
-      if (modalForm) {
-        const csrfInput = modalForm.querySelector('input[name*="_token"]');
-        if (csrfInput) {
-          formData.append(csrfInput.name, csrfInput.value);
-        }
+      formData.append('provider_cv[cv]', file);
+      const csrfToken = document.querySelector('input[name="provider_cv[_token]"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content;
+      if (csrfToken) {
+        formData.append('provider_cv[_token]', csrfToken);
       }
 
-      // Submit via AJAX
-      fetch('{{ path("app_provider_documents") }}', {
+      fetch('{{ path("app_provider_profile") }}', {
         method: 'POST',
         body: formData,
         headers: {
@@ -3824,11 +3846,19 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Update display with uploaded file name - store it to persist
         const displayFileName = data.fileName || file.name;
-        updateCvDisplay(displayFileName);
+        let viewUrl = null;
+        if (cvDocumentsList && data.cvListHtml) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data.cvListHtml, 'text/html');
+          const a = doc.querySelector('a[href*="/provider/documents/view"]');
+          if (a) viewUrl = a.getAttribute('href');
+        }
+        updateCvDisplay(displayFileName, viewUrl);
         
         // Update CV list if HTML is provided (this won't affect the display area above)
         if (cvDocumentsList && data.cvListHtml) {
           cvDocumentsList.innerHTML = data.cvListHtml;
+          updateLatestCvButtonFromList();
         } else if (cvDocumentsList && data.success) {
           // If no HTML provided but upload was successful, fetch updated list
           fetchUpdatedCvList();
@@ -4128,6 +4158,12 @@ document.addEventListener('DOMContentLoaded', function () {
         cvUploadForm.reset();
       }
       hideError();
+    });
+  }
+
+  if (viewLatestCvBtn) {
+    viewLatestCvBtn.addEventListener('click', function() {
+      viewLatestCV(viewLatestCvBtn.dataset.url || null);
     });
   }
 });
