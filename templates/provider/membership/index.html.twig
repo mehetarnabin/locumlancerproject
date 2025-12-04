@@ -4,6 +4,7 @@
 
 {% block provider_body %}
 <style>
+/* KEEP ALL YOUR EXISTING CSS - NO CHANGES */
 body.app .app-wrapper,
 .app-wrapper {
     display: block !important;
@@ -156,6 +157,18 @@ body.app .app-wrapper .app-content .container-xl,
     border: 1px solid #cbd5f5;
 }
 
+.plan-card button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.15);
+}
+
+.plan-card button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 .faq-section {
     border: 1px solid #e2e8f0;
     border-radius: 18px;
@@ -187,6 +200,21 @@ body.app .app-wrapper .app-content .container-xl,
     color: #475467;
     line-height: 1.6;
 }
+
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 </style>
 
 <div class="container-xl membership-page">
@@ -196,7 +224,7 @@ body.app .app-wrapper .app-content .container-xl,
                 <h2 class="mb-1" style="font-size:1.5rem;color:#0f172a;">Choose your plan</h2>
                 <p class="text-muted mb-0">Simple memberships built for every stage of your locum career.</p>
             </div>
-            <span class="badge bg-light text-dark px-3 py-2" style="border-radius:999px;">Dummy preview · Not billed</span>
+            <span class="badge bg-light text-dark px-3 py-2" style="border-radius:999px;">Real packages from database</span>
         </div>
         <div class="plan-grid">
             {% for plan in plans %}
@@ -204,16 +232,19 @@ body.app .app-wrapper .app-content .container-xl,
                     {% if plan.popular %}
                         <div class="plan-badge">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
-                            Most popular
+                            Recommended
                         </div>
                     {% endif %}
                     <div>
                         <h3>{{ plan.name }}</h3>
                         <p class="mb-2 text-muted">{{ plan.tagline }}</p>
+                        {% if plan.type %}
+                            <span class="badge bg-secondary">{{ plan.type|capitalize }}</span>
+                        {% endif %}
                     </div>
                     <div class="plan-price">
                         {{ plan.price }}
-                        <small>/ month</small>
+                        <small>/ {{ plan.duration }}</small>
                     </div>
                     <ul class="plan-features">
                         {% for feature in plan.features %}
@@ -223,7 +254,20 @@ body.app .app-wrapper .app-content .container-xl,
                             </li>
                         {% endfor %}
                     </ul>
-                    <button class="{{ plan.popular ? 'primary' : 'outline' }}">{{ plan.cta }}</button>
+                    
+                    {% if plan.id == 'fallback_essential' or plan.price == '$0.00' %}
+                        {# Free plan #}
+                        <button class="outline" disabled>Current Plan</button>
+                    {% else %}
+                        {# Paid plan - Add Stripe checkout #}
+                        <button 
+                            class="{{ plan.popular ? 'primary' : 'outline' }} buy-package-btn"
+                            data-package-id="{{ plan.id }}"
+                            data-package-name="{{ plan.name }}"
+                        >
+                            {{ plan.cta }}
+                        </button>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -240,5 +284,90 @@ body.app .app-wrapper .app-content .container-xl,
         {% endfor %}
     </div>
 </div>
-{% endblock %}
 
+{# Add JavaScript for Stripe checkout - FIXED #}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+console.log('Stripe Public Key:', '{{ stripe_public_key|e('js') }}');
+console.log('Package IDs on page:', Array.from(document.querySelectorAll('.buy-package-btn')).map(btn => btn.dataset.packageId));
+
+document.addEventListener('DOMContentLoaded', function() {
+    const stripePublicKey = '{{ stripe_public_key|e('js') }}';
+    
+    if (!stripePublicKey || stripePublicKey.includes('...')) {
+        console.error('Invalid Stripe key:', stripePublicKey);
+        alert('Payment system not configured. Please contact support.');
+        return;
+    }
+    
+    const stripe = Stripe(stripePublicKey);
+    
+    document.querySelectorAll('.buy-package-btn').forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.preventDefault();
+            
+            const packageId = this.dataset.packageId;
+            const packageName = this.dataset.packageName;
+            
+            console.log('Attempting to buy package:', packageId);
+            
+            const originalText = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner"></span> Processing...';
+            
+            try {
+                const testResponse = await fetch('/test-payment/simple');
+                const testData = await testResponse.json();
+                if (!testData.success) {
+                    throw new Error('Not logged in or session expired');
+                }
+                
+                const response = await fetch('/payment/package/' + packageId + '/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({})
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    const result = await stripe.redirectToCheckout({
+                        sessionId: data.sessionId
+                    });
+                    
+                    if (result.error) {
+                        alert('Error: ' + result.error.message);
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again. Error: ' + error.message);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

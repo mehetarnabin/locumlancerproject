@@ -5,11 +5,14 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Uid\Uuid;
+
 #[ORM\Table(name: 'b_user')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -102,6 +105,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $blocked = false;
 
     use TimestampableEntity;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Payment::class)]
+    private Collection $payments;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PackageSubscription::class)]
+    private Collection $packageSubscriptions;
+
+    public function __construct()
+    {
+        $this->payments = new ArrayCollection();
+        $this->packageSubscriptions = new ArrayCollection();
+    }
 
     public function __toString()
     {
@@ -387,6 +402,70 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    // Payment and Subscription methods
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
 
-    
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): self
+    {
+        if ($this->payments->removeElement($payment)) {
+            // set the owning side to null (unless already changed)
+            if ($payment->getUser() === $this) {
+                $payment->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getPackageSubscriptions(): Collection
+    {
+        return $this->packageSubscriptions;
+    }
+
+    public function addPackageSubscription(PackageSubscription $packageSubscription): self
+    {
+        if (!$this->packageSubscriptions->contains($packageSubscription)) {
+            $this->packageSubscriptions->add($packageSubscription);
+            $packageSubscription->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removePackageSubscription(PackageSubscription $packageSubscription): self
+    {
+        if ($this->packageSubscriptions->removeElement($packageSubscription)) {
+            // set the owning side to null (unless already changed)
+            if ($packageSubscription->getUser() === $this) {
+                $packageSubscription->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getActiveSubscription(): ?PackageSubscription
+    {
+        foreach ($this->packageSubscriptions as $subscription) {
+            if ($subscription->isActive()) {
+                return $subscription;
+            }
+        }
+        
+        return null;
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->getActiveSubscription() !== null;
+    }
 }

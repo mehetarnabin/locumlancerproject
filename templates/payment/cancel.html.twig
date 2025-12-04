@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment Cancelled - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-times-circle text-warning" style="font-size: 5rem;"></i>
+                    </div>
+                    
+                    <h1 class="card-title mb-4">Payment Cancelled</h1>
+                    
+                    <p class="lead mb-4">
+                        Your payment was cancelled. No charges were made to your account.
+                    </p>
+                    
+                    {% if app.flashes('warning') is not empty %}
+                        <div class="alert alert-warning" role="alert">
+                            {% for message in app.flashes('warning') %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ path('app_packages') }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Packages
+                        </a>
+                        {% set dashboard_route =
+                            is_granted('ROLE_PROVIDER') ? 'app_provider_dashboard' :
+                            (is_granted('ROLE_EMPLOYER') ? 'app_employer_dashboard' : 'app_jobs')
+                        %}
+                        <a href="{{ path(dashboard_route) }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,11 +1,9 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+# config/services.yaml
 parameters:
-    stripe_api_key: "%env(STRIPE_API_KEY)%"
+    stripe_secret_key: "%env(STRIPE_SECRET_KEY)%"
     stripe_public_key: "%env(STRIPE_PUBLIC_KEY)%"
+    stripe_client_id: "%env(STRIPE_CONNECT_CLIENT_ID)%"
+    stripe_webhook_secret: "%env(STRIPE_WEBHOOK_SECRET)%"
     from_email: "%env(FROM_EMAIL)%"
     from_name: "%env(FROM_NAME)%"
     base_url: "%env(BASE_URL)%"
@@ -14,17 +12,11 @@ parameters:
     messages_attachments_directory: '%kernel.project_dir%/public/uploads/messages'
     upload_dir: '%kernel.project_dir%/public/uploads'
 
-
-
-
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
@@ -32,8 +24,23 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\StripeService:
+        arguments:
+            $secretKey: '%stripe_secret_key%'
+            $publicKey: '%stripe_public_key%'
+            $clientId: '%stripe_client_id%'
+            $webhookSecret: '%stripe_webhook_secret%'    # ADD THIS
+            $router: '@router'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $params: '@parameter_bag'                     # ADD THIS
+
+    # Remove or comment out these duplicate Stripe client definitions
+    # stripe.client:
+    #     class: 'Stripe\StripeClient'
+    #     arguments:
+    #         - '%env(STRIPE_SECRET_KEY)%'
+    # 
+    # Stripe\StripeClient: '@stripe.client'
 
     App\Security\OAuthUserProvider:
         arguments:
@@ -43,10 +50,7 @@ services:
 
     App\EventListener\WorkflowLoggerListener:
         tags:
-            #      - { name: 'kernel.event_listener', event: 'workflow.guard', method: 'onTransition' }
             - { name: 'kernel.event_listener', event: 'workflow.entered', method: 'onEntered' }
-            #      - { name: 'kernel.event_listener', event: 'workflow.leave', method: 'onTransition' }
-            #      - { name: 'kernel.event_listener', event: 'workflow.transition', method: 'onTransition' }
 
     Twig\Extension\StringLoaderExtension:
         tags: [ twig.extension ]

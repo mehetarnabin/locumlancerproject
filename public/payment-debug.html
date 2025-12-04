@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Debug Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .result {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 5px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Payment Debug Dashboard</h1>
+        
+        <div class="grid">
+            <!-- Check Recent Payments -->
+            <div class="card">
+                <h2>📊 Recent Payments</h2>
+                <p>Check the last 10 payments in the database</p>
+                <button class="btn" onclick="checkPayments()">Check Payments</button>
+                <div id="payments-result"></div>
+            </div>
+            
+            <!-- Check Session -->
+            <div class="card">
+                <h2>🔍 Check Session</h2>
+                <p>Verify if a Stripe session exists in database</p>
+                <div class="input-group">
+                    <label>Session ID:</label>
+                    <input type="text" id="session-id" placeholder="cs_test_...">
+                </div>
+                <button class="btn" onclick="checkSession()">Check Session</button>
+                <div id="session-result"></div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- Process Session Manually -->
+            <div class="card">
+                <h2>⚙️ Process Session Manually</h2>
+                <p>Manually process a session (bypass webhook)</p>
+                <div class="input-group">
+                    <label>Session ID:</label>
+                    <input type="text" id="process-session-id" placeholder="cs_test_...">
+                </div>
+                <button class="btn btn-danger" onclick="processSession()">Process Now</button>
+                <div id="process-result"></div>
+            </div>
+            
+            <!-- Webhook Setup -->
+            <div class="card">
+                <h2>🔗 Webhook Setup</h2>
+                <p>Get instructions for setting up webhooks</p>
+                <button class="btn" onclick="getWebhookInfo()">Get Webhook Info</button>
+                <div id="webhook-result"></div>
+            </div>
+        </div>
+        
+        <!-- Webhook Logs -->
+        <div class="card">
+            <h2>📝 Webhook Logs</h2>
+            <p>View recent webhook-related log entries</p>
+            <button class="btn" onclick="getWebhookLogs()">View Logs</button>
+            <div id="logs-result"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function checkPayments() {
+            const resultDiv = document.getElementById('payments-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('/payment-debug/check-payments');
+                const data = await response.json();
+                
+                let html = `<div class="result ${data.success ? 'success' : 'error'}">`;
+                html += `<strong>Total Payments:</strong> ${data.total_payments}<br>`;
+                html += `<strong>Total Subscriptions:</strong> ${data.total_subscriptions}<br><br>`;
+                
+                if (data.recent_payments && data.recent_payments.length > 0) {
+                    html += '<strong>Recent Payments:</strong><br>';
+                    data.recent_payments.forEach(payment => {
+                        html += `<div style="margin: 10px 0; padding: 10px; background: white; border-radius: 4px;">`;
+                        html += `ID: ${payment.id} | ${payment.amount} ${payment.currency} | ${payment.status}<br>`;
+                        html += `User: ${payment.user_email} | Package: ${payment.package_name}<br>`;
+                        html += `Session: ${payment.stripe_session_id || 'N/A'}<br>`;
+                        html += `Created: ${payment.created_at}`;
+                        html += `</div>`;
+                    });
+                } else {
+                    html += '<p><strong>No payments found in database!</strong></p>';
+                }
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><pre>${error.message}</pre></div>`;
+            }
+        }
+        
+        async function checkSession() {
+            const sessionId = document.getElementById('session-id').value;
+            const resultDiv = document.getElementById('session-result');
+            
+            if (!sessionId) {
+                resultDiv.innerHTML = '<div class="result error">Please enter a session ID</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(`/payment-debug/check-session/${sessionId}`);
+                const data = await response.json();
+                
+                let html = `<div class="result ${data.success ? 'success' : 'error'}">`;
+                html += `<strong>Session ID:</strong> ${data.session_id}<br>`;
+                html += `<strong>In Database:</strong> ${data.in_database ? '✅ Yes' : '❌ No'}<br>`;
+                
+                if (data.in_database) {
+                    html += `<strong>Payment ID:</strong> ${data.payment_id}<br>`;
+                }
+                
+                if (data.stripe_status) {
+                    html += `<strong>Stripe Status:</strong> ${data.stripe_status}<br>`;
+                    html += `<strong>Amount:</strong> $${data.stripe_amount}<br>`;
+                    html += `<strong>Metadata:</strong><pre>${JSON.stringify(data.stripe_metadata, null, 2)}</pre>`;
+                }
+                
+                if (data.error) {
+                    html += `<strong>Error:</strong> ${data.error}`;
+                }
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><pre>${error.message}</pre></div>`;
+            }
+        }
+        
+        async function processSession() {
+            const sessionId = document.getElementById('process-session-id').value;
+            const resultDiv = document.getElementById('process-result');
+            
+            if (!sessionId) {
+                resultDiv.innerHTML = '<div class="result error">Please enter a session ID</div>';
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to manually process this session?')) {
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>Processing...</p>';
+            
+            try {
+                const response = await fetch(`/payment-debug/process-session/${sessionId}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                let html = `<div class="result ${data.success ? 'success' : 'error'}">`;
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><pre>${error.message}</pre></div>`;
+            }
+        }
+        
+        async function getWebhookInfo() {
+            const resultDiv = document.getElementById('webhook-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('/payment-debug/test-webhook');
+                const data = await response.json();
+                
+                let html = `<div class="result success">`;
+                html += `<strong>Webhook URL:</strong><br><code>${data.webhook_url}</code><br><br>`;
+                html += `<strong>Stripe CLI Command:</strong><br><code>${data.instructions.stripe_cli}</code><br><br>`;
+                html += `<strong>ngrok Setup:</strong><br>`;
+                data.instructions.ngrok.forEach(step => {
+                    html += `${step}<br>`;
+                });
+                html += `<br><strong>Note:</strong> ${data.webhook_secret}`;
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><pre>${error.message}</pre></div>`;
+            }
+        }
+        
+        async function getWebhookLogs() {
+            const resultDiv = document.getElementById('logs-result');
+            resultDiv.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch('/payment-debug/webhook-logs');
+                const data = await response.json();
+                
+                let html = `<div class="result ${data.success ? 'success' : 'error'}">`;
+                
+                if (data.success) {
+                    html += `<strong>Log File:</strong> ${data.log_file}<br>`;
+                    html += `<strong>Relevant Lines:</strong> ${data.total_lines}<br><br>`;
+                    
+                    if (data.relevant_lines && data.relevant_lines.length > 0) {
+                        html += '<pre>';
+                        data.relevant_lines.forEach(line => {
+                            html += `${line}\n`;
+                        });
+                        html += '</pre>';
+                    } else {
+                        html += '<p>No relevant log entries found</p>';
+                    }
+                } else {
+                    html += `<strong>Error:</strong> ${data.error}`;
+                }
+                
+                html += '</div>';
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error"><pre>${error.message}</pre></div>`;
+            }
+        }
+        
+        // Auto-load payments on page load
+        window.addEventListener('load', () => {
+            checkPayments();
+        });
+    </script>
+</body>
+</html>

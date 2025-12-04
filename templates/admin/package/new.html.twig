@@ -1,0 +1,178 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Create New Package{% endblock %}
+
+{% block admin_body %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="app-card app-card-stats-table shadow-sm">
+                <div class="app-card-header p-3">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-auto">
+                            <h4 class="app-card-title">Create New Package</h4>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ path('admin_package_index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="app-card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.name, 'Package Name') }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'e.g., Basic Plan'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.type, 'Package Type') }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.target, 'Package For') }}
+                            {{ form_widget(form.target, {'attr': {'class': 'form-select'}}) }}
+                            {{ form_errors(form.target) }}
+                            <div class="form-text">Select whether this package is for providers, employers, or recruiters</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            {{ form_label(form.description, 'Description') }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 3, 'placeholder': 'Package description and features...'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.price, 'Price ($)') }}
+                            {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                            {{ form_errors(form.price) }}
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.durationDays, 'Duration (Days)') }}
+                            {{ form_widget(form.durationDays, {'attr': {'class': 'form-control', 'placeholder': '30'}}) }}
+                            {{ form_errors(form.durationDays) }}
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.maxJobPosts, 'Max Job Posts') }}
+                            {{ form_widget(form.maxJobPosts, {'attr': {'class': 'form-control', 'placeholder': 'Leave empty for unlimited'}}) }}
+                            {{ form_errors(form.maxJobPosts) }}
+                            <div class="form-text">Leave empty for unlimited job posts</div>
+                        </div>
+                        
+                        <div class="col-12 col-md-6">
+                            {{ form_label(form.maxApplications, 'Max Applications') }}
+                            {{ form_widget(form.maxApplications, {'attr': {'class': 'form-control', 'placeholder': 'Leave empty for unlimited'}}) }}
+                            {{ form_errors(form.maxApplications) }}
+                            <div class="form-text">Leave empty for unlimited applications</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">Features</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="features-container"
+                                         data-prototype='<div class="input-group mb-2"><input type="text" name="{{ form.features.vars.full_name }}[__name__]" class="form-control" placeholder="Enter feature"><button type="button" class="btn btn-outline-danger remove-feature"><i class="fas fa-times"></i></button></div>'>
+                                        {% for feature in form.features %}
+                                            <div class="input-group mb-2">
+                                                {{ form_widget(feature, {'attr': {'class': 'form-control', 'placeholder': 'Enter feature'}}) }}
+                                                <button type="button" class="btn btn-outline-danger remove-feature">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" id="add-feature" class="btn btn-sm btn-outline-primary mt-2">
+                                        <i class="fas fa-plus"></i> Add Feature
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.isActive, 'Active Package', {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                {{ form_widget(form.isDefault, {'attr': {'class': 'form-check-input'}}) }}
+                                {{ form_label(form.isDefault, 'Set as Default Package', {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            <div class="form-text" id="default-help-text">
+                                Default package will be automatically assigned to new users of the selected type
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Create Package
+                                </button>
+                                <a href="{{ path('admin_package_index') }}" class="btn btn-secondary">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const featuresContainer = document.getElementById('features-container');
+    const addFeatureBtn = document.getElementById('add-feature');
+    const targetSelect = document.getElementById('{{ form.target.vars.id }}');
+    const defaultHelpText = document.getElementById('default-help-text');
+    
+    // Update help text based on selected target
+    function updateDefaultHelpText() {
+        const selectedOption = targetSelect.options[targetSelect.selectedIndex];
+        const targetName = selectedOption.text.toLowerCase();
+        defaultHelpText.textContent = `Default package will be automatically assigned to new ${targetName}s`;
+    }
+    
+    // Initial update
+    updateDefaultHelpText();
+    
+    // Update when target changes
+    targetSelect.addEventListener('change', updateDefaultHelpText);
+    
+    // Add feature field
+    addFeatureBtn.addEventListener('click', function() {
+        const index = featuresContainer.children.length;
+        const prototype = featuresContainer.dataset.prototype;
+        const newForm = prototype.replace(/__name__/g, index);
+        
+        const newElement = document.createElement('div');
+        newElement.className = 'input-group mb-2';
+        newElement.innerHTML = newForm;
+        featuresContainer.appendChild(newElement);
+    });
+
+    // Remove feature field
+    featuresContainer.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-feature')) {
+            e.target.closest('.input-group').remove();
+        }
+    });
+});
+</script>
+{% endblock %}

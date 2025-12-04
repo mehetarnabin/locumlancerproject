@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment Successful - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    
+                    <h1 class="card-title mb-4">Payment Successful!</h1>
+                    
+                    <p class="lead mb-4">
+                        Thank you for your purchase. Your payment has been processed successfully.
+                    </p>
+                    
+                    {% if app.flashes('success') is not empty %}
+                        <div class="alert alert-success" role="alert">
+                            {% for message in app.flashes('success') %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info mb-4" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Your subscription has been activated. You can now access all premium features.
+                    </div>
+                    
+                    <div class="mt-4">
+                        {% set dashboard_route =
+                            is_granted('ROLE_PROVIDER') ? 'app_provider_dashboard' :
+                            (is_granted('ROLE_EMPLOYER') ? 'app_employer_dashboard' : 'app_jobs')
+                        %}
+                        <a href="{{ path(dashboard_route) }}" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ path('payment_history') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-receipt me-2"></i>View Payment History
+                        </a>
+                    </div>
+                    
+                    {% if session_id %}
+                        <div class="mt-5 pt-4 border-top">
+                            <small class="text-muted">
+                                Session ID: <code>{{ session_id }}</code>
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
