@@ -4,6 +4,41 @@
 {% block title %}Profile{% endblock %}
 
 {% block provider_body %}
+<!-- View CV Modal -->
+<div class="modal fade" id="viewCvModal" tabindex="-1" aria-labelledby="viewCvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewCvModalLabel">View CV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="cvViewerIframe" src="" style="width: 100%; height: 80vh; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewCvModal = document.getElementById('viewCvModal');
+        if (viewCvModal) {
+            viewCvModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const cvUrl = button.getAttribute('data-cv-url');
+                const cvName = button.getAttribute('data-cv-name');
+                const modalTitle = viewCvModal.querySelector('.modal-title');
+                const iframe = viewCvModal.querySelector('#cvViewerIframe');
+                modalTitle.textContent = cvName || 'View CV';
+                iframe.src = cvUrl;
+            });
+            viewCvModal.addEventListener('hidden.bs.modal', function() {
+                const iframe = viewCvModal.querySelector('#cvViewerIframe');
+                iframe.src = '';
+            });
+        }
+    });
+</script>
 <style>
 /* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match dashboard */
 
@@ -1075,23 +1110,27 @@ input[type="checkbox"]:checked::after,
                   {{ form_errors(profileForm) }}
                   <div class="d-flex gap-2 align-items-center" style="margin-bottom: 6px;">
                     <div class="position-relative profile-avatar-box">
-                      <div class="profile-icon-box">
-                          {% if app.user.profilePicture %}
-                              <img src="{{ asset('uploads/' ~ app.user.id ~ '/' ~ app.user.profilePicture) }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                      <div class="profile-icon-box" style="cursor:pointer;">
+                          {% if app.user.profilePictureFilename %}
+                              <img id="editProfileImage" src="{{ asset('uploads/' ~ app.user.id ~ '/' ~ app.user.profilePictureFilename) }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                          {% elseif app.user.profilePicture %}
+                              <img id="editProfileImage" src="{{ asset('uploads/' ~ app.user.id ~ '/' ~ app.user.profilePicture) }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
                           {% else %}
-                              <img src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
+                              <img id="editProfileImage" src="{{ asset('assets/icons/user-profile.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
                           {% endif %}
                       </div>
 
                       <!-- Camera Icon Overlay -->
-                      <label for="profileImageInput" class="position-absolute bottom-0 end-0 bg-light p-1 rounded-circle" style="cursor:pointer;">
+                      <label for="profileImageUploadInput" class="position-absolute bottom-0 end-0 bg-light p-1 rounded-circle" style="cursor:pointer; z-index:10;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="13" r="3" stroke="#1C274C" stroke-width="1.5"/>
                         <path d="M2 13.3636C2 10.2994 2 8.76721 2.74902 7.6666C3.07328 7.19014 3.48995 6.78104 3.97524 6.46268C4.69555 5.99013 5.59733 5.82123 6.978 5.76086C7.63685 5.76086 8.20412 5.27068 8.33333 4.63636C8.52715 3.68489 9.37805 3 10.3663 3H13.6337C14.6219 3 15.4728 3.68489 15.6667 4.63636C15.7959 5.27068 16.3631 5.76086 17.022 5.76086C18.4027 5.82123 19.3044 5.99013 20.0248 6.46268C20.51 6.78104 20.9267 7.19014 21.251 7.6666C22 8.76721 22 10.2994 22 13.3636C22 16.4279 22 17.9601 21.251 19.0607C20.9267 19.5371 20.51 19.9462 20.0248 20.2646C18.9038 21 17.3433 21 14.2222 21H9.77778C6.65675 21 5.09624 21 3.97524 20.2646C3.48995 19.9462 3.07328 19.5371 2.74902 19.0607C2.53746 18.7498 2.38566 18.4045 2.27673 18" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
                         <path d="M19 10H18" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                       </label>
-                      {{ form_widget(profileForm.profilePictureFilename, {'attr': {'id': 'profileImageInput', 'accept': 'image/*', 'class': 'd-none'}}) }}
+                      <input type="hidden" id="profileImageUploadToken" value="{{ csrf_token('upload_profile_image') }}">
+                      <input type="file" id="profileImageUploadInput" accept="image/*"
+                             style="position:absolute;left:-9999px;width:0;height:0;opacity:0;">
                     </div>
 
                     <div style="flex:1;">
@@ -1249,11 +1288,13 @@ input[type="checkbox"]:checked::after,
                 <div class="card-title-wrapper">
                   <h5 class="card-title mb-0">CV Upload</h5>
                 </div>
-                <div>
-                  <button type="button" id="viewLatestCvBtn" class="btn btn-sm btn-outline-primary" style="white-space: nowrap; display: none;">View Latest CV</button>
-                </div>
               </div>
               <div class="card-body" style="padding: 24px !important;">
+                {# Manual Hidden Form for CV Upload #}
+                <form name="provider_cv" method="post" enctype="multipart/form-data" style="display:none">
+                    <input type="hidden" name="provider_cv[_token]" value="{{ csrf_token('provider_cv') }}">
+                    <input type="file" name="provider_cv[cv]" id="provider_cv_cv">
+                </form>
                 <!-- Drag and Drop Area -->
                 <div id="cvDragDropArea" class="cv-drag-drop-area" style="border: 2px dashed #85BB65; border-radius: 12px; padding: 1rem 1.25rem !important; text-align: center; background: #F4F9F1; transition: all 0.3s ease; cursor: pointer; height: 140px !important; max-height: 140px !important; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box;">
                   <div id="cvDragDropContent" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0; margin: 0; box-sizing: border-box; gap: 0.35rem;">
@@ -1296,46 +1337,8 @@ input[type="checkbox"]:checked::after,
                 
                 <!-- Uploaded CVs List -->
                 <div id="cvDocumentsList" class="mt-4">
-                    {% if cvDocuments is not empty %}
-                        <div>
-                            <h6 class="fw-semibold mb-3" style="font-size: 1rem;">Uploaded CVs</h6>
-                            <ul class="list-group list-group-flush">
-                                {% for cv in cvDocuments %}
-                                    <li class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center"
-                                        style="border-bottom: 1px solid #e5e7eb;">
-                                        
-                                        <div class="d-flex align-items-center gap-3">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
-                                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
-                                            </form>
-                                        </div>
-
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
+                  {{ include('provider/profile/_cv_list.html.twig', { 'cvDocuments': cvDocuments }) }}
                 </div>
-                <!-- CV View Modal -->
-                <div class="modal fade" id="cvViewModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">View CV</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body" style="height: 80vh;">
-                                <iframe id="cvIframe"
-                                        src=""
-                                        width="100%"
-                                        height="100%"
-                                        style="border: none;"></iframe>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
               </div>
             </div>
           </div>
@@ -3658,8 +3661,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const cvFileNameDisplay = document.getElementById('cvFileNameDisplay');
   const cvDocumentsList = document.getElementById('cvDocumentsList');
   const cvDragDropContent = document.getElementById('cvDragDropContent');
-  const viewLatestCvBtn = document.getElementById('viewLatestCvBtn');
-  const cvIframe = document.getElementById('cvIframe');
   
   // Keep references to old modal elements for backward compatibility
   const cvUploadModal = document.getElementById('cvUploadModal');
@@ -3668,16 +3669,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const cvUploadSubmitBtn = document.getElementById('cvUploadSubmitBtn');
   const cvUploadError = document.getElementById('cvUploadError');
 
-  // Check if CV is already uploaded on page load
+  // Check if CV is already uploaded on page load (safe injection)
   {% if cvDocuments is not empty %}
-    const firstCv = {{ cvDocuments|first|json_encode|raw }};
-    if (firstCv) {
-      updateCvDisplay(firstCv.name);
-    }
-    if (viewLatestCvBtn) {
-      const latestCvViewUrl = '{{ path('app_provider_document_view', {'id': cvDocuments|first.id }) }}';
-      viewLatestCvBtn.dataset.url = latestCvViewUrl;
-      viewLatestCvBtn.style.display = 'inline-block';
+    const firstCvName = '{{ cvDocuments|first.name|e('js') }}';
+    if (firstCvName) {
+      updateCvDisplay(firstCvName);
     }
   {% else %}
     // Show drag drop content if no CV is uploaded
@@ -3687,41 +3683,21 @@ document.addEventListener('DOMContentLoaded', function () {
   {% endif %}
 
   function updateCvDisplay(fileName) {
-    if (cvButtonText) { cvButtonText.textContent = 'Update CV'; }
-    if (cvFileNameDisplay) { cvFileNameDisplay.textContent = fileName; }
+    if (cvButtonText) {
+      cvButtonText.textContent = 'Update CV';
+    }
+    if (cvFileNameDisplay) {
+      cvFileNameDisplay.textContent = fileName;
+    }
     if (cvDisplayArea) {
       cvDisplayArea.classList.remove('d-none');
       cvDisplayArea.style.display = 'block';
     }
-    if (cvDragDropContent) { cvDragDropContent.style.display = 'none'; }
-    if (cvDocumentsList) { cvDocumentsList.style.display = 'block'; }
-  }
-
-  function updateLatestCvButtonFromList() {
-    if (!cvDocumentsList || !viewLatestCvBtn) return;
-    const anchor = cvDocumentsList.querySelector('a[href*="/provider/documents/view"]');
-    if (anchor) {
-      viewLatestCvBtn.dataset.url = anchor.getAttribute('href');
-      viewLatestCvBtn.style.display = 'inline-block';
+    // Hide drag drop content when file is uploaded
+    if (cvDragDropContent) {
+      cvDragDropContent.style.display = 'none';
     }
-  }
-
-  function viewLatestCV(viewUrl = null) {
-    let url = viewUrl;
-    if (!url) {
-      const btn = document.getElementById('viewLatestCvBtn');
-      if (btn && btn.dataset.url) { url = btn.dataset.url; }
-      if (!url && cvDocumentsList) {
-        const a = cvDocumentsList.querySelector('a[href*="/provider/documents/view"]');
-        if (a) url = a.getAttribute('href');
-      }
-    }
-    if (!url) return;
-    const modalEl = document.getElementById('cvViewModal');
-    if (!modalEl) { window.open(url, '_blank'); return; }
-    if (cvIframe) cvIframe.src = url;
-    if (window.bootstrap && bootstrap.Modal) { const modal = new bootstrap.Modal(modalEl); modal.show(); }
-    else { modalEl.classList.add('show'); modalEl.style.display = 'block'; }
+    // Keep the button visible - don't hide it
   }
 
   function fetchUpdatedCvList() {
@@ -3740,8 +3716,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const updatedList = doc.getElementById('cvDocumentsList');
       if (updatedList && cvDocumentsList) {
         cvDocumentsList.innerHTML = updatedList.innerHTML;
-        updateLatestCvButtonFromList();
-        cvDocumentsList.style.display = 'block';
       }
     })
     .catch(error => {
@@ -3790,6 +3764,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
+      // Optimistically show file name in dropzone
+      updateCvDisplay(file.name);
+
       // Show loading state
       if (cvUploadBtn) {
         cvUploadBtn.disabled = true;
@@ -3801,13 +3778,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      const formData = new FormData();
-      formData.append('provider_cv[cv]', file);
-      const csrfToken = document.querySelector('input[name="provider_cv[_token]"]')?.value || document.querySelector('meta[name="csrf-token"]')?.content;
-      if (csrfToken) {
-        formData.append('provider_cv[_token]', csrfToken);
+            // Get the hidden form
+      const cvFormElement = document.querySelector('form[name="provider_cv"]');
+      if (!cvFormElement) {
+        console.error('CV form not found');
+        return;
       }
 
+      // Get the file input from the form
+      const formFileInput = cvFormElement.querySelector('input[name="provider_cv[cv]"]');
+      if (!formFileInput) {
+        console.error('CV file input not found in form');
+        return;
+      }
+
+      // Create a DataTransfer to set the file on the form's input
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      formFileInput.files = dataTransfer.files;
+
+      // Create FormData from the form (includes all fields and CSRF token)
+      const formData = new FormData(cvFormElement);
+
+      // Submit via AJAX
       fetch('{{ path("app_provider_profile") }}', {
         method: 'POST',
         body: formData,
@@ -3846,19 +3839,11 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Update display with uploaded file name - store it to persist
         const displayFileName = data.fileName || file.name;
-        let viewUrl = null;
-        if (cvDocumentsList && data.cvListHtml) {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(data.cvListHtml, 'text/html');
-          const a = doc.querySelector('a[href*="/provider/documents/view"]');
-          if (a) viewUrl = a.getAttribute('href');
-        }
-        updateCvDisplay(displayFileName, viewUrl);
+        updateCvDisplay(displayFileName);
         
         // Update CV list if HTML is provided (this won't affect the display area above)
         if (cvDocumentsList && data.cvListHtml) {
           cvDocumentsList.innerHTML = data.cvListHtml;
-          updateLatestCvButtonFromList();
         } else if (cvDocumentsList && data.success) {
           // If no HTML provided but upload was successful, fetch updated list
           fetchUpdatedCvList();
@@ -4160,12 +4145,6 @@ document.addEventListener('DOMContentLoaded', function () {
       hideError();
     });
   }
-
-  if (viewLatestCvBtn) {
-    viewLatestCvBtn.addEventListener('click', function() {
-      viewLatestCV(viewLatestCvBtn.dataset.url || null);
-    });
-  }
 });
 
 function handleFileChange(input) {
@@ -4292,9 +4271,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const infoView = document.getElementById('infoView');
   const infoEdit = document.getElementById('infoEdit');
   const cancelBtn = document.getElementById('cancelBtn');
-  const imageInput = document.getElementById('profileImageInput');
+  const imageInput = document.getElementById('profileImageUploadInput');
   const imagePreview = document.getElementById('editProfileImage');
-    const actionIcons = document.getElementById('actionIcons');
+  const profileForm = document.getElementById('profileForm');
+  const profileImageToken = document.getElementById('profileImageUploadToken');
+  const actionIcons = document.getElementById('actionIcons');
+  const cameraLabel = document.querySelector('label[for="profileImageUploadInput"]');
+  const editIconBox = document.querySelector('#infoEdit .profile-icon-box');
+    const viewIconBox = document.querySelector('#infoView .profile-icon-box');
 
     if (!infoView || !infoEdit) {
       console.warn('Profile edit elements not found');
@@ -4389,48 +4373,54 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-  // Image preview logic
-    if (imageInput) {
-      imageInput.addEventListener('change', function () {
-    const file = this.files[0];
-    if (file && file.type.startsWith('image/')) {
-      // Validate file size (8MB max)
+  // Rely on label "for" to open the file picker; avoid duplicate programmatic clicks
+
+  // Remove view-mode avatar picker; only enabled in edit mode
+
+  // Image preview + AJAX upload (no page refresh)
+  if (imageInput) {
+    imageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showErrorAlert && showErrorAlert('Invalid File Type', 'Please upload a valid image file (PNG, JPG, or JPEG)');
+        this.value = '';
+        return;
+      }
       if (file.size > 8 * 1024 * 1024) {
-        showErrorAlert('File Size Error', 'Image size must be less than 8MB');
+        showErrorAlert && showErrorAlert('File Size Error', 'Image size must be less than 8MB');
         this.value = '';
         return;
       }
-      
-      // Validate file type
-      const validTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-      if (!validTypes.includes(file.type)) {
-        showErrorAlert('Invalid File Type', 'Please upload a valid image file (PNG, JPG, or JPEG)');
-        this.value = '';
-        return;
-      }
-      
       const reader = new FileReader();
       reader.onload = function (e) {
-        // Update edit mode preview
-        if (imagePreview) {
-        imagePreview.src = e.target.result;
-        }
-        // Also update view mode preview if visible
+        if (imagePreview) imagePreview.src = e.target.result;
         const viewModeImage = document.querySelector('#infoView .profile-icon-box img');
-        if (viewModeImage) {
-          viewModeImage.src = e.target.result;
-        }
+        if (viewModeImage) viewModeImage.src = e.target.result;
       };
       reader.readAsDataURL(file);
-    } else if (file) {
-      showErrorAlert('No File Selected', 'Please select a valid image file');
-      this.value = '';
-    }
-  });
+
+      {
+        const url = '{{ path('app_provider_profile_photo_upload') }}';
+        const formData = new FormData();
+        formData.append('image', file);
+        if (profileImageToken) formData.append('_token', profileImageToken.value);
+        fetch(url, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          body: formData
+        }).then(r => r.json()).then(json => {
+          if (!json.success) {
+            showErrorAlert && showErrorAlert('Upload Failed', json.message || 'Could not upload image');
+          }
+        }).catch(() => {
+          showErrorAlert && showErrorAlert('Network Error', 'Could not upload image');
+        });
+      }
+    });
   }
 
   // Handle form submission
-  const profileForm = document.getElementById('profileForm');
   if (profileForm) {
     profileForm.addEventListener('submit', function(e) {
       // Validate form
@@ -5217,13 +5207,46 @@ function clearFile() {
 
 </script>
 
+
+
+<!-- View CV Modal -->
+<div class="modal fade" id="viewCvModal" tabindex="-1" aria-labelledby="viewCvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewCvModalLabel">View CV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="cvViewerIframe" src="" style="width: 100%; height: 80vh; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function openCVModal(url) {
-    document.getElementById('cvIframe').src = url;
-    let modal = new bootstrap.Modal(document.getElementById('cvViewModal'));
-    modal.show();
-}
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle View CV Modal
+        const viewCvModal = document.getElementById('viewCvModal');
+        if (viewCvModal) {
+            viewCvModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const cvUrl = button.getAttribute('data-cv-url');
+                const cvName = button.getAttribute('data-cv-name');
+                
+                const modalTitle = viewCvModal.querySelector('.modal-title');
+                const iframe = viewCvModal.querySelector('#cvViewerIframe');
+                
+                modalTitle.textContent = cvName || 'View CV';
+                iframe.src = cvUrl;
+            });
+            
+            // Clear iframe src when modal is hidden to stop loading/playing
+            viewCvModal.addEventListener('hidden.bs.modal', function() {
+                const iframe = viewCvModal.querySelector('#cvViewerIframe');
+                iframe.src = '';
+            });
+        }
+    });
 </script>
-
-
 {% endblock %}

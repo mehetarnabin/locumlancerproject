@@ -247,23 +247,22 @@ public function index(
         $user = $this->getUser();
         
         if ($document->getUser()->getId() !== $user->getId()) {
-            $this->addFlash('error', 'You do not have permission to view this document.');
-            return $this->redirectToRoute('app_provider_documents');
+            throw $this->createAccessDeniedException('You do not have permission to view this document.');
         }
 
         $documentPath = $uploadDirectory.'/'.$user->getId().'/'.$document->getFileName();
-        $documentUrl = '/uploads/'.$user->getId().'/'.$document->getFileName();
         
         if (!file_exists($documentPath)) {
-            $this->addFlash('error', 'Document file not found.');
-            return $this->redirectToRoute('app_provider_documents');
+            throw $this->createNotFoundException('Document file not found.');
         }
 
-        return $this->render('provider/document/view.html.twig', [
-            'document' => $document,
-            'documentUrl' => $documentUrl,
-            'documentPath' => $documentPath,
-        ]);
+        $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($documentPath);
+        $response->setContentDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_INLINE,
+            $document->getFileName()
+        );
+
+        return $response;
     }
 
     #[Route('/documents/delete/{id}', name: 'app_provider_document_delete', methods: ['GET'])]

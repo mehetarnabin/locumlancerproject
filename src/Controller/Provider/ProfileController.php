@@ -54,7 +54,7 @@ class ProfileController extends AbstractController
 
         if ($profileForm->isSubmitted() && $profileForm->isValid()) {
             /** @var UploadedFile $profileFile */
-            $profileFile = $profileForm->get('profilePicture')->getData();
+            $profileFile = $profileForm->get('profilePictureFilename')->getData();
 
             if ($profileFile) {
                 $userDir = $uploadDirectory . '/' . $user->getId();
@@ -65,7 +65,7 @@ class ProfileController extends AbstractController
 
                 try {
                     $profileFile->move($userDir, $newFilename);
-                    $user->setProfilePictureFilename($newFilename); // <-- Use Filename property
+                    $user->setProfilePictureFilename($newFilename);
                 } catch (FileException $e) {
                     $this->addFlash('error', 'Profile picture upload failed: ' . $e->getMessage());
                 }
@@ -81,6 +81,22 @@ class ProfileController extends AbstractController
         // --- DOCUMENT FORM ---
         $cvForm = $this->createForm(ProviderCvType::class, $provider);
         $cvForm->handleRequest($request);
+
+        // Debug logging
+        if ($request->isXmlHttpRequest()) {
+            error_log('AJAX Request detected');
+            error_log('Request method: ' . $request->getMethod());
+            error_log('Expected Form Name: ' . $cvForm->getName());
+            error_log('Form submitted: ' . ($cvForm->isSubmitted() ? 'YES' : 'NO'));
+            if ($cvForm->isSubmitted()) {
+                error_log('Form valid: ' . ($cvForm->isValid() ? 'YES' : 'NO'));
+                if (!$cvForm->isValid()) {
+                     error_log('Form Errors: ' . $cvForm->getErrors(true, false));
+                }
+            }
+            error_log('POST keys: ' . json_encode(array_keys($request->request->all())));
+            error_log('FILES keys: ' . json_encode(array_keys($request->files->all())));
+        }
 
         if ($cvForm->isSubmitted() && $cvForm->isValid()) {
             /** @var UploadedFile $cvFile */
@@ -171,6 +187,61 @@ class ProfileController extends AbstractController
             'cvDocuments' => $cvDocuments,
             'workPreferenceForm' => $workPreferenceForm->createView(),
         ]);
+    }
+
+    #[Route('/photo/upload', name: 'app_provider_profile_photo_upload', methods: ['POST'])]
+    public function uploadPhoto(
+        Request $request,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['success' => false, 'message' => 'Not authenticated'], 401);
+        }
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('image')
+            ?? $request->files->get('profileImage')
+            ?? $request->files->get('profilePictureFilename');
+
+        if (!$file) {
+            return $this->json(['success' => false, 'message' => 'No image file provided'], 400);
+        }
+
+        $allowed = ['image/png', 'image/jpg', 'image/jpeg'];
+        if (!in_array($file->getMimeType(), $allowed, true)) {
+            return $this->json(['success' => false, 'message' => 'Invalid image type'], 400);
+        }
+        if ($file->getSize() > 8 * 1024 * 1024) {
+            return $this->json(['success' => false, 'message' => 'Image size exceeds 8MB'], 400);
+        }
+
+        $userDir = $uploadDirectory . '/' . $user->getId();
+        if (!is_dir($userDir)) {
+            @mkdir($userDir, 0777, true);
+        }
+
+        $safeFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+        try {
+            $file->move($userDir, $newFilename);
+        } catch (FileException $e) {
+            return $this->json(['success' => false, 'message' => 'Upload failed'], 500);
+        }
+
+        $user->setProfilePictureFilename($newFilename);
+        $em->persist($user);
+        $em->flush();
+
+        $url = '/uploads/' . $user->getId() . '/' . $newFilename;
+        if ($request->isXmlHttpRequest()) {
+            return $this->json(['success' => true, 'url' => $url]);
+        }
+        $this->addFlash('success', 'Profile picture updated.');
+        return $this->redirectToRoute('app_provider_profile');
     }
 
     #[Route('/cv/delete/{id}', name: 'app_provider_profile_cv_delete', methods: ['POST'])]
