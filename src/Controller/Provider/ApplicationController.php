@@ -22,11 +22,19 @@ class ApplicationController extends AbstractController
         $provider = $this->getUser()->getProvider();
 
         if($request->getMethod() === 'POST') {
-            $provider->setRiskAssessment($request->get('riskAssessment'));
+            $data = $request->request->all();
+            $provider->setRiskAssessment($data);
 
             $em->persist($provider);
             $em->flush();
 
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'status' => 'success',
+                    'riskAssessment' => $provider->getRiskAssessment(),
+                    'continue' => $request->get('save_continue') == 1
+                ]);
+            }
             $this->addFlash('success', 'Risk assessment updated successfully.');
 
             if($request->get('save_continue') == 1){
@@ -48,11 +56,19 @@ class ApplicationController extends AbstractController
         $provider = $this->getUser()->getProvider();
 
         if($request->getMethod() === 'POST') {
-            $provider->setHealthAssessment($request->get('healthAssessment'));
+            $data = $request->request->all();
+            $provider->setHealthAssessment($data);
 
             $em->persist($provider);
             $em->flush();
 
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'status' => 'success',
+                    'healthAssessment' => $provider->getHealthAssessment(),
+                    'continue' => $request->get('save_continue') == 1
+                ]);
+            }
             $this->addFlash('success', 'Health assessment updated successfully.');
 
             if($request->get('save_continue') == 1){
@@ -79,6 +95,9 @@ class ApplicationController extends AbstractController
             $em->persist($provider);
             $em->flush();
 
+            if ($request->isXmlHttpRequest()) {
+                return $this->json(['status' => 'success']);
+            }
             $this->addFlash('success', 'Application certification updated successfully.');
 
             if($request->get('save_continue') == 1){
@@ -226,8 +245,26 @@ class ApplicationController extends AbstractController
                 ], 400);
             }
 
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'User not authenticated.'
+                ], 401);
+            }
+            
+            $provider = $user->getProvider();
+            if (!$provider) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Provider not found.'
+                ], 400);
+            }
+            
             $archivedCount = 0;
+            $skippedCount = 0;
             $applicationRepo = $em->getRepository(Application::class);
+            $bookmarkRepo = $em->getRepository(Bookmark::class);
 
             foreach ($data['ids'] as $appIdStr) {
                 try {
@@ -235,6 +272,13 @@ class ApplicationController extends AbstractController
                     $application = $applicationRepo->find($applicationId);
 
                     if (!$application) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    // Verify the application belongs to the current user's provider
+                    if ($application->getProvider() !== $provider) {
+                        $skippedCount++;
                         continue;
                     }
 
@@ -243,18 +287,52 @@ class ApplicationController extends AbstractController
                         $application->archive();
                         $em->persist($application);
                         $archivedCount++;
+                    } else {
+                        // Already archived, skip
+                        $skippedCount++;
+                    }
+                    
+                    // Also ensure bookmark exists and is removed (if it exists)
+                    // This ensures consistency with saved section behavior
+                    $job = $application->getJob();
+                    if ($job) {
+                        $bookmark = $bookmarkRepo->findOneBy([
+                            'job' => $job,
+                            'user' => $user
+                        ]);
+                        
+                        if ($bookmark) {
+                            // Remove bookmark since it's now archived via application
+                            $em->remove($bookmark);
+                        }
                     }
                 } catch (\Throwable $e) {
                     // Invalid UUID or other issue, skip
+                    $skippedCount++;
                     continue;
                 }
             }
 
             $em->flush();
 
+            // Build message based on results
+            if ($archivedCount === 0) {
+                $message = 'No applications were archived.';
+                if ($skippedCount > 0) {
+                    $message .= ' They may already be archived or not found.';
+                }
+            } else {
+                $message = "$archivedCount application(s) archived successfully.";
+                if ($archivedCount === 1) {
+                    $message = "1 application archived successfully.";
+                }
+                $message .= " They will appear in your archived jobs section.";
+            }
+
             return $this->json([
-                'success' => true,
-                'message' => "$archivedCount application(s) archived successfully."
+                'success' => $archivedCount > 0,
+                'message' => $message,
+                'archived_count' => $archivedCount
             ]);
         } catch (\Throwable $e) {
             return $this->json([

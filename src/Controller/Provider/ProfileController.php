@@ -26,6 +26,9 @@ use App\Form\DocumentType;
 use App\Entity\Document;
 use App\Entity\Education;
 use App\Entity\License;
+use App\Entity\Insurance;
+use App\Form\EducationType;
+use App\Form\InsuranceType;
 
 #[Route('/provider/profile')]
 class ProfileController extends AbstractController
@@ -91,7 +94,7 @@ class ProfileController extends AbstractController
             if ($cvForm->isSubmitted()) {
                 error_log('Form valid: ' . ($cvForm->isValid() ? 'YES' : 'NO'));
                 if (!$cvForm->isValid()) {
-                     error_log('Form Errors: ' . $cvForm->getErrors(true, false));
+                    error_log('Form Errors: ' . $cvForm->getErrors(true, false));
                 }
             }
             error_log('POST keys: ' . json_encode(array_keys($request->request->all())));
@@ -138,12 +141,12 @@ class ProfileController extends AbstractController
                         ['user' => $user, 'category' => 'CV Upload'],
                         ['createdAt' => 'DESC']
                     );
-                    
+
                     // Render the CV list HTML
                     $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
                         'cvDocuments' => $cvDocuments,
                     ]);
-                    
+
                     return $this->json([
                         'success' => true,
                         'message' => 'CV uploaded successfully.',
@@ -164,7 +167,7 @@ class ProfileController extends AbstractController
                 return $this->redirectToRoute('app_provider_profile');
             }
         }
-        
+
         // Handle AJAX validation errors
         if ($cvForm->isSubmitted() && !$cvForm->isValid() && $request->isXmlHttpRequest()) {
             $errors = [];
@@ -179,6 +182,23 @@ class ProfileController extends AbstractController
             'method' => 'POST',
         ]);
 
+        $educationForm = $this->createForm(EducationType::class, new Education(), [
+            'action' => $this->generateUrl('app_provider_education_new'),
+            'method' => 'POST',
+        ]);
+
+        $licenses = $em->getRepository(License::class)->findBy(['user' => $user], ['issueDate' => 'DESC']);
+        $insurances = $em->getRepository(Insurance::class)->findBy(['user' => $user], ['effectiveDate' => 'DESC']);
+        $insuranceForm = $this->createForm(InsuranceType::class, new Insurance(), [
+            'action' => $this->generateUrl('app_provider_insurance_index'),
+            'method' => 'POST',
+        ]);
+
+        $licenseForm = $this->createForm(\App\Form\LicenseType::class, new License(), [
+            'action' => $this->generateUrl('app_provider_license_index'),
+            'method' => 'POST',
+        ]);
+
         return $this->render('provider/profile/profile.html.twig', [
             'user' => $user,
             'profileForm' => $profileForm->createView(),
@@ -186,6 +206,11 @@ class ProfileController extends AbstractController
             'providerEntity' => $provider,
             'cvDocuments' => $cvDocuments,
             'workPreferenceForm' => $workPreferenceForm->createView(),
+            'educationForm' => $educationForm->createView(),
+            'licenses' => $licenses,
+            'insurances' => $insurances,
+            'licenseForm' => $licenseForm->createView(),
+            'insuranceForm' => $insuranceForm->createView(),
         ]);
     }
 
@@ -265,7 +290,7 @@ class ProfileController extends AbstractController
     }
 
 
-    
+
 
     #[Route('/cv', name: 'app_provider_profile_cv', methods: ['GET', 'POST'])]
     public function cv(
@@ -273,8 +298,7 @@ class ProfileController extends AbstractController
         EntityManagerInterface $em,
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
         $form = $this->createForm(ProviderCvType::class, $provider);
@@ -290,11 +314,11 @@ class ProfileController extends AbstractController
                 $originalFilename = pathinfo($cvFile->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$cvFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $cvFile->guessExtension();
 
                 // Move the file to the directory where brochures are stored
                 try {
-                    $cvFile->move($uploadDirectory. '/' . $user->getId(), $newFilename);
+                    $cvFile->move($uploadDirectory . '/' . $user->getId(), $newFilename);
                 } catch (FileException $e) {
                     // ... handle exception if something happens during file upload
                 }
@@ -307,7 +331,7 @@ class ProfileController extends AbstractController
 
             $this->addFlash('success', 'CV uploaded successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_profile_basic_information');
             }
 
@@ -324,13 +348,12 @@ class ProfileController extends AbstractController
     public function cvRemove(
         EntityManagerInterface $em,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    )
-    {
+    ) {
         $user = $this->getUser();
         $provider = $user->getProvider();
 
-        $cvFilePath = $uploadDirectory.'/'. $user->getId().'/'.$provider->getCvFilename();
-        if(file_exists($cvFilePath)) {
+        $cvFilePath = $uploadDirectory . '/' . $user->getId() . '/' . $provider->getCvFilename();
+        if (file_exists($cvFilePath)) {
             unlink($cvFilePath);
         }
 
@@ -356,7 +379,7 @@ class ProfileController extends AbstractController
 
             $this->addFlash('success', 'Basic information updated successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_profile_work_preferences');
             }
 
@@ -382,7 +405,7 @@ class ProfileController extends AbstractController
 
             $this->addFlash('success', 'Work preferences updated successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_education_index');
             }
 
@@ -467,13 +490,14 @@ class ProfileController extends AbstractController
     public function saveCashback(
         Request $request,
         EntityManagerInterface $em
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
         // Validate fields
-        if (empty($data['bankName']) || empty($data['bankAccountName']) || empty($data['bankAccountNumber']) ||
-            empty($data['paypalName']) || empty($data['paypalAccountNumber'])) {
+        if (
+            empty($data['bankName']) || empty($data['bankAccountName']) || empty($data['bankAccountNumber']) ||
+            empty($data['paypalName']) || empty($data['paypalAccountNumber'])
+        ) {
             return new JsonResponse(['success' => false, 'message' => 'All fields are required.'], 400);
         }
 
@@ -508,8 +532,7 @@ class ProfileController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         CsrfTokenManagerInterface $csrfTokenManager
-    ): Response
-    {
+    ): Response {
         $provider = $this->getUser()->getProvider();
 
         $data = json_decode($request->getContent(), true);
@@ -539,8 +562,7 @@ class ProfileController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         CsrfTokenManagerInterface $csrfTokenManager
-    ): Response
-    {
+    ): Response {
         $provider = $this->getUser()->getProvider();
 
         $data = json_decode($request->getContent(), true);
@@ -625,7 +647,7 @@ class ProfileController extends AbstractController
             if ($uploadedFile) {
                 $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
 
                 try {
                     $uploadedFile->move(
@@ -670,209 +692,4 @@ class ProfileController extends AbstractController
 
     // Add these routes to your existing ProfileController class
 
-// EDUCATION ROUTES
-#[Route('/education/new', name: 'app_provider_education_new', methods: ['GET', 'POST'])]
-public function newEducation(Request $request, EntityManagerInterface $em): JsonResponse
-{
-    $education = new Education();
-    $form = $this->createForm(EducationType::class, $education);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $education->setUser($this->getUser());
-        $em->persist($education);
-        $em->flush();
-
-        return $this->json([
-            'status' => 'success', 
-            'message' => 'Education added successfully!'
-        ]);
-    }
-
-    $formHtml = $this->renderView('provider/profile/_education_form.html.twig', [
-        'form' => $form->createView(),
-    ]);
-
-    return $this->json(['form' => $formHtml]);
-}
-
-#[Route('/education/{id}/edit', name: 'app_provider_education_edit', methods: ['GET', 'POST'])]
-public function editEducation(Request $request, Education $education, EntityManagerInterface $em): JsonResponse
-{
-    // Check if the education belongs to the current user
-    if ($education->getUser() !== $this->getUser()) {
-        return $this->json(['error' => 'Access denied'], 403);
-    }
-
-    $form = $this->createForm(EducationType::class, $education);
-    
-    if ($request->isMethod('POST')) {
-        $form->handleRequest($request);
-        
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->flush();
-            return $this->json([
-                'status' => 'success', 
-                'message' => 'Education updated successfully!'
-            ]);
-        }
-    }
-
-    $formHtml = $this->renderView('provider/profile/_education_form.html.twig', [
-        'form' => $form->createView(),
-    ]);
-
-    return $this->json(['form' => $formHtml]);
-}
-
-#[Route('/education/{id}/delete', name: 'app_provider_education_delete', methods: ['GET'])]
-public function deleteEducation(Education $education, EntityManagerInterface $em): JsonResponse
-{
-    // Check if the education belongs to the current user
-    if ($education->getUser() !== $this->getUser()) {
-        return $this->json(['error' => 'Access denied'], 403);
-    }
-
-    $em->remove($education);
-    $em->flush();
-
-    return $this->json([
-        'status' => 'success', 
-        'message' => 'Education deleted successfully!'
-    ]);
-}
-
-#[Route('/education/list', name: 'app_provider_education_list', methods: ['GET'])]
-public function educationList(EntityManagerInterface $em): Response
-{
-    $user = $this->getUser();
-    $educations = $em->getRepository(Education::class)->findBy(
-        ['user' => $user], 
-        ['startDate' => 'DESC']
-    );
-
-    return $this->render('provider/profile/_education_list.html.twig', [
-        'educations' => $educations,
-    ]);
-}
-
-// LICENSE ROUTES
-#[Route('/license/new', name: 'app_provider_license_new', methods: ['POST'])]
-public function newLicense(Request $request, EntityManagerInterface $em): JsonResponse
-{
-    $license = new License();
-    
-    $data = $request->request->all()['license'] ?? [];
-    
-    if (empty($data)) {
-        return $this->json(['success' => false, 'message' => 'No data received'], 400);
-    }
-
-    try {
-        $license->setName($data['name'] ?? '');
-        $license->setNumber($data['number'] ?? '');
-        $license->setIssueDate(new \DateTime($data['issueDate'] ?? 'now'));
-        $license->setExpirationDate(new \DateTime($data['expirationDate'] ?? 'now'));
-        $license->setUser($this->getUser());
-        
-        $em->persist($license);
-        $em->flush();
-
-        return $this->json([
-            'success' => true, 
-            'message' => 'License added successfully!',
-            'license' => [
-                'id' => $license->getId(),
-                'name' => $license->getName(),
-                'number' => $license->getNumber(),
-                'issueDate' => $license->getIssueDate()->format('m/d/Y'),
-                'expirationDate' => $license->getExpirationDate()->format('m/d/Y'),
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return $this->json([
-            'success' => false, 
-            'message' => 'Error saving license: ' . $e->getMessage()
-        ], 400);
-    }
-}
-
-#[Route('/license/{id}/delete', name: 'app_provider_license_delete', methods: ['GET'])]
-public function deleteLicense(License $license, EntityManagerInterface $em): JsonResponse
-{
-    if ($license->getUser() !== $this->getUser()) {
-        return $this->json(['error' => 'Access denied'], 403);
-    }
-
-    $em->remove($license);
-    $em->flush();
-
-    return $this->json([
-        'success' => true, 
-        'message' => 'License deleted successfully!'
-    ]);
-}
-
-// INSURANCE ROUTES
-#[Route('/insurance/new', name: 'app_provider_insurance_new', methods: ['POST'])]
-public function newInsurance(Request $request, EntityManagerInterface $em): JsonResponse
-{
-    $insurance = new Insurance();
-    
-    $data = $request->request->all()['insurance'] ?? [];
-    
-    if (empty($data)) {
-        return $this->json(['success' => false, 'message' => 'No data received'], 400);
-    }
-
-    try {
-        $insurance->setCarrier($data['carrier'] ?? '');
-        $insurance->setPolicyNumber($data['policyNumber'] ?? '');
-        $insurance->setAmount($data['amount'] ?? null);
-        $insurance->setState($data['state'] ?? '');
-        $insurance->setCity($data['city'] ?? '');
-        $insurance->setEffectiveDate(new \DateTime($data['effectiveDate'] ?? 'now'));
-        $insurance->setExpirationDate(new \DateTime($data['expirationDate'] ?? 'now'));
-        $insurance->setUser($this->getUser());
-        
-        $em->persist($insurance);
-        $em->flush();
-
-        return $this->json([
-            'success' => true, 
-            'message' => 'Insurance added successfully!',
-            'insurance' => [
-                'id' => $insurance->getId(),
-                'carrier' => $insurance->getCarrier(),
-                'policyNumber' => $insurance->getPolicyNumber(),
-                'amount' => $insurance->getAmount(),
-                'state' => $insurance->getState(),
-                'city' => $insurance->getCity(),
-                'effectiveDate' => $insurance->getEffectiveDate()->format('m/d/Y'),
-                'expirationDate' => $insurance->getExpirationDate()->format('m/d/Y'),
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return $this->json([
-            'success' => false, 
-            'message' => 'Error saving insurance: ' . $e->getMessage()
-        ], 400);
-    }
-}
-
-#[Route('/insurance/{id}/delete', name: 'app_provider_insurance_delete', methods: ['GET'])]
-public function deleteInsurance(Insurance $insurance, EntityManagerInterface $em): JsonResponse
-{
-    if ($insurance->getUser() !== $this->getUser()) {
-        return $this->json(['error' => 'Access denied'], 403);
-    }
-
-    $em->remove($insurance);
-    $em->flush();
-
-    return $this->json([
-        'success' => true, 
-        'message' => 'Insurance deleted successfully!'
-    ]);
-}
 }

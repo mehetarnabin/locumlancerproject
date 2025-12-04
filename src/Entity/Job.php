@@ -113,10 +113,10 @@ class Job
 
     use TimestampableEntity;
 
-    // public function __toString()
-    // {
-    //     return $this->title;
-    // }
+    public function __toString(): string
+    {
+        return $this->getTitle() ?? '';
+    }
 
     public function getId(): ?Uuid
     {
@@ -171,7 +171,7 @@ class Job
         return $this;
     }
 
-        public function getRank(): ?int
+    public function getRank(): ?int
     {
         return $this->rank;
     }
@@ -325,7 +325,7 @@ class Job
         return $this->payRate;
     }
 
-        public function getAnnualSalary(): ?int
+    public function getAnnualSalary(): ?int
     {
         return $this->annualSalary;
     }
@@ -434,128 +434,128 @@ class Job
 
 
 
-public function getFormattedSalary(): string
-{
-    // Check by salaryType first
-    if ($this->salaryType === 'annual' && $this->annualSalary) {
-        return '$' . number_format($this->annualSalary) . '/year';
-    }
-    
-    if ($this->salaryType === 'monthly' && $this->monthlySalary) {
-        return '$' . number_format($this->monthlySalary) . '/month';
-    }
-    
-    if ($this->salaryType === 'daily' && $this->payRateDaily) {
-        return '$' . number_format($this->payRateDaily) . '/day';
-    }
-    
-    if ($this->salaryType === 'hourly' && $this->payRateHourly) {
-        return '$' . number_format($this->payRateHourly, 2) . '/hour';
-    }
-    
-    // Fallback: Check individual salary fields if salaryType is not set
-    if ($this->annualSalary) {
-        return '$' . number_format($this->annualSalary) . '/year';
-    }
-    
-    if ($this->monthlySalary) {
-        return '$' . number_format($this->monthlySalary) . '/month';
-    }
-    
-    if ($this->payRateDaily) {
-        return '$' . number_format($this->payRateDaily) . '/day';
-    }
-    
-    if ($this->payRateHourly) {
-        return '$' . number_format($this->payRateHourly, 2) . '/hour';
-    }
-    
-    // Check the old payRate field for backward compatibility
-    if ($this->payRate) {
-        return $this->payRate; // This might already be formatted
-    }
-    
-    return 'Salary not specified';
-}
+    public function getFormattedSalary(): string
+    {
+        // Check by salaryType first
+        if ($this->salaryType === 'annual' && $this->annualSalary) {
+            return '$' . number_format($this->annualSalary) . '/year';
+        }
 
-public function getSalaryForSorting(): ?int
-{
-    // Try salaryType first
-    $value = match($this->salaryType) {
-        'annual' => $this->annualSalary,
-        'monthly' => $this->monthlySalary,
-        'daily' => $this->payRateDaily,
-        'hourly' => $this->payRateHourly,
-        default => null
-    };
-    
-    // Fallback to any available salary value
-    if ($value === null) {
-        $value = $this->annualSalary ?? $this->monthlySalary ?? $this->payRateDaily ?? $this->payRateHourly;
-    }
-    
-    return $value;
-}
+        if ($this->salaryType === 'monthly' && $this->monthlySalary) {
+            return '$' . number_format($this->monthlySalary) . '/month';
+        }
 
-/**
- * Get hourly rate, converting from any salary type to hourly
- * Standard conversions:
- * - Annual: divide by 2080 hours/year (40 hours/week * 52 weeks)
- * - Monthly: divide by 173.33 hours/month (2080/12)
- * - Daily: divide by 8 hours/day
- * - Hourly: return as-is
- */
-public function getHourlyRate(): ?float
-{
-    // Check by salaryType first
-    if ($this->salaryType === 'hourly' && $this->payRateHourly) {
-        return (float)$this->payRateHourly;
-    }
-    
-    if ($this->salaryType === 'annual' && $this->annualSalary) {
-        // Convert annual to hourly: divide by 2080 hours/year
-        return round((float)$this->annualSalary / 2080, 2);
-    }
-    
-    if ($this->salaryType === 'monthly' && $this->monthlySalary) {
-        // Convert monthly to hourly: divide by 173.33 hours/month
-        return round((float)$this->monthlySalary / 173.33, 2);
-    }
-    
-    if ($this->salaryType === 'daily' && $this->payRateDaily) {
-        // Convert daily to hourly: divide by 8 hours/day
-        return round((float)$this->payRateDaily / 8, 2);
-    }
-    
-    // Fallback: Check individual salary fields if salaryType is not set
-    if ($this->payRateHourly) {
-        return (float)$this->payRateHourly;
-    }
-    
-    if ($this->annualSalary) {
-        return round((float)$this->annualSalary / 2080, 2);
-    }
-    
-    if ($this->monthlySalary) {
-        return round((float)$this->monthlySalary / 173.33, 2);
-    }
-    
-    if ($this->payRateDaily) {
-        return round((float)$this->payRateDaily / 8, 2);
-    }
-    
-    return null;
-}
+        if ($this->salaryType === 'daily' && $this->payRateDaily) {
+            return '$' . number_format($this->payRateDaily) . '/day';
+        }
 
-/**
- * Get formatted hourly rate as string (e.g., "$50.00/hour")
- */
-public function getFormattedHourlyRate(): string
-{
-    $hourlyRate = $this->getHourlyRate();
-    if ($hourlyRate === null) {
-        return '—';
+        if ($this->salaryType === 'hourly' && $this->payRateHourly) {
+            return '$' . number_format($this->payRateHourly, 2) . '/hour';
+        }
+
+        // Fallback: Check individual salary fields if salaryType is not set
+        if ($this->annualSalary) {
+            return '$' . number_format($this->annualSalary) . '/year';
+        }
+
+        if ($this->monthlySalary) {
+            return '$' . number_format($this->monthlySalary) . '/month';
+        }
+
+        if ($this->payRateDaily) {
+            return '$' . number_format($this->payRateDaily) . '/day';
+        }
+
+        if ($this->payRateHourly) {
+            return '$' . number_format($this->payRateHourly, 2) . '/hour';
+        }
+
+        // Check the old payRate field for backward compatibility
+        if ($this->payRate) {
+            return $this->payRate; // This might already be formatted
+        }
+
+        return 'Salary not specified';
     }
-    return '$' . number_format($hourlyRate, 2) . '/hour';
-}
+
+    public function getSalaryForSorting(): ?int
+    {
+        // Try salaryType first
+        $value = match ($this->salaryType) {
+            'annual' => $this->annualSalary,
+            'monthly' => $this->monthlySalary,
+            'daily' => $this->payRateDaily,
+            'hourly' => $this->payRateHourly,
+            default => null
+        };
+
+        // Fallback to any available salary value
+        if ($value === null) {
+            $value = $this->annualSalary ?? $this->monthlySalary ?? $this->payRateDaily ?? $this->payRateHourly;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Get hourly rate, converting from any salary type to hourly
+     * Standard conversions:
+     * - Annual: divide by 2080 hours/year (40 hours/week * 52 weeks)
+     * - Monthly: divide by 173.33 hours/month (2080/12)
+     * - Daily: divide by 8 hours/day
+     * - Hourly: return as-is
+     */
+    public function getHourlyRate(): ?float
+    {
+        // Check by salaryType first
+        if ($this->salaryType === 'hourly' && $this->payRateHourly) {
+            return (float)$this->payRateHourly;
+        }
+
+        if ($this->salaryType === 'annual' && $this->annualSalary) {
+            // Convert annual to hourly: divide by 2080 hours/year
+            return round((float)$this->annualSalary / 2080, 2);
+        }
+
+        if ($this->salaryType === 'monthly' && $this->monthlySalary) {
+            // Convert monthly to hourly: divide by 173.33 hours/month
+            return round((float)$this->monthlySalary / 173.33, 2);
+        }
+
+        if ($this->salaryType === 'daily' && $this->payRateDaily) {
+            // Convert daily to hourly: divide by 8 hours/day
+            return round((float)$this->payRateDaily / 8, 2);
+        }
+
+        // Fallback: Check individual salary fields if salaryType is not set
+        if ($this->payRateHourly) {
+            return (float)$this->payRateHourly;
+        }
+
+        if ($this->annualSalary) {
+            return round((float)$this->annualSalary / 2080, 2);
+        }
+
+        if ($this->monthlySalary) {
+            return round((float)$this->monthlySalary / 173.33, 2);
+        }
+
+        if ($this->payRateDaily) {
+            return round((float)$this->payRateDaily / 8, 2);
+        }
+
+        return null;
+    }
+
+    /**
+     * Get formatted hourly rate as string (e.g., "$50.00/hour")
+     */
+    public function getFormattedHourlyRate(): string
+    {
+        $hourlyRate = $this->getHourlyRate();
+        if ($hourlyRate === null) {
+            return '—';
+        }
+        return '$' . number_format($hourlyRate, 2) . '/hour';
+    }
 }

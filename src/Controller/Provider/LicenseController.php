@@ -30,7 +30,16 @@ class LicenseController extends AbstractController
             $entityManager->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return $this->json(['status' => 'success']);
+                return $this->json([
+                    'status' => 'success',
+                    'license' => [
+                        'id' => (string)$license->getId(),
+                        'name' => $license->getName(),
+                        'number' => $license->getNumber(),
+                        'issueDate' => $license->getIssueDate() ? $license->getIssueDate()->format('m/d/Y') : null,
+                        'expirationDate' => $license->getExpirationDate() ? $license->getExpirationDate()->format('m/d/Y') : null,
+                    ]
+                ]);
             }
 
             $this->addFlash('success', 'License & certification added successfully');
@@ -101,6 +110,24 @@ class LicenseController extends AbstractController
         $form->handleRequest($request);
 
         if ($request->isXmlHttpRequest()) {
+            if ($request->isMethod('POST')) {
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $entityManager->flush();
+                    return $this->json([
+                        'status' => 'success',
+                        'license' => [
+                            'id' => (string)$license->getId(),
+                            'name' => $license->getName(),
+                            'number' => $license->getNumber(),
+                            'issueDate' => $license->getIssueDate() ? $license->getIssueDate()->format('m/d/Y') : null,
+                            'expirationDate' => $license->getExpirationDate() ? $license->getExpirationDate()->format('m/d/Y') : null,
+                        ]
+                    ]);
+                }
+                return $this->render('provider/license/_form.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
             return $this->json([
                 'form' => $this->renderView('provider/license/_form.html.twig', [
                     'form' => $form->createView(),
@@ -135,6 +162,10 @@ class LicenseController extends AbstractController
     {
         $entityManager->remove($license);
         $entityManager->flush();
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->json(['status' => 'success']);
+        }
 
         $this->addFlash('success', 'License & training deleted successfully');
         return $this->redirectToRoute('app_provider_license_index', [], Response::HTTP_SEE_OTHER);

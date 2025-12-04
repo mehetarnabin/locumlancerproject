@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class EducationType extends AbstractType
 {
@@ -17,10 +18,12 @@ class EducationType extends AbstractType
         $builder
             ->add('school', TextType::class, [
                 'label' => 'School/Institution',
+                'required' => true, // add this
                 'attr' => ['placeholder' => 'Enter school or institution name']
             ])
             ->add('degree', TextType::class, [
                 'label' => 'Degree',
+                'required' => true, // add this
                 'attr' => ['placeholder' => 'e.g., Bachelor of Science, Master of Arts, etc.']
             ])
             ->add('fieldOfStudy', TextType::class, [

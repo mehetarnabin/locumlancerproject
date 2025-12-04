@@ -74,6 +74,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 12px;
     box-shadow: none;
     flex-shrink: 0;
@@ -93,14 +94,21 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     text-decoration: none;
+    background: transparent;
 }
 
 .sidebar-icon:hover {
-    background: #f1f3f4;
-    transform: scale(1.08);
+    background: #f4f9f1;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+}
+
+.sidebar-icon:hover svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 /* Tooltip styling */
@@ -156,6 +164,12 @@ body {
 
 .sidebar-icon.active {
     background: #e8f5e9;
+    animation: iconActivePulse 2s ease-in-out infinite;
+}
+
+.sidebar-icon.active svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 .sidebar-icon.active::after {
@@ -168,6 +182,29 @@ body {
     height: 32px;
     background: #85BB65;
     border-radius: 2px 0 0 2px;
+    animation: activeIndicatorPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconActivePulse {
+    0%, 100% {
+        background: #e8f5e9;
+        box-shadow: 0 0 0 rgba(133, 187, 101, 0);
+    }
+    50% {
+        background: #d4edda;
+        box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.1);
+    }
+}
+
+@keyframes activeIndicatorPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(-50%) scaleY(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-50%) scaleY(1.1);
+    }
 }
 
 .sidebar-icon svg {
@@ -175,16 +212,12 @@ body {
     height: 28px;
 }
 
-.sidebar-icon.calendar svg {
-    color: #1a73e8;
-}
-
-.sidebar-icon.interview svg {
-    color: #ea4335;
-}
-
+.sidebar-icon.calendar svg,
+.sidebar-icon.interview svg,
 .sidebar-icon.document svg {
-    color: #fbbc04;
+    color: #000000;
+    stroke: #000000;
+    fill: none;
 }
 
 
@@ -220,7 +253,7 @@ body {
     margin: 0;
     font-size: 20px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
 }
 
 .messages-container {
@@ -324,7 +357,7 @@ body {
     color: #5f6368;
     font-weight: 500;
     font-size: 14px;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin-right: 8px;
     position: relative;
 }
@@ -344,7 +377,7 @@ body {
 
 .messages-sidebar .folder-link:hover {
     background: #f1f3f4;
-    color: #121C0C;
+    color: #000000;
     text-decoration: none;
     transform: translateX(4px);
 }
@@ -358,16 +391,41 @@ body {
     background: #e8f5e9;
     color: #85BB65;
     font-weight: 600;
+    animation: folderLinkActive 0.3s ease-out;
 }
 
 .messages-sidebar .folder-link.active::before {
     width: 3px;
     height: 60%;
+    animation: activeIndicatorSlide 0.3s ease-out;
 }
 
 .messages-sidebar .folder-link.active:hover {
     background: #d4edda;
     color: #6fa050;
+    transform: translateX(4px);
+}
+
+@keyframes folderLinkActive {
+    from {
+        background: #fff;
+        transform: translateX(0);
+    }
+    to {
+        background: #e8f5e9;
+        transform: translateX(2px);
+    }
+}
+
+@keyframes activeIndicatorSlide {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 3px;
+        opacity: 1;
+    }
 }
 
 .messages-sidebar .folder-link svg {
@@ -380,12 +438,72 @@ body {
     margin-left: auto;
     background: #85BB65;
     color: #fff;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 12px;
-    min-width: 20px;
-    text-align: center;
+    padding: 0 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    width: auto;
+    height: 18px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 18px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+    transform-origin: center center;
+    box-shadow: 0 1px 3px rgba(133, 187, 101, 0.2);
+    flex-shrink: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+    vertical-align: baseline;
+}
+
+.messages-sidebar .folder-link .badge::before {
+    content: '';
+    display: none;
+}
+
+.messages-sidebar .folder-link .badge > *,
+.messages-sidebar .folder-link .badge span {
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    height: auto !important;
+    align-self: center !important;
+}
+
+.messages-sidebar .folder-link:hover .badge {
+    transform: scale(1.1);
+    transform-origin: center center;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.3);
+    background: #6fa050;
+}
+
+.messages-sidebar .folder-link.active .badge {
+    background: #6fa050;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+        transform-origin: center center;
+        box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        transform-origin: center center;
+        box-shadow: 0 3px 8px rgba(133, 187, 101, 0.5);
+    }
 }
 
 .messages-content {
@@ -499,7 +617,7 @@ body {
     background: transparent;
     border-radius: 0;
     font-size: 14px;
-    color: #121C0C;
+    color: #000000;
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
@@ -521,7 +639,7 @@ body {
 }
 
 .messages-search button:hover {
-    color: #121C0C;
+    color: #000000;
 }
 
 .messages-list {
@@ -588,7 +706,7 @@ body {
 
 .message-item.unread .message-sender {
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
 }
 
 /* Special message item types */
@@ -623,6 +741,8 @@ body {
     -moz-appearance: none;
     position: relative;
     transition: all 0.2s ease;
+    z-index: 20;
+    pointer-events: auto;
 }
 
 .message-item .message-checkbox:checked {
@@ -659,6 +779,17 @@ body {
     color: inherit;
 }
 
+/* When message-item is itself a link */
+a.message-item {
+    text-decoration: none;
+    color: inherit;
+}
+
+a.message-item:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
 .message-avatar {
     width: 48px;
     height: 48px;
@@ -677,7 +808,7 @@ body {
 .message-sender {
     font-weight: 600;
     font-size: 14px;
-    color: #121C0C;
+    color: #000000;
     margin-bottom: 4px;
     line-height: 1.4;
 }
@@ -702,6 +833,57 @@ body {
     align-items: flex-end;
     gap: 8px;
     min-width: 100px;
+}
+
+.message-forward-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    color: #5f6368;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    margin-left: 8px;
+    flex-shrink: 0;
+    z-index: 10;
+    position: relative;
+    min-width: 50px;
+}
+
+.message-item:hover .message-forward-btn {
+    opacity: 1;
+    border-color: #85BB65;
+    color: #85BB65;
+}
+
+.message-forward-btn:hover {
+    background: #f1f3f4;
+    color: #85BB65;
+    border-color: #85BB65;
+    opacity: 1;
+}
+
+.message-forward-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    flex-shrink: 0;
+}
+
+.message-forward-btn-text {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .message-actions {
@@ -758,7 +940,7 @@ body {
     cursor: pointer;
     opacity: 0.5;
     transition: all 0.2s ease;
-    border-radius: 4px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -766,13 +948,18 @@ body {
 
 .message-delete-btn:hover {
     opacity: 1;
-    background: #fee;
-    color: #d32f2f;
+    background: transparent;
+    color: #000000;
     transform: scale(1.1);
 }
 
 .message-delete-btn:active {
     transform: scale(0.95);
+}
+
+.message-delete-btn svg {
+    color: #000000;
+    stroke: #000000;
 }
 
 .empty-messages {
@@ -828,10 +1015,10 @@ body {
 
 .permanent-delete-btn-toolbar {
     background: transparent;
-    border: 1px solid #dc3545;
-    color: #dc3545;
+    border: none;
+    color: #000000;
     padding: 6px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -841,13 +1028,19 @@ body {
 }
 
 .permanent-delete-btn-toolbar:hover:not(:disabled) {
-    background: #dc3545;
-    color: white;
+    background: transparent;
+    color: #000000;
+    opacity: 1;
 }
 
 .permanent-delete-btn-toolbar:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.permanent-delete-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
 }
 
 .message-actions-toolbar {
@@ -859,10 +1052,10 @@ body {
 
 .message-delete-btn-toolbar {
     background: transparent;
-    border: 1px solid #dc3545;
-    color: #dc3545;
+    border: none;
+    color: #000000;
     padding: 6px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -872,13 +1065,19 @@ body {
 }
 
 .message-delete-btn-toolbar:hover:not(:disabled) {
-    background: #dc3545;
-    color: white;
+    background: transparent;
+    color: #000000;
+    opacity: 1;
 }
 
 .message-delete-btn-toolbar:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.message-delete-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
 }
 
 .empty-trash-btn {
@@ -986,7 +1185,7 @@ body {
 }
 
 .file-attachment-name {
-    color: #121C0C;
+    color: #000000;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -1149,7 +1348,7 @@ body {
     outline: none;
     font-size: 14px;
     padding: 6px 0;
-    color: #121C0C;
+    color: #000000;
     background: transparent;
     font-family: inherit;
 }
@@ -1191,7 +1390,7 @@ body {
     resize: vertical;
     overflow-y: auto;
     flex: 1;
-    color: #121C0C;
+    color: #000000;
     line-height: 1.6;
     padding: 0;
     box-sizing: border-box;
@@ -1280,7 +1479,7 @@ body {
 
 .compose-toolbar-btn:hover {
     background: #f1f3f4;
-    color: #121C0C;
+    color: #000000;
     transform: scale(1.1);
 }
 
@@ -1335,7 +1534,7 @@ body {
 
 .templates-dropdown-btn:hover {
     background: #f1f3f4;
-    color: #121C0C;
+    color: #000000;
 }
 
 .templates-dropdown-btn.active .dropdown-arrow {
@@ -1346,8 +1545,9 @@ body {
     position: fixed;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border: 1px solid #e6eef6;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
     padding: 6px;
     z-index: 10000;
     list-style: none;
@@ -1356,11 +1556,20 @@ body {
     max-width: 220px;
     max-height: 350px;
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.templates-dropdown-menu * {
+    border: none !important;
+    outline: none !important;
 }
 
 .templates-dropdown-menu li {
     margin: 0;
     padding: 0;
+    border: none !important;
+    outline: none !important;
 }
 
 .templates-dropdown-menu .template-item {
@@ -1372,11 +1581,27 @@ body {
     margin-bottom: 2px;
     text-decoration: none;
     color: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.templates-dropdown-menu .template-item > div {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.templates-dropdown-menu .template-item > div {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .templates-dropdown-menu .template-item:hover {
     background: #F4F9F1;
-    color: #121C0C;
+    color: #000000;
 }
 
 .templates-dropdown-menu .template-item:active {
@@ -1424,7 +1649,7 @@ body {
 
 .toast-message {
     font-size: 14px;
-    color: #121C0C;
+    color: #000000;
 }
 
 .toast-close {
@@ -1510,6 +1735,315 @@ body {
     margin-top: 10px;
     color: #6b7280;
     font-size: 14px;
+}
+
+/* Email Detail Panel */
+.email-detail-panel {
+    display: none;
+    flex: 1;
+    background: #fff;
+    border-left: 1px solid #e6eef6;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.email-detail-panel.active {
+    display: flex;
+}
+
+.email-detail-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e6eef6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+.email-detail-header h6 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.email-detail-back {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.email-detail-back:hover {
+    background: #f1f3f4;
+    color: #85BB65;
+}
+
+.email-detail-close {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.email-detail-close:hover {
+    background: #f1f3f4;
+    opacity: 0.7;
+}
+
+.email-detail-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.email-detail-message-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.email-detail-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+    flex-shrink: 0;
+}
+
+.email-detail-sender-info {
+    flex: 1;
+}
+
+.email-detail-sender-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.email-detail-date {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.email-detail-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-bottom: 24px;
+}
+
+.email-detail-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #000000;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+}
+
+.email-detail-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.email-detail-replies {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e6eef6;
+}
+
+.email-detail-replies-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 16px;
+}
+
+.email-detail-reply-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.email-detail-reply-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.email-detail-reply-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.email-detail-reply-sender {
+    font-weight: 600;
+    font-size: 14px;
+    color: #000000;
+}
+
+.email-detail-reply-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-left: auto;
+}
+
+.email-detail-reply-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.email-detail-reply-form {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e6eef6;
+}
+
+.email-detail-reply-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #000000;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    margin-bottom: 16px;
+}
+
+.email-detail-reply-form textarea:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+}
+
+.email-detail-reply-form button {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.email-detail-reply-form button:hover {
+    background: #6fa050;
+}
+
+.email-detail-reply-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.email-detail-forward-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    color: #5f6368;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.email-detail-forward-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    color: #85BB65;
+    text-decoration: none;
+}
+
+.email-detail-forward-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.email-detail-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+/* Adjust messages list when detail panel is active */
+.messages-list-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    transition: all 0.3s ease;
+}
+
+.messages-container.has-detail .messages-list-container {
+    display: none;
+}
+
+.messages-container.has-detail .messages-content-header {
+    display: none;
+}
+
+.messages-container.has-detail .messages-search {
+    display: none;
+}
+
+.messages-container.has-detail .email-detail-panel {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
 }
 </style>
 
@@ -1614,35 +2148,35 @@ body {
                                     <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
-                            <ul class="templates-dropdown-menu" id="templatesDropdownMenu" style="display: none;">
+                            <ul class="templates-dropdown-menu" id="templatesDropdownMenu" style="display: none; border: none !important; outline: none !important;">
                                 <li>
                                     <a class="template-item" href="javascript:void(0);" data-template="request">
-                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Quick Check-in</div>
-                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Follow up on opportunity</div>
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Quick Check-in</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Follow up on opportunity</div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="template-item" href="javascript:void(0);" data-template="thank">
-                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Thank You</div>
-                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Thank for conversation</div>
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Thank You</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Thank for conversation</div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="template-item" href="javascript:void(0);" data-template="follow">
-                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Follow Up</div>
-                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Following up on role</div>
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Follow Up</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Following up on role</div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="template-item" href="javascript:void(0);" data-template="details">
-                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Request Details</div>
-                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Request additional info</div>
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Request Details</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Request additional info</div>
                                     </a>
                                 </li>
                                 <li>
                                     <a class="template-item" href="javascript:void(0);" data-template="review">
-                                        <div style="font-weight: 500; color: #121C0C; font-size: 13px; line-height: 1.3;">Feedback</div>
-                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">Share process feedback</div>
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Feedback</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Share process feedback</div>
                                     </a>
                                 </li>
                             </ul>
@@ -1712,6 +2246,7 @@ body {
                     
                     <!-- Messages List -->
                     <div class="messages-content-body">
+                        <div class="messages-list-container">
                         {% if messages|length > 0 %}
                             <div class="messages-list">
                                 {% for message in messages %}
@@ -1742,9 +2277,9 @@ body {
                                         {% set isRead = message.seen|default(false) %}
                                         {% set messageText = message.text|striptags|slice(0, 100) %}
                                         
-                                        <div class="message-item read" data-message-id="{{ message.id }}">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons()">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="event.stopPropagation();">
+                                        <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
                                                 <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
                                                 <div class="message-content">
                                                     <div class="message-sender">{{ senderName }}</div>
@@ -1754,7 +2289,13 @@ body {
                                                     <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
                                                 </div>
                                             </div>
-                                        </div>
+                                            <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span class="message-forward-btn-text">Forward</span>
+                                            </button>
+                                        </a>
                                     {% else %}
                                         {# Regular message item template #}
                                         {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
@@ -1764,9 +2305,9 @@ body {
                                         {% set isRead = message.seen|default(false) %}
                                         {% set messageText = message.text|striptags|slice(0, 100) %}
                                         
-                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
-                                            <a href="{{ path('app_provider_message_show', {'id': message.id}) }}" style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit;">
+                                        <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
                                                 <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
                                                 <div class="message-content">
                                                     <div class="message-sender">{{ senderName }}</div>
@@ -1774,12 +2315,18 @@ body {
                                                 </div>
                                                 <div class="message-meta">
                                                     {% if not isRead and current_type != 'sent' %}
-                                                        <button class="btn-new-message" type="button">New</button>
+                                                        <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
                                                     {% endif %}
                                                     <div class="message-time">{{ message.createdAt|time_diff }}</div>
                                                 </div>
-                                            </a>
-                                        </div>
+                                            </div>
+                                            <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <span class="message-forward-btn-text">Forward</span>
+                                            </button>
+                                        </a>
                                     {% endif %}
                                 {% endfor %}
                             </div>
@@ -1850,6 +2397,29 @@ body {
                                 </p>
                             </div>
                         {% endif %}
+                        </div>
+                        
+                        <!-- Email Detail Panel -->
+                        <div id="email-detail-panel" class="email-detail-panel">
+                            <div class="email-detail-header">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+                                    <h6>Message</h6>
+                                </div>
+                                <button type="button" class="email-detail-close" onclick="closeEmailDetailPanel()">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="email-detail-content" class="email-detail-content">
+                                <div class="email-detail-loading">Select a message to view</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2075,13 +2645,21 @@ function updateFileDisplay() {
                 <span class="file-attachment-size">${fileSize}</span>
                 ${isDraftFile ? '<span class="badge" style="background: #85BB65; margin-left: 8px; font-size: 10px;">From Draft</span>' : ''}
             </div>
-            <button type="button" class="file-attachment-remove" onclick="removeSelectedFile(${index})" title="Remove file">
+            <button type="button" class="file-attachment-remove" data-index="${index}" title="Remove file">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </button>
         `;
         attachmentList.appendChild(listItem);
+        
+        // Add click handler to remove button
+        const removeBtn = listItem.querySelector('.file-attachment-remove');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                removeSelectedFile(index);
+            });
+        }
     });
 
     attachmentDisplay.classList.add('visible');
@@ -2612,8 +3190,12 @@ async function updateTrashCount() {
         
         const trashBadge = document.getElementById('trash-count');
         if (trashBadge && result.count > 0) {
-            trashBadge.textContent = result.count;
-            trashBadge.style.display = 'block';
+            // Wrap text in span to maintain flexbox alignment
+            trashBadge.innerHTML = '<span>' + result.count + '</span>';
+            // Ensure flexbox properties are maintained - don't override
+            trashBadge.style.display = '';
+            trashBadge.style.alignItems = '';
+            trashBadge.style.justifyContent = '';
         } else if (trashBadge && result.count === 0) {
             trashBadge.style.display = 'none';
         }
@@ -2808,8 +3390,12 @@ async function updateDraftsCount() {
         
         const draftsBadge = document.getElementById('drafts-count');
         if (draftsBadge && result.count > 0) {
-            draftsBadge.textContent = result.count;
-            draftsBadge.style.display = 'block';
+            // Wrap text in span to maintain flexbox alignment
+            draftsBadge.innerHTML = '<span>' + result.count + '</span>';
+            // Ensure flexbox properties are maintained - don't override
+            draftsBadge.style.display = '';
+            draftsBadge.style.alignItems = '';
+            draftsBadge.style.justifyContent = '';
         } else if (draftsBadge && result.count === 0) {
             draftsBadge.style.display = 'none';
         }
@@ -3156,9 +3742,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Function to position dropdown
         function positionDropdown() {
             const rect = dropdownBtn.getBoundingClientRect();
+            const containerRect = dropdownContainer.getBoundingClientRect();
+            
+            // Center the dropdown horizontally within the container
+            const dropdownWidth = 220; // max-width from CSS
+            const leftOffset = (rect.width - dropdownWidth) / 2;
+            
             dropdownMenu.style.top = (rect.bottom + 4) + 'px';
-            dropdownMenu.style.left = rect.left + 'px';
-            dropdownMenu.style.width = rect.width + 'px';
+            dropdownMenu.style.left = (containerRect.left + leftOffset) + 'px';
+            dropdownMenu.style.width = dropdownWidth + 'px';
+            dropdownMenu.style.border = 'none';
+            dropdownMenu.style.outline = 'none';
+            dropdownMenu.style.boxShadow = 'none';
         }
         
         // Toggle dropdown
@@ -3169,6 +3764,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isOpen) {
                 positionDropdown();
                 dropdownMenu.style.display = 'block';
+                dropdownMenu.style.border = 'none';
+                dropdownMenu.style.outline = 'none';
+                dropdownMenu.style.boxShadow = 'none';
                 dropdownBtn.classList.add('active');
             } else {
                 dropdownMenu.style.display = 'none';
@@ -3259,7 +3857,316 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize message actions toolbar for non-trash views
         updateMessageActionsToolbar();
     }
+    
+    // Handle message item clicks - load in split view instead of navigating
+    document.addEventListener('click', function(e) {
+        // Don't intercept if clicking on checkbox, button, or other interactive elements
+        if (e.target.type === 'checkbox' || 
+            e.target.closest('input[type="checkbox"]') || 
+            e.target.closest('button') || 
+            e.target.tagName === 'BUTTON' ||
+            e.target.closest('.message-forward-btn') ||
+            e.target.closest('.btn-new-message')) {
+            return;
+        }
+        
+        // Find the closest message-item link
+        const messageLink = e.target.closest('a.message-item');
+        
+        if (messageLink) {
+            // Prevent default navigation
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get message ID from data attribute or href
+            const messageId = messageLink.getAttribute('data-message-id') || 
+                            messageLink.getAttribute('href')?.match(/\/message\/([^\/]+)/)?.[1];
+            
+            if (messageId && typeof loadMessageInPanel === 'function') {
+                loadMessageInPanel(messageId);
+            }
+        }
+    });
 });
+
+// Load message in detail panel - make it globally accessible
+window.loadMessageInPanel = async function(messageId) {
+    const panel = document.getElementById('email-detail-panel');
+    const content = document.getElementById('email-detail-content');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    if (!panel || !content) {
+        return;
+    }
+    
+    // Helper function to escape HTML to prevent XSS and syntax errors
+    const escapeHtml = (str) => {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+    
+    // Show loading state
+    content.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
+    panel.classList.add('active');
+    if (messagesContainer) {
+        messagesContainer.classList.add('has-detail');
+    }
+    
+    try {
+        // Fetch message details using the show route
+        const response = await fetch(`/provider/message/${messageId}/show`);
+        const html = await response.text();
+        
+        if (response.ok) {
+            // Parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Find the messages-content-body container (where all message content is)
+            const contentContainer = doc.querySelector('.messages-content-body');
+            
+            if (!contentContainer) {
+                console.error('Could not find .messages-content-body in response');
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+                return;
+            }
+            
+            // Extract the entire content from messages-content-body, but remove the back button header
+            const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+            const messageDetailContent = contentContainer.querySelector('.message-detail-content');
+            const repliesSection = contentContainer.querySelector('.replies-section');
+            const replyForm = contentContainer.querySelector('.reply-form-section');
+            
+            // Build the content HTML
+            let contentHTML = '';
+            
+            // Extract message header and body from message-detail-content
+            if (messageDetailContent) {
+                const messageHeader = messageDetailContent.querySelector('.message-header-info');
+                const messageBody = messageDetailContent.querySelector('.message-body');
+                const attachment = messageDetailContent.querySelector('.message-attachment');
+                
+                if (messageHeader) {
+                    const avatarImg = messageHeader.querySelector('img.message-sender-avatar, img');
+                    const avatar = avatarImg ? (avatarImg.getAttribute('src') || avatarImg.src) : '';
+                    const senderNameEl = messageHeader.querySelector('.message-sender-name');
+                    const senderName = senderNameEl ? senderNameEl.textContent.trim() : '';
+                    const dateEl = messageHeader.querySelector('.message-date');
+                    const date = dateEl ? dateEl.textContent.trim() : '';
+                    
+                    const safeAvatar = escapeHtml(avatar);
+                    const safeSenderName = escapeHtml(senderName);
+                    const safeDate = escapeHtml(date);
+                    
+                    contentHTML += `
+                        <div class="email-detail-message-header">
+                            <img src="${safeAvatar}" alt="${safeSenderName}" class="email-detail-avatar">
+                            <div class="email-detail-sender-info">
+                                <div class="email-detail-sender-name">${safeSenderName}</div>
+                                <div class="email-detail-date">${safeDate}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (messageBody) {
+                    const bodyText = messageBody.innerHTML || messageBody.textContent || '';
+                    if (bodyText.trim()) {
+                        contentHTML += `<div class="email-detail-body">${bodyText}</div>`;
+                    }
+                }
+                
+                if (attachment) {
+                    let attachmentHTML = attachment.outerHTML;
+                    attachmentHTML = attachmentHTML.replace(/message-attachment/g, 'email-detail-attachment');
+                    contentHTML += attachmentHTML;
+                }
+            }
+            
+            // Add replies section
+            if (repliesSection) {
+                const repliesTitle = repliesSection.querySelector('.replies-section-title');
+                const repliesTitleText = repliesTitle ? repliesTitle.textContent.trim() : 'Replies';
+                const repliesList = repliesSection.querySelector('.replies-list');
+                
+                const safeRepliesTitleText = escapeHtml(repliesTitleText);
+                
+                contentHTML += `
+                    <div class="email-detail-replies">
+                        <div class="email-detail-replies-title">${safeRepliesTitleText}</div>
+                `;
+                
+                if (repliesList && repliesList.children.length > 0) {
+                    Array.from(repliesList.children).forEach(replyItem => {
+                        let replyHTML = replyItem.outerHTML;
+                        replyHTML = replyHTML.replace(/reply-item/g, 'email-detail-reply-item')
+                            .replace(/reply-header/g, 'email-detail-reply-header')
+                            .replace(/reply-avatar/g, 'email-detail-reply-avatar')
+                            .replace(/reply-sender/g, 'email-detail-reply-sender')
+                            .replace(/reply-date/g, 'email-detail-reply-date')
+                            .replace(/reply-text/g, 'email-detail-reply-text')
+                            .replace(/reply-attachment/g, 'email-detail-attachment');
+                        contentHTML += replyHTML;
+                    });
+                } else {
+                    contentHTML += '<div class="empty-replies">No replies yet.</div>';
+                }
+                
+                contentHTML += '</div>';
+            }
+            
+            // Add reply form
+            if (replyForm) {
+                let formHTML = replyForm.outerHTML;
+                formHTML = formHTML.replace(/reply-form-section/g, 'email-detail-reply-form')
+                    .replace(/id="reply-form"/g, 'id="email-detail-reply-form"')
+                    .replace(/reply-form(?![^<]*>)/g, 'email-detail-reply-form');
+                
+                // Add forward button next to the reply button
+                // Create a temporary DOM element to manipulate the form
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = formHTML;
+                const form = tempDiv.querySelector('form');
+                
+                if (form) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        // Create actions container
+                        const actionsContainer = document.createElement('div');
+                        actionsContainer.className = 'email-detail-reply-form-actions';
+                        
+                        // Create forward button
+                        const forwardBtn = document.createElement('a');
+                        forwardBtn.href = `/provider/messages/${messageId}/forward-message`;
+                        forwardBtn.className = 'email-detail-forward-btn';
+                        forwardBtn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Forward
+                        `;
+                        
+                        // Add forward button and submit button to actions container
+                        actionsContainer.appendChild(forwardBtn);
+                        actionsContainer.appendChild(submitButton.cloneNode(true));
+                        
+                        // Replace submit button with actions container
+                        submitButton.parentNode.replaceChild(actionsContainer, submitButton);
+                    }
+                    
+                    formHTML = tempDiv.innerHTML;
+                }
+                
+                contentHTML += formHTML;
+                
+                // Re-initialize reply form handler
+                setTimeout(() => {
+                    const replyFormElement = document.querySelector('#email-detail-content #email-detail-reply-form, #email-detail-content .email-detail-reply-form form');
+                    if (replyFormElement) {
+                        // Remove any existing listeners by cloning
+                        const newForm = replyFormElement.cloneNode(true);
+                        replyFormElement.parentNode.replaceChild(newForm, replyFormElement);
+                        
+                        newForm.addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(this);
+                            
+                            // Find the submit button - it might be in the actions container now
+                            const actionsContainer = this.querySelector('.email-detail-reply-form-actions');
+                            const button = actionsContainer ? actionsContainer.querySelector('button[type="submit"]') : this.querySelector('button[type="submit"]');
+                            
+                            if (!button) {
+                                console.error('Submit button not found');
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'Submit button not found. Please refresh the page.');
+                                }
+                                return;
+                            }
+                            
+                            const originalButtonText = button.innerHTML;
+                            
+                            button.disabled = true;
+                            button.innerHTML = '<span>Sending...</span>';
+                            
+                            try {
+                                const response = await fetch(`/provider/messages/${messageId}/reply`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                
+                                if (result.success) {
+                                    this.reset();
+                                    if (typeof showToast === 'function') {
+                                        showToast('success', 'Reply sent successfully');
+                                    }
+                                    // Reload the message to show the new reply
+                                    loadMessageInPanel(messageId);
+                                } else {
+                                    if (typeof showToast === 'function') {
+                                        showToast('error', result.error || 'An error occurred.');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error sending reply:', error);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'An error occurred while sending your reply.');
+                                }
+                            } finally {
+                                button.disabled = false;
+                                button.innerHTML = originalButtonText;
+                            }
+                        });
+                    }
+                }, 100);
+            }
+            
+            if (contentHTML.trim() === '') {
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not extract message content. Please try again.</div>';
+            } else {
+                content.innerHTML = contentHTML;
+                
+                // Mark message as read
+                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageItem) {
+                    messageItem.classList.remove('unread');
+                    messageItem.classList.add('read');
+                    const newBadge = messageItem.querySelector('.btn-new-message');
+                    if (newBadge) {
+                        newBadge.remove();
+                    }
+                }
+            }
+        } else {
+            content.innerHTML = '<div class="email-detail-loading">Error loading message (Status: ' + response.status + '). Please try again.</div>';
+        }
+    } catch (error) {
+        content.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
+    }
+};
+
+// Close email detail panel
+function closeEmailDetailPanel() {
+    const panel = document.getElementById('email-detail-panel');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    if (panel) {
+        panel.classList.remove('active');
+    }
+    if (messagesContainer) {
+        messagesContainer.classList.remove('has-detail');
+    }
+}
 
 </script>
 {% endblock %}

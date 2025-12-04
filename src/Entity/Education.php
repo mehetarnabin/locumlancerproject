@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\EducationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,14 +18,16 @@ class Education
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
+    #[ORM\Column(type: 'string', nullable: false)]
+    #[Assert\NotBlank(message: "Degree cannot be blank.")]
+    private $degree;
+
+
     #[ORM\ManyToOne]
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
     private ?string $school = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $degree = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $fieldOfStudy = null;

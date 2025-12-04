@@ -31,15 +31,22 @@ class AppUserAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->getPayload()->getString('email');
+        $payload = $request->getPayload();
+        $email = $payload->getString('email');
+        $password = $payload->getString('password');
+        $csrf = $payload->getString('_csrf_token');
+
+        if (!$email) { $email = (string)$request->request->get('email', ''); }
+        if (!$password) { $password = (string)$request->request->get('password', ''); }
+        if (!$csrf) { $csrf = (string)$request->request->get('_csrf_token', ''); }
 
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
 
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($request->getPayload()->getString('password')),
+            new PasswordCredentials($password),
             [
-                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
+                new CsrfTokenBadge('authenticate', $csrf),
                 new RememberMeBadge(),
             ]
         );

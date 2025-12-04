@@ -103,10 +103,11 @@ class DashboardController extends AbstractController
         // Calculate total applications
         $totalApplications = count($allApplications);
         
-        // Calculate ratio the same way as AnalyticsController
+        // Calculate ratio - Interview percentage of total (applied + interview)
         $interviewCount = $statusCountsArray['interview'];
-        $appliedCount = $statusCountsArray['applied'] > 0 ? $statusCountsArray['applied'] : 1;
-        $ratio = ($interviewCount / $appliedCount) * 100;
+        $appliedCount = $statusCountsArray['applied'];
+        $totalCount = $appliedCount + $interviewCount;
+        $ratio = $totalCount > 0 ? ($interviewCount / $totalCount) * 100 : 0;
         
         // Get status counts for the status cards (original format)
         $statusCounts = [];

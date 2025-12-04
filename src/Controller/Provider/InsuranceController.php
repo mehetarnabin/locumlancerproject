@@ -30,7 +30,19 @@ class InsuranceController extends AbstractController
             $entityManager->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return $this->json(['status' => 'success']);
+                return $this->json([
+                    'status' => 'success',
+                    'insurance' => [
+                        'id' => (string)$insurance->getId(),
+                        'carrier' => $insurance->getCarrier(),
+                        'policyNumber' => $insurance->getPolicyNumber(),
+                        'amount' => $insurance->getAmount(),
+                        'state' => $insurance->getState(),
+                        'city' => $insurance->getCity(),
+                        'effectiveDate' => $insurance->getEffectiveDate() ? $insurance->getEffectiveDate()->format('m/d/Y') : null,
+                        'expirationDate' => $insurance->getExpirationDate() ? $insurance->getExpirationDate()->format('m/d/Y') : null,
+                    ]
+                ]);
             }
 
             $this->addFlash('success', 'Professional Liability Insurance added successfully');
@@ -85,6 +97,27 @@ class InsuranceController extends AbstractController
         $form->handleRequest($request);
 
         if ($request->isXmlHttpRequest()) {
+            if ($request->isMethod('POST')) {
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $entityManager->flush();
+                    return $this->json([
+                        'status' => 'success',
+                        'insurance' => [
+                            'id' => (string)$insurance->getId(),
+                            'carrier' => $insurance->getCarrier(),
+                            'policyNumber' => $insurance->getPolicyNumber(),
+                            'amount' => $insurance->getAmount(),
+                            'state' => $insurance->getState(),
+                            'city' => $insurance->getCity(),
+                            'effectiveDate' => $insurance->getEffectiveDate() ? $insurance->getEffectiveDate()->format('m/d/Y') : null,
+                            'expirationDate' => $insurance->getExpirationDate() ? $insurance->getExpirationDate()->format('m/d/Y') : null,
+                        ]
+                    ]);
+                }
+                return $this->render('provider/insurance/_form.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
             return $this->json([
                 'form' => $this->renderView('provider/insurance/_form.html.twig', [
                     'form' => $form->createView(),

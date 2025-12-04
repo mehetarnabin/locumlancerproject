@@ -180,4 +180,80 @@
             });
         });
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+$(document).ready(function () {
+    $(".js-datepicker").flatpickr();
+
+    let clickedButton = null;
+
+    $('#educationModal button[type=submit]').on('click', function () {
+        clickedButton = $(this);
+    });
+
+    $('#educationModal form').submit(function (e) {
+        e.preventDefault();
+        var form = $(this)[0];
+
+        // Client-side validation
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return false;
+        }
+
+        var $form = $(this);
+
+        $.ajax({
+            type: 'POST',
+            url: $form.attr('action'),
+            data: $form.serialize(),
+            success: function (response) {
+                if (response.status === 'success') {
+                    $('#educationModal').modal('hide');
+                    if (clickedButton && clickedButton.attr('name') === 'save_continue' && clickedButton.data('redirect-url')) {
+                        window.location.href = clickedButton.data('redirect-url');
+                    } else {
+                        location.reload();
+                    }
+                } else if (response.form) {
+                    // Show validation errors returned from server
+                    $('#educationModal .modal-body').html(response.form);
+                    $(".js-datepicker").flatpickr(); // re-init datepickers
+                }
+            },
+            error: function (xhr) {
+                let msg = 'Error occurred while saving.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    msg = xhr.responseJSON.error;
+                }
+                alert(msg);
+            }
+        });
+    });
+
+    // Edit education AJAX load
+    $(document).on('click', '.edit-education', function (e) {
+        e.preventDefault();
+        let educationId = $(this).data('id');
+c/Form/EducationType.php
+        $.ajax({
+            url: `/provider/application/education/${educationId}/edit`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                $('#editEducationFormContainer').html(response.form);
+                $(".js-datepicker").flatpickr();
+            },
+            error: function () {
+                alert('Error loading form. Please refresh the page.');
+            }
+        });
+    });
+});
+</script>
+
 {% endblock %}

@@ -39,6 +39,36 @@
         }
     });
 </script>
+<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index:1080"></div>
+<script>
+  function showToast(title, message, type) {
+    var container = document.getElementById('toastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'position-fixed top-0 end-0 p-3';
+      container.style.zIndex = '1080';
+      document.body.appendChild(container);
+    }
+    var toast = document.createElement('div');
+    toast.className = 'toast align-items-center border-0';
+    toast.style.minWidth = '280px';
+    toast.style.background = type === 'success' ? '#198754' : (type === 'error' ? '#dc3545' : '#0d6efd');
+    toast.style.color = '#fff';
+    toast.style.marginBottom = '8px';
+    toast.style.borderRadius = '4px';
+    toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    toast.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-weight:600;">' + (title || '') + '<button type="button" style="background:transparent;border:0;color:#fff;font-size:18px;line-height:1;cursor:pointer">×</button></div><div style="padding:0 12px 12px 12px">' + (message || '') + '</div>';
+    var closeBtn = toast.querySelector('button');
+    closeBtn.addEventListener('click', function(){ toast.remove(); });
+    container.appendChild(toast);
+    setTimeout(function(){ toast.remove(); }, 3000);
+  }
+  function showSectionToast(section, action) {
+    var msg = (section || '') + ' ' + (action || '') + ' successfully.';
+    showToast('Success', msg, 'success');
+  }
+</script>
 <style>
 /* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match dashboard */
 
@@ -208,6 +238,26 @@ div.container-xl,
   padding: 24px;
   display: flex;
   flex-direction: column;
+  transition: none !important;
+}
+
+/* Remove ALL hover animations from profile cards - override base.html.twig */
+.profile-card,
+.section-card,
+.profile-right-card {
+  border: none !important;
+}
+
+.profile-card:hover,
+.section-card:hover,
+.profile-right-card:hover {
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06) !important;
+  transform: none !important;
+  background: #fff !important;
+  transition: none !important;
+  border: none !important;
+  border-color: transparent !important;
+  outline: none !important;
 }
 
 /* Keep inner content spacing consistent */
@@ -249,6 +299,25 @@ h6.card-title {
   font-weight: 500 !important;
 }
 
+/* Keep text color change on hover, but remove border and other animations - override base.html.twig */
+.profile-card .app-card-title:hover,
+.section-card .app-card-title:hover,
+.profile-right-card .app-card-title:hover,
+.profile-card h5.card-title:hover,
+.profile-card h6.card-title:hover,
+.section-card h5.card-title:hover,
+.section-card h6.card-title:hover,
+.profile-right-card h5.card-title:hover,
+.profile-right-card h6.card-title:hover {
+  /* Keep text color change - allow it from base.html.twig */
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: color 0.2s ease-in-out !important;
+  border: none !important;
+  border-color: inherit !important;
+}
+
 /* Card title wrapper to prevent text from touching borders */
 .card-title-wrapper {
   display: flex;
@@ -257,6 +326,16 @@ h6.card-title {
 
 /* Small icon link */
 .card-header-link svg { width:28px; height:28px; }
+
+/* Remove hover effects from card header links in profile sections */
+.profile-card .card-header-link:hover,
+.section-card .card-header-link:hover,
+.profile-right-card .card-header-link:hover {
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+}
 
 /* Profile avatar box */
 .profile-avatar-box {
@@ -275,8 +354,78 @@ h6.card-title {
     padding: 10px 0;
   border-bottom: none;
     margin: 0;
+  transition: none !important;
 }
 .info-item:last-child { border-bottom: none; }
+
+/* Remove hover effects from info items */
+.info-item:hover {
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none !important;
+  border: none !important;
+  border-color: inherit !important;
+}
+
+/* Remove border hover effects from elements within profile sections (but allow text color changes) */
+.profile-card a:hover,
+.profile-card button:hover,
+.profile-card div:hover,
+.profile-card span:hover,
+.profile-card label:hover,
+.section-card a:hover,
+.section-card button:hover,
+.section-card div:hover,
+.section-card span:hover,
+.section-card label:hover,
+.profile-right-card a:hover,
+.profile-right-card button:hover,
+.profile-right-card div:hover,
+.profile-right-card span:hover,
+.profile-right-card label:hover {
+  border-color: inherit !important;
+  border-width: inherit !important;
+  outline: none !important;
+}
+
+/* Specifically remove border hover from card header links */
+.profile-card .card-header-link:hover,
+.section-card .card-header-link:hover,
+.profile-right-card .card-header-link:hover {
+  border: none !important;
+  border-color: transparent !important;
+  outline: none !important;
+}
+
+/* Exception: Keep border hover for quick links, work preferences, and documents */
+.quick-link-card:hover,
+.work-preferences-clickable:hover,
+.documents-view-btn:hover,
+.profile-square-card:hover {
+  border-color: #85BB65 !important;
+}
+
+/* Ensure todo-item animations work - override any conflicting rules */
+.todo-item {
+  border-radius: 10px;
+  background: #F4F9F1;
+  border: 1px solid #e6eef6;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  padding: 2px 14px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.todo-item:hover {
+  background: #F4F9F1 !important;
+  box-shadow: none !important;
+  transform: translateY(-2px) !important;
+  border-color: #85BB65 !important;
+}
 
 /* Right column upload buttons */
 .upload-list {
@@ -330,8 +479,9 @@ h6.card-title {
 }
 
 .profile-square-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  box-shadow: none !important;
+  transform: none !important;
+  border-color: #85BB65 !important;
 }
 
 /* CV Drag and Drop Area */
@@ -372,7 +522,7 @@ h6.card-title {
 .documents-view-btn {
   background: #E8F4FD !important;
   border: 2px solid #85BB65 !important;
-  color: #121C0C !important;
+  color: #000000 !important;
   padding: 14px 28px !important;
   border-radius: 8px !important;
   font-weight: 500 !important;
@@ -389,7 +539,7 @@ h6.card-title {
 .documents-view-btn:hover {
   background: #D1E9F9 !important;
   border-color: #6FA050 !important;
-  color: #121C0C !important;
+  color: #000000 !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 8px rgba(133, 187, 101, 0.2) !important;
 }
@@ -496,18 +646,18 @@ h6.card-title {
   padding: 10px 12px;
   border-radius: 8px;
   font-weight: 500;
-  color: #374151;
+  color: #000000;
   text-decoration: none;
-  transition: all 0.2s ease-in-out;
+  transition: none !important;
 }
 .quick-link-btn:hover {
-  background: white;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
+  background: #f9fafb;
+  box-shadow: none !important;
+  transform: none !important;
 }
 .card-title {
   font-size: 1rem;
-  color: #252930;
+  color: #000000;
 }
 .info-item svg {
   flex-shrink: 0;
@@ -525,7 +675,7 @@ h6.card-title {
   min-width: 0;
 }
 .app-page-title {
-    color: #121C0C;
+    color: #000000;
 }
 a.upload-btn-custom {
     cursor:default;
@@ -580,26 +730,33 @@ button.upload-btn-custom:hover span {
     color: #85BB65;
 }
 .upload-btn-custom.upload-cv:hover {
-  color: #85BB65;
+  color: inherit;
+  background: #F4F9F1;
+  border-color: #e6eef6;
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 /* Quick link card hover effects - make entire card clickable */
 .quick-link-card {
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out !important;
+  cursor: pointer;
 }
 
 .quick-link-card:hover {
-  background: white !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-  border-color: #85BB65;
+  border-color: #85BB65 !important;
+  box-shadow: none !important;
+  transform: translateY(-2px) !important;
+  background: #F4F9F1 !important;
 }
 
 /* Work Preferences clickable card hover */
 .work-preferences-clickable:hover {
   background: #F4F9F1 !important;
   border-color: #85BB65 !important;
-  box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+  box-shadow: none !important;
+  transform: none !important;
 }
 .mg-btm-18 {
     margin-bottom: 18px;
@@ -610,16 +767,7 @@ button.upload-btn-custom:hover span {
     max-height: calc(4 * 72px + 3 * 10px); /* 4 visible items */
     padding-right: 6px;
 }
-.todo-item {
-    border-radius: 10px;
-    background: #F4F9F1;
-    border: 1px solid #e6eef6;
-    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-    padding: 2px 14px;
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
+/* todo-item styles are defined above in the "Ensure todo-item animations work" section */
 .card.app-card-settings {
   border: none;
   background: #fff;
@@ -655,7 +803,7 @@ button.upload-btn-custom:hover span {
   text-align: left;
 }
 .profile-right-card .small-metric .big {
-  color: #252930;
+  color: #000000;
 }
 
 .upload-dropzone {
@@ -671,9 +819,12 @@ button.upload-btn-custom:hover span {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  transition: none !important;
 }
 .upload-dropzone:hover {
-  background: #f0f5ec;
+  background: #F4F9F1;
+  transform: none !important;
+  box-shadow: none !important;
 }
 .dropzone-input {
   position: absolute;
@@ -697,7 +848,7 @@ button.upload-btn-custom:hover span {
   font-size: 1rem;
   font-weight: 500;
   margin-top: 12px;
-  color: #374151;
+  color: #000000;
 }
 .upload-subtext {
   font-size: 0.85rem;
@@ -763,9 +914,11 @@ button.upload-btn-custom:hover span {
 .cstm-toggle-btn {
   background: transparent;
   border: none;
+  transition: none !important;
 }
 .cstm-toggle-btn:hover svg {
-  color: #85BB65;
+  color: inherit;
+  transform: none !important;
 }
 /* Consistent green checkbox styling to match other pages */
 input[type="checkbox"],
@@ -885,12 +1038,15 @@ input[type="checkbox"]:checked::after,
     gap: 8px !important;
 }
 .action-btn-edit:hover, .dropdown-cstm:hover {
-    color: #85BB65;
-    border: 1px solid #85BB65;
-    transition: all 0.2s ease;
+    color: #85BB65 !important;
+    border: 1px solid #e6eef6 !important;
+    border-color: #e6eef6 !important;
+    transition: color 0.2s ease-in-out !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 .action-btn-edit:hover svg {
-    color: #85BB65;
+    color: #85BB65 !important;
 }
 #profileForm ul {
   display: none;
@@ -958,9 +1114,11 @@ input[type="checkbox"]:checked::after,
   padding: 4px 12px;
 }
 .cstm-btn-style:hover, .dropdown-cstm:hover {
-    color: #85BB65;
-    border: 1px solid #85BB65;
-    transition: all 0.2s ease;
+    color: inherit;
+    border: 1px solid #e6eef6;
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 </style>
 
@@ -1014,8 +1172,8 @@ input[type="checkbox"]:checked::after,
                     <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box;">
                       <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         <div class="text-muted small">{{ app.user.nickname ?: 'No nickname provided' }}</div>
                       </div>
@@ -1026,8 +1184,8 @@ input[type="checkbox"]:checked::after,
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="style=stroke">
                         <g id="email">
-                        <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#121C0C"></path>
-                        <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#121C0C"></path>
+                        <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                        <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
                         </g>
                         </g>
                         </svg>
@@ -1039,8 +1197,8 @@ input[type="checkbox"]:checked::after,
                       <div class="d-flex gap-2 align-items-center">
                         <!-- Address Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
+                        <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
                         </svg>
                         <div class="text-muted small">
                           {{ app.user.getAddress() ?: 'No address provided' }}
@@ -1052,9 +1210,9 @@ input[type="checkbox"]:checked::after,
                       <div class="d-flex gap-2 align-items-center">
                         <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
-                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
                         </svg>
                         <div>{{ app.user.phone1 }}</div>
                       </div>
@@ -1144,8 +1302,8 @@ input[type="checkbox"]:checked::after,
                     <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box;">
                       <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <circle cx="12" cy="7" r="4" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         {% if profileForm.nickname is defined %}
                           {{ form_widget(profileForm.nickname, {'attr': {'class': 'form-control', 'placeholder': 'Enter your preferred nickname or display name here'}}) }}
@@ -1162,8 +1320,8 @@ input[type="checkbox"]:checked::after,
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <g id="style=stroke">
                             <g id="email">
-                              <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#121C0C"></path>
-                              <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#121C0C"></path>
+                              <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                              <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
                             </g>
                           </g>
                         </svg>
@@ -1176,8 +1334,8 @@ input[type="checkbox"]:checked::after,
                     <div class="info-item" style="margin-bottom: 6px;">
                       <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#121C0C" stroke-linecap="round"/>
-                          <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#121C0C"/>
+                          <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
                         </svg>
                           {{ form_widget(profileForm.address, {'attr': {'class': 'form-control', 'placeholder': 'Address'}}) }}
                           {{ form_errors(profileForm.address) }}
@@ -1189,9 +1347,9 @@ input[type="checkbox"]:checked::after,
                       <div class="d-flex gap-2 align-items-center">
                       <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#121C0C"/>
-                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#121C0C"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#121C0C"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                        <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
                         </svg>
                           {{ form_widget(profileForm.phone1, {'attr': {'class': 'form-control', 'placeholder': 'Phone number'}}) }}
                           {{ form_errors(profileForm.phone1) }}
@@ -1216,19 +1374,19 @@ input[type="checkbox"]:checked::after,
               </div>
               <div class="card-body" style="padding: 0;">
                 <div class="mb-2" style="text-align: left;">
-                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Your Average Rating</h6>
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #000000; margin-bottom: 2px;">Your Average Rating</h6>
                   <div style="margin-top: 2px;">
                       {% set rating = 3.72 %}
-                    <div style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">{{ rating|number_format(1) }}</div>
+                    <div style="font-size: 16px; font-weight: normal; color: #000000; line-height: 1.2;">{{ rating|number_format(1) }}</div>
                   </div>
                 </div>
                 <div class="mb-2" style="text-align: left;">
-                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Locum Assignments : </h6>
-                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">10</div>
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #000000; margin-bottom: 2px;">Locum Assignments : </h6>
+                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #000000; line-height: 1.2;">10</div>
                 </div>
                 <div style="text-align: left;">
-                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #252930; margin-bottom: 2px;">Years Active : </h6>
-                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #252930; line-height: 1.2;">15 years</div>
+                  <h6 class="card-title mb-1" style="font-size: 0.875rem; font-weight: 500; color: #000000; margin-bottom: 2px;">Years Active : </h6>
+                  <div class="mb-0" style="font-size: 16px; font-weight: normal; color: #000000; line-height: 1.2;">15 years</div>
                 </div>
                 </div>
             </div>
@@ -1296,7 +1454,7 @@ input[type="checkbox"]:checked::after,
                     <input type="file" name="provider_cv[cv]" id="provider_cv_cv">
                 </form>
                 <!-- Drag and Drop Area -->
-                <div id="cvDragDropArea" class="cv-drag-drop-area" style="border: 2px dashed #85BB65; border-radius: 12px; padding: 1rem 1.25rem !important; text-align: center; background: #F4F9F1; transition: all 0.3s ease; cursor: pointer; height: 140px !important; max-height: 140px !important; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box;">
+                <div id="cvDragDropArea" class="cv-drag-drop-area" style="border: 2px dashed #85BB65; border-radius: 12px; padding: 1rem 1.25rem !important; text-align: center; background: #F4F9F1; transition: none !important; cursor: pointer; height: 140px !important; max-height: 140px !important; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-sizing: border-box;">
                   <div id="cvDragDropContent" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0; margin: 0; box-sizing: border-box; gap: 0.35rem;">
                     <div style="margin: 0 !important; padding: 0 !important; display: flex; align-items: center; justify-content: center; line-height: 1;">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7; display: block; margin: 0; padding: 0;">
@@ -1305,7 +1463,7 @@ input[type="checkbox"]:checked::after,
                         <line x1="12" y1="3" x2="12" y2="15"/>
                       </svg>
                     </div>
-                    <h6 class="mb-0" style="font-size: 0.8rem !important; font-weight: 600; color: #252930; line-height: 1.2; margin: 0 !important; padding: 0 !important; text-align: center; white-space: nowrap;">Drag & Drop your CV here</h6>
+                    <h6 class="mb-0" style="font-size: 0.8rem !important; font-weight: 600; color: #000000; line-height: 1.2; margin: 0 !important; padding: 0 !important; text-align: center; white-space: nowrap;">Drag & Drop your CV here</h6>
                     <p class="text-muted mb-0" style="font-size: 0.7rem !important; line-height: 1.1; margin: 0 !important; padding: 0 !important; text-align: center;">or</p>
                     <button type="button" id="cvUploadBtn" class="btn btn-primary" style="padding: 5px 16px !important; font-size: 0.75rem !important; font-weight: 600; border-radius: 6px; margin: 0 !important; white-space: nowrap; display: inline-block; line-height: 1.2;">
                       <span id="cvButtonText">Browse Files</span>
@@ -1435,18 +1593,15 @@ input[type="checkbox"]:checked::after,
 </div>
 </div>
 
-<div id="popup-work-preferences" class="popup-overlay d-none">
-  <div class="popup-content shadow-lg p-3 rounded-3">
-    <div class="popup-header d-flex justify-content-between align-items-center">
-      <h5>Work Preferences</h5>
-      <button class="popup-close">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-    <div class="popup-body">
-      <section class="content">
+<!-- Work Preferences Modal -->
+<div class="modal fade" id="workPreferencesModal" tabindex="-1" aria-labelledby="workPreferencesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="workPreferencesModalLabel">Work Preferences</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
         <div class="row">
           <div class="col-12">
             <div id="work-preferences-error" class="alert alert-danger d-none mb-3"></div>
@@ -1559,18 +1714,47 @@ input[type="checkbox"]:checked::after,
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Edit License Modal -->
+<div class="modal fade" id="editLicenseModal" tabindex="-1" aria-labelledby="editLicenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editLicenseModalLabel">Edit License & Certificate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="editLicenseFormContainer"><!-- Form will be loaded here via AJAX --></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Insurance Modal -->
+<div class="modal fade" id="editInsuranceModal" tabindex="-1" aria-labelledby="editInsuranceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editInsuranceModalLabel">Edit Insurance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="editInsuranceFormContainer"><!-- Form will be loaded here via AJAX --></div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="popup-education" class="popup-overlay d-none">
   <div class="popup-content shadow-lg p-3 rounded-3">
     <div class="popup-header d-flex justify-content-between align-items-center">
       <h5>Education & Training</h5>
       <button id="popupClose" class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -1578,8 +1762,8 @@ input[type="checkbox"]:checked::after,
       <section class="content">
         <div class="row">
           <div class="col-12">
-            <a href="#" class="cstm-btn-style" id="openAddEducationModal">
-              Add New
+            <a href="#" class="cstm-btn-style" id="openAddEducationModal" data-bs-toggle="modal" data-bs-target="#educationModal">
+                Add New
             </a>
 
             <div id="educationListContainer" class="row g-3 mt-2">
@@ -1604,7 +1788,7 @@ input[type="checkbox"]:checked::after,
       <h5>License & Certificate</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -1616,68 +1800,42 @@ input[type="checkbox"]:checked::after,
               Add New
             </a>
 
-            <div class="row g-3 mt-2">
+            <div id="licenseListContainer" class="row g-3 mt-2">
+              {% for license in licenses %}
               <div class="col-md-6">
-                <div class="card ed-card">
+                <div class="card ed-card" data-id="{{ license.id }}">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                      <h5 class="card-title mb-0">Registered Nurse License</h5>
+                      <h5 class="card-title mb-0">{{ license.name }}</h5>
                       <div class="d-flex gap-2">
-                        <a href="#" class="edit-experience" title="Edit" style="padding: 4px;">
-                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
+                        <a href="#" class="edit-license" data-id="{{ license.id }}" title="Edit" style="padding: 4px;">
+                          <img src="{{ asset('assets/icons/compose.png') }}" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
+                        <a href="{{ path('app_provider_license_delete', {'id': license.id}) }}" class="delete-license" style="padding: 4px;">
+                          <img src="{{ asset('assets/icons/trash-bin.png') }}" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-                    <p><strong>Employment Type:</strong> Full-Time</p>
-                    <p><strong>Company:</strong> HealthCare Nepal</p>
-                    <p><i class="fa fa-map-marker-alt"></i> Kathmandu, Nepal</p>
+                    <p><strong>Number:</strong> {{ license.number }}</p>
+                    
                     <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
                       <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Start Date</p>
-                        <p class="mb-0"><strong>01/01/2020</strong></p>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Issue Date</p>
+                        <p class="mb-0"><strong>{{ license.issueDate ? license.issueDate|date('m/d/Y') : 'N/A' }}</strong></p>
                       </div>
+                      {% if license.expirationDate %}
                       <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">End Date</p>
-                        <p class="mb-0"><strong>12/31/2025</strong></p>
+                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p>
+                        <p class="mb-0"><strong>{{ license.expirationDate|date('m/d/Y') }}</strong></p>
                       </div>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="col-md-6">
-                <div class="card ed-card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                      <h5 class="card-title mb-0">CPR Certification</h5>
-                      <div class="d-flex gap-2">
-                        <a href="#" class="edit-experience" title="Edit" style="padding: 4px;">
-                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
-                        </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
-                        </a>
-                      </div>
-                    </div>
-                    <p><strong>Employment Type:</strong> Part-Time</p>
-                    <p><strong>Company:</strong> Red Cross Nepal</p>
-                    <p><i class="fa fa-map-marker-alt"></i> Lalitpur, Nepal</p>
-                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
-                      <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Start Date</p>
-                        <p class="mb-0"><strong>03/15/2021</strong></p>
-                      </div>
-                      <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">End Date</p>
-                        <p class="mb-0"><strong>03/15/2024</strong></p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {% else %}
+                <p>No records found.</p>
+              {% endfor %}
             </div>
 
             <div class="d-flex justify-content-end mt-4">
@@ -1698,7 +1856,7 @@ input[type="checkbox"]:checked::after,
       <h5>Insurance</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -1710,68 +1868,43 @@ input[type="checkbox"]:checked::after,
               Add New
             </a>
 
-            <div class="row g-3 mt-2">
+            <div id="insuranceListContainer" class="row g-3 mt-2">
+              {% for insurance in insurances %}
               <div class="col-md-6">
-                <div class="card ed-card">
+                <div class="card ed-card" data-id="{{ insurance.id }}">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                      <h5 class="card-title mb-0">Everest Insurance Co.</h5>
+                      <h5 class="card-title mb-0">{{ insurance.carrier }}</h5>
                       <div class="d-flex gap-2">
-                        <a href="#" class="edit-insurance" title="Edit" style="padding: 4px;">
-                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
+                        <a href="#" class="edit-insurance" data-id="{{ insurance.id }}" title="Edit" style="padding: 4px;">
+                          <img src="{{ asset('assets/icons/compose.png') }}" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
+                        <a href="{{ path('app_provider_insurance_delete', {'id': insurance.id}) }}" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
+                          <img src="{{ asset('assets/icons/trash-bin.png') }}" class="icon-image" style="width: 18px; height: 18px;" />
                         </a>
                       </div>
                     </div>
-                    <p><strong>Policy Number:</strong> EVR-2023-001</p>
-                    <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 500,000 / NPR 2,000,000</p>
-                    <p><i class="fa fa-map-marker-alt"></i> Bagmati, Kathmandu</p>
+                    <p><strong>Policy Number:</strong> {{ insurance.policyNumber }}</p>
+                    {% if insurance.amount %}<p><strong>Amount:</strong> {{ insurance.amount }}</p>{% endif %}
+                    {% if insurance.state or insurance.city %}<p><i class="fa fa-map-marker-alt"></i> {{ insurance.state }}{% if insurance.city %}, {{ insurance.city }}{% endif %}</p>{% endif %}
                     <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
                       <div>
                         <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>
-                        <p class="mb-0"><strong>01/01/2023</strong></p>
+                        <p class="mb-0"><strong>{{ insurance.effectiveDate ? insurance.effectiveDate|date('m/d/Y') : 'N/A' }}</strong></p>
                       </div>
+                      {% if insurance.expirationDate %}
                       <div>
                         <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p>
-                        <p class="mb-0"><strong>12/31/2025</strong></p>
+                        <p class="mb-0"><strong>{{ insurance.expirationDate|date('m/d/Y') }}</strong></p>
                       </div>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div class="col-md-6">
-                <div class="card ed-card">
-                  <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                      <h5 class="card-title mb-0">Himalayan General Insurance</h5>
-                      <div class="d-flex gap-2">
-                        <a href="#" class="edit-insurance" title="Edit" style="padding: 4px;">
-                          <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />
-                        </a>
-                        <a href="#" onclick="return confirm('Are you sure? Do you want to remove this item?');" style="padding: 4px;">
-                          <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />
-                        </a>
-                      </div>
-                    </div>
-                    <p><strong>Policy Number:</strong> HGI-2022-045</p>
-                    <p><strong>Amount (Per Claim/Aggregate):</strong> NPR 300,000 / NPR 1,000,000</p>
-                    <p><i class="fa fa-map-marker-alt"></i> Province 1, Biratnagar</p>
-                    <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">
-                      <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>
-                        <p class="mb-0"><strong>06/15/2022</strong></p>
-                      </div>
-                      <div>
-                        <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p>
-                        <p class="mb-0"><strong>06/14/2024</strong></p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {% else %}
+                <p>No records found.</p>
+              {% endfor %}
             </div>
 
             <div class="d-flex justify-content-end mt-4">
@@ -1792,7 +1925,7 @@ input[type="checkbox"]:checked::after,
       <h5 class="mb-4">Health Assessment</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -1800,18 +1933,18 @@ input[type="checkbox"]:checked::after,
       <section class="content">
         <div class="row">
           <div class="col-12">
-            <form method="post" action="">
+            <form method="post" action="{{ path('app_provider_health_assessment') }}">
               <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
 
                 <!-- Substance Abuse Question -->
                 <div class="form-group">
                   <label for="substance-abuse">Do you currently have any chemical substance abuse dependency?</label>
                   <div class="radio-group mt-2">
-                    <label><input type="radio" name="substance_abuse" value="yes" onchange="toggleTextarea('substance-abuse-explanation', this.value)"> Yes</label>
-                    <label><input type="radio" name="substance_abuse" value="no" checked onchange="toggleTextarea('substance-abuse-explanation', this.value)"> No</label>
+                    <label><input type="radio" name="substance_abuse" value="yes" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['substance_abuse'] is defined and providerEntity.healthAssessment['substance_abuse'] == 'yes' %}checked{% endif %} onchange="toggleTextarea('substance-abuse-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="substance_abuse" value="no" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['substance_abuse'] is defined and providerEntity.healthAssessment['substance_abuse'] == 'no' %}checked{% endif %} onchange="toggleTextarea('substance-abuse-explanation', this.value)"> No</label>
                   </div>
                   <div class="mt-2">
-                    <textarea id="substance-abuse-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                    <textarea id="substance-abuse-explanation" name="substance_abuse_explanation" class="form-control" placeholder="If yes, please explain...">{% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['substance_abuse_explanation'] is defined %}{{ providerEntity.healthAssessment['substance_abuse_explanation'] }}{% endif %}</textarea>
                   </div>
                 </div>
 
@@ -1819,11 +1952,11 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group mt-4">
                   <label for="job-related">Are there any reasons that would prevent you from being able to perform competently the job-related functions of a locum tenens physician?</label>
                   <div class="radio-group mt-2">
-                    <label><input type="radio" name="job_related" value="yes" onchange="toggleTextarea('job-related-explanation', this.value)"> Yes</label>
-                    <label><input type="radio" name="job_related" value="no" checked onchange="toggleTextarea('job-related-explanation', this.value)"> No</label>
+                    <label><input type="radio" name="job_related" value="yes" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['job_related'] is defined and providerEntity.healthAssessment['job_related'] == 'yes' %}checked{% endif %} onchange="toggleTextarea('job-related-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="job_related" value="no" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['job_related'] is defined and providerEntity.healthAssessment['job_related'] == 'no' %}checked{% endif %} onchange="toggleTextarea('job-related-explanation', this.value)"> No</label>
                   </div>
                   <div class="mt-2">
-                    <textarea id="job-related-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                    <textarea id="job-related-explanation" name="job_related_explanation" class="form-control" placeholder="If yes, please explain...">{% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['job_related_explanation'] is defined %}{{ providerEntity.healthAssessment['job_related_explanation'] }}{% endif %}</textarea>
                   </div>
                 </div>
 
@@ -1831,11 +1964,11 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group mt-4">
                   <label for="travel">Are there any reasons that would prevent you from being able to travel and promptly assume locum tenens physician responsibilities in unfamiliar facilities?</label>
                   <div class="radio-group mt-2">
-                    <label><input type="radio" name="travel" value="yes" onchange="toggleTextarea('travel-explanation', this.value)"> Yes</label>
-                    <label><input type="radio" name="travel" value="no" checked onchange="toggleTextarea('travel-explanation', this.value)"> No</label>
+                    <label><input type="radio" name="travel" value="yes" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['travel'] is defined and providerEntity.healthAssessment['travel'] == 'yes' %}checked{% endif %} onchange="toggleTextarea('travel-explanation', this.value)"> Yes</label>
+                    <label><input type="radio" name="travel" value="no" {% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['travel'] is defined and providerEntity.healthAssessment['travel'] == 'no' %}checked{% endif %} onchange="toggleTextarea('travel-explanation', this.value)"> No</label>
                   </div>
                   <div class="mt-2">
-                    <textarea id="travel-explanation" class="form-control" placeholder="If yes, please explain..."></textarea>
+                    <textarea id="travel-explanation" name="travel_explanation" class="form-control" placeholder="If yes, please explain...">{% if providerEntity and providerEntity.healthAssessment and providerEntity.healthAssessment['travel_explanation'] is defined %}{{ providerEntity.healthAssessment['travel_explanation'] }}{% endif %}</textarea>
                   </div>
                 </div>
 
@@ -1860,7 +1993,7 @@ input[type="checkbox"]:checked::after,
       <h5 class="mb-4">Risk Assessment</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -1868,15 +2001,15 @@ input[type="checkbox"]:checked::after,
       <section class="content">
         <div class="row">
           <div class="col-12">
-            <form method="post" action="">
+            <form method="post" action="{{ path('app_provider_risk_assessment') }}">
               <div class="app-card app-card-notification shadow-sm mb-4" style="padding: 20px;">
 
                 <!-- Work Verification -->
                 <div class="form-group">
                   <label>Can you submit verification of your legal right to work in the U.S.? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="work_verification" value="yes"> Yes</label>
-                    <label><input type="radio" name="work_verification" value="no"> No</label>
+                    <label><input type="radio" name="work_verification" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['work_verification'] is defined and providerEntity.riskAssessment['work_verification'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="work_verification" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['work_verification'] is defined and providerEntity.riskAssessment['work_verification'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1886,17 +2019,17 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label for="degree">Degree Group *</label>
                   <select id="degree" name="degree" class="form-control">
-                    <option value="">Select Degree Group</option>
-                    <option value="MD/DO">MD/DO</option>
-                    <option value="CRNA">CRNA</option>
-                    <option value="CNS">CNS</option>
-                    <option value="DDS">DDS</option>
-                    <option value="DMD">DMD</option>
-                    <option value="PA">PA</option>
-                    <option value="NP">NP</option>
-                    <option value="PhD">PhD</option>
-                    <option value="PsyD">PsyD</option>
-                    <option value="Other">Other</option>
+                    <option value="" {% if providerEntity and providerEntity.riskAssessment and (providerEntity.riskAssessment['degree'] is not defined or providerEntity.riskAssessment['degree'] == '') %}selected{% endif %}>Select Degree Group</option>
+                    <option value="MD/DO" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'MD/DO' %}selected{% endif %}>MD/DO</option>
+                    <option value="CRNA" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'CRNA' %}selected{% endif %}>CRNA</option>
+                    <option value="CNS" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'CNS' %}selected{% endif %}>CNS</option>
+                    <option value="DDS" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'DDS' %}selected{% endif %}>DDS</option>
+                    <option value="DMD" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'DMD' %}selected{% endif %}>DMD</option>
+                    <option value="PA" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'PA' %}selected{% endif %}>PA</option>
+                    <option value="NP" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'NP' %}selected{% endif %}>NP</option>
+                    <option value="PhD" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'PhD' %}selected{% endif %}>PhD</option>
+                    <option value="PsyD" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'PsyD' %}selected{% endif %}>PsyD</option>
+                    <option value="Other" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['degree'] == 'Other' %}selected{% endif %}>Other</option>
                   </select>
                 </div>
 
@@ -1906,8 +2039,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>In the past 24 months, have you had patient contact practicing in the specialty area for which you are applying? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="patient_contact" value="yes"> Yes</label>
-                    <label><input type="radio" name="patient_contact" value="no"> No</label>
+                    <label><input type="radio" name="patient_contact" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['patient_contact'] is defined and providerEntity.riskAssessment['patient_contact'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="patient_contact" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['patient_contact'] is defined and providerEntity.riskAssessment['patient_contact'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1916,8 +2049,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever been named in a malpractice claim? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="malpractice_claim" value="yes"> Yes</label>
-                    <label><input type="radio" name="malpractice_claim" value="no"> No</label>
+                    <label><input type="radio" name="malpractice_claim" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['malpractice_claim'] is defined and providerEntity.riskAssessment['malpractice_claim'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="malpractice_claim" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['malpractice_claim'] is defined and providerEntity.riskAssessment['malpractice_claim'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1926,8 +2059,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Has your license to practice in your profession ever been formally investigated, sanctioned, or revoked? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="license_investigation" value="yes"> Yes</label>
-                    <label><input type="radio" name="license_investigation" value="no"> No</label>
+                    <label><input type="radio" name="license_investigation" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['license_investigation'] is defined and providerEntity.riskAssessment['license_investigation'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="license_investigation" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['license_investigation'] is defined and providerEntity.riskAssessment['license_investigation'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1936,8 +2069,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever been denied provider participation in Medicare/Medicaid? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="medicare_denial" value="yes"> Yes</label>
-                    <label><input type="radio" name="medicare_denial" value="no"> No</label>
+                    <label><input type="radio" name="medicare_denial" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['medicare_denial'] is defined and providerEntity.riskAssessment['medicare_denial'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="medicare_denial" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['medicare_denial'] is defined and providerEntity.riskAssessment['medicare_denial'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1946,8 +2079,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever resigned from a position in lieu of an investigation, or been terminated from employment? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="resigned_or_terminated" value="yes"> Yes</label>
-                    <label><input type="radio" name="resigned_or_terminated" value="no"> No</label>
+                    <label><input type="radio" name="resigned_or_terminated" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['resigned_or_terminated'] is defined and providerEntity.riskAssessment['resigned_or_terminated'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="resigned_or_terminated" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['resigned_or_terminated'] is defined and providerEntity.riskAssessment['resigned_or_terminated'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1956,8 +2089,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have your hospital or clinic privileges ever been revoked, suspended, or restricted? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="clinic_privileges" value="yes"> Yes</label>
-                    <label><input type="radio" name="clinic_privileges" value="no"> No</label>
+                    <label><input type="radio" name="clinic_privileges" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['clinic_privileges'] is defined and providerEntity.riskAssessment['clinic_privileges'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="clinic_privileges" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['clinic_privileges'] is defined and providerEntity.riskAssessment['clinic_privileges'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1966,8 +2099,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever been disciplined by a hospital staff or professional education program? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="disciplinary_action" value="yes"> Yes</label>
-                    <label><input type="radio" name="disciplinary_action" value="no"> No</label>
+                    <label><input type="radio" name="disciplinary_action" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['disciplinary_action'] is defined and providerEntity.riskAssessment['disciplinary_action'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="disciplinary_action" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['disciplinary_action'] is defined and providerEntity.riskAssessment['disciplinary_action'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1976,8 +2109,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever been convicted of a felony or misdemeanor other than a minor traffic violation? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="felony_conviction" value="yes"> Yes</label>
-                    <label><input type="radio" name="felony_conviction" value="no"> No</label>
+                    <label><input type="radio" name="felony_conviction" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['felony_conviction'] is defined and providerEntity.riskAssessment['felony_conviction'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="felony_conviction" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['felony_conviction'] is defined and providerEntity.riskAssessment['felony_conviction'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1986,8 +2119,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you ever abused alcohol, used illegal drugs, or failed to take legally prescribed drugs? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="substance_abuse" value="yes"> Yes</label>
-                    <label><input type="radio" name="substance_abuse" value="no"> No</label>
+                    <label><input type="radio" name="substance_abuse" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['substance_abuse'] is defined and providerEntity.riskAssessment['substance_abuse'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="substance_abuse" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['substance_abuse'] is defined and providerEntity.riskAssessment['substance_abuse'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -1996,8 +2129,8 @@ input[type="checkbox"]:checked::after,
                 <div class="form-group">
                   <label>Have you incurred or become aware of having a condition that impairs your ability to practice your medical specialty? *</label>
                   <div class="radio-group">
-                    <label><input type="radio" name="medical_condition" value="yes"> Yes</label>
-                    <label><input type="radio" name="medical_condition" value="no"> No</label>
+                    <label><input type="radio" name="medical_condition" value="yes" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['medical_condition'] is defined and providerEntity.riskAssessment['medical_condition'] == 'yes' %}checked{% endif %}> Yes</label>
+                    <label><input type="radio" name="medical_condition" value="no" {% if providerEntity and providerEntity.riskAssessment and providerEntity.riskAssessment['medical_condition'] is defined and providerEntity.riskAssessment['medical_condition'] == 'no' %}checked{% endif %}> No</label>
                   </div>
                 </div>
 
@@ -2019,7 +2152,7 @@ input[type="checkbox"]:checked::after,
       <h5>Application Certification</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -2043,7 +2176,7 @@ input[type="checkbox"]:checked::after,
       <h5>Release & Authorization</h5>
       <button class="popup-close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 18L18 6M6 6l12 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 18L18 6M6 6l12 12" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -2227,7 +2360,7 @@ input[type="checkbox"]:checked::after,
                 </div>
                 <div class="modal-body">
                     <div id="addEducationFormContainer">
-                        <!-- Form will be loaded here -->
+                        {{ include('provider/education/_form.html.twig', { 'form': educationForm }) }}
                     </div>
                 </div>
             </div>
@@ -2260,53 +2393,7 @@ input[type="checkbox"]:checked::after,
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addLicenseForm" action="#" method="POST" class="needs-validation" novalidate>
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="license_name" class="form-label">License/Certificate Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="license_name" name="license[name]" required>
-                                <div class="invalid-feedback">Please provide license name.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="license_employmentType" class="form-label">Employment Type <span class="text-danger">*</span></label>
-                                <select class="form-control" id="license_employmentType" name="license[employmentType]" required>
-                                    <option value="">Select Type</option>
-                                    <option value="Full-Time">Full-Time</option>
-                                    <option value="Part-Time">Part-Time</option>
-                                    <option value="Contract">Contract</option>
-                                </select>
-                                <div class="invalid-feedback">Please select employment type.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="license_company" class="form-label">Company <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="license_company" name="license[company]" required>
-                                <div class="invalid-feedback">Please provide company name.</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="license_location" class="form-label">Location <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="license_location" name="license[location]" placeholder="City, Country" required>
-                            <div class="invalid-feedback">Please provide location.</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="license_startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control js-datepicker" id="license_startDate" name="license[startDate]" required>
-                                <div class="invalid-feedback">Please provide start date.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="license_endDate" class="form-label">End Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control js-datepicker" id="license_endDate" name="license[endDate]" required>
-                                <div class="invalid-feedback">Please provide end date.</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </form>
+                    {{ include('provider/license/_form.html.twig', { 'form': licenseForm }) }}
                 </div>
             </div>
         </div>
@@ -2321,55 +2408,7 @@ input[type="checkbox"]:checked::after,
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addInsuranceForm" action="#" method="POST" class="needs-validation" novalidate>
-                        <div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label for="insurance_company" class="form-label">Insurance Company <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="insurance_company" name="insurance[company]" required>
-                                <div class="invalid-feedback">Please provide insurance company name.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_policyNumber" class="form-label">Policy Number <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="insurance_policyNumber" name="insurance[policyNumber]" required>
-                                <div class="invalid-feedback">Please provide policy number.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_location" class="form-label">Location <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="insurance_location" name="insurance[location]" placeholder="State, City" required>
-                                <div class="invalid-feedback">Please provide location.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_perClaim" class="form-label">Amount Per Claim <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="insurance_perClaim" name="insurance[perClaim]" placeholder="NPR 500,000" required>
-                                <div class="invalid-feedback">Please provide per claim amount.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_aggregate" class="form-label">Aggregate Amount <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="insurance_aggregate" name="insurance[aggregate]" placeholder="NPR 2,000,000" required>
-                                <div class="invalid-feedback">Please provide aggregate amount.</div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_effectiveDate" class="form-label">Effective Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control js-datepicker" id="insurance_effectiveDate" name="insurance[effectiveDate]" required>
-                                <div class="invalid-feedback">Please provide effective date.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="insurance_expirationDate" class="form-label">Expiration Date <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control js-datepicker" id="insurance_expirationDate" name="insurance[expirationDate]" required>
-                                <div class="invalid-feedback">Please provide expiration date.</div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </form>
+                    {{ include('provider/insurance/_form.html.twig', { 'form': insuranceForm }) }}
                 </div>
             </div>
         </div>
@@ -2417,173 +2456,7 @@ input[type="checkbox"]:checked::after,
             clickedButton = $(this);
         });
 
-        // Load education form when modal opens (jQuery event handler)
-            educationModal.on('show.bs.modal', function () {
-            // Check if form is already loaded
-            const formContainer = document.getElementById('addEducationFormContainer');
-            if (formContainer && formContainer.innerHTML.trim() !== '' && !formContainer.querySelector('.spinner-border')) {
-              // Form already loaded, skip
-              return;
-            }
-            // Always reload the form to get fresh CSRF token
-            fetch('{{ path('app_provider_education_new') }}', {
-                headers: { 
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'text/html'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.status);
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Check if response contains a form
-                if (!html || html.trim().length === 0) {
-                    throw new Error('Empty response from server');
-                }
-                
-                console.log('Form HTML received:', html.substring(0, 200)); // Debug log
-                
-                // The form template already includes form_start and form_end, so it's a complete form
-                // We just need to extract it and add the modal footer
-                let formHtml = html.trim();
-                
-                // If the response is wrapped in a form tag, extract the inner content
-                if (formHtml.includes('<form')) {
-                    // Try to parse and extract form
-                    const parser = new DOMParser();
-                    // Wrap in a container for parsing
-                    const wrappedHtml = '<div>' + formHtml + '</div>';
-                    const doc = parser.parseFromString(wrappedHtml, 'text/html');
-                    const form = doc.querySelector('form');
-                    
-                    if (form) {
-                        // Get the form's inner HTML (fields) but keep the form tag
-                        const formInnerHTML = form.innerHTML;
-                        const formAction = form.getAttribute('action') || '{{ path('app_provider_education_new') }}';
-                        const formMethod = form.getAttribute('method') || 'POST';
-                        const formId = form.getAttribute('id') || 'addEducationForm';
-                        const formClass = form.getAttribute('class') || 'needs-validation';
-                        
-                        // Replace the submit button with modal footer
-                        formHtml = formInnerHTML.replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
-                        
-                        $('#addEducationFormContainer').html(`
-                            <form id="${formId}" action="${formAction}" method="${formMethod}" class="${formClass}" novalidate>
-                                ${formHtml}
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </form>
-                        `);
-                    } else {
-                        // If parsing failed, try regex extraction
-                        const formMatch = formHtml.match(/<form[^>]*>([\s\S]*?)<\/form>/i);
-                        if (formMatch) {
-                            const formInnerHTML = formMatch[1].replace(/<button[^>]*type=["']submit["'][^>]*>[\s\S]*?<\/button>/i, '');
-                            const actionMatch = formHtml.match(/action=["']([^"']+)["']/i);
-                            const methodMatch = formHtml.match(/method=["']([^"']+)["']/i);
-                            const idMatch = formHtml.match(/id=["']([^"']+)["']/i);
-                            const classMatch = formHtml.match(/class=["']([^"']+)["']/i);
-                            
-                            $('#addEducationFormContainer').html(`
-                                <form id="${idMatch ? idMatch[1] : 'addEducationForm'}" 
-                                      action="${actionMatch ? actionMatch[1] : '{{ path('app_provider_education_new') }}'}" 
-                                      method="${methodMatch ? methodMatch[1] : 'POST'}" 
-                                      class="${classMatch ? classMatch[1] : 'needs-validation'}" 
-                                      novalidate>
-                                    ${formInnerHTML}
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">Save</button>
-                                    </div>
-                                </form>
-                            `);
-                        } else {
-                            // Use HTML as-is and wrap in form
-                            $('#addEducationFormContainer').html(`
-                                <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
-                                    ${formHtml}
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">Save</button>
-                                    </div>
-                                </form>
-                            `);
-                        }
-                    }
-                } else {
-                    // No form tag found, wrap the content in a form
-                    $('#addEducationFormContainer').html(`
-                        <form id="addEducationForm" action="{{ path('app_provider_education_new') }}" method="POST" class="needs-validation" novalidate>
-                            ${formHtml}
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </form>
-                    `);
-                }
-                
-                // Re-initialize flatpickr for date fields after a small delay to ensure DOM is ready
-                setTimeout(function() {
-                    // Check if flatpickr is available
-                    if (typeof flatpickr !== 'undefined') {
-                        // Use native flatpickr API
-                        document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
-                            if (!input._flatpickr) { // Only initialize if not already initialized
-                                flatpickr(input, {
-                                    dateFormat: "Y-m-d"
-                                });
-                            }
-                        });
-                    } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
-                        // Fallback to jQuery plugin if available
-                        $('#addEducationFormContainer .js-datepicker').flatpickr();
-                    }
-                }, 100);
-            })
-            .catch(error => {
-                console.error('Error loading form:', error);
-                $('#addEducationFormContainer').html(`<div class="alert alert-danger">Error loading form: ${error.message}. Please refresh the page and try again.</div>`);
-            });
-        });
-
-        // Handle form submission with event delegation
-        $(document).on('submit', '#educationModal form', function (e) {
-                e.preventDefault();
-            var formElement = $(this)[0];
-            var form = $(this);
-            
-            // Validate dates
-            var startDateVal = $('#education_startDate').val();
-            var endDateVal = $('#education_endDate').val();
-            if (startDateVal && endDateVal) {
-                var startDate = new Date(startDateVal);
-                var endDate = new Date(endDateVal);
-                if (endDate < startDate) {
-                    showErrorAlert('Invalid Date', 'End date must be after start date.');
-                    formElement.classList.add('was-validated');
-                    return false;
-                }
-            }
-            
-            // Client-side validation
-            if (!formElement.checkValidity()) {
-                e.stopPropagation();
-                formElement.classList.add('was-validated');
-                return false;
-            }
-
-            // Show alert instead of submitting
-            showInfoAlert('Notice', 'Backend route implementation pending.');
-            return false;
-
-            // Show loading state
-            var submitBtn = form.find('button[type="submit"]');
+        // Education form is embedded server-side; modal behaves like License
             var originalText = submitBtn.html();
             submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
 
@@ -2680,40 +2553,288 @@ input[type="checkbox"]:checked::after,
                 }
     });
 
-        // License form submission
+        // License form submission (AJAX)
             const licenseModal = $('#licenseModal');
             if (licenseModal.length > 0) {
-                licenseModal.find('form').on('submit', function (e) {
-            var formElement = $(this)[0];
-            if (!formElement.checkValidity()) {
-                e.preventDefault();
-                e.stopPropagation();
-                formElement.classList.add('was-validated');
-                return false;
+                $(document).on('submit', '#licenseModal form', function (e) {
+                    var formElement = $(this)[0];
+                    if (!formElement.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        formElement.classList.add('was-validated');
+                        return false;
+                    }
+                    e.preventDefault();
+                    var formData = new FormData(formElement);
+                    $.ajax({
+                        type: formElement.method || 'POST',
+                        url: formElement.action,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function(resp) {
+                            try {
+                                var json = typeof resp === 'string' ? JSON.parse(resp) : resp;
+                                if (json && json.status === 'success') {
+                                    if (json.license && document.getElementById('licenseListContainer')) {
+                                        var l = json.license;
+                                        var html = '' +
+                                          '<div class="col-md-6">' +
+                                          '  <div class="card ed-card" data-id="' + (l.id || '') + '">' +
+                                          '    <div class="card-body">' +
+                                          '      <div class="d-flex justify-content-between align-items-start mb-3">' +
+                                          '        <h5 class="card-title mb-0">' + (l.name || '') + '</h5>' +
+                                          '        <div class="d-flex gap-2">' +
+                                          '          <a href="#" class="edit-license" data-id="' + (l.id || '') + '" title="Edit" style="padding: 4px;">' +
+                                          '            <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                                          '          </a>' +
+                                          '          <a href="/provider/application/license/' + (l.id || '') + '/delete" class="delete-license" style="padding: 4px;">' +
+                                          '            <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                                          '          </a>' +
+                                          '        </div>' +
+                                          '      </div>' +
+                                          '      <p><strong>Number:</strong> ' + (l.number || '') + '</p>' +
+                                          '      <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">' +
+                                          '        <div>' +
+                                          '          <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Issue Date</p>' +
+                                          '          <p class="mb-0"><strong>' + (l.issueDate || 'N/A') + '</strong></p>' +
+                                          '        </div>' +
+                                          (l.expirationDate ? ('<div><p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p><p class="mb-0"><strong>' + l.expirationDate + '</strong></p></div>') : '') +
+                                          '      </div>' +
+                                          '    </div>' +
+                                          '  </div>' +
+                                          '</div>';
+                                        var container = document.getElementById('licenseListContainer');
+                                        var temp = document.createElement('div');
+                                        temp.innerHTML = html;
+                                        container.prepend(temp.firstElementChild);
+                                    }
+                                    try { $('#licenseModal').modal('hide'); } catch(_) {}
+                                    try {
+                                      var modalEl = document.getElementById('licenseModal');
+                                      var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+                                      if (bm) bm.hide();
+                                    } catch(_) {}
+                                    if (typeof showSectionToast === 'function') {
+                                      showSectionToast('License & Certificate', 'added');
+                                    } else if (typeof showToast === 'function') {
+                                      showToast('Success', 'License & Certificate added successfully.', 'success');
+                                    }
+                                    return;
+                                }
+                            } catch(_) {}
+                            try { $('#licenseModal').modal('hide'); } catch(_) {}
+                            try {
+                              var modalEl = document.getElementById('licenseModal');
+                              var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+                              if (bm) bm.hide();
+                            } catch(_) {}
+                            if (typeof showSectionToast === 'function') {
+                              showSectionToast('License & Certificate', 'updated');
+                            }
+                        },
+                        error: function() {
+                            showErrorAlert && showErrorAlert('Update Error', 'Error updating license. Please try again.');
+                        }
+                    });
+                });
             }
 
-            e.preventDefault();
-            showInfoAlert('Notice', 'License form submission - backend route implementation pending.');
-                    licenseModal.modal('hide');
-        });
+            const editLicenseModal = $('#editLicenseModal');
+            if (editLicenseModal.length > 0) {
+                $(document).on('submit', '#editLicenseModal form', function (e) {
+                    var formElement = $(this)[0];
+                    if (!formElement.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        formElement.classList.add('was-validated');
+                        return false;
+                    }
+                    e.preventDefault();
+                    var formData = new FormData(formElement);
+                    $.ajax({
+                        type: formElement.method || 'POST',
+                        url: formElement.action,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function(resp) {
+                            try {
+                                var json = typeof resp === 'string' ? JSON.parse(resp) : resp;
+                                if (json && json.status === 'success') {
+                                    try { $('#editLicenseModal').modal('hide'); } catch(_) {}
+                                    try {
+                                      var modalEl = document.getElementById('editLicenseModal');
+                                      var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+                                      if (bm) bm.hide();
+                                    } catch(_) {}
+                                    if (typeof showSectionToast === 'function') {
+                                      showSectionToast('License & Certificate', 'updated');
+                                    } else if (typeof showToast === 'function') {
+                                      showToast('Success', 'License & Certificate updated successfully.', 'success');
+                                    }
+                                    return;
+                                }
+                            } catch(_) {}
+                            try { $('#editLicenseModal').modal('hide'); } catch(_) {}
+                            if (typeof showSectionToast === 'function') {
+                              showSectionToast('License & Certificate', 'updated');
+                            }
+                        },
+                        error: function() {
+                            showErrorAlert && showErrorAlert('Update Error', 'Error updating license. Please try again.');
+                        }
+                    });
+                });
             }
 
-        // Insurance form submission
+        // Insurance form submission (AJAX)
             const insuranceModal = $('#insuranceModal');
             if (insuranceModal.length > 0) {
-                insuranceModal.find('form').on('submit', function (e) {
-            var formElement = $(this)[0];
-            if (!formElement.checkValidity()) {
-                e.preventDefault();
-                e.stopPropagation();
-                formElement.classList.add('was-validated');
-                return false;
+                $(document).on('submit', '#insuranceModal form', function (e) {
+                    var formElement = $(this)[0];
+                    if (!formElement.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        formElement.classList.add('was-validated');
+                        return false;
+                    }
+                    e.preventDefault();
+                    var formData = new FormData(formElement);
+                    $.ajax({
+                        type: formElement.method || 'POST',
+                        url: formElement.action,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function(resp) {
+                            try {
+                                var json = typeof resp === 'string' ? JSON.parse(resp) : resp;
+                                if (json && json.status === 'success') {
+                                    if (json.insurance && document.querySelector('#popup-insurance .row.g-3')) {
+                                        var ins = json.insurance;
+                                        var html = '' +
+                                          '<div class="col-md-6">' +
+                                          '  <div class="card ed-card" data-id="' + (ins.id || '') + '">' +
+                                          '    <div class="card-body">' +
+                                          '      <div class="d-flex justify-content-between align-items-start mb-3">' +
+                                          '        <h5 class="card-title mb-0">' + (ins.carrier || '') + '</h5>' +
+                                          '        <div class="d-flex gap-2">' +
+                                          '          <a href="#" class="edit-insurance" data-id="' + (ins.id || '') + '" title="Edit" style="padding: 4px;">' +
+                                          '            <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                                          '          </a>' +
+                                          '          <a href="/provider/application/insurance/' + (ins.id || '') + '/delete" onclick="return confirm(\'Are you sure? Do you want to remove this item?\');" style="padding: 4px;">' +
+                                          '            <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                                          '          </a>' +
+                                          '        </div>' +
+                                          '      </div>' +
+                                          '      <p><strong>Policy Number:</strong> ' + (ins.policyNumber || '') + '</p>' +
+                                          (ins.amount ? ('<p><strong>Amount:</strong> ' + ins.amount + '</p>') : '') +
+                                          ((ins.state || ins.city) ? ('<p><i class="fa fa-map-marker-alt"></i> ' + (ins.state || '') + (ins.city ? (', ' + ins.city) : '') + '</p>') : '') +
+                                          '      <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">' +
+                                          '        <div>' +
+                                          '          <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>' +
+                                          '          <p class="mb-0"><strong>' + (ins.effectiveDate || 'N/A') + '</strong></p>' +
+                                          '        </div>' +
+                                          (ins.expirationDate ? ('<div><p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p><p class="mb-0"><strong>' + ins.expirationDate + '</strong></p></div>') : '') +
+                                          '      </div>' +
+                                          '    </div>' +
+                                          '  </div>' +
+                                          '</div>';
+                                        var container = document.getElementById('insuranceListContainer');
+                                        var temp = document.createElement('div');
+                                        temp.innerHTML = html;
+                                        container.prepend(temp.firstElementChild);
+                                    }
+                                    try { $('#insuranceModal').modal('hide'); } catch(_) {}
+                                    if (typeof showSectionToast === 'function') {
+                                      showSectionToast('Insurance', 'added');
+                                    } else if (typeof showToast === 'function') {
+                                      showToast('Success', 'Insurance added successfully.', 'success');
+                                    }
+                                    return;
+                                }
+                            } catch(_) {}
+                            insuranceModal.modal('hide');
+                            if (typeof showSectionToast === 'function') {
+                              showSectionToast('Insurance', 'updated');
+                            }
+                        },
+                        error: function() {
+                            showErrorAlert && showErrorAlert('Update Error', 'Error updating insurance. Please try again.');
+                        }
+                    });
+                });
             }
 
-            e.preventDefault();
-            showInfoAlert('Notice', 'Insurance form submission - backend route implementation pending.');
-                    insuranceModal.modal('hide');
-        });
+            const editInsuranceModal = $('#editInsuranceModal');
+            if (editInsuranceModal.length > 0) {
+                $(document).on('submit', '#editInsuranceModal form', function (e) {
+                    var formElement = $(this)[0];
+                    if (!formElement.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        formElement.classList.add('was-validated');
+                        return false;
+                    }
+                    e.preventDefault();
+                    var formData = new FormData(formElement);
+                    $.ajax({
+                        type: formElement.method || 'POST',
+                        url: formElement.action,
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        success: function(resp) {
+                            try {
+                                var json = typeof resp === 'string' ? JSON.parse(resp) : resp;
+                                if (json && json.status === 'success') {
+                                    if (json.insurance && json.insurance.id) {
+                                        var ins = json.insurance;
+                                        var id = ins.id;
+                                        var card = document.querySelector('#insuranceListContainer .ed-card[data-id="' + id + '"]');
+                                        if (card) {
+                                            var body = card.querySelector('.card-body');
+                                            var title = body.querySelector('h5.card-title');
+                                            if (title && ins.carrier !== undefined) title.textContent = ins.carrier || '';
+                                            var policyP = Array.from(body.querySelectorAll('p')).find(function(p){ return p.textContent.trim().startsWith('Policy Number:'); });
+                                            if (policyP && ins.policyNumber !== undefined) policyP.innerHTML = '<strong>Policy Number:</strong> ' + (ins.policyNumber || '');
+                                            var amountP = Array.from(body.querySelectorAll('p')).find(function(p){ return p.textContent.trim().startsWith('Amount'); });
+                                            if (amountP) {
+                                                amountP.innerHTML = ins.amount ? ('<strong>Amount:</strong> ' + ins.amount) : '';
+                                            }
+                                            var dateStrong = body.querySelectorAll('.d-flex.gap-4 div strong');
+                                            if (dateStrong && dateStrong.length >= 1) {
+                                                dateStrong[0].textContent = ins.effectiveDate || 'N/A';
+                                                if (dateStrong.length >= 2) {
+                                                    dateStrong[1].textContent = ins.expirationDate || dateStrong[1].textContent;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    try { $('#editInsuranceModal').modal('hide'); } catch(_) {}
+                                    if (typeof showSectionToast === 'function') {
+                                      showSectionToast('Insurance', 'updated');
+                                    } else if (typeof showToast === 'function') {
+                                      showToast('Success', 'Insurance updated successfully.', 'success');
+                                    }
+                                    return;
+                                }
+                            } catch(_) {}
+                            try { $('#editInsuranceModal').modal('hide'); } catch(_) {}
+                            if (typeof showSectionToast === 'function') {
+                              showSectionToast('Insurance', 'updated');
+                            }
+                        },
+                        error: function() {
+                            showErrorAlert && showErrorAlert('Update Error', 'Error updating insurance. Please try again.');
+                        }
+                    });
+                });
             }
     });
     }
@@ -2776,15 +2897,80 @@ input[type="checkbox"]:checked::after,
           'X-Requested-With': 'XMLHttpRequest'
         },
         success: function(response) {
-          try {
-            var jsonResponse = typeof response === 'string' ? JSON.parse(response) : response;
-            if (jsonResponse.status === 'success') {
-              $('#editEducationModal').modal('hide');
-              loadEducationList();
+          // If server returned JSON and status success
+          if (typeof response === 'object' && response.status === 'success') {
+            // Update the corresponding card in-place for real-time UI
+            if (response.education && response.education.id) {
+              var id = response.education.id;
+              var checkbox = document.querySelector('.education-checkbox[data-id="' + id + '"]');
+              if (checkbox) {
+                var cardBody = checkbox.closest('.card').querySelector('.card-body');
+                if (cardBody) {
+                  var titleEl = cardBody.querySelector('h5.card-title');
+                  if (titleEl && response.education.school !== undefined) {
+                    titleEl.textContent = response.education.school || '';
+                  }
+                  var degreeEl = Array.from(cardBody.querySelectorAll('p')).find(function(p){ return p.textContent.trim().startsWith('Degree Name:'); });
+                  if (degreeEl && response.education.degree !== undefined) {
+                    degreeEl.innerHTML = '<strong>Degree Name:</strong> ' + (response.education.degree || '');
+                  }
+                  var locationEl = Array.from(cardBody.querySelectorAll('p')).find(function(p){ return p.querySelector('i.fa-map-marker-alt'); });
+                  if (locationEl) {
+                    var country = response.education.country || '';
+                    var state = response.education.state || '';
+                    var city = response.education.city || '';
+                    var locText = country;
+                    if (state) locText += ', ' + state;
+                    if (city) locText += ', ' + city;
+                    locationEl.innerHTML = '<i class="fa fa-map-marker-alt"></i> ' + locText;
+                  }
+                  var dateBlocks = cardBody.querySelectorAll('.d-flex.gap-4 div strong');
+                  if (dateBlocks && dateBlocks.length >= 2) {
+                    dateBlocks[0].textContent = response.education.startDate || 'N/A';
+                    dateBlocks[1].textContent = response.education.endDate || 'N/A';
+                  }
+                }
+              }
             }
-          } catch(e) {
-            $('#editEducationModal').modal('hide');
-            loadEducationList();
+            try { $('#editEducationModal').modal('hide'); } catch(_) {}
+            try {
+              var modalEl = document.getElementById('editEducationModal');
+              var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+              if (bm) bm.hide();
+            } catch(_) {}
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('Education & Training', 'updated');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'Education & Training updated successfully.', 'success');
+            }
+            return;
+          }
+          // If server returned HTML with the form (validation errors)
+          if (typeof response === 'string' && (response.includes('<form') || response.includes('form'))) {
+            $('#editEducationFormContainer').html(response);
+            setTimeout(function() {
+              if (typeof flatpickr !== 'undefined') {
+                document.querySelectorAll('#editEducationFormContainer .js-datepicker').forEach(function(input) {
+                  if (!input._flatpickr) {
+                    flatpickr(input, { dateFormat: 'Y-m-d' });
+                  }
+                });
+              }
+            }, 100);
+            return;
+          }
+          // Fallback: hide modal and refresh list
+          try { $('#editEducationModal').modal('hide'); } catch(_) {}
+          try {
+            var modalEl = document.getElementById('editEducationModal');
+            var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+            if (bm) bm.hide();
+          } catch(_) {}
+          setTimeout(function(){ loadEducationList(); }, 150);
+          if (typeof showSectionToast === 'function') {
+            showSectionToast('Education & Training', 'updated');
+          } else if (typeof showToast === 'function') {
+            showToast('Success', 'Education & Training updated successfully.', 'success');
           }
         },
         error: function() {
@@ -2819,6 +3005,75 @@ input[type="checkbox"]:checked::after,
       .catch(error => {
         console.error('Error:', error);
         showErrorAlert('Delete Error', 'Error deleting education entry. Please try again.');
+      });
+    });
+    
+    $(document).on('click', '#popup-license .edit-experience, .edit-license, a[title="Edit"]', function(e) {
+      e.preventDefault();
+      var id = this.dataset.id || $(this).data('id');
+      if (!id) { id = $(this).closest('[data-id]').data('id'); }
+      if (!id) { id = $(this).closest('.card').data('id'); }
+      if (!id) { id = $(this).closest('[data-license-id]').data('license-id'); }
+      if (!id) {
+        showErrorAlert && showErrorAlert('Error', 'License ID not found.');
+        return;
+      }
+      fetch('/provider/application/license/' + id + '/edit', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(resp){ return resp.json(); })
+      .then(function(data){
+        if (data && data.form) {
+          $('#editLicenseFormContainer').html(data.form);
+          setTimeout(function(){
+            if (typeof flatpickr !== 'undefined') {
+              $('#editLicenseModal .js-datepicker').each(function(){
+                if (!this._flatpickr) flatpickr(this, { dateFormat: 'Y-m-d' });
+              });
+            }
+          }, 100);
+          var modalEl = document.getElementById('editLicenseModal');
+          var modal = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+          if (modal) modal.show();
+        } else {
+          showErrorAlert && showErrorAlert('Error', 'Unable to load the edit form.');
+        }
+      })
+      .catch(function(){
+        showErrorAlert && showErrorAlert('Network Error', 'Unable to load the edit form.');
+      });
+    });
+
+    $(document).on('click', '.edit-insurance', function(e) {
+      e.preventDefault();
+      var id = this.dataset.id || $(this).data('id');
+      if (!id) {
+        showErrorAlert && showErrorAlert('Error', 'Insurance ID not found.');
+        return;
+      }
+      fetch('/provider/application/insurance/' + id + '/edit', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(resp){ return resp.json(); })
+      .then(function(data){
+        if (data && data.form) {
+          $('#editInsuranceFormContainer').html(data.form);
+          setTimeout(function(){
+            if (typeof flatpickr !== 'undefined') {
+              $('#editInsuranceModal .js-datepicker').each(function(){
+                if (!this._flatpickr) flatpickr(this, { dateFormat: 'Y-m-d' });
+              });
+            }
+          }, 100);
+          var modalEl = document.getElementById('editInsuranceModal');
+          var modal = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+          if (modal) modal.show();
+        } else {
+          showErrorAlert && showErrorAlert('Error', 'Unable to load the edit form.');
+        }
+      })
+      .catch(function(){
+        showErrorAlert && showErrorAlert('Network Error', 'Unable to load the edit form.');
       });
     });
         });
@@ -3142,7 +3397,47 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
     }
-    
+
+    // Handle Risk Assessment "Save and Continue" via AJAX
+    if (form.closest('#popup-risk')) {
+      const clickedButton = e.submitter || document.activeElement;
+      const saveContinueBtn = form.querySelector('.save-continue-btn[name="save_continue"]');
+      if (clickedButton && clickedButton.name === 'save_continue' && clickedButton.value === '1' && saveContinueBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const currentPopupId = saveContinueBtn.dataset.currentPopup || 'risk';
+        const nextPopupId = saveContinueBtn.dataset.nextPopup || 'application-certification';
+        const formData = new FormData(form);
+        formData.append('save_continue', '1');
+        const submitBtn = clickedButton;
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+        fetch(form.action || '/provider/application/risk-assessment', {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+          if (response.ok) {
+            window.transitionToNextPopup(currentPopupId, nextPopupId);
+            loadApplicationCertificationForm();
+          } else {
+            throw new Error('Form submission failed');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting form:', error);
+          alert('Error saving form. Please try again.');
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        });
+        return;
+      }
+    }
+
     // Handle Release & Authorization form submission to save and close popup
     if (form.closest('#popup-release-authorization')) {
       e.preventDefault();
@@ -3222,9 +3517,26 @@ document.addEventListener('DOMContentLoaded', function() {
             'X-Requested-With': 'XMLHttpRequest'
           }
         })
-        .then(response => {
-          if (response.ok) {
-            // Form submitted successfully, transition to next popup
+        .then(resp => resp.json())
+        .then(json => {
+          if (json && json.status === 'success') {
+            if (json.healthAssessment) {
+              const ha = json.healthAssessment;
+              function setRadio(name, val) {
+                const radios = form.querySelectorAll('input[type="radio"][name="' + name + '"]');
+                radios.forEach(r => r.checked = (r.value === String(val)));
+              }
+              function setTextarea(id, val) {
+                const ta = form.querySelector('#' + id);
+                if (ta) ta.value = String(val || '');
+              }
+              setRadio('substance_abuse', ha['substance_abuse']);
+              setTextarea('substance-abuse-explanation', ha['substance_abuse_explanation']);
+              setRadio('job_related', ha['job_related']);
+              setTextarea('job-related-explanation', ha['job_related_explanation']);
+              setRadio('travel', ha['travel']);
+              setTextarea('travel-explanation', ha['travel_explanation']);
+            }
             window.transitionToNextPopup(currentPopupId, nextPopupId);
           } else {
             throw new Error('Form submission failed');
@@ -3236,6 +3548,124 @@ document.addEventListener('DOMContentLoaded', function() {
           submitBtn.disabled = false;
           submitBtn.textContent = originalText;
         });
+      }
+    }
+
+    // Handle normal Save for Health Assessment via AJAX
+    if (form.closest('#popup-health')) {
+      const clickedButton = e.submitter || document.activeElement;
+      if (!clickedButton || clickedButton.name !== 'save_continue') {
+        e.preventDefault();
+        e.stopPropagation();
+        const formData = new FormData(form);
+        fetch(form.action || '/provider/application/health-assessment', {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(resp => resp.json()).then(json => {
+          if (json && json.status === 'success') {
+            if (json.healthAssessment) {
+              const ha = json.healthAssessment;
+              function setRadio(name, val) {
+                const radios = form.querySelectorAll('input[type="radio"][name="' + name + '"]');
+                radios.forEach(r => r.checked = (r.value === String(val)));
+              }
+              function setTextarea(id, val) {
+                const ta = form.querySelector('#' + id);
+                if (ta) ta.value = String(val || '');
+              }
+              setRadio('substance_abuse', ha['substance_abuse']);
+              setTextarea('substance-abuse-explanation', ha['substance_abuse_explanation']);
+              setRadio('job_related', ha['job_related']);
+              setTextarea('job-related-explanation', ha['job_related_explanation']);
+              setRadio('travel', ha['travel']);
+              setTextarea('travel-explanation', ha['travel_explanation']);
+            }
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('Health Assessment', 'updated');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'Health Assessment updated successfully.', 'success');
+            }
+          }
+        }).catch(() => {
+          showErrorAlert && showErrorAlert('Update Error', 'Error updating Health Assessment.');
+        });
+        return;
+      }
+    }
+
+    // Handle normal Save for Risk Assessment via AJAX
+    if (form.closest('#popup-risk')) {
+      const clickedButton = e.submitter || document.activeElement;
+      if (!clickedButton || clickedButton.name !== 'save_continue') {
+        e.preventDefault();
+        e.stopPropagation();
+        const formData = new FormData(form);
+        fetch(form.action || '/provider/application/risk-assessment', {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(resp => resp.json()).then(json => {
+          if (json && json.status === 'success') {
+            if (json.riskAssessment) {
+              const ra = json.riskAssessment;
+              function setRadio(name, val) {
+                const radios = form.querySelectorAll('input[type="radio"][name="' + name + '"]');
+                radios.forEach(r => r.checked = (r.value === String(val)));
+              }
+              function setSelect(name, val) {
+                const sel = form.querySelector('select[name="' + name + '"]');
+                if (sel) sel.value = String(val || '');
+              }
+              setRadio('work_verification', ra['work_verification']);
+              setSelect('degree', ra['degree']);
+              setRadio('patient_contact', ra['patient_contact']);
+              setRadio('malpractice_claim', ra['malpractice_claim']);
+              setRadio('license_investigation', ra['license_investigation']);
+              setRadio('medicare_denial', ra['medicare_denial']);
+              setRadio('resigned_or_terminated', ra['resigned_or_terminated']);
+              setRadio('clinic_privileges', ra['clinic_privileges']);
+              setRadio('disciplinary_action', ra['disciplinary_action']);
+              setRadio('felony_conviction', ra['felony_conviction']);
+              setRadio('substance_abuse', ra['substance_abuse']);
+              setRadio('medical_condition', ra['medical_condition']);
+            }
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('Risk Assessment', 'updated');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'Risk Assessment updated successfully.', 'success');
+            }
+          }
+        }).catch(() => {
+          showErrorAlert && showErrorAlert('Update Error', 'Error updating Risk Assessment.');
+        });
+        return;
+      }
+    }
+
+    // Handle normal Save for Application Certification via AJAX
+    if (form.closest('#popup-application-certification')) {
+      const clickedButton = e.submitter || document.activeElement;
+      if (!clickedButton || clickedButton.name !== 'save_continue') {
+        e.preventDefault();
+        e.stopPropagation();
+        const formData = new FormData(form);
+        fetch(form.action || '/provider/application/application-certification', {
+          method: 'POST',
+          body: formData,
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(resp => resp.json()).then(json => {
+          if (json && json.status === 'success') {
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('Application Certification', 'updated');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'Application Certification updated successfully.', 'success');
+            }
+          }
+        }).catch(() => {
+          showErrorAlert && showErrorAlert('Update Error', 'Error updating Application Certification.');
+        });
+        return;
       }
     }
   });
@@ -4237,7 +4667,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (formView) formView.style.display = 'none';
 
             if (typeof showSuccessAlert === 'function') {
-              showSuccessAlert('Preferences Saved', 'Your work preferences were updated successfully.');
+              if (typeof showSectionToast === 'function') {
+                showSectionToast('Work Preferences', 'updated');
+              } else if (typeof showToast === 'function') {
+                showToast('Success', 'Work Preferences updated successfully.', 'success');
+              }
             }
           } else {
             const message = data.message || 'Unable to save work preferences.';
@@ -4442,6 +4876,402 @@ document.addEventListener('DOMContentLoaded', function () {
       // The page will reload and show updated data
     });
   }
+
+  // Robust native handler for Edit License modal (prevents full page refresh)
+  document.addEventListener('submit', function(e) {
+    var formEl = e.target;
+    var inEditLicenseModal = formEl && formEl.closest('#editLicenseModal');
+    if (inEditLicenseModal) {
+      e.preventDefault();
+      if (!formEl.checkValidity()) {
+        formEl.classList.add('was-validated');
+        return false;
+      }
+      var fd = new FormData(formEl);
+      if (e.submitter && e.submitter.name) {
+        fd.append(e.submitter.name, e.submitter.value || '1');
+      }
+      fetch(formEl.action, {
+        method: formEl.method || 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+      }).then(async function(resp) {
+        var ct = resp.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          var json = await resp.json();
+          if (json && json.status === 'success') {
+            // Update card inline for real-time UX
+            if (json.license && json.license.id) {
+              var id = json.license.id;
+              var card = document.querySelector('.ed-card[data-id="' + id + '"]');
+              if (card) {
+                var body = card.querySelector('.card-body');
+                if (body) {
+                  var title = body.querySelector('h5.card-title');
+                  if (title && json.license.name !== undefined) title.textContent = json.license.name || '';
+                  var numberP = Array.from(body.querySelectorAll('p')).find(function(p){ return p.textContent.trim().startsWith('Number:'); });
+                  if (numberP && json.license.number !== undefined) numberP.innerHTML = '<strong>Number:</strong> ' + (json.license.number || '');
+                  var dateStrong = body.querySelectorAll('.d-flex.gap-4 div strong');
+                  if (dateStrong && dateStrong.length >= 1) {
+                    dateStrong[0].textContent = json.license.issueDate || 'N/A';
+                    if (dateStrong.length >= 2) {
+                      dateStrong[1].textContent = json.license.expirationDate || dateStrong[1].textContent;
+                    }
+                  }
+                }
+              }
+            }
+            try { $('#editLicenseModal').modal('hide'); } catch(_) {}
+            try {
+              var modalEl = document.getElementById('editLicenseModal');
+              var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+              if (bm) bm.hide();
+            } catch(_) {}
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('License & Certificate', 'updated');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'License & Certificate updated successfully.', 'success');
+            }
+            return;
+          }
+        }
+        var html = await resp.text();
+        if (html && (html.includes('<form') || html.includes('form'))) {
+          var container = document.getElementById('editLicenseFormContainer');
+          if (container) container.innerHTML = html;
+          setTimeout(function(){
+            if (typeof flatpickr !== 'undefined') {
+              document.querySelectorAll('#editLicenseModal .js-datepicker').forEach(function(input){
+                if (!input._flatpickr) flatpickr(input, { dateFormat: 'Y-m-d' });
+              });
+            }
+          }, 100);
+          return;
+        }
+        // Fallback
+        try { $('#editLicenseModal').modal('hide'); } catch(_) {}
+        try {
+          var modalEl2 = document.getElementById('editLicenseModal');
+          var bm2 = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl2) || new bootstrap.Modal(modalEl2)) : null;
+          if (bm2) bm2.hide();
+        } catch(_) {}
+        if (typeof showSectionToast === 'function') {
+          showSectionToast('License & Certificate', 'updated');
+        } else if (typeof showToast === 'function') {
+          showToast('Success', 'License & Certificate updated successfully.', 'success');
+        }
+      }).catch(function(){
+        showErrorAlert && showErrorAlert('Update Error', 'Error updating license. Please try again.');
+      });
+    }
+  });
+
+  // Robust native handler for Add License modal (prevent redirect and add inline)
+  document.addEventListener('submit', function(e) {
+    var formEl = e.target;
+    var inAddLicenseModal = formEl && formEl.closest('#licenseModal');
+    if (inAddLicenseModal) {
+      e.preventDefault();
+      if (!formEl.checkValidity()) {
+        formEl.classList.add('was-validated');
+        return false;
+      }
+      var fd = new FormData(formEl);
+      if (e.submitter && e.submitter.name) {
+        fd.append(e.submitter.name, e.submitter.value || '1');
+      }
+      fetch(formEl.action, {
+        method: formEl.method || 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+      }).then(async function(resp) {
+        var ct = resp.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          var json = await resp.json();
+          if (json && json.status === 'success') {
+            // Prepend new card
+            if (json.license && document.getElementById('licenseListContainer')) {
+              var l = json.license;
+              var html = '' +
+                '<div class="col-md-6">' +
+                '  <div class="card ed-card" data-id="' + (l.id || '') + '">' +
+                '    <div class="card-body">' +
+                '      <div class="d-flex justify-content-between align-items-start mb-3">' +
+                '        <h5 class="card-title mb-0">' + (l.name || '') + '</h5>' +
+                '        <div class="d-flex gap-2">' +
+                '          <a href="#" class="edit-license" data-id="' + (l.id || '') + '" title="Edit" style="padding: 4px;">' +
+                '            <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                '          </a>' +
+                                          '          <a href="/provider/application/license/' + (l.id || '') + '/delete" class="delete-license" style="padding: 4px;">' +
+                                          '            <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                                          '          </a>' +
+                '        </div>' +
+                '      </div>' +
+                '      <p><strong>Number:</strong> ' + (l.number || '') + '</p>' +
+                '      <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">' +
+                '        <div>' +
+                '          <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Issue Date</p>' +
+                '          <p class="mb-0"><strong>' + (l.issueDate || 'N/A') + '</strong></p>' +
+                '        </div>' +
+                (l.expirationDate ? ('<div><p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p><p class="mb-0"><strong>' + l.expirationDate + '</strong></p></div>') : '') +
+                '      </div>' +
+                '    </div>' +
+                '  </div>' +
+                '</div>';
+              var container = document.getElementById('licenseListContainer');
+              var temp = document.createElement('div');
+              temp.innerHTML = html;
+              container.prepend(temp.firstElementChild);
+            }
+            try { $('#licenseModal').modal('hide'); } catch(_) {}
+            try {
+              var modalEl = document.getElementById('licenseModal');
+              var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+              if (bm) bm.hide();
+            } catch(_) {}
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('License & Certificate', 'added');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'License & Certificate added successfully.', 'success');
+            }
+            return;
+          }
+        }
+        var html = await resp.text();
+        if (html && (html.includes('<form') || html.includes('form'))) {
+          // Replace form with returned HTML containing validation errors
+          var container = document.querySelector('#licenseModal .modal-body');
+          if (container) container.innerHTML = html;
+          setTimeout(function(){
+            if (typeof flatpickr !== 'undefined') {
+              document.querySelectorAll('#licenseModal .js-datepicker').forEach(function(input){
+                if (!input._flatpickr) flatpickr(input, { dateFormat: 'Y-m-d' });
+              });
+            }
+          }, 100);
+          return;
+        }
+        // Fallback: hide modal and show toast
+        try { $('#licenseModal').modal('hide'); } catch(_) {}
+        try {
+          var modalEl2 = document.getElementById('licenseModal');
+          var bm2 = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl2) || new bootstrap.Modal(modalEl2)) : null;
+          if (bm2) bm2.hide();
+        } catch(_) {}
+        if (typeof showSectionToast === 'function') {
+          showSectionToast('License & Certificate', 'added');
+        } else if (typeof showToast === 'function') {
+          showToast('Success', 'License & Certificate added successfully.', 'success');
+        }
+      }).catch(function(){
+        showErrorAlert && showErrorAlert('Add Error', 'Error adding license. Please try again.');
+      });
+    }
+  });
+
+  // Education modal form submit via AJAX
+  const educationModalEl = document.getElementById('educationModal');
+  if (educationModalEl) {
+    educationModalEl.addEventListener('submit', function(e) {
+      const formEl = e.target;
+      if (formEl && formEl.tagName === 'FORM') {
+        e.preventDefault();
+        const startEl = formEl.querySelector('#education_startDate');
+        const endEl = formEl.querySelector('#education_endDate');
+        if (startEl && endEl && startEl.value && endEl.value) {
+          const s = new Date(startEl.value);
+          const ed = new Date(endEl.value);
+          if (ed < s) {
+            formEl.classList.add('was-validated');
+            showErrorAlert && showErrorAlert('Invalid Date', 'End date must be after start date.');
+            return false;
+          }
+        }
+        if (!formEl.checkValidity()) {
+          formEl.classList.add('was-validated');
+          return false;
+        }
+        const formData = new FormData(formEl);
+        if (e.submitter && e.submitter.name) {
+          formData.append(e.submitter.name, e.submitter.value || '1');
+        }
+        fetch(formEl.action, {
+          method: formEl.method || 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          body: formData
+        }).then(async (resp) => {
+          const ct = resp.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const json = await resp.json();
+            if (json.status === 'success') {
+              const modal = bootstrap.Modal.getInstance(educationModalEl) || new bootstrap.Modal(educationModalEl);
+              modal.hide();
+              setTimeout(function(){ loadEducationList(); }, 150);
+              if (typeof showSectionToast === 'function') {
+                showSectionToast('Education & Training', 'added');
+              } else if (typeof showToast === 'function') {
+                showToast('Success', 'Education & Training added successfully.', 'success');
+              }
+              if (json.redirect) {
+                window.location.href = json.redirect;
+              }
+            } else {
+              showErrorAlert && showErrorAlert('Save Error', 'Could not save education.');
+            }
+          } else {
+            const html = await resp.text();
+            if (html && (html.includes('<form') || html.includes('form'))) {
+              document.getElementById('addEducationFormContainer').innerHTML = html;
+              setTimeout(function() {
+                if (typeof flatpickr !== 'undefined') {
+                  document.querySelectorAll('#addEducationFormContainer .js-datepicker').forEach(function(input) {
+                    if (!input._flatpickr) {
+                      flatpickr(input, { dateFormat: 'Y-m-d' });
+                    }
+                  });
+                }
+              }, 100);
+            } else {
+              const modal = bootstrap.Modal.getInstance(educationModalEl) || new bootstrap.Modal(educationModalEl);
+              modal.hide();
+              setTimeout(function(){ loadEducationList(); }, 150);
+              if (typeof showSectionToast === 'function') {
+                showSectionToast('Education & Training', 'added');
+              } else if (typeof showToast === 'function') {
+                showToast('Success', 'Education & Training added successfully.', 'success');
+              }
+            }
+          }
+        }).catch(function() {
+          showErrorAlert && showErrorAlert('Network Error', 'Could not save education.');
+        });
+      }
+    });
+  }
+  });
+</script>
+<script>
+  document.addEventListener('click', function(e) {
+    const delLink = e.target.closest('.delete-license');
+    if (!delLink) return;
+    e.preventDefault();
+    const href = delLink.getAttribute('href');
+    if (!href) return;
+    if (!confirm('Are you sure? Do you want to remove this item?')) return;
+    const colEl = delLink.closest('.col-md-6');
+    fetch(href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .then(resp => resp.json())
+      .then(json => {
+        if (json && json.status === 'success') {
+          if (colEl) colEl.remove();
+          if (typeof showSectionToast === 'function') {
+            showSectionToast('License & Certificate', 'deleted');
+          } else if (typeof showToast === 'function') {
+            showToast('Success', 'License & Certificate deleted successfully.', 'success');
+          }
+        } else {
+          showErrorAlert && showErrorAlert('Delete Error', 'Unable to delete license.');
+        }
+      })
+      .catch(() => {
+        showErrorAlert && showErrorAlert('Network Error', 'Unable to delete license.');
+      });
+  });
+</script>
+<script>
+  document.addEventListener('submit', function(e) {
+    var formEl = e.target;
+    if (formEl && formEl.closest('#insuranceModal')) {
+      e.preventDefault();
+      if (!formEl.checkValidity()) {
+        formEl.classList.add('was-validated');
+        return false;
+      }
+      var fd = new FormData(formEl);
+      if (e.submitter && e.submitter.name) {
+        fd.append(e.submitter.name, e.submitter.value || '1');
+      }
+      fetch(formEl.action, {
+        method: formEl.method || 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+      }).then(async function(resp){
+        var ct = resp.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          var json = await resp.json();
+          if (json && json.status === 'success') {
+            if (json.insurance && document.getElementById('insuranceListContainer')) {
+              var ins = json.insurance;
+              var html = '' +
+                '<div class="col-md-6">' +
+                '  <div class="card ed-card" data-id="' + (ins.id || '') + '">' +
+                '    <div class="card-body">' +
+                '      <div class="d-flex justify-content-between align-items-start mb-3">' +
+                '        <h5 class="card-title mb-0">' + (ins.carrier || '') + '</h5>' +
+                '        <div class="d-flex gap-2">' +
+                '          <a href="#" class="edit-insurance" data-id="' + (ins.id || '') + '" title="Edit" style="padding: 4px;">' +
+                '            <img src="/assets/icons/compose.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                '          </a>' +
+                '          <a href="/provider/application/insurance/' + (ins.id || '') + '/delete" class="delete-insurance" style="padding: 4px;">' +
+                '            <img src="/assets/icons/trash-bin.png" class="icon-image" style="width: 18px; height: 18px;" />' +
+                '          </a>' +
+                '        </div>' +
+                '      </div>' +
+                '      <p><strong>Policy Number:</strong> ' + (ins.policyNumber || '') + '</p>' +
+                (ins.amount ? ('<p><strong>Amount:</strong> ' + ins.amount + '</p>') : '') +
+                ((ins.state || ins.city) ? ('<p><i class="fa fa-map-marker-alt"></i> ' + (ins.state || '') + (ins.city ? (', ' + ins.city) : '') + '</p>') : '') +
+                '      <div class="d-flex gap-4 mt-3 pt-3" style="border-top: 1px solid #e6eef6;">' +
+                '        <div>' +
+                '          <p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Effective Date</p>' +
+                '          <p class="mb-0"><strong>' + (ins.effectiveDate || 'N/A') + '</strong></p>' +
+                '        </div>' +
+                (ins.expirationDate ? ('<div><p class="mb-1" style="font-size: 0.85rem; color: #6B7280;">Expiration Date</p><p class="mb-0"><strong>' + ins.expirationDate + '</strong></p></div>') : '') +
+                '      </div>' +
+                '    </div>' +
+                '  </div>' +
+                '</div>';
+              var container = document.getElementById('insuranceListContainer');
+              var temp = document.createElement('div');
+              temp.innerHTML = html;
+              container.prepend(temp.firstElementChild);
+            }
+            try { $('#insuranceModal').modal('hide'); } catch(_) {}
+            try {
+              var modalEl = document.getElementById('insuranceModal');
+              var bm = (typeof bootstrap !== 'undefined') ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)) : null;
+              if (bm) bm.hide();
+            } catch(_) {}
+            if (typeof showSectionToast === 'function') {
+              showSectionToast('Insurance', 'added');
+            } else if (typeof showToast === 'function') {
+              showToast('Success', 'Insurance added successfully.', 'success');
+            }
+            return;
+          }
+        }
+        var html = await resp.text();
+        if (html && (html.includes('<form') || html.includes('form'))) {
+          var container = document.querySelector('#insuranceModal .modal-body');
+          if (container) container.innerHTML = html;
+          setTimeout(function(){
+            if (typeof flatpickr !== 'undefined') {
+              document.querySelectorAll('#insuranceModal .js-datepicker').forEach(function(input){
+                if (!input._flatpickr) flatpickr(input, { dateFormat: 'Y-m-d' });
+              });
+            }
+          }, 100);
+          return;
+        }
+        try { $('#insuranceModal').modal('hide'); } catch(_) {}
+        if (typeof showSectionToast === 'function') {
+          showSectionToast('Insurance', 'added');
+        } else if (typeof showToast === 'function') {
+          showToast('Success', 'Insurance added successfully.', 'success');
+        }
+      }).catch(function(){
+        showErrorAlert && showErrorAlert('Add Error', 'Error adding insurance. Please try again.');
+      });
+    }
   });
 </script>
 <script>
@@ -4450,7 +5280,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('educationListContainer');
     if (!container) return;
     
-    fetch('{{ path('app_provider_education_list') }}', {
+    fetch('{{ path('app_provider_education_list') }}?t=' + Date.now(), {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
     .then(response => response.text())
@@ -4620,6 +5450,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Load content when specific popups open
         if (popupId === 'education') {
           loadEducationList();
+        } else if (popupId === 'health') {
+          setTimeout(syncHealthTextareaDisplay, 0);
         } else if (popupId === 'application-certification') {
           loadApplicationCertificationForm();
         } else if (popupId === 'release-authorization') {
@@ -4645,6 +5477,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // Load content when specific popups open
         if (popupId === 'education') {
           loadEducationList();
+        } else if (popupId === 'health') {
+          setTimeout(syncHealthTextareaDisplay, 0);
         } else if (popupId === 'application-certification') {
           loadApplicationCertificationForm();
         } else if (popupId === 'release-authorization') {
@@ -4659,17 +5493,22 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      const popup = document.getElementById('popup-work-preferences');
-      if (popup) {
-        popup.classList.remove('d-none');
-        // Reset to summary view when popup opens
-        const summaryView = document.getElementById('work-preferences-summary-view');
-        const formView = document.getElementById('work-preferences-form-view');
-        if (summaryView) summaryView.style.display = 'block';
-        if (formView) formView.style.display = 'none';
-      }
+      const modalElement = document.getElementById('workPreferencesModal');
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
     });
   });
+
+  // Reset work preferences modal to summary view when shown
+  const workPreferencesModal = document.getElementById('workPreferencesModal');
+  if (workPreferencesModal) {
+    workPreferencesModal.addEventListener('show.bs.modal', function() {
+      const summaryView = document.getElementById('work-preferences-summary-view');
+      const formView = document.getElementById('work-preferences-form-view');
+      if (summaryView) summaryView.style.display = 'block';
+      if (formView) formView.style.display = 'none';
+    });
+  }
 
   // Handle Work Preferences "Add New" / "Edit" button - Use event delegation
   document.addEventListener('click', function(e) {
@@ -4695,7 +5534,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#work-preferences-form-view .select2').each(function() {
               if (!$(this).hasClass('select2-hidden-accessible')) {
                 $(this).select2({
-                  dropdownParent: $('#popup-work-preferences')
+                  dropdownParent: $('#workPreferencesModal')
                 });
               }
             });
@@ -5155,12 +5994,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Initialize all explanation fields as hidden if "No" is selected
+  function syncHealthTextareaDisplay() {
+    const substanceVal = (document.querySelector('input[name="substance_abuse"]:checked') || {}).value || 'no';
+    toggleTextarea('substance-abuse-explanation', substanceVal);
+    const jobVal = (document.querySelector('input[name="job_related"]:checked') || {}).value || 'no';
+    toggleTextarea('job-related-explanation', jobVal);
+    const travelVal = (document.querySelector('input[name="travel"]:checked') || {}).value || 'no';
+    toggleTextarea('travel-explanation', travelVal);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
-    ['substance-abuse-explanation', 'job-related-explanation', 'travel-explanation'].forEach(id => {
-      const textarea = document.getElementById(id);
-      if (textarea) textarea.style.display = 'none';
-    });
+    syncHealthTextareaDisplay();
   });
 </script>
 

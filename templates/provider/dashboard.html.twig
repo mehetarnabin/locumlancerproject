@@ -29,11 +29,12 @@ body.app .app-wrapper,
 }
 
 /* Reset app-content - remove all custom.css overrides */
+/* Keep consistent left/right padding from base template */
 body.app .app-wrapper .app-content,
 .app-wrapper .app-content,
 .app-content {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: 2rem !important; /* Match base template spacing */
+    padding-right: 2rem !important; /* Match base template spacing */
     padding-top: 20px !important;
     padding-bottom: 0 !important;
     max-width: 100% !important;
@@ -553,13 +554,14 @@ div.container-xl,
                 <!-- Chart Container -->
                 <div class="analytics-chart flex-grow-1 d-flex justify-content-center align-items-center">
                     <!-- Application to Interview Ratio Chart -->
-                    <div class="chart-content" id="chart-ratio">
-                        {% if appliedCount > 0 %}
-                            {% set interviewPercentage = (interviewCount / appliedCount) * 100 %}
-                            {% set appliedPercentage = 100 - interviewPercentage %}
+                    <div class="chart-content d-none" id="chart-ratio">
+                        {% set totalCount = appliedCount + interviewCount %}
+                        {% if totalCount > 0 %}
+                            {% set interviewPercentage = (interviewCount / totalCount) * 100 %}
+                            {% set appliedPercentage = (appliedCount / totalCount) * 100 %}
                         {% else %}
                             {% set interviewPercentage = 0 %}
-                            {% set appliedPercentage = 100 %}
+                            {% set appliedPercentage = 0 %}
                         {% endif %}
                         {% set totalAppliedInterview = appliedCount + interviewCount %}
                         {% if totalAppliedInterview > 0 %}
@@ -572,39 +574,49 @@ div.container-xl,
                         {% set interviewToApplicationRatioValue = interviewCount > 0 ? (appliedCount / interviewCount) : 0 %}
                         {% set interviewToApplicationDisplay = interviewCount > 0 ? (appliedCount / interviewCount)|number_format(1, '.', ',') : '0.0' %}
                         
-                        <svg viewBox="0 0 160 160" width="150" height="150">
-                            <g transform="rotate(-90 80 80)">
-                                <!-- Applied portion -->
-                                <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
-                                        stroke-dasharray="{{ appliedPercentage * 3.51 }}, 351"
-                                        stroke-dashoffset="0"/>
-                                <!-- Interview portion -->
-                                <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
-                                        stroke-dasharray="{{ interviewPercentage * 3.51 }}, 351"
-                                        stroke-dashoffset="{{ -appliedPercentage * 3.51 }}"/>
-                            </g>
-                        </svg>
-                        <div class="donut-center">
-                            <div class="donut-number">{{ ratio }}%</div>
-                            <div class="donut-sub">Interview Rate</div>
+                        {% if totalCount > 0 %}
+                            {% set calculatedRatio = (interviewCount / totalCount) * 100 %}
+                        {% else %}
+                            {% set calculatedRatio = 0 %}
+                        {% endif %}
+                        
+                        <div style="position: relative; display: inline-block; width: 150px; height: 150px; margin: 0 auto;">
+                            <svg viewBox="0 0 160 160" width="150" height="150" style="display: block; margin: 0 auto;">
+                                <g transform="rotate(-90 80 80)">
+                                    <!-- Applied portion -->
+                                    <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
+                                            stroke-dasharray="{{ appliedPercentage * 3.51 }}, 351"
+                                            stroke-dashoffset="0"/>
+                                    <!-- Interview portion -->
+                                    <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
+                                            stroke-dasharray="{{ interviewPercentage * 3.51 }}, 351"
+                                            stroke-dashoffset="{{ -appliedPercentage * 3.51 }}"/>
+                                </g>
+                            </svg>
+                            <div class="donut-center" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; text-align: center !important; pointer-events: none !important; width: auto !important; max-width: 120px !important; min-width: 80px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important; z-index: 10 !important;">
+                                <div class="donut-number" style="font-weight: 800 !important; font-size: 18px !important; line-height: 1 !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; text-align: center !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; white-space: nowrap !important;">{{ calculatedRatio|number_format(1) }}%</div>
+                                <div class="donut-sub" style="font-size: 10px !important; color: #6b7280 !important; margin-top: 2px !important; line-height: 1.2 !important; text-align: center !important; width: 100% !important;">Interview Rate</div>
+                            </div>
                         </div>
                     </div>
                     <div class="chart-content d-none" id="chart-interview-ratio">
-                        <svg viewBox="0 0 160 160" width="150" height="150">
-                            <g transform="rotate(-90 80 80)">
-                                <!-- Applications portion -->
-                                <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
-                                        stroke-dasharray="{{ applicationShareTotal * 3.51 }}, 351"
-                                        stroke-dashoffset="0"/>
-                                <!-- Interviews portion -->
-                                <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
-                                        stroke-dasharray="{{ interviewShareTotal * 3.51 }}, 351"
-                                        stroke-dashoffset="{{ -applicationShareTotal * 3.51 }}"/>
-                            </g>
-                        </svg>
-                        <div class="donut-center">
-                            <div class="donut-number">{{ interviewToApplicationDisplay }}x</div>
-                            <div class="donut-sub">Apps / Interview</div>
+                        <div style="position: relative; display: inline-block; width: 150px; height: 150px; margin: 0 auto;">
+                            <svg viewBox="0 0 160 160" width="150" height="150" style="display: block;">
+                                <g transform="rotate(-90 80 80)">
+                                    <!-- Applications portion -->
+                                    <circle cx="80" cy="80" r="56" stroke="#06b6d4" stroke-width="14" fill="none"
+                                            stroke-dasharray="{{ applicationShareTotal * 3.51 }}, 351"
+                                            stroke-dashoffset="0"/>
+                                    <!-- Interviews portion -->
+                                    <circle cx="80" cy="80" r="56" stroke="#85BB65" stroke-width="14" fill="none"
+                                            stroke-dasharray="{{ interviewShareTotal * 3.51 }}, 351"
+                                            stroke-dashoffset="{{ -applicationShareTotal * 3.51 }}"/>
+                                </g>
+                            </svg>
+                            <div class="donut-center" style="position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; text-align: center !important; pointer-events: none !important; width: auto !important; max-width: 120px !important; min-width: 80px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; margin: 0 !important; padding: 0 !important; z-index: 10 !important;">
+                                <div class="donut-number" style="font-weight: 800 !important; font-size: 18px !important; line-height: 1 !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; text-align: center !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 100% !important; white-space: nowrap !important;">{{ interviewToApplicationDisplay }}x</div>
+                                <div class="donut-sub" style="font-size: 10px !important; color: #6b7280 !important; margin-top: 2px !important; line-height: 1.2 !important; text-align: center !important; width: 100% !important;">Apps / Interview</div>
+                            </div>
                         </div>
                     </div>
 
@@ -674,7 +686,7 @@ div.container-xl,
         </div>
 
         <!-- Interview Schedule -->
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 interview-schedule-column">
             <div class="interview-card shadow-lg rounded-3 p-3 h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="mb-0">Interview Schedule</h6>
@@ -794,22 +806,48 @@ div.container-xl,
 .donut { position: relative; width: 170px; height: 170px; }
 .donut svg { display: block; }
 .donut-center {
-  position: absolute;
-    align-items: center;
-  text-align: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 60px;
-  width: 60px;
-  pointer-events: none;
+  position: absolute !important;
+  text-align: center !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 60px !important;
+  width: 60px !important;
+  pointer-events: none !important;
 }
-.donut-number { font-weight: 800; font-size: 14px; line-height: 1; color: #111827; white-space: nowrap; }
-.donut-sub { font-size: 8px; color: rgb(37, 41, 48); margin-top: 1px; line-height: 1.1; max-width: 55px; word-wrap: break-word; text-align: center; }
+.donut-number {
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.donut-sub { 
+  font-size: 8px !important; 
+  color: rgb(37, 41, 48) !important; 
+  margin-top: 1px !important; 
+  line-height: 1.1 !important; 
+  max-width: 55px !important; 
+  word-wrap: break-word !important; 
+  text-align: center !important; 
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
 
 /* Dropdown Lite */
 .dropdown-lite {
@@ -866,16 +904,37 @@ div.container-xl,
 
 /* Resume Insight Circle */
 .resume-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 8px solid #10b981;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin: 0 auto;
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    border: 8px solid #10b981 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    position: relative !important;
+}
+
+.resume-circle span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
 }
 
 /* Interview list */
@@ -995,8 +1054,11 @@ div.container-xl,
   max-width: calc(100% - 4px) !important;
   max-height: calc(100% - 4px) !important;
   object-fit: contain;
+  object-position: center;
   border-radius: 4px !important;
   background: transparent;
+  margin: auto;
+  display: block;
 }
 .job-title {
     color:#121C0C;
@@ -1142,10 +1204,59 @@ div.container-xl,
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    /* Make card containers static - NO animations */
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Ensure card containers don't animate on hover */
+.todo-card:hover,
+.analytics-card:hover,
+.interview-card:hover {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
 .dashboard-three-cards-wrapper {
     position: relative;
     z-index: 10;
+    /* Make wrapper completely static - NO animations */
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+}
+
+/* Make the row inside the wrapper static */
+.dashboard-three-cards-wrapper .row,
+.dashboard-three-cards-wrapper .row.g-3,
+.dashboard-three-cards-wrapper .row.mt-4,
+.dashboard-three-cards-wrapper .row.g-3.mt-4 {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+}
+
+/* Make all column containers static */
+.dashboard-three-cards-wrapper .row .col-12,
+.dashboard-three-cards-wrapper .row .col-lg-4,
+.dashboard-three-cards-wrapper .row .col-12.col-lg-4 {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+}
+
+/* Override any global tab-content or tab-pane animations */
+.dashboard-three-cards-wrapper .tab-content,
+.dashboard-three-cards-wrapper .tab-pane {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    opacity: 1 !important;
 }
 
 /* --- To Do List --- */
@@ -1162,15 +1273,54 @@ div.container-xl,
     padding: 2px 14px;
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+}
+
+.todo-item:hover {
+    background: #F4F9F1 !important;
+    box-shadow: none !important;
+    transform: translateY(-2px) !important;
+    border-color: #85BB65 !important;
 }
 
 /* --- Interview Schedule --- */
+/* COMPLETE ISOLATION: Make ALL containers static - NO animations */
+.interview-schedule-column,
+.interview-schedule-column > div,
+.interview-card,
+.interview-card > div,
+.interview-card > div > div,
+.interview-card h6,
+.interview-card a,
+.interview-list,
+.interview-list ul,
+.interview-list ul li:not(.interview-item) {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+
+/* Override ALL global card hover effects for interview-card */
+.interview-card:hover,
+.interview-card:focus,
+.interview-card:active {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
 .interview-list {
     overflow-y: auto;
     max-height: calc(4 * 70px + 3 * 8px);
     padding-right: 6px;
 }
+
+/* ONLY interview-item tiles animate - everything else is static */
 .interview-item {
     border-radius: 10px;
     background: #F4F9F1;
@@ -1180,6 +1330,86 @@ div.container-xl,
     margin-bottom: 8px;
     display: flex;
     flex-direction: column;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: interviewItemFadeIn 0.4s ease-out forwards;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Child elements inside interview-item are static */
+.interview-item > *,
+.interview-item > div,
+.interview-item .d-flex,
+.interview-item .schedule-left,
+.interview-item .schedule-right,
+.interview-item .fw-semibold,
+.interview-item .small {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    position: relative;
+}
+
+.interview-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.interview-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.interview-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.interview-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.interview-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.interview-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.interview-item:hover {
+    background: #F4F9F1 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
+    transform: translateY(-2px) !important;
+    border-color: #85BB65 !important;
+}
+
+@keyframes interviewItemFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* FINAL OVERRIDE - Maximum specificity to prevent wrapper animation */
+body .dashboard-three-cards-wrapper,
+body .dashboard-three-cards-wrapper *:not(.interview-item),
+body .dashboard-three-cards-wrapper .row,
+body .dashboard-three-cards-wrapper .row *:not(.interview-item),
+body .dashboard-three-cards-wrapper .col-12,
+body .dashboard-three-cards-wrapper .col-lg-4,
+body .dashboard-three-cards-wrapper .todo-card,
+body .dashboard-three-cards-wrapper .analytics-card,
+body .dashboard-three-cards-wrapper .interview-card,
+body .dashboard-three-cards-wrapper .interview-card *:not(.interview-item) {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    will-change: auto !important;
 }
 .analytics-chart {
     border-radius: 10px;
@@ -1218,17 +1448,38 @@ div.container-xl,
 }
 
 .resume-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 8px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-    margin: 0 auto;
-    transition: border-color 0.3s ease;
+    width: 120px !important;
+    height: 120px !important;
+    border-radius: 50% !important;
+    border: 8px solid !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    margin: 0 auto !important;
+    transition: border-color 0.3s ease !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    position: relative !important;
+}
+
+.resume-circle span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
 }
 
 /* Badge styling for missing fields */
@@ -1238,42 +1489,62 @@ div.container-xl,
 }
 
 /* Donut chart improvements */
-.chart-content {
+.chart-content:not(.d-none) {
     position: relative;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
 }
 
 .donut-center {
-    position: absolute;
-    text-align: center;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 60px;
-    width: 60px;
-    pointer-events: none;
+    position: absolute !important;
+    text-align: center !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 10 !important;
+    width: auto !important;
+    max-width: 120px !important;
+    min-width: 80px !important;
 }
 
 .donut-number {
-    font-weight: 800;
-    font-size: 14px;
-    line-height: 1;
-    color: #111827;
-    white-space: nowrap;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .donut-sub {
-    font-size: 8px;
-    color: #6b7280;
-    margin-top: 1px;
-    line-height: 1.1;
-    max-width: 55px;
-    word-wrap: break-word;
-    text-align: center;
+    font-size: 8px !important;
+    color: #6b7280 !important;
+    margin-top: 1px !important;
+    line-height: 1.1 !important;
+    max-width: 55px !important;
+    word-wrap: break-word !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding: 0 !important;
+    width: 100% !important;
 }
 
 /* --- Profile Analytics --- */
@@ -1283,17 +1554,109 @@ div.container-xl,
     justify-content: center;
     align-items: center;
 }
-.analytics-card .donut-center {
-    position: absolute;
-    text-align: center;
+/* Enhanced centering for Application to Interview Ratio chart (#chart-ratio) and Apps/Interview chart (#chart-interview-ratio) */
+.analytics-card #chart-ratio .donut-center,
+.analytics-card #chart-interview-ratio .donut-center {
+    position: absolute !important;
+    text-align: center !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    max-width: 120px !important;
+    min-width: 80px !important;
+    z-index: 10 !important;
 }
-.analytics-card .donut-number {
-    font-size: 1.5rem;
-    font-weight: 700;
+/* Enhanced centering for Application to Interview Ratio chart (#chart-ratio) and Apps/Interview chart (#chart-interview-ratio) */
+.analytics-card #chart-ratio .donut-number,
+.analytics-card #chart-interview-ratio .donut-number {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    color: #000000 !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
 }
-#chart-ratio {
-    position: relative;
+#chart-ratio:not(.d-none),
+#chart-interview-ratio:not(.d-none) {
+    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
 }
+
+/* Additional enforcement for Profile Analytics donut number centering - for both charts */
+.analytics-card #chart-ratio .donut-center .donut-number,
+#chart-ratio .donut-center .donut-number,
+.analytics-card #chart-interview-ratio .donut-center .donut-number,
+#chart-interview-ratio .donut-center .donut-number {
+    position: relative !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+}
+
+.analytics-card #chart-ratio .donut-center,
+#chart-ratio .donut-center,
+.analytics-card #chart-interview-ratio .donut-center,
+#chart-interview-ratio .donut-center {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    max-width: 120px !important;
+    min-width: 80px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Maximum specificity for Profile Analytics donut number centering - ONLY for Application to Interview Ratio */
+.analytics-card .analytics-chart #chart-ratio .donut-center .donut-number,
+.analytics-card #chart-ratio .donut-center .donut-number,
+#chart-ratio .donut-center .donut-number {
+    position: relative !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    color: #000000 !important;
+    white-space: nowrap !important;
+}
+
 .application {
     margin-top: 12px;
     padding-left: 0 !important;
@@ -1368,7 +1731,6 @@ div.container-xl,
   flex: 1 0 auto;
   margin-left: -15px;
   cursor: pointer;
-  min-height: 80px;
   height: 100%;
 }
 
@@ -1376,7 +1738,6 @@ div.container-xl,
 .application .col:first-child .card {
     clip-path:none;
     margin-left: -4px;
-    min-height: 80px;
     height: 100%;
     align-items: center;
     justify-content: center;
@@ -1392,10 +1753,14 @@ div.container-xl,
     align-items: center;
     width: 100%;
     height: 100%;
-    padding: 0.75rem 1rem;
+    min-height: 100%;
+    padding: 0.5rem 1rem;
     margin: 0;
 }
 .application .col .card-body .card-title {
+    color: #000000;
+    opacity: 1 !important;
+    visibility: visible !important;
     font-size: 16px;
     text-align: center;
     width: 100%;
@@ -1406,11 +1771,13 @@ div.container-xl,
     justify-content: center;
 }
 .is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-rejected:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-rejected.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
-    color: rgb(33, 37, 41);
+    color: #000000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 .application .col .card-body p {
-    font-size: 18px;
-    color: #121C0C;
+    font-size: 16px;
+    color: #000000;
     text-align: center;
     width: 100%;
     margin: 0;
@@ -1418,6 +1785,8 @@ div.container-xl,
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 .application .col:first-child .card .card-body {
     display: flex;
@@ -1426,7 +1795,8 @@ div.container-xl,
     text-align: center;
     width: 100%;
     height: 100%;
-    padding: 0.75rem 1rem;
+    min-height: 100%;
+    padding: 0.5rem 1rem;
     margin: 0;
     flex-direction: column;
 }
@@ -1445,52 +1815,132 @@ div.container-xl,
 }
 .col:nth-child(1) .is-card {
   background-color: #D2E6C6;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(1) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(2) .is-card {
   background-color: #C7E0B8;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(2) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(3) .is-card {
   background-color: #BBDAAA;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(3) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(4) .is-card {
   background-color: #AFD39C;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(4) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(5) .is-card {
   background-color: #A4CC8E;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(5) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(6) .is-card {
   background-color: #99C680;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(6) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(7) .is-card {
   background-color: #8DC072;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(7) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(8) .is-card {
   background-color: #82B964;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(8) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .col:nth-child(1) .is-card:hover {
   background-color: #B9F2FF;
 }
+.col:nth-child(1) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(2) .is-card:hover {
   background-color: #ADF0FF;
+}
+.col:nth-child(2) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(3) .is-card:hover {
   background-color: #99ECFF;
 }
+.col:nth-child(3) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(4) .is-card:hover {
   background-color: #85E9FF;
+}
+.col:nth-child(4) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(5) .is-card:hover {
   background-color: #70E5FF;
 }
+.col:nth-child(5) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(6) .is-card:hover {
   background-color: #5CE1FF;
+}
+.col:nth-child(6) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(7) .is-card:hover {
   background-color: #47DDFF;
 }
+.col:nth-child(7) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(8) .is-card:hover {
   background-color: #33DAFF;
+}
+.col:nth-child(8) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .job-meta {
     color: #121C0C;
@@ -1534,7 +1984,7 @@ div.container-xl,
 }
 
 .btn-new-message {
-    background-color: #00FFFF;
+    background-color: #85BB65;
     color: #FFFFFF;
     border: none;
     border-radius: 4px;
@@ -1562,23 +2012,7 @@ div.container-xl,
     font-size: 14px;
     text-align: right;
     color: #000000 !important;
-    animation: blinkText 1s infinite;
-}
-@keyframes blinkText {
-    0%, 50% {
-        color: #000000;
-    }
-    51%, 100% {
-        color: transparent;
-    }
-}
-@keyframes colorChange {
-    0% {
-        color: #0096B8;
-    }
-    100% {
-        color: #33DAFF;
-    }
+    animation: none !important;
 }
 .mb-10-px {
     margin-bottom: 10px;
@@ -1611,13 +2045,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (savedTab) savedTab.classList.remove('active');
             if (matchedPane) matchedPane.classList.add('show', 'active');
             if (savedPane) savedPane.classList.remove('show', 'active');
-            if (viewAllLink) viewAllLink.href = "{{ path('app_provider_jobs_matching') }}";
+            if (viewAllLink) viewAllLink.href = "{{ path('app_provider_jobs_matching')|e('js') }}";
         } else {
             if (savedTab) savedTab.classList.add('active');
             if (matchedTab) matchedTab.classList.remove('active');
             if (savedPane) savedPane.classList.add('show', 'active');
             if (matchedPane) matchedPane.classList.remove('show', 'active');
-            if (viewAllLink) viewAllLink.href = "{{ path('app_provider_jobs_saved') }}";
+            if (viewAllLink) viewAllLink.href = "{{ path('app_provider_jobs_saved')|e('js') }}";
         }
     }
 
@@ -1630,25 +2064,55 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('profileAnalyticsSelect');
-    const charts = document.querySelectorAll('.chart-content');
-
-    function showChart(chartType) {
-        charts.forEach(chart => chart.classList.add('d-none'));
-        const active = document.getElementById(`chart-${chartType}`);
-        if (active) {
-            active.classList.remove('d-none');
+(function() {
+    function initProfileAnalytics() {
+        const select = document.getElementById('profileAnalyticsSelect');
+        
+        if (!select) {
+            return;
         }
-    }
 
-    if (select) {
-        select.addEventListener('change', (event) => {
+        function showChart(chartType) {
+            if (!chartType) {
+                return;
+            }
+            
+            // Get all charts dynamically each time to ensure we have the latest
+            const charts = document.querySelectorAll('.analytics-chart .chart-content');
+            
+            // Hide all charts first - use both class and inline style to ensure it works
+            charts.forEach(function(chart) {
+                chart.classList.add('d-none');
+                chart.style.display = 'none';
+            });
+            
+            // Show the selected chart
+            const chartId = 'chart-' + chartType;
+            const activeChart = document.getElementById(chartId);
+            if (activeChart) {
+                activeChart.classList.remove('d-none');
+                activeChart.style.display = '';
+            }
+        }
+
+        // Set up change event listener
+        select.addEventListener('change', function(event) {
             showChart(event.target.value);
         });
-        showChart(select.value);
+
+        // Initialize with the selected value
+        const initialValue = select.value || 'ratio';
+        showChart(initialValue);
     }
-});
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initProfileAnalytics);
+    } else {
+        // DOM is already ready
+        initProfileAnalytics();
+    }
+})();
 </script>
 
 {# Intro.js CSS & JS for Quick Tour #}
@@ -1841,16 +2305,21 @@ document.addEventListener('DOMContentLoaded', () => {
     transition: opacity 0.3s ease !important;
 }
 
-/* Helper layer (highlight) */
+/* Helper layer (highlight) - remove animations */
 .introjs-helperLayer {
     box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2), 0 0 0 8px rgba(133, 187, 101, 0.1) !important;
     border-radius: 12px !important;
-    transition: all 0.3s ease !important;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
-/* Arrow */
+/* Arrow - remove all animations */
 .introjs-arrow {
     border: 8px solid transparent !important;
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
 }
 
 .introjs-arrow.top {
@@ -2093,6 +2562,37 @@ div.container-xl,
 <script>
 // Force apply styles via JavaScript - COMPLETE OVERRIDE - Run multiple times to ensure it sticks
 function applySpacingStyles() {
+    // Force wrapper and containers to be static
+    const wrapper = document.querySelector('.dashboard-three-cards-wrapper');
+    if (wrapper) {
+        wrapper.style.setProperty('animation', 'none', 'important');
+        wrapper.style.setProperty('transform', 'none', 'important');
+        wrapper.style.setProperty('transition', 'none', 'important');
+        wrapper.style.setProperty('opacity', '1', 'important');
+    }
+    
+    const rows = document.querySelectorAll('.dashboard-three-cards-wrapper .row');
+    rows.forEach(row => {
+        row.style.setProperty('animation', 'none', 'important');
+        row.style.setProperty('transform', 'none', 'important');
+        row.style.setProperty('transition', 'none', 'important');
+        row.style.setProperty('opacity', '1', 'important');
+    });
+    
+    const cols = document.querySelectorAll('.dashboard-three-cards-wrapper .col-12, .dashboard-three-cards-wrapper .col-lg-4');
+    cols.forEach(col => {
+        col.style.setProperty('animation', 'none', 'important');
+        col.style.setProperty('transform', 'none', 'important');
+        col.style.setProperty('transition', 'none', 'important');
+        col.style.setProperty('opacity', '1', 'important');
+    });
+    
+    const cards = document.querySelectorAll('.todo-card, .analytics-card, .interview-card');
+    cards.forEach(card => {
+        card.style.setProperty('animation', 'none', 'important');
+        card.style.setProperty('transform', 'none', 'important');
+        card.style.setProperty('transition', 'none', 'important');
+    });
     // Reset and apply container-xl styles
     const container = document.querySelector('.container-xl');
     if (container) {
@@ -2144,8 +2644,8 @@ function applySpacingStyles() {
     }
     
     // Remove padding from all rows and first columns
-    const rows = document.querySelectorAll('.container-xl .row');
-    rows.forEach(row => {
+    const containerRows = document.querySelectorAll('.container-xl .row');
+    containerRows.forEach(row => {
         row.style.setProperty('margin-left', '0', 'important');
         row.style.setProperty('padding-left', '0', 'important');
     });

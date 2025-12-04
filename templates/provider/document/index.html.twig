@@ -4,6 +4,52 @@
 
 {% block provider_body %}
 <style>
+/* Override base template animations for document section parent card containers with titles */
+/* Target parent containers only, not embedded divs - must be more specific than base template */
+#requests-grid-view-container .request-card,
+#requests-grid-view-container .grid-document-card,
+#requests-grid-view-container .company-group-header,
+#requests-grid-view-container .grid-view-header,
+#requests-grid-view-container .request-card-header,
+#requests-grid-view-container .grid-document-title-wrapper,
+#requests-grid-view-container .company-name-wrapper {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+}
+
+#requests-grid-view-container .request-card:hover,
+#requests-grid-view-container .grid-document-card:hover,
+#requests-grid-view-container .company-group-header:hover,
+#requests-grid-view-container .grid-view-header:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Override base template card animations specifically for document section parent cards */
+/* More specific selector to override base template's [class*="card"] selector */
+#requests-grid-view-container [class*="card"]:not([class*="checkbox"]):not([class*="accordion"]):not(.is-card):not(.application [class*="card"]) {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+}
+
+#requests-grid-view-container [class*="card"]:not([class*="checkbox"]):not([class*="accordion"]):not(.is-card):not(.application [class*="card"]):hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Override any flexbox animations from base template for title flexboxes */
+#requests-grid-view-container [class*="header"],
+#requests-grid-view-container [class*="wrapper"] {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+}
+
 /* Layout reset to match dashboard spacing */
 body.app .app-wrapper,
 .app-wrapper {
@@ -110,11 +156,11 @@ div.container-xl,
     font-size: 1.2rem;
     font-weight: 600;
     margin: 0;
-    color: #0f172a;
+    color: #000000;
 }
 
 .app-page-title {
-    color: #0f172a;
+    color: #000000;
     font-size: 2rem;
     font-weight: 600;
     margin: 0 0 32px 4px;
@@ -128,7 +174,7 @@ div.container-xl,
 
 .form-label {
     font-weight: 500;
-    color: #0f172a;
+    color: #000000;
     margin-bottom: 0;
     font-size: 0.9rem;
     display: block;
@@ -191,7 +237,7 @@ div.container-xl,
     font-size: 1rem;
     font-weight: 500;
     margin-top: 12px;
-    color: #374151;
+    color: #000000;
 }
 
 .upload-subtext {
@@ -250,7 +296,7 @@ div.container-xl,
     border-radius: 8px;
     padding: 10px 20px;
     font-weight: 500;
-    color: #374151;
+    color: #000000;
     transition: all 0.2s ease;
 }
 
@@ -269,7 +315,7 @@ div.container-xl,
     border-bottom: 1px solid #e2e8f0;
     font-weight: 600;
     font-size: 0.92rem;
-    color: #0f172a;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 14px 16px;
@@ -284,23 +330,32 @@ div.container-xl,
 
 .document-table tbody tr {
     background: #fff;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.document-table tbody tr + tr td {
-    border-top: 1px solid #f1f5f9;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .document-table tbody tr:hover {
-    background: #f9fcff;
-    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+    background: #F8FAF9;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .document-table td {
-    padding: 16px;
-    font-size: 0.95rem;
-    color: #111827;
+    padding: 12px 8px;
+    font-size: 12px;
+    color: #000000;
     vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.document-table th {
+    padding: 12px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000;
+    background: #F8FAF9;
+    border-bottom: 2px solid #e6eef6;
     text-align: center;
 }
 
@@ -328,19 +383,119 @@ div.container-xl,
 
 /* Ensure all strong tags in tables have consistent styling */
 .document-table td strong {
-    font-weight: 600;
-    color: #0f172a;
-    display: inline-block;
-    font-size: 0.95rem;
+    font-weight: 500;
+    color: #000000;
+    font-size: 12px;
 }
 
-.table tbody td {
-    padding: 16px;
-    vertical-align: middle;
-    border-bottom: 1px solid #f3f4f6;
-    color: #111827;
-    font-size: 0.95rem;
+.document-table .text-muted {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Document table styling matching saved.html */
+.document-table-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+.document-table-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.document-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.document-table-wrapper::-webkit-scrollbar-thumb {
+    background: #85BB65;
+    border-radius: 10px;
+}
+
+.document-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #6fa852;
+}
+
+.document-header,
+.document-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 8px;
+}
+
+.col-uploaded-at,
+.col-doc-name,
+.col-issue-date,
+.col-expiry-date,
+.col-actions {
+    flex: 1;
+    min-width: 120px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.col-doc-name {
+    flex: 2;
+    justify-content: flex-start;
+}
+
+.col-uploaded-at,
+.col-issue-date,
+.col-expiry-date {
+    justify-content: center;
     text-align: center;
+}
+
+.col-actions {
+    justify-content: center;
+    min-width: 120px;
+    max-width: 120px;
+    flex-shrink: 0;
+}
+
+.document-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    background: #F8FAF9;
+    border-bottom: 2px solid #e6eef6;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #e6eef6;
+    border-bottom: 2px solid #e6eef6;
+    height: 40px;
+    margin-bottom: 2px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+
+.document-row {
+    font-size: 12px;
+    font-weight: 400;
+    color: #000000;
+    line-height: 1.5;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    min-height: 48px;
+    height: 48px;
+}
+
+.document-header > div,
+.document-row > div {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    height: 48px;
 }
 
 .table tbody tr:hover {
@@ -354,33 +509,37 @@ div.container-xl,
 /* Action buttons */
 .action-buttons {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     align-items: center;
+    flex-wrap: nowrap;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .action-btn {
-    min-width: 32px;
-    min-height: 32px;
+    min-width: 24px;
+    min-height: 24px;
     width: auto;
     height: auto;
-    padding: 6px 12px;
+    padding: 3px 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    border-radius: 6px;
+    gap: 3px;
+    border-radius: 4px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     transition: all 0.2s ease;
     text-decoration: none;
-    font-size: 13px;
-    color: #374151;
+    font-size: 10px;
+    color: #000000;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .action-btn:has(img) {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     padding: 0;
 }
 
@@ -406,12 +565,67 @@ div.container-xl,
 }
 
 .action-btn img {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
+    transition: filter 0.2s ease;
+    object-fit: contain;
 }
 
 .action-btn:hover img {
-    filter: brightness(0) invert(1);
+    filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+}
+
+/* DEA Multiple Upload Styles */
+.dea-form-section {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.dea-form-section:not(:first-child) {
+    margin-top: 12px;
+}
+
+.dea-form-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.dea-form-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.dea-form-section-remove {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.dea-form-section-remove:hover {
+    background: #fecaca;
+}
+
+.stored-dea-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    color: #6b7280;
 }
 
 /* Split View Styles */
@@ -422,7 +636,7 @@ div.container-xl,
     margin-top: 20px;
     height: 70vh;
     position: relative;
-    transition: grid-template-columns 0.3s ease, gap 0.3s ease;
+    transition: none !important;
 }
 
 .split-view-container.list-collapsed {
@@ -454,7 +668,6 @@ div.container-xl,
 .split-view-container .split-document-list {
     width: 100%;
     opacity: 1;
-    transition: all 0.3s ease;
     position: relative;
     display: block;
 }
@@ -517,13 +730,16 @@ div.container-xl,
     padding: 12px;
     margin-bottom: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .split-document-card:hover {
-    border-color: #85BB65;
-    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+    transform: none !important;
+    box-shadow: none !important;
 }
+
 
 .split-document-card.active {
     border-color: #85BB65;
@@ -536,13 +752,19 @@ div.container-xl,
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 8px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .split-document-card-title {
     font-size: 14px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
     margin-bottom: 4px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .split-document-card-company {
@@ -571,7 +793,7 @@ div.container-xl,
 
 .split-document-meta-value {
     font-size: 12px;
-    color: #374151;
+    color: #000000;
     font-weight: 500;
 }
 
@@ -652,7 +874,7 @@ div.container-xl,
 
 .request-meta-item strong {
     font-size: 0.95rem;
-    color: #111827;
+    color: #000000;
     font-weight: 600;
 }
 
@@ -667,7 +889,7 @@ div.container-xl,
     font-size: 0.95rem;
     margin-bottom: 6px;
     font-weight: 600;
-    color: #111827;
+    color: #000000;
 }
 
 .no-document-selected svg {
@@ -678,7 +900,7 @@ div.container-xl,
 .no-document-selected h4 {
     font-size: 18px;
     font-weight: 600;
-    color: #374151;
+    color: #000000;
     margin-bottom: 8px;
 }
 
@@ -712,7 +934,7 @@ div.container-xl,
 .document-preview-title {
     font-size: 18px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
 }
 
 .document-preview-actions {
@@ -749,14 +971,12 @@ div.container-xl,
     display: block;
 }
 
-#requests-split-view-btn.active,
 #documents-split-view-btn.active {
     background: #F4F9F1;
     border-color: #85BB65;
     color: #85BB65;
 }
 
-#requests-split-view-btn.active svg,
 #documents-split-view-btn.active svg {
     color: #85BB65;
     stroke: #85BB65;
@@ -780,13 +1000,16 @@ div.container-xl,
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid #e6eef6;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-view-header h5 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
 }
 
 .grid-view-actions {
@@ -818,6 +1041,9 @@ div.container-xl,
     background: #F4F9F1;
     border-radius: 8px;
     border-left: 4px solid #85BB65;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .company-name-wrapper {
@@ -826,14 +1052,20 @@ div.container-xl,
     justify-content: center;
     flex: 1;
     padding: 0 8px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .company-name {
     margin: 0;
     font-size: 16px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
     text-align: center;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-count {
@@ -864,30 +1096,43 @@ div.container-xl,
     border: 2px solid #e6eef6;
     border-radius: 8px;
     padding: 12px;
-    transition: all 0.2s ease;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-card:hover {
-    border-color: #85BB65;
-    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+    transform: none !important;
+    box-shadow: none !important;
 }
+
 
 .request-card-header {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-title {
     font-size: 14px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
     margin: 0;
     line-height: 1.3;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-document-select {
     width: 100%;
+}
+
+.request-document-select {
+    position: relative;
 }
 
 .request-document-select .form-select {
@@ -898,6 +1143,9 @@ div.container-xl,
     border-radius: 6px;
     background: #fff;
     cursor: pointer;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-document-select .form-select:focus {
@@ -906,20 +1154,30 @@ div.container-xl,
     box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
 }
 
+.request-document-select .form-select option.add-document-option {
+    background: #85BB65;
+    color: white;
+    font-weight: 600;
+    padding: 8px;
+}
+
 .grid-document-card {
     background: #fff;
     border: 2px solid #e6eef6;
     border-radius: 10px;
     padding: 16px;
     position: relative;
-    transition: all 0.2s ease;
     cursor: pointer;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-document-card:hover {
-    border-color: #85BB65;
-    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+    transform: none !important;
+    box-shadow: none !important;
 }
+
 
 .grid-document-card.selected {
     border-color: #85BB65;
@@ -950,15 +1208,21 @@ div.container-xl,
     justify-content: center;
     padding: 0 16px 0 16px;
     margin-bottom: 12px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-document-title {
     font-size: 14px;
     font-weight: 600;
-    color: #121C0C;
+    color: #000000;
     margin: 0;
     line-height: 1.4;
     text-align: center;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-document-meta {
@@ -968,12 +1232,18 @@ div.container-xl,
     margin-bottom: 12px;
     padding-bottom: 12px;
     border-bottom: 1px solid #f3f4f6;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-document-meta-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .grid-document-meta-item .meta-label {
@@ -985,7 +1255,7 @@ div.container-xl,
 
 .grid-document-meta-item .meta-value {
     font-size: 12px;
-    color: #374151;
+    color: #000000;
     font-weight: 500;
 }
 
@@ -993,6 +1263,9 @@ div.container-xl,
     display: flex;
     flex-direction: column;
     gap: 8px;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-item {
@@ -1002,12 +1275,15 @@ div.container-xl,
     padding: 8px;
     background: #f9fafb;
     border-radius: 6px;
-    transition: background 0.2s ease;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
 }
 
 .request-item:hover {
-    background: #f3f4f6;
+    transform: none !important;
 }
+
 
 .request-item input[type="checkbox"] {
     width: 16px;
@@ -1022,7 +1298,7 @@ div.container-xl,
     flex: 1;
     margin: 0;
     font-size: 12px;
-    color: #374151;
+    color: #000000;
 }
 
 .request-name {
@@ -1060,6 +1336,14 @@ div.container-xl,
 .document-select {
     min-width: 200px;
     font-size: 0.875rem;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+.document-select-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
 /* Empty state */
@@ -1109,7 +1393,7 @@ div.container-xl,
 }
 
 .documents-tab:hover {
-    color: #374151;
+    color: #000000;
     background: #f9fafb;
 }
 
@@ -1134,12 +1418,6 @@ div.container-xl,
 
 .tab-content.active {
     display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 /* History Table Styling */
@@ -1212,7 +1490,7 @@ div.container-xl,
 .credential-title {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #0f172a;
+    color: #000000;
     margin: 0;
 }
 
@@ -1300,18 +1578,9 @@ div.container-xl,
     <div class="card-body">
         <div class="card-header-row">
             <h5 class="card-title">Pending Document Requests</h5>
-            <button id="requests-split-view-btn" class="action-btn" title="Grid View">
-                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Grid View
-            </button>
         </div>
 
-        <div class="table-responsive" id="requests-list-view">
+        <div class="table-responsive" id="requests-list-view" style="display: none;">
             <table class="table document-table align-middle">
                 <thead>
                     <tr>
@@ -1362,16 +1631,21 @@ div.container-xl,
                                 <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
                                 <td><span class="text-warning">Pending</span></td>
                                 <td>
+                                    <div class="document-select-wrapper" style="min-width: 200px;">
                                     <select class="form-control form-select document-select" 
                                             data-request-id="{{ documentRequest.id }}"
-                                            style="min-width: 200px;">
+                                                data-request-name="{{ documentRequest.name|lower }}">
                                         <option value="">Select Document</option>
                                         {% for documentObj in documents %}
-                                            <option {% if documentObj == documentRequest.document %}selected{% endif %} value="{{ documentObj.id }}">
+                                                <option value="{{ documentObj.id }}" 
+                                                        data-doc-name="{{ (documentObj.category ?: documentObj.name)|lower }}"
+                                                        {% if documentObj == documentRequest.document %}selected{% endif %}>
                                                 {{ documentObj.category ?: documentObj.name }}
                                             </option>
                                         {% endfor %}
+                                            <option value="__add_document__" class="add-document-option" data-request-id="{{ documentRequest.id }}">+ Add New Document</option>
                                     </select>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -1424,11 +1698,11 @@ div.container-xl,
         </div>
         
         {# Grid View for Document Requests - Grouped by Company #}
-        <div class="documents-grid-view-container" id="requests-grid-view-container" style="display: none;">
+        <div class="documents-grid-view-container" id="requests-grid-view-container">
             <div class="grid-view-header">
                 <h5>Select Documents to Submit</h5>
                 <div class="grid-view-actions">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="select-all-requests-btn">Select All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
                     <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
                 </div>
@@ -1460,14 +1734,17 @@ div.container-xl,
                                             <div class="request-document-select">
                                                 <select class="form-select document-select" 
                                                         data-request-id="{{ request.id }}"
+                                                        data-request-name="{{ request.name|lower }}"
                                                         id="request-{{ request.id }}-document">
                                                     <option value="">Select Document</option>
                                                     {% for document in documents %}
                                                         <option value="{{ document.id }}" 
+                                                                data-doc-name="{{ (document.category ?: document.name)|lower }}"
                                                                 {% if request.document and request.document.id == document.id %}selected{% endif %}>
                                                             {{ document.category ?: document.name }}
                                                         </option>
                                                     {% endfor %}
+                                                    <option value="__add_document__" class="add-document-option" data-request-id="{{ request.id }}">+ Add New Document</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -1490,33 +1767,76 @@ div.container-xl,
         </div>
     </div>
 
-        {# Document Upload Form #}
+        {# Document Upload Form - Compact Version #}
     <div class="card app-card-settings">
-            <div class="card-body">
-            <div class="card-header-row">
-                <h5 class="card-title">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
+            <div class="card-body" style="padding: 16px;">
+            <div class="card-header-row" style="margin-bottom: 12px;">
+                <h5 class="card-title" style="font-size: 1rem; margin: 0;">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
             </div>
             
-            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'document-upload-form'}}) }}
             
-            <div class="row g-4">
+            {# Container for stored DEA documents #}
+            <div id="stored-dea-documents" style="display: none;"></div>
+            
+            {# Active DEA form sections container #}
+            <div id="dea-forms-container">
+                <div class="dea-form-section" data-dea-index="0">
+            <div class="row g-3">
+                {# Left Side: Text and Date Fields #}
+                <div class="col-12 col-lg-8">
+                    <div class="row g-3">
                 {# Document Name Field (Category) #}
                 <div class="col-12">
-                    <div class="mb-3">
-                        {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category'}}) }}
+                            <div class="mb-2">
+                                {{ form_label(form.category, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
+                                {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
                         {{ form_errors(form.category) }}
-                        <small class="text-muted d-block mt-1">Selecting a document auto-fills the required dates.</small>
                     </div>
                 </div>
 
-                {# File Upload Dropzone #}
-                <div class="col-12">
-                    <div class="mb-3">
-                        <div class="form-label-wrapper">
-                        <label class="form-label">Choose File (PDF or DOCX)</label>
+                        {# Document Name Field (Only for Miscellaneous) #}
+                        <div class="col-12" id="document-name-wrapper" style="display: none;">
+                            <div class="mb-2">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Document Name <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="document_name" 
+                                       name="document[name]" 
+                                       placeholder="Enter document name"
+                                       style="padding: 6px 10px; font-size: 0.875rem;">
+                                <small class="text-muted" style="font-size: 0.75rem;">Enter a custom name for this miscellaneous document</small>
                         </div>
-                        <div class="upload-dropzone position-relative" id="uploadDropzone">
+                        </div>
+
+                        {# Issue Date #}
+                        <div class="col-12 col-md-6" id="issue-date-wrapper">
+                            <div class="mb-2">
+                                {{ form_label(form.issueDate, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
+                                {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
+                                {{ form_errors(form.issueDate) }}
+                            </div>
+                        </div>
+
+                        {# Expiration Date #}
+                        <div class="col-12 col-md-6" id="expiration-date-wrapper">
+                            <div class="mb-2">
+                                {{ form_label(form.expirationDate, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
+                                {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
+                                <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem;"></span>
+                                {{ form_errors(form.expirationDate) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Right Side: File Upload Dropzone (Small and Cute) #}
+                <div class="col-12 col-lg-4">
+                    <div class="mb-2">
+                        <div class="form-label-wrapper" style="padding-left: 0; margin-bottom: 4px;">
+                        <label class="form-label" style="font-size: 0.875rem; padding-left: 0;">Choose File</label>
+                        </div>
+                        <div class="upload-dropzone position-relative" id="uploadDropzone" style="min-height: 140px; padding: 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1;">
                             {{ form_widget(form.fileName, {
                                 'attr': {
                                     'class': 'dropzone-input',
@@ -1531,46 +1851,32 @@ div.container-xl,
                                 <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
                             </div>
 
-                            <div class="dropzone-content">
-                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
                                     <line x1="16" y1="13" x2="8" y2="13"/>
                                     <line x1="16" y1="17" x2="8" y2="17"/>
                                 </svg>
-                                <p class="upload-text mb-1">Drag and drop or click to upload</p>
-                                <p class="upload-subtext mb-0">Max File Size: 8MB | Allowed Types: PDF, DOC, DOCX</p>
+                                <p class="upload-text mb-1" style="font-size: 0.75rem; margin-top: 0; text-align: center; color: #6b7280;">Click to upload</p>
+                                <p class="upload-subtext mb-0" style="font-size: 0.65rem; text-align: center; color: #9ca3af;">Max: 8MB</p>
                             </div>
                         </div>
                         {{ form_errors(form.fileName) }}
                     </div>
                 </div>
-
-                {# Issue Date #}
-                <div class="col-12 col-md-6" id="issue-date-wrapper">
-                    <div class="mb-3">
-                        {{ form_label(form.issueDate, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate'}}) }}
-                        {{ form_errors(form.issueDate) }}
-                    </div>
-                </div>
-
-                {# Expiration Date #}
-                <div class="col-12 col-md-6" id="expiration-date-wrapper">
-                    <div class="mb-3">
-                        {{ form_label(form.expirationDate, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate'}}) }}
-                        <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none;"></span>
-                        {{ form_errors(form.expirationDate) }}
                     </div>
                 </div>
                 </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-4">
+            <div class="d-flex justify-content-end gap-2 mt-3" id="form-actions-container">
                 {% if editMode is defined %}
                     <a href="{{ path('app_provider_documents') }}" class="btn btn-secondary">Cancel</a>
                 {% endif %}
-                <button type="submit" class="btn btn-primary btn-upload">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="add-more-dea-btn" style="display: none; font-size: 0.75rem; padding: 4px 12px;">
+                    + Add More DEA
+                </button>
+                <button type="submit" class="btn btn-primary btn-upload btn-sm" style="font-size: 0.75rem; padding: 4px 12px;">
                     {{ editMode is defined ? 'Update Document' : 'Upload Document' }}
                 </button>
             </div>
@@ -1579,6 +1885,97 @@ div.container-xl,
             </div>
         </div>
 
+    {# Add Document Modal #}
+    <div class="modal fade" id="addDocumentModal" tabindex="-1" aria-labelledby="addDocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDocumentModalLabel">Add New Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-document-modal-form" action="{{ path('app_provider_documents') }}" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="document[_token]" value="{{ form.vars.value is null ? csrf_token('form') : form._token.vars.value }}">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Document Name (Category)</label>
+                                <select class="form-control form-select" id="modal_document_category" name="document[category]" required>
+                                    <option value="">Select Document Name</option>
+                                    <option value="CV Upload">CV Upload</option>
+                                    <option value="Driver's license">Driver's license</option>
+                                    <option value="Copy of passport">Copy of passport</option>
+                                    <option value="Passport photo 2&quot; x 2&quot;">Passport photo 2" x 2"</option>
+                                    <option value="USMLE Step 1-3/COMLEX">USMLE Step 1-3/COMLEX</option>
+                                    <option value="Specialty and Subspecialty Exam Certification">Specialty and Subspecialty Exam Certification</option>
+                                    <option value="Medical school diploma">Medical school diploma</option>
+                                    <option value="Postgraduate certificates (eg: Residency and Fellowship completion)">Postgraduate certificates (eg: Residency and Fellowship completion)</option>
+                                    <option value="Life support certifications">Life support certifications</option>
+                                    <option value="Active and Inactive medical licenses">Active and Inactive medical licenses</option>
+                                    <option value="All DEAs">All DEAs</option>
+                                    <option value="CSR (Controlled Substance Registration)">CSR (Controlled Substance Registration)</option>
+                                    <option value="Copy of undergraduate transcript">Copy of undergraduate transcript</option>
+                                    <option value="Vaccine titers: Hepatitis B, Varicella, MMR">Vaccine titers: Hepatitis B, Varicella, MMR</option>
+                                    <option value="Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)">Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)</option>
+                                    <option value="Influenza vaccine proof">Influenza vaccine proof</option>
+                                    <option value="COVID-19 vaccine proof">COVID-19 vaccine proof</option>
+                                    <option value="Mask fit testing">Mask fit testing</option>
+                                    <option value="MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)">MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)</option>
+                                    <option value="PROCEDURE LOGS last 2 years">PROCEDURE LOGS last 2 years</option>
+                                    <option value="Case Logs last 2 years">Case Logs last 2 years</option>
+                                    <option value="Application/ Certification: A list of everywhere lived for the last 10 years">Application/ Certification: A list of everywhere lived for the last 10 years</option>
+                                    <option value="All Hospital Affiliations and Training Programs">All Hospital Affiliations and Training Programs</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                </select>
+                                <small class="text-muted d-block mt-1">Selecting a document auto-fills the required dates.</small>
+                            </div>
+                            <div class="col-12" id="modal_document-name-wrapper" style="display: none;">
+                                <label class="form-label">Document Name <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="modal_document_name" 
+                                       name="document[name]" 
+                                       placeholder="Enter document name">
+                                <small class="text-muted" style="font-size: 0.75rem;">Enter a custom name for this miscellaneous document</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Choose File (PDF or DOCX)</label>
+                                <div class="upload-dropzone position-relative" id="modalUploadDropzone" style="min-height: 120px;">
+                                    <input type="file" class="dropzone-input" id="modal_fileInput" name="document[fileName]" accept=".pdf,.doc,.docx" required>
+                                    <div id="modal_fileBadge" class="file-badge" style="display:none;">
+                                        <span id="modal_fileNameText"></span>
+                                        <button type="button" class="file-remove-btn" onclick="clearModalFile()">×</button>
+                                    </div>
+                                    <div class="dropzone-content">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/>
+                                            <line x1="16" y1="17" x2="8" y2="17"/>
+                                        </svg>
+                                        <p class="upload-text mb-1">Drag and drop or click to upload</p>
+                                        <p class="upload-subtext mb-0">Max File Size: 8MB | Allowed Types: PDF, DOC, DOCX</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6" id="modal_issue-date-wrapper">
+                                <label class="form-label">Issue Date</label>
+                                <input type="date" class="form-control js-datepicker" id="modal_document_issueDate" name="document[issueDate]">
+                            </div>
+                            <div class="col-12 col-md-6" id="modal_expiration-date-wrapper">
+                                <label class="form-label">Expiration Date</label>
+                                <input type="date" class="form-control js-datepicker" id="modal_document_expirationDate" name="document[expirationDate]">
+                                <span id="modal_expiration-date-help" class="text-muted small d-block mt-1" style="display: none;"></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submit-modal-document">Upload Document</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {# Uploaded Documents Table #}
     <div class="card app-card-settings">
@@ -1596,26 +1993,23 @@ div.container-xl,
                 </button>
             </div>
             
-            <div class="table-responsive" id="documents-list-view">
-                <table class="table document-table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Uploaded At</th>
-                            <th>Document Name</th>
-                            <th>Issue Date</th>
-                            <th>Expiration Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="document-table-wrapper" id="documents-list-view">
+                <div class="document-header">
+                    <div class="col-uploaded-at">Uploaded At</div>
+                    <div class="col-doc-name">Document Name</div>
+                    <div class="col-issue-date">Issue Date</div>
+                    <div class="col-expiry-date">Expiration Date</div>
+                    <div class="col-actions">Actions</div>
+                </div>
+                {% if documents|length > 0 %}
                         {% for document in documents %}
-                            <tr>
-                                <td>{{ document.createdAt|date('m/d/Y') }}</td>
-                                <td>
+                        <div class="document-row">
+                            <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
+                            <div class="col-doc-name">
                                     <strong>{{ document.category ?: document.name }}</strong>
-                                </td>
-                                <td>{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</td>
-                                <td>
+                            </div>
+                            <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
+                            <div class="col-expiry-date">
                                     {% if document.expirationDate %}
                                         {% set daysUntilExpiry = (document.expirationDate|date('U') - 'now'|date('U')) / 86400 %}
                                         {% if daysUntilExpiry < 0 %}
@@ -1628,9 +2022,9 @@ div.container-xl,
                                     {% else %}
                                         <span class="text-muted">-</span>
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
+                            </div>
+                            <div class="col-actions">
+                                <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center;">
                                         <a href="{{ path('app_provider_document_view', {'id': document.id}) }}"
                                            class="action-btn" 
                                            title="View Document">
@@ -1649,19 +2043,18 @@ div.container-xl,
                                             <img src="{{ asset('assets/icons/trash-bin.png') }}" alt="Delete"/>
                                         </a>
                                     </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="empty-state">
-                                    <div class="empty-state-icon">📄</div>
-                                    <p class="mb-0">No documents uploaded yet.</p>
-                                    <p class="text-muted small mt-2">Upload your first document using the form above.</p>
-                                </td>
-                        </tr>
+                            </div>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                {% else %}
+                    <div class="document-row" style="justify-content: center; padding: 40px;">
+                        <div style="text-align: center;">
+                            <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📄</div>
+                            <p class="mb-0" style="font-size: 14px; color: #6b7280;">No documents uploaded yet.</p>
+                            <p class="text-muted small mt-2" style="font-size: 12px;">Upload your first document using the form above.</p>
+                        </div>
+                    </div>
+                {% endif %}
                 </div>
             </div>
             
@@ -1728,18 +2121,7 @@ div.container-xl,
                     <h5 class="card-title">Document History</h5>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table document-table history-table align-middle">
-                        <thead>
-                            <tr>
-                                <th>S. No</th>
-                                <th>Document Name</th>
-                                <th>Action</th>
-                                <th>Date & Time</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <div class="document-table-wrapper">
                             {% set historyEntries = [] %}
                             
                             {# Add document upload history #}
@@ -1775,15 +2157,23 @@ div.container-xl,
                             
                             {# Sort history by date (newest first) #}
                             {% set historyEntries = historyEntries|sort((a, b) => b.date <=> a.date) %}
+                    
+                    <div class="document-header">
+                        <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">S. No</div>
+                        <div class="col-history-name" style="flex: 2; justify-content: flex-start;">Document Name</div>
+                        <div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">Action</div>
+                        <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">Date & Time</div>
+                        <div class="col-history-details" style="flex: 2; justify-content: flex-start;">Details</div>
+                    </div>
                             
                             {% if historyEntries|length > 0 %}
                                 {% for entry in historyEntries %}
-                                    <tr>
-                                        <td>{{ loop.index }}</td>
-                                        <td>
+                            <div class="document-row">
+                                <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">{{ loop.index }}</div>
+                                <div class="col-history-name" style="flex: 2; justify-content: flex-start;">
                                             <strong>{{ entry.name }}</strong>
-                                        </td>
-                                        <td>
+                                </div>
+                                <div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">
                                             {% if entry.action == 'uploaded' %}
                                                 <span class="action-badge uploaded">Uploaded</span>
                                             {% elseif entry.action == 'updated' %}
@@ -1791,24 +2181,20 @@ div.container-xl,
                                             {% elseif entry.action == 'assigned' %}
                                                 <span class="action-badge assigned">Assigned</span>
                                             {% endif %}
-                                        </td>
-                                        <td>{{ entry.date|date('m/d/Y g:i A') }}</td>
-                                        <td>
-                                            <small class="text-muted">{{ entry.details }}</small>
-                                        </td>
-                                    </tr>
+                                </div>
+                                <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">{{ entry.date|date('m/d/Y g:i A') }}</div>
+                                <div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #6b7280;">{{ entry.details }}</div>
+                            </div>
                                 {% endfor %}
                             {% else %}
-                                <tr>
-                                    <td colspan="5" class="empty-state-compact">
-                                        <div class="empty-state-icon">📊</div>
-                                        <p class="mb-0">No history available</p>
-                                        <p class="text-muted small mt-2">Your document activities will appear here</p>
-                                    </td>
-                                </tr>
+                        <div class="document-row" style="justify-content: center; padding: 40px;">
+                            <div style="text-align: center;">
+                                <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📊</div>
+                                <p class="mb-0" style="font-size: 14px; color: #6b7280;">No history available</p>
+                                <p class="text-muted small mt-2" style="font-size: 12px;">Your document activities will appear here</p>
+                            </div>
+                        </div>
                             {% endif %}
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -2139,7 +2525,7 @@ div.container-xl,
                 'Case Logs last 2 years': { showIssue: true, showExpiry: true },
                 'Application/ Certification: A list of everywhere lived for the last 10 years': { showIssue: true, showExpiry: true },
                 'All Hospital Affiliations and Training Programs': { showIssue: true, showExpiry: true },
-                'Miscellaneous': { showIssue: true, showExpiry: true }
+                'Miscellaneous': { showIssue: false, showExpiry: false, optionalDates: true }
             };
 
             function applyDocumentConfig(type) {
@@ -2147,7 +2533,38 @@ div.container-xl,
                 const showIssue = config.showIssue !== false;
                 const showExpiry = config.showExpiry !== false;
                 const autoDays = config.autoExpiryDays || 0;
+                const optionalDates = config.optionalDates || false;
+                const isMiscellaneous = type === 'Miscellaneous';
+                const isDEA = type === 'All DEAs';
 
+                // Handle document name field for Miscellaneous
+                const nameWrapper = document.getElementById('document-name-wrapper');
+                const nameInput = document.getElementById('document_name');
+                if (nameWrapper && nameInput) {
+                    if (isMiscellaneous) {
+                        nameWrapper.style.display = 'block';
+                        nameInput.required = true;
+                    } else {
+                        nameWrapper.style.display = 'none';
+                        nameInput.required = false;
+                        nameInput.value = '';
+                    }
+                }
+
+                // Handle "Add More DEA" button
+                const addMoreDEABtn = document.getElementById('add-more-dea-btn');
+                if (addMoreDEABtn) {
+                    addMoreDEABtn.style.display = isDEA ? 'inline-block' : 'none';
+                }
+
+                // Handle issue date
+                if (optionalDates) {
+                    // For Miscellaneous, show dates but make them optional
+                    issueWrapper.classList.remove('d-none');
+                    if (issueInput) {
+                        issueInput.required = false;
+                    }
+                } else {
                 issueWrapper.classList.toggle('d-none', !showIssue);
                 if (issueInput) {
                     issueInput.required = showIssue;
@@ -2156,7 +2573,16 @@ div.container-xl,
                     }
                     issueInput.dataset.autoExpiryDays = autoDays ? String(autoDays) : '';
                 }
+                }
 
+                // Handle expiration date
+                if (optionalDates) {
+                    // For Miscellaneous, show dates but make them optional
+                    expiryWrapper.classList.remove('d-none');
+                    if (expiryInput) {
+                        expiryInput.required = false;
+                    }
+                } else {
                 expiryWrapper.classList.toggle('d-none', !showExpiry);
                 if (expiryInput) {
                     expiryInput.required = showExpiry && !autoDays;
@@ -2164,6 +2590,7 @@ div.container-xl,
                     expiryInput.classList.toggle('bg-light', !!autoDays);
                     if (!showExpiry) {
                         expiryInput.value = '';
+                        }
                     }
                 }
 
@@ -2171,6 +2598,9 @@ div.container-xl,
                     if (autoDays > 0) {
                         expiryHelp.style.display = 'block';
                         expiryHelp.textContent = 'Expiration automatically set to ' + (autoDays / 365) + ' year(s) after the issue date.';
+                    } else if (optionalDates) {
+                        expiryHelp.style.display = 'block';
+                        expiryHelp.textContent = 'Optional: Enter expiration date if applicable.';
                     } else {
                         expiryHelp.style.display = showExpiry ? 'block' : 'none';
                         expiryHelp.textContent = showExpiry ? 'Enter the expiration date as it appears on the document.' : '';
@@ -2210,11 +2640,148 @@ div.container-xl,
             });
 
             applyDocumentConfig(categorySelect.value);
+
+            // Handle "Add More DEA" button - Dynamic form sections
+            const addMoreDEABtn = document.getElementById('add-more-dea-btn');
+            const deaFormsContainer = document.getElementById('dea-forms-container');
+            const storedDEAContainer = document.getElementById('stored-dea-documents');
+            let deaFormIndex = 0;
+
+            function storeCurrentDEA() {
+                const currentSection = deaFormsContainer.querySelector('.dea-form-section[data-dea-index="' + deaFormIndex + '"]');
+                if (!currentSection) return;
+
+                const categoryInput = currentSection.querySelector('#document_category');
+                const issueInput = currentSection.querySelector('#document_issueDate');
+                const expiryInput = currentSection.querySelector('#document_expirationDate');
+                const fileInput = currentSection.querySelector('#fileInput');
+                const fileNameText = currentSection.querySelector('#fileNameText');
+
+                // Check if current form has data
+                const hasData = (fileInput && fileInput.files && fileInput.files.length > 0) ||
+                               (issueInput && issueInput.value) ||
+                               (expiryInput && expiryInput.value);
+
+                if (hasData) {
+                    // Store the current DEA data
+                    const storedItem = document.createElement('div');
+                    storedItem.className = 'stored-dea-item';
+                    storedItem.dataset.deaIndex = deaFormIndex;
+                    storedItem.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>DEA ${deaFormIndex + 1}</strong>
+                                ${fileNameText && fileNameText.textContent ? '<span style="margin-left: 8px; color: #6b7280;">' + fileNameText.textContent + '</span>' : ''}
+                                ${issueInput && issueInput.value ? '<span style="margin-left: 8px; color: #6b7280;">Issue: ' + issueInput.value + '</span>' : ''}
+                                ${expiryInput && expiryInput.value ? '<span style="margin-left: 8px; color: #6b7280;">Expiry: ' + expiryInput.value + '</span>' : ''}
+                            </div>
+                            <button type="button" class="dea-form-section-remove" onclick="removeStoredDEA(${deaFormIndex})">Remove</button>
+                        </div>
+                    `;
+                    storedDEAContainer.appendChild(storedItem);
+                    storedDEAContainer.style.display = 'block';
+                }
+            }
+
+            function createNewDEAForm() {
+                deaFormIndex++;
+                const currentSection = deaFormsContainer.querySelector('.dea-form-section[data-dea-index="0"]');
+                if (!currentSection) return;
+
+                // Clone the first form section
+                const newSection = currentSection.cloneNode(true);
+                newSection.setAttribute('data-dea-index', deaFormIndex);
+                
+                // Update IDs and names to be unique
+                const allInputs = newSection.querySelectorAll('input, select, textarea, label');
+                allInputs.forEach(input => {
+                    if (input.id) {
+                        input.id = input.id.replace('document_', 'document_' + deaFormIndex + '_');
+                        if (input.name && input.name.startsWith('document[')) {
+                            input.name = input.name.replace('document[', 'dea_documents[' + deaFormIndex + '][');
+                        }
+                    }
+                    if (input.getAttribute('for')) {
+                        input.setAttribute('for', input.getAttribute('for').replace('document_', 'document_' + deaFormIndex + '_'));
+                    }
+                });
+
+                // Update file input handler
+                const newFileInput = newSection.querySelector('input[type="file"]');
+                if (newFileInput) {
+                    newFileInput.id = 'fileInput_' + deaFormIndex;
+                    newFileInput.name = 'dea_documents[' + deaFormIndex + '][fileName]';
+                    newFileInput.onchange = function() {
+                        handleFileChange(this, deaFormIndex);
+                    };
+                }
+
+                // Update badge IDs
+                const newBadge = newSection.querySelector('#fileBadge');
+                if (newBadge) newBadge.id = 'fileBadge_' + deaFormIndex;
+                const newFileNameText = newSection.querySelector('#fileNameText');
+                if (newFileNameText) newFileNameText.id = 'fileNameText_' + deaFormIndex;
+
+                // Clear all values in new section
+                newSection.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                });
+
+                // Set category to DEA
+                const newCategoryInput = newSection.querySelector('select[name*="category"]');
+                if (newCategoryInput) {
+                    newCategoryInput.value = 'All DEAs';
+                    newCategoryInput.dispatchEvent(new Event('change'));
+                }
+
+                // Add remove button
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'dea-form-section-header';
+                sectionHeader.innerHTML = `
+                    <span class="dea-form-section-title">DEA ${deaFormIndex + 1}</span>
+                    <button type="button" class="dea-form-section-remove" onclick="removeDEAForm(${deaFormIndex})">Remove</button>
+                `;
+                newSection.insertBefore(sectionHeader, newSection.firstChild);
+
+                // Insert before the form actions
+                deaFormsContainer.appendChild(newSection);
+
+                // Scroll to new section
+                newSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            window.removeDEAForm = function(index) {
+                const section = deaFormsContainer.querySelector('.dea-form-section[data-dea-index="' + index + '"]');
+                if (section) {
+                    section.remove();
+                }
+            };
+
+            window.removeStoredDEA = function(index) {
+                const storedItem = storedDEAContainer.querySelector('.stored-dea-item[data-dea-index="' + index + '"]');
+                if (storedItem) {
+                    storedItem.remove();
+                }
+                if (storedDEAContainer.children.length === 0) {
+                    storedDEAContainer.style.display = 'none';
+                }
+            };
+
+            if (addMoreDEABtn && deaFormsContainer) {
+                addMoreDEABtn.addEventListener('click', function() {
+                    storeCurrentDEA();
+                    createNewDEAForm();
+                });
+            }
         }
 
-        function handleFileChange(input) {
-            const badge = document.getElementById('fileBadge');
-            const nameText = document.getElementById('fileNameText');
+        function handleFileChange(input, index) {
+            const badgeId = index !== undefined ? 'fileBadge_' + index : 'fileBadge';
+            const nameTextId = index !== undefined ? 'fileNameText_' + index : 'fileNameText';
+            const badge = document.getElementById(badgeId);
+            const nameText = document.getElementById(nameTextId);
 
             if (input && input.files && input.files.length > 0) {
                 if (nameText) nameText.textContent = input.files[0].name;
@@ -2232,6 +2799,16 @@ div.container-xl,
                 input.value = '';
                 const event = new Event('change', { bubbles: true });
                 input.dispatchEvent(event);
+            }
+            if (badge) badge.style.display = 'none';
+        }
+
+        function clearModalFile() {
+            const input = document.getElementById('modal_fileInput');
+            const badge = document.getElementById('modal_fileBadge');
+
+            if (input) {
+                input.value = '';
             }
             if (badge) badge.style.display = 'none';
         }
@@ -2355,6 +2932,20 @@ div.container-xl,
             const documentForm = document.querySelector('form.needs-validation');
             if (documentForm) {
                 documentForm.addEventListener('submit', function(e) {
+                    // Check for Miscellaneous name field
+                    const categoryInput = document.getElementById('document_category');
+                    const nameInput = document.getElementById('document_name');
+                    if (categoryInput && categoryInput.value === 'Miscellaneous') {
+                        if (!nameInput || !nameInput.value.trim()) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.classList.add('was-validated');
+                            showWarningAlert('Validation Error', 'Please enter a document name for Miscellaneous documents.');
+                            if (nameInput) nameInput.focus();
+                            return false;
+                        }
+                    }
+                    
                     // Validate form before submission
                     if (!this.checkValidity()) {
                         e.preventDefault();
@@ -2569,18 +3160,6 @@ div.container-xl,
             });
         });
 
-        function handleFileChange(input) {
-            const badge = document.getElementById('fileBadge');
-            const nameText = document.getElementById('fileNameText');
-
-            if (input && input.files && input.files.length > 0) {
-                if (nameText) nameText.textContent = input.files[0].name;
-                if (badge) badge.style.display = 'flex';
-            } else {
-                if (badge) badge.style.display = 'none';
-            }
-        }
-
         function clearFile() {
             const input = document.getElementById('fileInput');
             const badge = document.getElementById('fileBadge');
@@ -2595,46 +3174,195 @@ div.container-xl,
 
         // Grid View Functionality for Document Requests
         document.addEventListener('DOMContentLoaded', function() {
-            // Grid View Button Handler for Document Requests
-            const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
+            // Grid view is now default for requests - no toggle button needed
+            // Ensure grid view is visible and list view is hidden
             const requestsListView = document.getElementById('requests-list-view');
             const requestsGridViewContainer = document.getElementById('requests-grid-view-container');
 
-            if (requestsSplitViewBtn && requestsListView && requestsGridViewContainer) {
-                requestsSplitViewBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+            if (requestsListView && requestsGridViewContainer) {
+                requestsListView.style.display = 'none';
+                requestsGridViewContainer.style.display = 'block';
+            }
+
+            // Auto-match documents by name (case-insensitive)
+            function autoMatchDocuments() {
+                document.querySelectorAll('.document-select[data-request-name]').forEach(select => {
+                    const requestName = select.dataset.requestName;
+                    if (!requestName || select.value) return; // Skip if already has a value
+
+                    // Find matching document
+                    const options = select.querySelectorAll('option[data-doc-name]');
+                    let matched = false;
                     
-                    const isGridView = requestsGridViewContainer.style.display !== 'none';
-                    
-                    if (isGridView) {
-                        // Switch to list view
-                        requestsGridViewContainer.style.display = 'none';
-                        requestsListView.style.display = 'block';
-                        requestsSplitViewBtn.classList.remove('active');
-                        requestsSplitViewBtn.innerHTML = `
-                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Grid View
-                        `;
+                    options.forEach(option => {
+                        const docName = option.dataset.docName;
+                        if (docName && docName === requestName && !matched) {
+                            select.value = option.value;
+                            matched = true;
+                            
+                            // Auto-submit if in grid view
+                            const gridContainer = document.getElementById('requests-grid-view-container');
+                            if (gridContainer && gridContainer.contains(select)) {
+                                // Just select, don't auto-submit - user can use bulk submit
+                                if (typeof window.updateRequestsSubmitButton === 'function') {
+                                    window.updateRequestsSubmitButton();
+                                }
                     } else {
-                        // Switch to grid view
-                        requestsGridViewContainer.style.display = 'block';
-                        requestsListView.style.display = 'none';
-                        requestsSplitViewBtn.classList.add('active');
-                        requestsSplitViewBtn.innerHTML = `
-                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                            List View
-                        `;
+                                // Auto-submit for list view
+                                select.dispatchEvent(new Event('change'));
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Run auto-match on page load
+            autoMatchDocuments();
+
+            // Handle "Add Document" option in dropdown
+            document.querySelectorAll('.document-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    if (this.value === '__add_document__') {
+                        // Reset to empty
+                        this.value = '';
+                        
+                        const requestId = this.dataset.requestId;
+                        const requestName = this.dataset.requestName || '';
+                        
+                        // Set request ID and name in modal
+                        const modalElement = document.getElementById('addDocumentModal');
+                        const modal = new bootstrap.Modal(modalElement);
+                        modalElement.dataset.requestId = requestId || '';
+                        modalElement.dataset.requestName = requestName;
+                        
+                        // Pre-fill category if request name exists - try to match with dropdown options
+                        if (requestName) {
+                            const categorySelect = document.getElementById('modal_document_category');
+                            const capitalizedName = requestName.charAt(0).toUpperCase() + requestName.slice(1);
+                            
+                            // Try to find exact match first
+                            let found = false;
+                            for (let option of categorySelect.options) {
+                                if (option.value.toLowerCase() === requestName || option.value.toLowerCase() === capitalizedName.toLowerCase()) {
+                                    categorySelect.value = option.value;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            
+                            // If no exact match, try partial match
+                            if (!found) {
+                                for (let option of categorySelect.options) {
+                                    if (option.value.toLowerCase().includes(requestName) || requestName.includes(option.value.toLowerCase())) {
+                                        categorySelect.value = option.value;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // If still no match, leave empty
+                            if (!found) {
+                                categorySelect.value = '';
+                            }
+                        } else {
+                            document.getElementById('modal_document_category').value = '';
+                        }
+                        
+                        // Clear file input
+                        clearModalFile();
+                        
+                        modal.show();
                     }
+                });
+            });
+
+            // Handle modal file input
+            const modalFileInput = document.getElementById('modal_fileInput');
+            if (modalFileInput) {
+                modalFileInput.addEventListener('change', function() {
+                    const badge = document.getElementById('modal_fileBadge');
+                    const nameText = document.getElementById('modal_fileNameText');
+                    if (this.files && this.files.length > 0) {
+                        if (nameText) nameText.textContent = this.files[0].name;
+                        if (badge) badge.style.display = 'flex';
+                    } else {
+                        if (badge) badge.style.display = 'none';
+                    }
+                });
+            }
+
+            // Handle modal category change for Miscellaneous and DEA
+            const modalCategorySelect = document.getElementById('modal_document_category');
+            if (modalCategorySelect) {
+                modalCategorySelect.addEventListener('change', function() {
+                    const category = this.value;
+                    const isMiscellaneous = category === 'Miscellaneous';
+                    const isDEA = category === 'All DEAs';
+                    
+                    // Handle document name field for Miscellaneous
+                    const modalNameWrapper = document.getElementById('modal_document-name-wrapper');
+                    const modalNameInput = document.getElementById('modal_document_name');
+                    if (modalNameWrapper && modalNameInput) {
+                        if (isMiscellaneous) {
+                            modalNameWrapper.style.display = 'block';
+                            modalNameInput.required = true;
+                        } else {
+                            modalNameWrapper.style.display = 'none';
+                            modalNameInput.required = false;
+                            modalNameInput.value = '';
+                        }
+                    }
+                    
+                    // Handle dates for Miscellaneous (optional)
+                    const modalIssueWrapper = document.getElementById('modal_issue-date-wrapper');
+                    const modalExpiryWrapper = document.getElementById('modal_expiration-date-wrapper');
+                    const modalIssueInput = document.getElementById('modal_document_issueDate');
+                    const modalExpiryInput = document.getElementById('modal_document_expirationDate');
+                    
+                    if (isMiscellaneous) {
+                        // Show dates but make them optional
+                        if (modalIssueWrapper) modalIssueWrapper.style.display = 'block';
+                        if (modalExpiryWrapper) modalExpiryWrapper.style.display = 'block';
+                        if (modalIssueInput) modalIssueInput.required = false;
+                        if (modalExpiryInput) modalExpiryInput.required = false;
+                    } else {
+                        // Use the same logic as main form
+                        // This will be handled by the existing document config logic if needed
+                    }
+                });
+            }
+
+            // Handle modal form submission
+            const submitModalBtn = document.getElementById('submit-modal-document');
+            if (submitModalBtn) {
+                submitModalBtn.addEventListener('click', function() {
+                    const form = document.getElementById('add-document-modal-form');
+
+                    // Check for Miscellaneous name field
+                    const modalCategory = document.getElementById('modal_document_category');
+                    const modalNameInput = document.getElementById('modal_document_name');
+                    if (modalCategory && modalCategory.value === 'Miscellaneous') {
+                        if (!modalNameInput || !modalNameInput.value.trim()) {
+                            alert('Please enter a document name for Miscellaneous documents.');
+                            if (modalNameInput) modalNameInput.focus();
+                            return;
+                        }
+                    }
+
+                    // Validate form
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    // Show loading
+                    this.disabled = true;
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
+
+                    // Submit form normally - will redirect on success
+                    form.submit();
                 });
             }
 
@@ -2707,7 +3435,7 @@ div.container-xl,
 
             // Grid View Functionality for Document Requests - Initialize after DOM is ready
             // Note: requestsGridViewContainer is already declared above, reusing it
-            const selectAllRequestsBtn = document.getElementById('select-all-requests-btn');
+            const matchAllRequestsBtn = document.getElementById('match-all-requests-btn');
             const deselectAllRequestsBtn = document.getElementById('deselect-all-requests-btn');
             const submitSelectedRequestsBtn = document.getElementById('submit-selected-requests-btn');
             
@@ -2760,24 +3488,115 @@ div.container-xl,
             });
 
             // Select All functionality for requests - selects first document for all requests
-            if (selectAllRequestsBtn) {
-                selectAllRequestsBtn.addEventListener('click', function(e) {
+            if (matchAllRequestsBtn) {
+                matchAllRequestsBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    const container = document.getElementById('requests-grid-view-container');
-                    if (!container) return;
-                    const documentSelects = container.querySelectorAll('.document-select');
-                    const firstDocumentOption = documentSelects[0] ? documentSelects[0].querySelector('option[value]:not([value=""])') : null;
                     
-                    if (firstDocumentOption) {
-                        const firstDocumentId = firstDocumentOption.value;
+                    // Show loading state
+                    this.disabled = true;
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Matching...';
+                    
+                    const container = document.getElementById('requests-grid-view-container');
+                    if (!container) {
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                        return;
+                    }
+                    
+                    const documentSelects = container.querySelectorAll('.document-select[data-request-name]');
+                    let matchedCount = 0;
+                    const matchPromises = [];
+                    
                         documentSelects.forEach(select => {
-                            if (select.querySelector(`option[value="${firstDocumentId}"]`)) {
-                                select.value = firstDocumentId;
+                        const requestName = select.dataset.requestName;
+                        if (!requestName || select.value) return; // Skip if already has a value
+                        
+                        // Find matching document
+                        const options = select.querySelectorAll('option[data-doc-name]');
+                        let matched = false;
+                        
+                        options.forEach(option => {
+                            const docName = option.dataset.docName;
+                            if (docName && docName === requestName && !matched) {
+                                select.value = option.value;
+                                matched = true;
+                                matchedCount++;
+                                
+                                // Create a promise for this match submission
+                                const requestId = select.dataset.requestId;
+                                const documentId = option.value;
+                                
+                                if (requestId && documentId) {
+                                    const matchPromise = fetch(`/provider/document-request/${requestId}/assign-document`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
+                                        },
+                                        body: JSON.stringify({ documentId: documentId })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Remove the request card after successful match
+                                            const requestCard = container.querySelector(`[data-request-id="${requestId}"]`);
+                                            if (requestCard) {
+                                                requestCard.closest('.request-card')?.remove();
+                                            }
+                                        }
+                                        return data;
+                                    })
+                                    .catch(error => {
+                                        console.error('Error matching document:', error);
+                                        return { success: false };
+                                    });
+                                    
+                                    matchPromises.push(matchPromise);
+                                }
                             }
                         });
+                    });
+                    
+                    // Wait for all matches to complete
+                    Promise.all(matchPromises).then(results => {
+                        const successCount = results.filter(r => r.success).length;
+                        
+                        // Update button state
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                        
+                        // Show success message
+                        if (successCount > 0) {
+                            if (typeof showSuccessAlert !== 'undefined') {
+                                showSuccessAlert('Success!', `Successfully matched and submitted ${successCount} document(s).`);
+                            } else {
+                                alert(`Successfully matched and submitted ${successCount} document(s).`);
+                            }
+                            
+                            // Reload page after a short delay to show updated state
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else if (matchedCount > 0) {
+                            // Matched but submission failed
+                            if (typeof showWarningAlert !== 'undefined') {
+                                showWarningAlert('Warning', 'Documents were matched but some submissions failed. Please try again.');
+                            } else {
+                                alert('Documents were matched but some submissions failed. Please try again.');
                     }
                     window.updateRequestsSubmitButton();
+                        } else {
+                            // No matches found
+                            if (typeof showWarningAlert !== 'undefined') {
+                                showWarningAlert('No Matches', 'No matching documents found for the pending requests.');
+                            } else {
+                                alert('No matching documents found for the pending requests.');
+                            }
+                        }
+                    });
                 });
             }
 
@@ -3118,11 +3937,10 @@ div.container-xl,
                     const params = new URLSearchParams(window.location.search);
                     const openRequestId = params.get('openRequest');
                     if (openRequestId) {
-                        // Ensure grid view is active for requests
-                        const requestsSplitViewBtn = document.getElementById('requests-split-view-btn');
+                        // Grid view is always active for requests now
                         const requestsGridViewContainer = document.getElementById('requests-grid-view-container');
-                        if (requestsGridViewContainer && requestsGridViewContainer.style.display === 'none' && requestsSplitViewBtn) {
-                            requestsSplitViewBtn && requestsSplitViewBtn.click();
+                        if (requestsGridViewContainer) {
+                            requestsGridViewContainer.style.display = 'block';
                         }
                         // Scroll to the request in grid view
                         setTimeout(() => {

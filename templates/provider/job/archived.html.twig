@@ -216,7 +216,7 @@ div.container-xl,
 }
 .job-check {
     margin-right: 8px;
-    transform: scale(1.2);
+    transform: none !important;
 }
 #toggleActions {
     padding: 6px 16px;
@@ -361,11 +361,18 @@ div.container-xl,
 
 /* Consistent rounded-square style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
-.split-job-list input[type="checkbox"].job-checkbox {
+.job-list-container input[type="checkbox"].job-checkbox,
+.split-job-list input[type="checkbox"].job-checkbox,
+input[type="checkbox"].job-check,
+input[type="checkbox"].job-checkbox {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
   border: 1px solid #cfd9e3;
   border-radius: 4px;
   background: #fff;
@@ -374,24 +381,36 @@ div.container-xl,
   display: inline-block;
   vertical-align: middle;
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Hover state - green border */
 .job-list-container input[type="checkbox"].job-check:hover,
-.split-job-list input[type="checkbox"].job-checkbox:hover {
+.job-list-container input[type="checkbox"].job-checkbox:hover,
+.split-job-list input[type="checkbox"].job-checkbox:hover,
+input[type="checkbox"].job-check:hover,
+input[type="checkbox"].job-checkbox:hover {
   border-color: #85BB65;
 }
 
 /* Checked state - green filled with white checkmark */
 .job-list-container input[type="checkbox"].job-check:checked,
-.split-job-list input[type="checkbox"].job-checkbox:checked {
+.job-list-container input[type="checkbox"].job-checkbox:checked,
+.split-job-list input[type="checkbox"].job-checkbox:checked,
+input[type="checkbox"].job-check:checked,
+input[type="checkbox"].job-checkbox:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
 .job-list-container input[type="checkbox"].job-check:checked::after,
-.split-job-list input[type="checkbox"].job-checkbox:checked::after {
+.job-list-container input[type="checkbox"].job-checkbox:checked::after,
+.split-job-list input[type="checkbox"].job-checkbox:checked::after,
+input[type="checkbox"].job-check:checked::after,
+input[type="checkbox"].job-checkbox:checked::after {
   content: '';
   position: absolute;
   top: 2px;
@@ -403,8 +422,108 @@ div.container-xl,
   transform: rotate(45deg);
 }
 
-/* Remove previous scale that distorted shape */
-.job-check { transform: none; margin-right: 8px; }
+/* Remove previous scale that distorted shape - ensure square shape */
+.job-check { 
+    transform: none !important; 
+    margin-right: 8px;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+}
+
+/* Todo Icon Styles */
+.todo-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    pointer-events: auto;
+}
+
+.todo-icon * {
+    pointer-events: none;
+}
+
+.todo-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: #85BB65;
+    fill: none;
+}
+
+.todo-popup {
+    position: fixed;
+    background: white;
+    color: black;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 99999;
+    max-width: 250px;
+    display: none;
+    pointer-events: none;
+    border: 1px solid #e5e7eb;
+}
+
+.todo-popup.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.todo-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.todo-popup-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.todo-popup-close {
+    background: none;
+    border: none;
+    color: black;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.todo-popup-close:hover {
+    opacity: 1;
+}
+
+.todo-popup-content {
+    line-height: 1.5;
+}
+
+.todo-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    cursor: pointer;
+}
 
 .job-title {
     color: #121C0C;
@@ -574,27 +693,35 @@ div.container-xl,
 }
 .col:nth-child(1) .is-card {
   background-color: #D2E6C6;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(2) .is-card {
   background-color: #C7E0B8;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(3) .is-card {
   background-color: #BBDAAA;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(4) .is-card {
   background-color: #AFD39C;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(5) .is-card {
   background-color: #A4CC8E;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(6) .is-card {
   background-color: #99C680;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(7) .is-card {
   background-color: #8DC072;
+  transition: background-color 0.2s ease;
 }
 .col:nth-child(8) .is-card {
   background-color: #82B964;
+  transition: background-color 0.2s ease;
 }
 
 .col:nth-child(1) .is-card:hover {
@@ -636,7 +763,7 @@ div.container-xl,
   position: relative;
   top: 1px; /* nudges to visually center with text */
 }
-.sort-toggle svg { width: 10px; height: 10px; }
+.sort-toggle svg { width: 12px; height: 12px; }
 .sort-toggle .arrow { opacity: 0.35; transition: opacity 0.15s ease; }
 .sort-toggle .arrow.active { opacity: 1; }
 
@@ -644,7 +771,45 @@ div.container-xl,
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  pointer-events: auto !important;
+}
+
+.actions-container button,
+.actions-container .action-btn,
+.actions-container #delete-btn,
+.actions-container #archive-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1001 !important;
+}
+
+.job-actions-middle {
+  pointer-events: auto !important;
+  z-index: 1000;
+}
+
+.job-actions-middle button,
+.job-actions-middle .action-btn {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1001 !important;
+}
   gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  white-space: nowrap;
+  overflow-y: visible !important;
+  overflow-x: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.actions-container > * {
+  flex-shrink: 0;
 }
 
 /* Enhanced table alignment and typography */
@@ -724,15 +889,27 @@ div.container-xl,
 
 .job-actions-left {
   justify-self: start;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 .job-actions-middle {
   justify-self: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .col-dropdowns {
   justify-self: end;
-  margin-right: 15px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 .table-responsive-wrapper {
@@ -764,7 +941,133 @@ div.container-xl,
     <div class="job-section shadow-lg p-3 rounded-3">
         <div class="d-flex justify-content-between align-items-center ml-15-px" style="margin-bottom:30px;">
             <h6 class="app-card-title mb-0">Archived Jobs</h6>
-            <div class="col-dropdowns d-flex gap-2">
+        </div>
+
+        <div class="actions-container ml-15-px mr-15-px">
+            <!-- Left Group: Filter, Email, Apply -->
+            <div class="job-actions-left">
+              <div class="position-relative" style="flex-shrink: 0;">
+                <button id="filter-btn" class="action-btn" title="Filter">
+                  <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Filter
+                </button>
+                <div id="filter-panel" class="filter-panel custom-dropdown hidden"
+                    style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 280px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 0;">
+                  <div style="padding: 16px;">
+                    <h6 style="margin-bottom: 12px; font-weight: 600; color: #121C0C;">Filter Jobs</h6>
+                    <!-- Location Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Location</label>
+                      <input type="text" id="filter-location" class="form-control"
+                            placeholder="Enter location" style="font-size: 13px; padding: 6px 10px;">
+                    </div>
+                    <!-- Salary Range Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Salary Range</label>
+                      <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="number" id="filter-salary-min" class="form-control"
+                              placeholder="Min" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                        <span style="color: #6b7280;">-</span>
+                        <input type="number" id="filter-salary-max" class="form-control"
+                              placeholder="Max" style="font-size: 13px; padding: 6px 10px; flex: 1;">
+                      </div>
+                    </div>
+                    <!-- Category Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Category</label>
+                      <select id="filter-category" class="form-control"
+                              style="font-size: 13px; padding: 6px 10px;">
+                        <option value="">All Categories</option>
+                        <option value="locums">Locums</option>
+                        <option value="parttime">Parttime</option>
+                        <option value="fulltime">Full time</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Date Posted Filter -->
+                    <div style="margin-bottom: 16px;">
+                      <label style="display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #121C0C;">Posted Within</label>
+                      <select id="filter-date-posted" class="form-control"
+                              style="font-size: 13px; padding: 6px 10px;">
+                        <option value="">Any time</option>
+                        <option value="1">Last 24 hours</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 3 months</option>
+                      </select>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 8px; margin-top: 16px;">
+                      <button id="apply-filter-btn" class="action-btn"
+                              style="flex: 1; padding: 8px 12px; font-size: 13px;">Apply</button>
+                      <button id="clear-filter-btn" class="action-btn"
+                              style="flex: 1; padding: 8px 12px; font-size: 13px; background: #f3f4f6; color: #6b7280;">Clear</button>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              <button id="email-btn" class="action-btn" title="Email">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="style=stroke">
+                <g id="email">
+                <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
+                <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
+                </g>
+                </g>
+                <use xlink:href="#icon-email"/>
+                </svg> Email
+              </button>
+              
+              <button id="apply-btn" class="action-btn hidden-btn" disabled title="Apply">
+                <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <g data-name="Layer 2">
+                <g data-name="checkmark-circle">
+                <rect width="24" height="24" opacity="0"/>
+                <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
+                <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
+                </g>
+                </g>
+                <use xlink:href="#icon-apply"/>
+                </svg> Apply
+              </button>
+            </div>
+            
+            <!-- Middle Group: Delete -->
+            <div class="job-actions-middle">
+              <button id="delete-btn" class="action-btn" title="Delete">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg> Delete
+              </button>
+            </div>
+            
+            <!-- Right Group: Split View, New Window, Menu -->
+            <div class="col-dropdowns">
+              <button id="grid-view-btn" class="action-btn" title="Split View">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Split View
+              </button>
+              <button id="float-view-btn" class="action-btn" title="Open in New Window">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 21H3V3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 11L21 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                New Window
+              </button>
               <!-- Menu Dropdown -->
               <div class="menu-dropdown position-relative">
                 <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
@@ -788,11 +1091,14 @@ div.container-xl,
                   </a>
                   <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                   <!-- Regular Menu Items -->
-                  <a href="{{ path('app_provider_download_data', {'type': 'archived'}) }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg> Export Report</a>
+                  <a href="{{ path('app_provider_download_data', {'type': 'archived'}) }}" class="menu-item" style="text-decoration: none; color: inherit;">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg> 
+                    <span>Export Report</span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -972,25 +1278,38 @@ div.container-xl,
 </script>
 
 <script>
-  // Single-selection feature: prevent multiple checkboxes from being selected
+  // Single-selection feature: automatically uncheck previous selection when new one is selected
   document.addEventListener('DOMContentLoaded', function() {
     // Delegated change listener to catch any checkbox state changes reliably
     document.addEventListener('change', (e) => {
       const target = e.target;
       if (!target) return;
       if (target.classList && (target.classList.contains('job-checkbox') || target.classList.contains('job-check'))) {
-        // Enforce single selection
+        // Enforce single selection - automatically uncheck others
         if (target.checked) {
+          const jobId = target.dataset.jobId || target.dataset.bookmarkId;
           // Get all checkboxes (including split view ones)
           const allCheckboxes = document.querySelectorAll('.job-checkbox, .job-check');
-          const otherChecked = Array.from(allCheckboxes).find(cb => cb !== target && cb.checked);
-          if (otherChecked) {
-            // Prevent this checkbox from being checked and show alert
-            target.checked = false;
-            showWarningAlert('Multiple Selection', 'You cannot select multiple values');
-            return;
+          // Uncheck all other checkboxes and check all instances of this job (sync views)
+          allCheckboxes.forEach(cb => {
+            const cbJobId = cb.dataset.jobId || cb.dataset.bookmarkId;
+            if (cbJobId === jobId) {
+              cb.checked = true;
+            } else {
+              cb.checked = false;
+            }
+          });
+          window.selectedJobId = jobId;
+        } else {
+          // If unchecking, clear selection
+          const jobId = target.dataset.jobId || target.dataset.bookmarkId;
+          if (window.selectedJobId === jobId) {
+            window.selectedJobId = null;
           }
         }
+        // Update UI states if functions exist
+        if (typeof toggleActionsVisibility === 'function') toggleActionsVisibility();
+        if (typeof updateButtonStates === 'function') updateButtonStates();
       }
     });
   });
@@ -1208,16 +1527,485 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Build calendar URL with job ID
-            let calendarUrl = timelineBtn.getAttribute('href');
             if (jobId) {
-                calendarUrl += '?jobId=' + encodeURIComponent(jobId);
+                // Open timeline panel
+                if (typeof window.openTimelinePanel === 'function') {
+                    window.openTimelinePanel(jobId);
+                }
+            } else {
+                if (typeof showToast === 'function') {
+                    showToast('Please select a job first', 'warning');
+                }
             }
             
-            window.open(calendarUrl, '_blank');
             closeAllDropdowns();
         });
     }
 });
+
+// Action buttons functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter button functionality
+    const filterBtn = document.getElementById('filter-btn');
+    const filterPanel = document.getElementById('filter-panel');
+    const applyFilterBtn = document.getElementById('apply-filter-btn');
+    const clearFilterBtn = document.getElementById('clear-filter-btn');
+    
+    if (filterBtn && filterPanel) {
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterPanel.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (!filterPanel.contains(e.target) && !filterBtn.contains(e.target)) {
+                filterPanel.classList.add('hidden');
+            }
+        });
+    }
+    
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', function() {
+            // Implement filter logic here
+            const location = document.getElementById('filter-location')?.value || '';
+            const salaryMin = document.getElementById('filter-salary-min')?.value || '';
+            const salaryMax = document.getElementById('filter-salary-max')?.value || '';
+            const category = document.getElementById('filter-category')?.value || '';
+            const datePosted = document.getElementById('filter-date-posted')?.value || '';
+            
+            // Build filter URL and reload
+            const params = new URLSearchParams();
+            if (location) params.append('location', location);
+            if (salaryMin) params.append('salary_min', salaryMin);
+            if (salaryMax) params.append('salary_max', salaryMax);
+            if (category) params.append('category', category);
+            if (datePosted) params.append('date_posted', datePosted);
+            
+            const queryString = params.toString();
+            window.location.href = window.location.pathname + (queryString ? '?' + queryString : '');
+        });
+    }
+    
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', function() {
+            document.getElementById('filter-location').value = '';
+            document.getElementById('filter-salary-min').value = '';
+            document.getElementById('filter-salary-max').value = '';
+            document.getElementById('filter-category').value = '';
+            document.getElementById('filter-date-posted').value = '';
+            window.location.href = window.location.pathname;
+        });
+    }
+    
+    // Email button functionality
+    const emailBtn = document.getElementById('email-btn');
+    if (emailBtn) {
+        emailBtn.addEventListener('click', function() {
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                // Open email modal or redirect to email page
+                if (typeof openEmailModal === 'function') {
+                    openEmailModal(1);
+                } else {
+                    window.location.href = '/provider/messages/new?jobId=' + selectedJobId;
+                }
+            } else {
+                if (typeof showWarningAlert === 'function') {
+                    showWarningAlert('No Job Selected', 'Please select a job first');
+                } else {
+                    alert('Please select a job first');
+                }
+            }
+        });
+    }
+    
+    // Apply button functionality
+    const applyBtn = document.getElementById('apply-btn');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                window.location.href = '/provider/jobs/apply/' + selectedJobId + '?redirect_route=app_provider_jobs_archived';
+            } else {
+                if (typeof showWarningAlert === 'function') {
+                    showWarningAlert('No Job Selected', 'Please select a job first');
+                } else {
+                    alert('Please select a job first');
+                }
+            }
+        });
+    }
+    
+    // Delete button functionality - Using event delegation for reliability
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('#delete-btn');
+        if (!deleteBtn) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        const selectedJobId = window.selectedJobId;
+        if (selectedJobId) {
+            if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+                fetch('/provider/jobs/' + selectedJobId + '/delete', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to delete job');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the job');
+                });
+            }
+        } else {
+            if (typeof showWarningAlert === 'function') {
+                showWarningAlert('No Job Selected', 'Please select a job first');
+            } else {
+                alert('Please select a job first');
+            }
+        }
+    });
+    
+    // Split View button functionality
+    const gridViewBtn = document.getElementById('grid-view-btn');
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', function() {
+            // Toggle split view - implement split view logic here
+            if (typeof showWarningAlert === 'function') {
+                showWarningAlert('Split View', 'Split view functionality will be implemented');
+            } else {
+                alert('Split view functionality will be implemented');
+            }
+        });
+    }
+    
+    // New Window button functionality
+    const floatViewBtn = document.getElementById('float-view-btn');
+    if (floatViewBtn) {
+        floatViewBtn.addEventListener('click', function() {
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                window.open('/provider/jobs/' + selectedJobId + '/detail', '_blank');
+            } else {
+                if (typeof showWarningAlert === 'function') {
+                    showWarningAlert('No Job Selected', 'Please select a job first');
+                } else {
+                    alert('Please select a job first');
+                }
+            }
+        });
+    }
+    
+    // Toggle actions visibility function
+    function toggleActionsVisibility() {
+        const checkboxes = document.querySelectorAll('.job-checkbox, .job-check');
+        const checked = Array.from(checkboxes).filter(cb => cb.checked);
+        const anyChecked = checked.length > 0;
+        
+        // Update apply button state
+        if (applyBtn) {
+            applyBtn.disabled = !anyChecked;
+            if (anyChecked) {
+                applyBtn.classList.remove('hidden-btn');
+                applyBtn.style.visibility = 'visible';
+                applyBtn.style.opacity = '1';
+            } else {
+                applyBtn.classList.add('hidden-btn');
+                applyBtn.style.visibility = 'hidden';
+                applyBtn.style.opacity = '0';
+            }
+        }
+    }
+    
+    // Update button states when checkboxes change
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('job-checkbox') || e.target.classList.contains('job-check')) {
+            toggleActionsVisibility();
+        }
+    });
+    
+    // Initial check
+    toggleActionsVisibility();
+});
+
+// Todo popup functionality
+(function() {
+    // Create popup element if it doesn't exist
+    function createTodoPopup() {
+        if (!window.todoPopup) {
+            window.todoPopup = document.getElementById('todo-popup');
+        }
+        if (!window.todoPopup) {
+            window.todoPopup = document.createElement('div');
+            window.todoPopup.id = 'todo-popup';
+            window.todoPopup.className = 'todo-popup';
+            window.todoPopup.innerHTML = `
+                <div class="todo-popup-header">
+                    <div class="todo-popup-title">To Do Action</div>
+                    <button class="todo-popup-close" type="button">&times;</button>
+                </div>
+                <div class="todo-popup-content"></div>
+            `;
+            if (document.body) {
+                document.body.appendChild(window.todoPopup);
+            } else {
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.appendChild(window.todoPopup);
+                });
+            }
+            
+            // Close button handler
+            const closeBtn = window.todoPopup.querySelector('.todo-popup-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    window.todoPopup.classList.remove('show');
+                });
+            }
+        }
+    }
+    
+    // Initialize popup click handler using event delegation
+    function initTodoPopupHandler() {
+        if (window.todoPopupHandlerInitialized) {
+            return;
+        }
+        
+        // Use event delegation on document to catch all clicks
+        document.addEventListener('click', function(e) {
+            // Check if click is on todo icon or its children
+            const todoIcon = e.target.closest('.todo-icon');
+            if (todoIcon) {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                // Ensure popup exists
+                if (!window.todoPopup) {
+                    createTodoPopup();
+                }
+                
+                const action = todoIcon.dataset.todoAction;
+                if (action && window.todoPopup) {
+                    const content = window.todoPopup.querySelector('.todo-popup-content');
+                    if (content) {
+                        content.textContent = action;
+                        
+                        // Position popup near the icon
+                        const rect = todoIcon.getBoundingClientRect();
+                        const popupWidth = 250;
+                        const popupHeight = 100;
+                        let left = rect.left + (rect.width / 2) - (popupWidth / 2);
+                        let top = rect.top - popupHeight - 10;
+                        
+                        // Adjust if popup goes off screen
+                        if (left < 10) left = 10;
+                        if (left + popupWidth > window.innerWidth - 10) {
+                            left = window.innerWidth - popupWidth - 10;
+                        }
+                        if (top < 10) {
+                            top = rect.bottom + 10;
+                        }
+                        
+                        window.todoPopup.style.left = left + 'px';
+                        window.todoPopup.style.top = top + 'px';
+                        window.todoPopup.classList.add('show');
+                    }
+                }
+                return;
+            }
+            
+            // Close popup if clicking outside
+            if (window.todoPopup && window.todoPopup.classList.contains('show') && 
+                !window.todoPopup.contains(e.target) && 
+                !e.target.closest('.todo-icon')) {
+                window.todoPopup.classList.remove('show');
+            }
+        });
+        
+        window.todoPopupHandlerInitialized = true;
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            createTodoPopup();
+            initTodoPopupHandler();
+        });
+    } else {
+        createTodoPopup();
+        initTodoPopupHandler();
+    }
+})();
+</script>
+
+<!-- Timeline Panel -->
+<aside id="timeline-panel" class="timeline-panel" aria-hidden="true" style="position: fixed; top: 0; right: 0; height: 100vh; width: 400px; max-width: 90vw; background: #fff; border-left: 1px solid #e6eef6; box-shadow: -2px 0 8px rgba(11,22,40,0.06); transform: translateX(100%); transition: transform 0.2s ease; display: flex; flex-direction: column; z-index: 9999; visibility: hidden; overflow-y: auto; pointer-events: none;">
+    <div class="timeline-header" style="padding: 20px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="timeline-title" style="margin: 0; font-size: 18px; font-weight: 600;">Job Timeline</h3>
+        <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+    <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 20px; overflow-y: auto;">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading timeline...</p>
+        </div>
+    </div>
+</aside>
+
+<!-- Timeline Panel Overlay -->
+<div id="timeline-overlay" class="timeline-panel-overlay" onclick="closeTimelinePanel()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none;"></div>
+
+<style>
+.timeline-panel.open {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+.timeline-panel-overlay.active {
+    display: block !important;
+}
+</style>
+
+<script>
+window.openTimelinePanel = function(jobId) {
+    const timelinePanel = document.getElementById('timeline-panel');
+    const timelineContent = document.getElementById('timeline-content');
+    const timelineOverlay = document.getElementById('timeline-overlay');
+    
+    if (!timelinePanel || !timelineContent) return;
+    
+    // Show loading state
+    timelineContent.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading timeline...</p>
+        </div>
+    `;
+    
+    // Open the panel
+    timelinePanel.classList.add('open');
+    timelinePanel.setAttribute('aria-hidden', 'false');
+    if (timelineOverlay) {
+        timelineOverlay.classList.add('active');
+    }
+    
+    // Fetch job timeline data from API
+    fetch(`/provider/jobs/${jobId}/timeline-data`)
+        .then(response => response.json())
+        .then(data => {
+            // Build interview section HTML
+            let interviewsHTML = '';
+            if (data.interviews && data.interviews.length > 0) {
+                interviewsHTML = data.interviews.map(interview => `
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
+                    </div>
+                    ${interview.platform ? `
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
+                    </div>
+                    ` : ''}
+                    ${interview.meetingUrl ? `
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">
+                            <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
+                        </span>
+                    </div>
+                    ` : ''}
+                `).join('');
+            } else {
+                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 13px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
+            }
+            
+            // Build timeline content with real data
+            timelineContent.innerHTML = `
+                <div class="timeline-events" style="padding: 10px 0;">
+                    <div class="timeline-event" style="display: flex; gap: 15px; padding: 15px 0;">
+                        <div class="timeline-event-icon" style="flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 50%;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="timeline-event-content" style="flex: 1;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #121C0C;">Application Overview</h6>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Status:</span>
+                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="color: #121C0C;">${data.applicationStatus}</span>
+                            </div>
+                            ${data.applicationDate ? `
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Applied On:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.applicationDate}</span>
+                            </div>
+                            ` : ''}
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Job Saved:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.bookmarkDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 10px 0;"></div>
+                    <div class="timeline-event" style="display: flex; gap: 15px; padding: 15px 0;">
+                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}" style="flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: ${data.interviews && data.interviews.length > 0 ? '#e8f5e9' : '#f8f9fa'}; border-radius: 50%;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
+                                <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="timeline-event-content" style="flex: 1;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #121C0C;">Interview Schedule</h6>
+                            ${interviewsHTML}
+                            <a href="{{ path('app_provider_interview_calendar') }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                View Full Calendar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        })
+        .catch(error => {
+            console.error('Error loading timeline:', error);
+            timelineContent.innerHTML = `
+                <div class="alert alert-warning">
+                    <p class="mb-0">Unable to load detailed timeline information.</p>
+                </div>
+            `;
+        });
+};
+
+window.closeTimelinePanel = function() {
+    const timelinePanel = document.getElementById('timeline-panel');
+    const timelineOverlay = document.getElementById('timeline-overlay');
+    if (timelinePanel) {
+        timelinePanel.classList.remove('open');
+        timelinePanel.setAttribute('aria-hidden', 'true');
+    }
+    if (timelineOverlay) {
+        timelineOverlay.classList.remove('active');
+    }
+};
 </script>
 {% endblock %}

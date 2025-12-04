@@ -36,6 +36,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Component\Uid\Uuid;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+
 #[Route('/provider')]
 class JobController extends AbstractController
 {
@@ -56,7 +57,7 @@ class JobController extends AbstractController
 
         $appliedJobs = [];
         $appliedJobsIds = [];
-        foreach ($applications as $application){
+        foreach ($applications as $application) {
             $appliedJobsIds[] =  (string) $application->getJob()->getId();
         }
 
@@ -69,11 +70,10 @@ class JobController extends AbstractController
     #[Route('/jobs/matching', name: 'app_provider_jobs_matching')]
     public function matchingJobs(
         Request $request,
-        JobRepository $jobRepository, 
+        JobRepository $jobRepository,
         ApplicationRepository $applicationRepository,
         EntityManagerInterface $em
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
 
@@ -88,7 +88,7 @@ class JobController extends AbstractController
 
         $filters['profession'] = $provider->getProfession()?->getId();
         $providerSpecialities = $provider->getSpecialities();
-        if(!empty($providerSpecialities)) {
+        if (!empty($providerSpecialities)) {
             foreach ($providerSpecialities as $speciality) {
                 $filters['speciality_ids'][] = $speciality->getId();
             }
@@ -114,7 +114,7 @@ class JobController extends AbstractController
 
         $jobs = $jobRepository->getProviderMatchingJobs($filters);
 
-        if(empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
+        if (empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
             $jobs = null;
         }
 
@@ -122,7 +122,7 @@ class JobController extends AbstractController
 
         $appliedJobs = [];
         $appliedJobsIds = [];
-        foreach ($applications as $application){
+        foreach ($applications as $application) {
             $appliedJobsIds[] =  (string) $application->getJob()->getId();
         }
 
@@ -164,7 +164,7 @@ class JobController extends AbstractController
     {
         $user = $this->getUser();
         $provider = $user->getProvider();
-        
+
         // -------------------------------
         // Filter parameters from query string (AJAX or normal)
         // -------------------------------
@@ -173,7 +173,7 @@ class JobController extends AbstractController
         $salaryMax = $request->query->get('salaryMax');
         $category = $request->query->get('category');
         $days = $request->query->get('days'); // Posted date filter
-        
+
         // Apply filters if provided
         if ($location || $salaryMin || $salaryMax || $category || $days) {
             $bookmarks = $bookmarkRepository->findFilteredJobs(
@@ -186,13 +186,13 @@ class JobController extends AbstractController
             );
         } else {
             // No filters - get all bookmarks
-        $bookmarks = $bookmarkRepository->createQueryBuilder('b')
-            ->join('b.job', 'j')
-            ->where('b.user = :user')
-            ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
-            ->orderBy('b.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            $bookmarks = $bookmarkRepository->createQueryBuilder('b')
+                ->join('b.job', 'j')
+                ->where('b.user = :user')
+                ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
+                ->orderBy('b.id', 'DESC')
+                ->getQuery()
+                ->getResult();
         }
 
         $messages = $em->getRepository(Message::class)->findBy(['receiver' => $user], ['id' => 'DESC'], 10);
@@ -202,7 +202,7 @@ class JobController extends AbstractController
 
         $appliedJobs = [];
         $appliedJobsIds = [];
-        foreach ($applications as $application){
+        foreach ($applications as $application) {
             $appliedJobsIds[] =  (string) $application->getJob()->getId();
         }
 
@@ -213,13 +213,13 @@ class JobController extends AbstractController
 
         $matchingJobs = $em->getRepository(Job::class)->getProviderMatchingJobs($filters);
 
-        if(empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
+        if (empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
             $matchingJobs = null;
         }
 
         // $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
         $applications = $em->getRepository(Application::class)
-                   ->findBy(['provider' => $this->getUser()->getProvider()], ['createdAt' => 'DESC']);
+            ->findBy(['provider' => $this->getUser()->getProvider()], ['createdAt' => 'DESC']);
         // Temporarily removed archived filter to avoid column not found error
 
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
@@ -232,7 +232,7 @@ class JobController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
-            // Pending document request todos for this provider
+        // Pending document request todos for this provider
         $pendingTodos = $todoRepository->findPendingByProvider($provider);
 
         if ($request->isXmlHttpRequest()) {
@@ -242,7 +242,7 @@ class JobController extends AbstractController
                 'appliedJobsIds' => $appliedJobsIds,
                 'pendingTodos' => $pendingTodos,
             ]);
-            
+
             return $this->json(['html' => $html]);
         }
 
@@ -262,11 +262,10 @@ class JobController extends AbstractController
         BookmarkRepository $bookmarkRepository,
         Request $request,
         EntityManagerInterface $em
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
-        
+
         $bookmarks = $bookmarkRepository->findBy(['user' => $this->getUser()], ['id' => 'DESC']);
 
         // Filter parameters from query string (AJAX or normal)
@@ -336,7 +335,7 @@ class JobController extends AbstractController
         Application $application,
         ApplicationRepository $applicationRepository,
         ReviewRepository $reviewRepository
-        ): Response {
+    ): Response {
         $provider = $this->getUser()->getProvider();
         $applications = $applicationRepository->findBy(['provider' => $provider]);
 
@@ -367,26 +366,56 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs/apply/{id}', name: 'app_provider_jobs_apply')]
-    public function applyJob(Job $job, Request $request, EntityManagerInterface $em, ApplicationService $applicationService): Response
-    {
+    public function applyJob(
+        Job $job,
+        Request $request,
+        EntityManagerInterface $em,
+        ApplicationService $applicationService
+    ): Response {
         $user = $this->getUser();
 
         if (!$user || !$job) {
             return new JsonResponse(['status' => 'error', 'message' => 'Invalid user or job']);
         }
 
-        $redirectRoute = $request->get('redirect_route') ? : 'app_provider_jobs_applications';
+        // Get redirect route & id if sent
+        $redirectRoute = $request->query->get('redirect_route') ?: 'app_provider_jobs_applications';
+        $redirectId = $request->query->get('redirect_id'); // optional
 
-        $application = $em->getRepository(Application::class)->findOneBy(['provider' => $user->getProvider(), 'job' => $job, 'employer' => $job->getEmployer()]);
-        if($application){
-            $this->addFlash('success', 'You already have applied for this job');
-            return $this->redirectToRoute($redirectRoute, [], Response::HTTP_SEE_OTHER);
+        // Check if already applied
+        $application = $em->getRepository(Application::class)->findOneBy([
+            'provider' => $user->getProvider(),
+            'job' => $job,
+            'employer' => $job->getEmployer()
+        ]);
+
+        if ($application) {
+            $this->addFlash('success', 'You already applied for this job.');
+
+            // If redirecting to job detail, ID is mandatory
+            if ($redirectRoute === 'app_provider_jobs_detail') {
+                return $this->redirectToRoute('app_provider_jobs_detail', [
+                    'id' => $redirectId ?: $job->getId()
+                ]);
+            }
+
+            return $this->redirectToRoute($redirectRoute);
         }
 
+        // Create application
         $applicationService->createApplication($job, $user);
 
-        $this->addFlash('success', 'Job applied successfully');
-        return $this->redirectToRoute($redirectRoute, [], Response::HTTP_SEE_OTHER);
+        $this->addFlash('success', 'Job applied successfully.');
+
+        // Handle redirect after applying
+        if ($redirectRoute === 'app_provider_jobs_detail') {
+            return $this->redirectToRoute('app_provider_jobs_detail', [
+                'id' => $redirectId ?: $job->getId()
+            ]);
+        }
+
+        // Normal redirect
+        return $this->redirectToRoute($redirectRoute);
     }
 
     #[Route('/jobs/remove-saved-job/{id}', name: 'app_provider_jobs_remove_saved_job')]
@@ -402,7 +431,7 @@ class JobController extends AbstractController
     #[Route('/{id}/provide-document', name: 'app_provider_application_providedocument', methods: ['GET'])]
     public function provideDocument(Application $application, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
-        if($application->getDocumentProvidedAt()){
+        if ($application->getDocumentProvidedAt()) {
             $this->addFlash('error', 'Document already provided to employer.');
             return $this->redirectToRoute('app_provider_jobs_applications');
         }
@@ -422,7 +451,7 @@ class JobController extends AbstractController
     public function getDocumentRequests(Application $application, DocumentRequestRepository $documentRequestRepository): JsonResponse
     {
         $provider = $this->getUser()->getProvider();
-        
+
         // Verify the application belongs to the provider
         if ($application->getProvider() !== $provider) {
             return new JsonResponse(['error' => 'Unauthorized'], 403);
@@ -451,7 +480,7 @@ class JobController extends AbstractController
     #[Route('/{id}/provide-onefile', name: 'app_provider_application_provideonefile', methods: ['GET'])]
     public function provideOneFile(Application $application, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
-        if($application->getOneFileProvidedAt()){
+        if ($application->getOneFileProvidedAt()) {
             $this->addFlash('error', 'One file already provided to employer.');
             return $this->redirectToRoute('app_provider_jobs_applications');
         }
@@ -476,21 +505,20 @@ class JobController extends AbstractController
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads/contracts')] string $uploadDirectory,
         WorkflowInterface $jobApplicationWorkflow
-    ): Response
-    {
+    ): Response {
         $referer = $request->headers->get('referer');
-        if($application->getContractSignedAt()){
+        if ($application->getContractSignedAt()) {
             $this->addFlash('error', 'Contract already sent to employer.');
             return $this->redirect($referer ?? $this->generateUrl('app_provider_jobs_applications'));
         }
 
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $contractFile = $request->files->get('contractFile');
             if ($contractFile) {
                 $originalFilename = pathinfo($contractFile->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$contractFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $contractFile->guessExtension();
 
                 try {
                     $contractFile->move($uploadDirectory, $newFilename);
@@ -508,7 +536,7 @@ class JobController extends AbstractController
 
             $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_CONTRACT_SIGNED_SENT);
 
-            if($application->getStatus() == 'offered'){
+            if ($application->getStatus() == 'offered') {
                 if ($jobApplicationWorkflow->can($application, 'hire')) {
                     $jobApplicationWorkflow->apply($application, 'hire');
                     $em->persist($application);
@@ -530,8 +558,7 @@ class JobController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         EventDispatcherInterface $dispatcher,
-    ): Response
-    {
+    ): Response {
         $provider = $application->getProvider();
         $employer = $application->getEmployer();
 
@@ -542,12 +569,12 @@ class JobController extends AbstractController
             'reviewedBy' => 'PROVIDER'
         ]);
 
-        if($existingReview){
+        if ($existingReview) {
             $this->addFlash('error', 'You already have write review for employer.');
             return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
         }
 
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $message = $request->get('message');
             $point = (int)$request->get('point');
             if (!empty($message) && !empty($point)) {
@@ -598,14 +625,14 @@ class JobController extends AbstractController
     public function updateRank(Request $request, EntityManagerInterface $em, BookmarkRepository $bookmarkRepository, JobRepository $jobRepository): JsonResponse
     {
         try {
-        // Parse JSON body
-        $data = json_decode($request->getContent(), true);
+            // Parse JSON body
+            $data = json_decode($request->getContent(), true);
             $jobIdStr = $data['jobId'] ?? null;
-        $rank = $data['rank'] ?? null;
+            $rank = $data['rank'] ?? null;
 
             if (!$jobIdStr || $rank === null) {
-            return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
-        }
+                return new JsonResponse(['success' => false, 'error' => 'Invalid data'], 400);
+            }
 
             // Convert jobId string to UUID
             $jobId = Uuid::fromString($jobIdStr);
@@ -616,12 +643,12 @@ class JobController extends AbstractController
             }
 
             // Find user's bookmark for this job, or create one if it doesn't exist
-        $bookmark = $bookmarkRepository->findOneBy([
+            $bookmark = $bookmarkRepository->findOneBy([
                 'job' => $job,
-            'user' => $this->getUser(),
-        ]);
+                'user' => $this->getUser(),
+            ]);
 
-        if (!$bookmark) {
+            if (!$bookmark) {
                 // Create a new bookmark if it doesn't exist (for matching jobs)
                 $bookmark = new Bookmark();
                 $bookmark->setJob($job);
@@ -638,16 +665,16 @@ class JobController extends AbstractController
             // Use raw SQL to properly escape the rank column name (MySQL reserved keyword)
             // Detach entity first to prevent Doctrine listeners from interfering
             $em->detach($bookmark);
-            
+
             $connection = $em->getConnection();
             $now = (new \DateTime())->format('Y-m-d H:i:s');
             $idBinary = $bookmark->getId()->toBinary();
             $rankStr = (string)$rank;
-            
+
             // Get the actual PDO connection from Doctrine's connection wrapper
             // We need to go through multiple layers to get the raw PDO instance
             $wrappedConnection = $connection->getWrappedConnection();
-            
+
             // Handle different connection wrapper types
             if (method_exists($wrappedConnection, 'getWrappedConnection')) {
                 $pdo = $wrappedConnection->getWrappedConnection();
@@ -670,12 +697,12 @@ class JobController extends AbstractController
                     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 }
             }
-            
+
             // Ensure we have a PDO instance
             if (!$pdo instanceof \PDO) {
                 throw new \RuntimeException('Could not obtain PDO connection');
             }
-            
+
             // Execute raw SQL with backticks using PDO directly
             // Backticks MUST be preserved - this bypasses all Doctrine processing
             $sql = "UPDATE `b_bookmark` SET `rank` = :rank_val, `updated_at` = :updated_at WHERE `id` = :id";
@@ -684,7 +711,7 @@ class JobController extends AbstractController
             $stmt->bindValue(':updated_at', $now, \PDO::PARAM_STR);
             $stmt->bindValue(':id', $idBinary, \PDO::PARAM_STR);
             $stmt->execute();
-            
+
             // Clear the entity manager to ensure fresh data on next fetch
             $em->clear();
 
@@ -711,7 +738,7 @@ class JobController extends AbstractController
 
             // Find the job
             $job = $em->getRepository(Job::class)->find($id);
-            
+
             if (!$job) {
                 if ($request->isXmlHttpRequest()) {
                     return new JsonResponse(['error' => 'Job not found'], 404);
@@ -741,17 +768,16 @@ class JobController extends AbstractController
 
             // For direct requests, return the HTML directly
             return new Response($htmlContent);
-            
         } catch (\Exception $e) {
             // Log the error for debugging
             error_log('Job detail content error: ' . $e->getMessage());
-            
+
             $errorMessage = '<div class="alert alert-danger">Error loading job details. Please try again.</div>';
-            
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['error' => $errorMessage], 500);
             }
-            
+
             return new Response($errorMessage, 500);
         }
     }
@@ -783,91 +809,90 @@ class JobController extends AbstractController
     }
 
     #[Route('/provider/send-employer-email', name: 'app_provider_send_employer_email', methods: ['POST'])]
-public function sendEmployerEmail(
-    Request $request,
-    EntityManagerInterface $entityManager,
-    MailerInterface $mailer
-): JsonResponse {
+    public function sendEmployerEmail(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): JsonResponse {
 
-    $data = json_decode($request->getContent(), true) ?: [];
+        $data = json_decode($request->getContent(), true) ?: [];
 
-    $jobId = $data['job_id'] ?? null;
-    $subject = trim($data['subject'] ?? '');
-    $message = trim($data['message'] ?? '');
+        $jobId = $data['job_id'] ?? null;
+        $subject = trim($data['subject'] ?? '');
+        $message = trim($data['message'] ?? '');
 
-    if (!$jobId || !$subject || !$message) {
-        return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
-    }
-
-    try {
-        // -------------------------------
-        // 1️⃣ Fetch Job and Employer Email
-        // -------------------------------
-        $job = $entityManager->getRepository(Job::class)->find($jobId);
-        if (!$job) {
-            return $this->json(['success' => false, 'message' => 'Job not found'], 404);
+        if (!$jobId || !$subject || !$message) {
+            return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
         }
 
-        $employer = $job->getEmployer();
-        if (!$employer) {
-            return $this->json(['success' => false, 'message' => 'Employer not found'], 404);
-        }
+        try {
+            // -------------------------------
+            // 1️⃣ Fetch Job and Employer Email
+            // -------------------------------
+            $job = $entityManager->getRepository(Job::class)->find($jobId);
+            if (!$job) {
+                return $this->json(['success' => false, 'message' => 'Job not found'], 404);
+            }
 
-        // Employer email: contactEmail → email
-        $employerEmail = trim(
-            $employer->getContactEmail() ?: $employer->getEmail()
-        );
+            $employer = $job->getEmployer();
+            if (!$employer) {
+                return $this->json(['success' => false, 'message' => 'Employer not found'], 404);
+            }
 
-        if (!filter_var($employerEmail, FILTER_VALIDATE_EMAIL)) {
-            return $this->json(['success' => false, 'message' => 'Invalid employer email: ' . $employerEmail], 400);
-        }
-
-        // -------------------------------
-        // 2️⃣ Fetch Provider (logged-in user) Email
-        // -------------------------------
-        $user = $this->getUser();
-
-        $providerName = $user?->getName() ?: 'Provider';
-        $providerEmail = trim($user?->getEmail() ?? '');
-
-        // Provider email fallback
-        if (!filter_var($providerEmail, FILTER_VALIDATE_EMAIL)) {
-            $providerEmail = 'notifications@locumlancer.com';
-            $providerName = 'LocumLancer Provider';
-        }
-
-        // -------------------------------
-        // 3️⃣ Build Email
-        // -------------------------------
-        $email = (new Email())
-            ->from($providerEmail)              // Provider is real sender
-            ->to($employerEmail)               // Employer is receiver
-            ->subject($subject)
-            ->html(
-                $this->renderView('emails/message_notification.html.twig', [
-                    'subject'        => $subject,
-                    'message_text'   => $message,
-                    'sender_name'    => $providerName,
-                    'sender_email'   => $providerEmail,
-                    'has_attachment' => false,
-                    'attachment_name'=> null,
-                ])
+            // Employer email: contactEmail → email
+            $employerEmail = trim(
+                $employer->getContactEmail() ?: $employer->getEmail()
             );
 
-        // -------------------------------
-        // 4️⃣ Send Email
-        // -------------------------------
-        $mailer->send($email);
+            if (!filter_var($employerEmail, FILTER_VALIDATE_EMAIL)) {
+                return $this->json(['success' => false, 'message' => 'Invalid employer email: ' . $employerEmail], 400);
+            }
 
-        return $this->json(['success' => true, 'message' => 'Email sent successfully']);
+            // -------------------------------
+            // 2️⃣ Fetch Provider (logged-in user) Email
+            // -------------------------------
+            $user = $this->getUser();
 
-    } catch (\Exception $e) {
-        return $this->json([
-            'success' => false,
-            'message' => 'Error sending email: ' . $e->getMessage()
-        ], 500);
+            $providerName = $user?->getName() ?: 'Provider';
+            $providerEmail = trim($user?->getEmail() ?? '');
+
+            // Provider email fallback
+            if (!filter_var($providerEmail, FILTER_VALIDATE_EMAIL)) {
+                $providerEmail = 'notifications@locumlancer.com';
+                $providerName = 'LocumLancer Provider';
+            }
+
+            // -------------------------------
+            // 3️⃣ Build Email
+            // -------------------------------
+            $email = (new Email())
+                ->from($providerEmail)              // Provider is real sender
+                ->to($employerEmail)               // Employer is receiver
+                ->subject($subject)
+                ->html(
+                    $this->renderView('emails/message_notification.html.twig', [
+                        'subject'        => $subject,
+                        'message_text'   => $message,
+                        'sender_name'    => $providerName,
+                        'sender_email'   => $providerEmail,
+                        'has_attachment' => false,
+                        'attachment_name' => null,
+                    ])
+                );
+
+            // -------------------------------
+            // 4️⃣ Send Email
+            // -------------------------------
+            $mailer->send($email);
+
+            return $this->json(['success' => true, 'message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error sending email: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     #[Route('/provider/track-email-sent', name: 'app_provider_track_email_sent', methods: ['POST'])]
@@ -887,7 +912,7 @@ public function sendEmployerEmail(
 
         return $this->json(['success' => true]);
     }
-    
+
     #[Route('/jobs/archive-bulk', name: 'app_provider_jobs_archive_bulk', methods: ['POST'])]
     public function archiveBulk(Request $request, EntityManagerInterface $em): JsonResponse
     {
@@ -896,7 +921,7 @@ public function sendEmployerEmail(
             'success' => true,
             'message' => "Archive functionality temporarily disabled."
         ]);
-        
+
         /* Original code - disabled temporarily
         $data = json_decode($request->getContent(), true);
         $ids = $data['ids'] ?? [];
@@ -935,19 +960,19 @@ public function sendEmployerEmail(
         */
     }
 
-    
+
     #[Route('/jobs/archived', name: 'app_provider_jobs_archived')]
     public function archivedJobs(BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         $provider = $user->getProvider();
-        
+
         // Fetch archived applications
         $archivedApplications = $applicationRepository->findBy([
             'provider' => $provider,
             'isArchived' => true
         ], ['archivedAt' => 'DESC']);
-        
+
         // Extract job IDs from archived applications
         $appliedJobsIds = [];
         foreach ($archivedApplications as $application) {
@@ -1006,10 +1031,10 @@ public function sendEmployerEmail(
     ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
-        
+
         // Get the page type from query parameter (saved, applications, matching)
         $type = $request->query->get('type', 'all');
-        
+
         // Initialize data arrays
         $bookmarks = [];
         $appliedApplications = [];
@@ -1017,7 +1042,7 @@ public function sendEmployerEmail(
         $completedApplications = [];
         $matchingJobs = [];
         $archivedApplications = [];
-        
+
         // Fetch data based on page type
         switch ($type) {
             case 'saved':
@@ -1037,7 +1062,7 @@ public function sendEmployerEmail(
                                 continue;
                             }
                         }
-                        
+
                         if (!empty($uuidJobIds)) {
                             // Filter bookmarks by visible job IDs
                             $qb = $bookmarkRepository->createQueryBuilder('b')
@@ -1059,18 +1084,18 @@ public function sendEmployerEmail(
                     $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
                 }
                 break;
-                
+
             case 'applications':
                 // Get status filter from query parameter
                 $statusFilter = $request->query->get('status', '');
-                
+
                 if ($statusFilter && in_array($statusFilter, ['applied', 'interview', 'completed'])) {
                     // Only fetch applications with the specific status (for PDF display)
                     $filteredApplications = $em->getRepository(Application::class)->findBy(
                         ['provider' => $provider, 'status' => $statusFilter],
                         ['createdAt' => 'DESC']
                     );
-                    
+
                     // Group by status (only the filtered status)
                     foreach ($filteredApplications as $application) {
                         switch ($application->getStatus()) {
@@ -1091,7 +1116,7 @@ public function sendEmployerEmail(
                         ['provider' => $provider],
                         ['createdAt' => 'DESC']
                     );
-                    
+
                     // Group by status
                     foreach ($allApplications as $application) {
                         switch ($application->getStatus()) {
@@ -1108,18 +1133,18 @@ public function sendEmployerEmail(
                     }
                 }
                 break;
-                
+
             case 'matching':
                 // Only matching jobs
                 $filters['profession'] = $provider->getProfession()?->getId();
                 $providerSpecialities = $provider->getSpecialities();
-                if(!empty($providerSpecialities)) {
+                if (!empty($providerSpecialities)) {
                     foreach ($providerSpecialities as $speciality) {
                         $filters['speciality_ids'][] = $speciality->getId();
                     }
                 }
                 $filters['state'] = $provider->getDesiredStates() ? implode(',', $provider->getDesiredStates()) : null;
-                
+
                 if (empty($filters['profession']) && empty($filters['speciality']) && empty($filters['state'])) {
                     $matchingJobs = [];
                 } else {
@@ -1127,7 +1152,7 @@ public function sendEmployerEmail(
                     $matchingJobs = $matchingJobs ?? [];
                 }
                 break;
-                
+
             case 'archived':
                 // Only archived applications
                 $archivedApplications = $em->getRepository(Application::class)->findBy(
@@ -1135,36 +1160,36 @@ public function sendEmployerEmail(
                     ['archivedAt' => 'DESC']
                 );
                 break;
-                
+
             default:
                 // All data (backward compatibility)
                 $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
-        $appliedApplications = $em->getRepository(Application::class)->findBy(
-            ['provider' => $provider, 'status' => 'applied'],
-            ['createdAt' => 'DESC']
-        );
-        $interviewApplications = $em->getRepository(Application::class)->findBy(
-            ['provider' => $provider, 'status' => 'interview'],
-            ['createdAt' => 'DESC']
-        );
-        $completedApplications = $em->getRepository(Application::class)->findBy(
-            ['provider' => $provider, 'status' => 'completed'],
-            ['createdAt' => 'DESC']
-        );
+                $appliedApplications = $em->getRepository(Application::class)->findBy(
+                    ['provider' => $provider, 'status' => 'applied'],
+                    ['createdAt' => 'DESC']
+                );
+                $interviewApplications = $em->getRepository(Application::class)->findBy(
+                    ['provider' => $provider, 'status' => 'interview'],
+                    ['createdAt' => 'DESC']
+                );
+                $completedApplications = $em->getRepository(Application::class)->findBy(
+                    ['provider' => $provider, 'status' => 'completed'],
+                    ['createdAt' => 'DESC']
+                );
                 break;
         }
-        
+
         // Configure DomPDF options
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
         $options->set('defaultFont', 'Arial');
-        
+
         $dompdf = new Dompdf($options);
-        
+
         // Get status filter for applications
         $statusFilter = $request->query->get('status', '');
-        
+
         // Render PDF template
         $html = $this->renderView('provider/job/pdf_data.html.twig', [
             'provider' => $provider,
@@ -1178,13 +1203,13 @@ public function sendEmployerEmail(
             'matchingJobs' => $matchingJobs ?? [],
             'archivedApplications' => $archivedApplications ?? [],
         ]);
-        
+
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        
+
         // Generate filename based on type
-        $typeLabel = match($type) {
+        $typeLabel = match ($type) {
             'saved' => 'saved_jobs',
             'applications' => 'applications',
             'matching' => 'matching_jobs',
@@ -1192,7 +1217,7 @@ public function sendEmployerEmail(
             default => 'all_data'
         };
         $filename = 'provider_' . $typeLabel . '_' . date('Y-m-d') . '.pdf';
-        
+
         // Return PDF as download
         return new Response(
             $dompdf->output(),
@@ -1213,7 +1238,7 @@ public function sendEmployerEmail(
     ): Response {
         // Check if user has permission to hire for this application
         $user = $this->getUser();
-        
+
         // Check if the current user is the provider in this application
         if ($application->getProvider()->getUser()->getId() !== $user->getId()) {
             if ($request->isXmlHttpRequest()) {
@@ -1235,17 +1260,16 @@ public function sendEmployerEmail(
         try {
             // Mark as hired - this will trigger the notification
             $applicationService->markAsHired($application);
-            
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Provider hired successfully! Admin has been notified. The application has been moved to the "accepted" section.'
                 ]);
             }
-            
+
             $this->addFlash('success', 'Provider hired successfully! Admin has been notified.');
             return $this->redirectToRoute('app_provider_jobs_applications');
-            
         } catch (\Exception $e) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['success' => false, 'message' => 'Error hiring provider: ' . $e->getMessage()]);
@@ -1341,7 +1365,6 @@ public function sendEmployerEmail(
                 'message' => 'Hire notifications processed successfully.',
                 'results' => $results
             ]);
-
         } catch (\Exception $e) {
             return new JsonResponse([
                 'success' => false,
@@ -1356,7 +1379,7 @@ public function sendEmployerEmail(
         // Start debug logging
         $debugLog = "=== APPLY JOBS REQUEST START ===\n";
         $debugLog .= "Time: " . date('Y-m-d H:i:s') . "\n";
-        
+
         // Handle both JSON and form data
         if ($request->headers->get('Content-Type') === 'application/json') {
             // JSON request
@@ -1374,24 +1397,24 @@ public function sendEmployerEmail(
             }
             $debugLog .= "Request type: FORM\n";
         }
-        
+
         $debugLog .= "Job IDs received: " . print_r($jobIds, true) . "\n";
         $debugLog .= "Job IDs count: " . count($jobIds) . "\n";
-        
+
         file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
+
         $user = $this->getUser();
         $debugLog = "User ID: " . ($user ? $user->getId() : 'NO USER') . "\n";
-        
+
         if ($user && method_exists($user, 'getProvider')) {
             $provider = $user->getProvider();
             $debugLog .= "Provider: " . ($provider ? $provider->getId() : 'NO PROVIDER') . "\n";
         } else {
             $debugLog .= "User has no getProvider method or no user\n";
         }
-        
+
         file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-        
+
         $appliedCount = 0;
         $alreadyAppliedCount = 0;
         $appliedJobIds = [];
@@ -1401,11 +1424,11 @@ public function sendEmployerEmail(
         foreach ($jobIds as $index => $jobId) {
             $debugLog = "Processing job #$index: " . $jobId . "\n";
             file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            
+
             try {
                 // Find the job
                 $job = $entityManager->getRepository(Job::class)->find($jobId);
-                
+
                 if (!$job) {
                     $debugLog = "❌ Job not found: " . $jobId . "\n";
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
@@ -1418,15 +1441,15 @@ public function sendEmployerEmail(
                 // Check if already applied
                 $existingApplication = $entityManager->getRepository(Application::class)
                     ->findOneBy([
-                        'provider' => $user->getProvider(), 
-                        'job' => $job, 
+                        'provider' => $user->getProvider(),
+                        'job' => $job,
                         'employer' => $job->getEmployer()
                     ]);
-                    
+
                 if ($existingApplication) {
                     $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-                    
+
                     $alreadyAppliedCount++;
                     $alreadyAppliedJobIds[] = $jobId;
                 } else {
@@ -1440,18 +1463,18 @@ public function sendEmployerEmail(
                     $application->setEmployer($job->getEmployer());
                     $application->setStatus('applied');
                     $application->setAppliedAt(new \DateTime());
-                    
+
                     $entityManager->persist($application);
                     $appliedCount++;
                     $appliedJobIds[] = $jobId;
                     $debugLog = "✅ Created application for job: " . $jobId . "\n";
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
                 }
-                
+
                 // Remove from bookmarks REGARDLESS of whether it was just applied or already applied
                 $bookmark = $entityManager->getRepository(Bookmark::class)
                     ->findOneBy(['job' => $job, 'user' => $user]);
-                    
+
                 if ($bookmark) {
                     $removedBookmarkIds[] = $bookmark->getId();
                     $entityManager->remove($bookmark);
@@ -1461,10 +1484,9 @@ public function sendEmployerEmail(
                     $debugLog = "❌ No bookmark found for job: " . $jobId . "\n";
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
                 }
-                
+
                 $debugLog = "✅ Successfully processed job: " . $jobId . "\n";
                 file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-                
             } catch (\Exception $e) {
                 $debugLog = '❌ Error applying to job ' . $jobId . ': ' . $e->getMessage() . "\n";
                 $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
@@ -1472,13 +1494,13 @@ public function sendEmployerEmail(
                 continue;
             }
         }
-        
+
         try {
             $debugLog = "Flushing entity manager...\n";
             file_put_contents('D:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            
+
             $entityManager->flush();
-            
+
             $debugLog = "✅ Flush completed\n";
             $debugLog .= "Final applied count: " . $appliedCount . "\n";
             $debugLog .= "Already applied count: " . $alreadyAppliedCount . "\n";
@@ -1487,7 +1509,7 @@ public function sendEmployerEmail(
             $debugLog .= "Removed bookmark IDs: " . print_r($removedBookmarkIds, true) . "\n";
             $debugLog .= '=== APPLY JOBS REQUEST END ===' . "\n\n";
             file_put_contents('D:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            
+
             // Build success message
             $message = "";
             if ($appliedCount > 0) {
@@ -1499,7 +1521,7 @@ public function sendEmployerEmail(
             if ($appliedCount === 0 && $alreadyAppliedCount === 0) {
                 $message = "No jobs were processed.";
             }
-            
+
             return $this->json([
                 'success' => true,
                 'message' => $message,
@@ -1514,7 +1536,7 @@ public function sendEmployerEmail(
             $debugLog .= 'Stack trace: ' . $e->getTraceAsString() . "\n";
             $debugLog .= '=== APPLY JOBS REQUEST END WITH ERROR ===' . "\n\n";
             file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-            
+
             return $this->json([
                 'success' => false,
                 'message' => 'Error applying to jobs: ' . $e->getMessage()
@@ -1526,7 +1548,7 @@ public function sendEmployerEmail(
     public function getTodos($id, BookmarkRepository $bookmarkRepo, ToDoRepository $todoRepo, Request $request): JsonResponse
     {
         $provider = $this->getUser()->getProvider();
-        
+
         // Find the bookmark
         $bookmark = $bookmarkRepo->findOneBy([
             'id' => $id,
@@ -1538,7 +1560,7 @@ public function sendEmployerEmail(
         }
 
         $todos = $todoRepo->findByBookmark($bookmark->getId());
-        
+
         $todoData = [];
         foreach ($todos as $todo) {
             $todoData[] = [
@@ -1559,7 +1581,7 @@ public function sendEmployerEmail(
     public function addTodo($id, BookmarkRepository $bookmarkRepo, EntityManagerInterface $em, Request $request): JsonResponse
     {
         $provider = $this->getUser()->getProvider();
-        
+
         // Find the bookmark
         $bookmark = $bookmarkRepo->findOneBy([
             'id' => $id,
@@ -1601,7 +1623,7 @@ public function sendEmployerEmail(
     public function toggleTodo($id, ToDoRepository $todoRepo, EntityManagerInterface $em): JsonResponse
     {
         $provider = $this->getUser()->getProvider();
-        
+
         $todo = $todoRepo->findOneBy([
             'id' => $id,
             'provider' => $provider
@@ -1621,7 +1643,7 @@ public function sendEmployerEmail(
     public function deleteTodo($id, ToDoRepository $todoRepo, EntityManagerInterface $em): JsonResponse
     {
         $provider = $this->getUser()->getProvider();
-        
+
         $todo = $todoRepo->findOneBy([
             'id' => $id,
             'provider' => $provider
@@ -1645,7 +1667,7 @@ public function sendEmployerEmail(
         EntityManagerInterface $em
     ): JsonResponse {
         $user = $this->getUser();
-        
+
         if (!$user) {
             error_log("❌ JOB NOTE: No authenticated user");
             return $this->json([
@@ -1666,15 +1688,15 @@ public function sendEmployerEmail(
                 case 'GET':
                     error_log("📥 GET NOTE REQUEST");
                     return $this->handleGetNote($user, $job, $jobNoteService, $em);
-                    
+
                 case 'POST':
                     error_log("💾 SAVE NOTE REQUEST");
                     return $this->handleSaveNote($user, $job, $request, $jobNoteService, $em);
-                    
+
                 case 'DELETE':
                     error_log("🗑️ DELETE NOTE REQUEST");
                     return $this->handleDeleteNote($user, $job, $jobNoteService);
-                    
+
                 default:
                     error_log("❌ UNSUPPORTED METHOD: " . $request->getMethod());
                     return $this->json([
@@ -1699,13 +1721,13 @@ public function sendEmployerEmail(
         error_log("User ID: " . $user->getId() . " (string: " . $user->getId()->toString() . ")");
         error_log("Job ID: " . $job->getId() . " (string: " . $job->getId()->toString() . ")");
         error_log("Job Title: " . $job->getTitle());
-        
+
         // Debug: Check UUID formats
         $userIdString = $user->getId()->toString();
         $jobIdString = $job->getId()->toString();
         error_log("User ID string: " . $userIdString);
         error_log("Job ID string: " . $jobIdString);
-        
+
         // Check if JobNoteService has the expected method
         if (!method_exists($jobNoteService, 'getNoteContent')) {
             error_log("❌ JobNoteService missing getNoteContent method");
@@ -1715,18 +1737,18 @@ public function sendEmployerEmail(
                 'content' => ''
             ], 500);
         }
-        
+
         $content = $jobNoteService->getNoteContent($user, $job);
-        
+
         // Additional debug: Check if we can find the note directly with different approaches
         $noteRepository = $em->getRepository(\App\Entity\JobNote::class);
-        
+
         // Method 1: Using objects (should work)
         $directNote = $noteRepository->findOneBy([
             'user' => $user,
             'job' => $job
         ]);
-        
+
         // Method 2: Using string UUIDs
         $directNoteByString = $noteRepository->createQueryBuilder('n')
             ->where('n.user = :user AND n.job = :job')
@@ -1734,7 +1756,7 @@ public function sendEmployerEmail(
             ->setParameter('job', $jobIdString)
             ->getQuery()
             ->getOneOrNullResult();
-        
+
         // Method 3: Raw SQL to see what's in DB
         $connection = $em->getConnection();
         $rawNotes = $connection->executeQuery(
@@ -1744,23 +1766,23 @@ public function sendEmployerEmail(
                 $job->getId()->toBinary()
             ]
         )->fetchAllAssociative();
-        
+
         error_log("=== QUERY RESULTS ===");
         error_log("Service result: " . ($content ? 'CONTENT EXISTS (' . strlen($content) . ' chars)' : 'NULL'));
         error_log("Direct query (objects): " . ($directNote ? 'NOTE FOUND (ID: ' . $directNote->getId() . ')' : 'NO NOTE FOUND'));
         error_log("Direct query (strings): " . ($directNoteByString ? 'NOTE FOUND' : 'NO NOTE FOUND'));
         error_log("Raw SQL results count: " . count($rawNotes));
-        
+
         foreach ($rawNotes as $rawNote) {
             $rawUserId = $rawNote['user_id'];
             $rawJobId = $rawNote['job_id'];
             $rawContent = $rawNote['content'];
-            
+
             error_log("Raw DB Note:");
             error_log("  User ID (hex): " . bin2hex($rawUserId));
             error_log("  Job ID (hex): " . bin2hex($rawJobId));
             error_log("  Content: '" . $rawContent . "'");
-            
+
             // Convert back to UUID strings for comparison
             try {
                 $dbUserId = Uuid::fromString(bin2hex($rawUserId));
@@ -1771,7 +1793,7 @@ public function sendEmployerEmail(
                 error_log("  UUID conversion error: " . $e->getMessage());
             }
         }
-        
+
         // Also check bookmarks relationship
         $bookmarkRepo = $em->getRepository(Bookmark::class);
         $bookmark = $bookmarkRepo->findOneBy([
@@ -1779,9 +1801,9 @@ public function sendEmployerEmail(
             'job' => $job
         ]);
         error_log("Bookmark exists: " . ($bookmark ? 'YES (ID: ' . $bookmark->getId() . ')' : 'NO'));
-        
+
         error_log("=== END GET DEBUG ===");
-        
+
         return $this->json([
             'success' => true,
             'content' => $content ?? '',
@@ -1801,7 +1823,7 @@ public function sendEmployerEmail(
         // Get and validate content
         $data = json_decode($request->getContent(), true);
         $content = $data['content'] ?? '';
-        
+
         // Debug logging for save
         error_log("=== SAVE JOB NOTE DEBUG ===");
         error_log("User ID: " . $user->getId());
@@ -1809,26 +1831,26 @@ public function sendEmployerEmail(
         error_log("Content received: '" . $content . "'");
         error_log("Content length: " . strlen($content));
         error_log("Request data: " . print_r($data, true));
-        
+
         // Trim and validate content
         $content = trim($content);
-        
+
         if ($content === '') {
             error_log("ℹ️ Empty content - attempting to delete note");
             // If content is empty, delete any existing note
             $deleted = $jobNoteService->deleteNote($user, $job);
             error_log("Delete result: " . ($deleted ? 'SUCCESS' : 'FAILED'));
             error_log("=== END SAVE DEBUG (DELETE) ===");
-            
+
             return $this->json([
                 'success' => true,
                 'message' => $deleted ? 'Note deleted' : 'No note to save',
                 'note' => null
             ]);
         }
-        
+
         error_log("ℹ️ Attempting to save note via service");
-        
+
         // Check existing note before save
         $noteRepository = $em->getRepository(\App\Entity\JobNote::class);
         $existingNote = $noteRepository->findOneBy([
@@ -1836,13 +1858,13 @@ public function sendEmployerEmail(
             'job' => $job
         ]);
         error_log("Existing note before save: " . ($existingNote ? 'FOUND (ID: ' . $existingNote->getId() . ')' : 'NOT FOUND'));
-        
+
         $note = $jobNoteService->saveNote($user, $job, $content);
-        
+
         error_log("✅ Save successful - Note ID: " . $note->getId());
         error_log("Saved content: '" . $note->getContent() . "'");
         error_log("=== END SAVE DEBUG ===");
-        
+
         return $this->json([
             'success' => true,
             'message' => 'Note saved successfully',
@@ -1860,7 +1882,7 @@ public function sendEmployerEmail(
         $deleted = $jobNoteService->deleteNote($user, $job);
         error_log("Delete result: " . ($deleted ? 'SUCCESS' : 'FAILED - Note not found'));
         error_log("=== END DELETE DEBUG ===");
-        
+
         return $this->json([
             'success' => $deleted,
             'message' => $deleted ? 'Note deleted successfully' : 'Note not found'
@@ -1873,10 +1895,10 @@ public function sendEmployerEmail(
         if (!$user) {
             return $this->json(['error' => 'Not authenticated'], 401);
         }
-        
+
         $noteRepository = $em->getRepository(\App\Entity\JobNote::class);
         $allNotes = $noteRepository->findBy(['user' => $user]);
-        
+
         $notesData = [];
         foreach ($allNotes as $note) {
             $notesData[] = [
@@ -1889,14 +1911,14 @@ public function sendEmployerEmail(
                 'created_at' => $note->getCreatedAt()->format('Y-m-d H:i:s')
             ];
         }
-        
+
         error_log("=== DEBUG ALL NOTES ===");
         error_log("Total notes for user {$user->getId()}: " . count($allNotes));
         foreach ($notesData as $note) {
             error_log("Note ID: {$note['id']}, Job: {$note['job_title']}, Content: '{$note['content']}'");
         }
         error_log("=== END DEBUG ALL NOTES ===");
-        
+
         return $this->json([
             'user_id' => $user->getId(),
             'total_notes' => count($allNotes),
@@ -1910,15 +1932,15 @@ public function sendEmployerEmail(
         $user = $this->getUser();
         $jobId = '0196d8be-3869-7b1d-b002-860e39a6eaee';
         $job = $em->getRepository(Job::class)->find($jobId);
-        
+
         error_log("=== SERVICE DEBUG ===");
         error_log("JobNoteService class: " . get_class($jobNoteService));
         error_log("Available methods: " . implode(', ', get_class_methods($jobNoteService)));
-        
+
         // Test getNoteContent directly
         $content = $jobNoteService->getNoteContent($user, $job);
         error_log("getNoteContent result: " . ($content ?: 'NULL'));
-        
+
         return $this->json([
             'service_class' => get_class($jobNoteService),
             'methods' => get_class_methods($jobNoteService),
@@ -1930,24 +1952,24 @@ public function sendEmployerEmail(
     {
         $user = $this->getUser();
         $job = $em->getRepository(Job::class)->find($jobId);
-        
+
         if (!$job) {
             return $this->json(['error' => 'Job not found'], 404);
         }
-        
+
         $connection = $em->getConnection();
-        
+
         // Check all notes for this user and job
         $sql = "SELECT id, user_id, job_id, content, created_at, updated_at 
                 FROM b_job_notes 
                 WHERE user_id = ? AND job_id = ? 
                 ORDER BY created_at DESC";
-        
+
         $notes = $connection->executeQuery($sql, [
             $user->getId()->toBinary(),
             $job->getId()->toBinary()
         ])->fetchAllAssociative();
-        
+
         $notesData = [];
         foreach ($notes as $note) {
             $notesData[] = [
@@ -1960,7 +1982,7 @@ public function sendEmployerEmail(
                 'updated_at' => $note['updated_at']
             ];
         }
-        
+
         return $this->json([
             'user_id' => $user->getId()->toString(),
             'job_id' => $jobId,
@@ -1974,22 +1996,22 @@ public function sendEmployerEmail(
     {
         $user = $this->getUser();
         $job = $em->getRepository(Job::class)->find($jobId);
-        
+
         if (!$job) {
             return $this->json(['error' => 'Job not found'], 404);
         }
-        
+
         $noteRepository = $em->getRepository(JobNote::class);
-        
+
         // Test 1: Using the repository method
         $repoNote = $noteRepository->findNoteByUserAndJob($user, $job);
-        
+
         // Test 2: Using direct findBy
         $directNote = $noteRepository->findOneBy([
             'user' => $user,
             'job' => $job
         ]);
-        
+
         // Test 3: Using createQueryBuilder directly
         $qbNote = $noteRepository->createQueryBuilder('jn')
             ->where('jn.user = :user')
@@ -2000,7 +2022,7 @@ public function sendEmployerEmail(
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
-        
+
         return $this->json([
             'repository_method' => $repoNote ? [
                 'id' => $repoNote->getId()->toString(),
@@ -2026,26 +2048,26 @@ public function sendEmployerEmail(
         try {
             $user = $this->getUser();
             $provider = $user->getProvider();
-            
+
             // Get the job
             $job = $em->getRepository(Job::class)->find($id);
-            
+
             if (!$job) {
                 return $this->json(['error' => 'Job not found'], 404);
             }
-            
+
             // Get application for this job
             $application = $applicationRepository->findOneBy([
                 'job' => $job,
                 'provider' => $provider
             ]);
-            
+
             // Get bookmark info
             $bookmark = $em->getRepository(Bookmark::class)->findOneBy([
                 'job' => $job,
                 'user' => $user
             ]);
-            
+
             $timelineData = [
                 'jobId' => $id,
                 'applicationStatus' => $application ? ucfirst($application->getStatus()) : 'Not Applied',
@@ -2053,11 +2075,11 @@ public function sendEmployerEmail(
                 'bookmarkDate' => $bookmark && $bookmark->getCreatedAt() ? $bookmark->getCreatedAt()->format('M d, Y') : 'Recently',
                 'interviews' => []
             ];
-            
+
             // Get interview information if application exists
             if ($application) {
                 $interview = $application->getInterview();
-                
+
                 // Check for interview
                 if ($interview && $interview->getDate()) {
                     $timelineData['interviews'][] = [
@@ -2069,21 +2091,21 @@ public function sendEmployerEmail(
                         'meetingUrl' => $interview->getMeetingUrl()
                     ];
                 }
-                
+
                 // Add other important dates
                 if ($application->getHiredAt()) {
                     $timelineData['hiredDate'] = $application->getHiredAt()->format('M d, Y');
                 }
-                
+
                 if ($application->getContractSentAt()) {
                     $timelineData['contractSentDate'] = $application->getContractSentAt()->format('M d, Y');
                 }
-                
+
                 if ($application->getContractSignedAt()) {
                     $timelineData['contractSignedDate'] = $application->getContractSignedAt()->format('M d, Y');
                 }
             }
-            
+
             return $this->json($timelineData);
         } catch (\Exception $e) {
             return $this->json([
@@ -2092,7 +2114,4 @@ public function sendEmployerEmail(
             ], 500);
         }
     }
-
-
-    
 }

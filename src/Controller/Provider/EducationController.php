@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Intl\Countries;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Uid\Uuid;
 
 #[Route('/provider/application/education')]
 class EducationController extends AbstractController
@@ -41,33 +40,8 @@ class EducationController extends AbstractController
             'educations' => $educationRepository->findBy(['user' => $this->getUser()], ['startDate' => 'DESC']),
             'education' => $education,
             'form' => $form->createView(),
-            'countries' => Countries::getNames()
+            'countries' => Countries::getNames(),
         ]);
-    }
-
-    #[Route('/list', name: 'app_provider_education_list', methods: ['GET'])]
-    public function list(EducationRepository $educationRepository, Request $request): Response
-    {
-        $educations = $educationRepository->findBy(['user' => $this->getUser()], ['startDate' => 'DESC']);
-        
-        if ($request->isXmlHttpRequest()) {
-            return $this->render('provider/profile/_education_list.html.twig', [
-                'educations' => $educations
-            ]);
-        }
-        
-        return $this->json(['educations' => array_map(function($edu) {
-            return [
-                'id' => $edu->getId(),
-                'school' => $edu->getSchool(),
-                'degree' => $edu->getDegree(),
-                'country' => $edu->getCountry(),
-                'state' => $edu->getState(),
-                'city' => $edu->getCity(),
-                'startDate' => $edu->getStartDate()?->format('m/d/Y'),
-                'endDate' => $edu->getEndDate()?->format('m/d/Y'),
-            ];
-        }, $educations)]);
     }
 
     #[Route('/new', name: 'app_provider_education_new', methods: ['GET', 'POST'])]
@@ -75,6 +49,7 @@ class EducationController extends AbstractController
     {
         $education = new Education();
         $education->setUser($this->getUser());
+
         $form = $this->createForm(EducationType::class, $education);
         $form->handleRequest($request);
 
@@ -90,15 +65,7 @@ class EducationController extends AbstractController
             return $this->redirectToRoute('app_provider_education_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        // For AJAX requests, return just the form HTML
         if ($request->isXmlHttpRequest()) {
-            if ($form->isSubmitted() && !$form->isValid()) {
-                // Return form with validation errors
-                return $this->render('provider/education/_form.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            // Return empty form for GET requests
             return $this->render('provider/education/_form.html.twig', [
                 'form' => $form->createView(),
             ]);
@@ -106,7 +73,32 @@ class EducationController extends AbstractController
 
         return $this->render('provider/education/new.html.twig', [
             'education' => $education,
-            'form' => $form,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/list', name: 'app_provider_education_list', methods: ['GET'])]
+    public function list(EducationRepository $educationRepository, Request $request): Response
+    {
+        $educations = $educationRepository->findBy(['user' => $this->getUser()], ['startDate' => 'DESC']);
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('provider/profile/_education_list.html.twig', [
+                'educations' => $educations
+            ]);
+        }
+
+        return $this->json([
+            'educations' => array_map(fn($edu) => [
+                'id' => $edu->getId(),
+                'school' => $edu->getSchool(),
+                'degree' => $edu->getDegree(),
+                'country' => $edu->getCountry(),
+                'state' => $edu->getState(),
+                'city' => $edu->getCity(),
+                'startDate' => $edu->getStartDate()?->format('m/d/Y'),
+                'endDate' => $edu->getEndDate()?->format('m/d/Y'),
+            ], $educations)
         ]);
     }
 
@@ -144,6 +136,27 @@ class EducationController extends AbstractController
         $form->handleRequest($request);
 
         if ($request->isXmlHttpRequest()) {
+            if ($request->isMethod('POST')) {
+                if ($form->isSubmitted() && $form->isValid()) {
+                    $entityManager->flush();
+                    return $this->json([
+                        'status' => 'success',
+                        'education' => [
+                            'id' => $education->getId(),
+                            'school' => $education->getSchool(),
+                            'degree' => $education->getDegree(),
+                            'country' => $education->getCountry(),
+                            'state' => $education->getState(),
+                            'city' => $education->getCity(),
+                            'startDate' => $education->getStartDate() ? $education->getStartDate()->format('m/d/Y') : null,
+                            'endDate' => $education->getEndDate() ? $education->getEndDate()->format('m/d/Y') : null,
+                        ]
+                    ]);
+                }
+                return $this->render('provider/education/_form.html.twig', [
+                    'form' => $form->createView(),
+                ]);
+            }
             return $this->json([
                 'form' => $this->renderView('provider/education/_form.html.twig', [
                     'form' => $form->createView(),
@@ -154,15 +167,7 @@ class EducationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            if ($request->isXmlHttpRequest()) {
-                return $this->json(['status' => 'success']);
-            }
-
             $this->addFlash('success', 'Education & training updated successfully');
-
-            if($request->request->has('save_continue')){
-                return $this->redirectToRoute('app_provider_license_index');
-            }
 
             return $this->redirectToRoute('app_provider_education_index', [], Response::HTTP_SEE_OTHER);
         }

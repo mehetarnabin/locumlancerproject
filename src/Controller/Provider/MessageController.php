@@ -471,9 +471,19 @@ class MessageController extends AbstractController
             $em->flush();
         }
 
+        // Get counts for badges
+        $draftCount = $em->getRepository(Message::class)->getDraftCount($user);
+        $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
+
+        // Get employers for compose modal
+        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+
         return $this->render('provider/message/show.html.twig', [
             'message' => $message,
             'replies' => $em->getRepository(Message::class)->findBy(['parent' => $message], ['createdAt' => 'ASC']),
+            'draft_count' => $draftCount,
+            'trash_count' => $trashCount,
+            'employers' => $employers,
         ]);
     }
 
