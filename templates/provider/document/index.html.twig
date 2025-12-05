@@ -50,6 +50,133 @@
     will-change: auto !important;
 }
 
+/* Style for external links cards */
+.request-card[data-company="External Links"] {
+    border-left: 4px solid #3b82f6; /* Blue border for external links */
+}
+
+.request-card[data-company="External Links"] .request-title {
+    color: #3b82f6; /* Blue text for external links */
+}
+
+/* Link Submission Modal Styles */
+#linkSubmissionModal .modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid #e6eef6;
+}
+
+#linkSubmissionModal .modal-header {
+    background: #F4F9F1;
+    border-bottom: 1px solid #e6eef6;
+    padding: 16px 24px;
+}
+
+#linkSubmissionModal .modal-body {
+    padding: 32px 24px;
+}
+
+#linkSubmissionModal .modal-footer {
+    border-top: 1px solid #e6eef6;
+    padding: 20px 24px;
+    background: #f9fafb;
+}
+
+#linkSubmissionModal .btn-success {
+    background: #10b981;
+    border-color: #10b981;
+    padding: 10px 24px;
+    font-weight: 500;
+}
+
+#linkSubmissionModal .btn-success:hover {
+    background: #0da271;
+    border-color: #0da271;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+#linkSubmissionModal .btn-secondary {
+    padding: 10px 24px;
+    font-weight: 500;
+}
+
+#linkSubmissionModal .btn-secondary:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+
+#submission-status-icon {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Status badges for credentialing links */
+.link-status-badge {
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+}
+
+.link-status-badge .badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+}
+
+.badge.bg-warning {
+    background-color: #f59e0b !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6b7280 !important;
+}
+
+.badge.bg-success {
+    background-color: #10b981 !important;
+}
+
+/* External link card enhancements */
+.request-card[data-company="External Links"] .request-title {
+    color: #3b82f6;
+    margin-bottom: 8px;
+}
+
+.request-card[data-company="External Links"] .link-status-badge {
+    margin-top: 12px;
+}
+
+/* Status-specific styling */
+.request-card.status-submitted {
+    border-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+.request-card.status-completed {
+    opacity: 0.7;
+    border-color: #6b7280;
+}
+
+/* Company group header for external links */
+.company-group-header.external-links {
+    border-left: 4px solid #3b82f6;
+    background: #eff6ff;
+}
+
+.company-name.external-links {
+    color: #3b82f6;
+}
+
+.request-count.external-links {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
 /* Layout reset to match dashboard spacing */
 body.app .app-wrapper,
 .app-wrapper {
@@ -1674,10 +1801,11 @@ div.container-xl,
                                 <td><span class="text-warning">Pending</span></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn" title="Open Link">
+                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn external-link" data-link-id="{{ link.id }}" title="Open Link">
                                             Open Link
                                         </a>
                                         <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL">Copy</button>
+                                        <button type="button" class="action-btn btn-success link-submitted-btn" data-link-id="{{ link.id }}" title="I Submitted">Yes, I submitted</button>
                                     </div>
                                 </td>
                             </tr>
@@ -1753,19 +1881,103 @@ div.container-xl,
                             </div>
                         </div>
                     {% endfor %}
-                {% else %}
+                {% endif %}
+                
+                {# Add Credentialing Links Section #}
+                {% if credentialingLinks|length > 0 %}
+                    <div class="company-document-group">
+                        <div class="company-group-header external-links">
+                            <h6 class="company-name external-links">External Links</h6>
+                            <span class="request-count external-links">{{ credentialingLinks|length }} link(s)</span>
+                        </div>
+                        <div class="requests-grid">
+                            {% for link in credentialingLinks %}
+                                <div class="request-card" data-link-id="{{ link.id }}" data-company="External Links">
+                                    <div class="request-card-header">
+                                        <div class="request-title external-link">{{ link.title }}</div>
+                                        {% if link.description %}
+                                            <p class="text-muted small mb-2" style="font-size: 0.75rem;">{{ link.description|slice(0, 80) }}{{ link.description|length > 80 ? '...' : '' }}</p>
+                                        {% endif %}
+                                        <div class="d-flex flex-column gap-2">
+                                            <div class="action-buttons">
+                                                <a href="{{ link.url }}" 
+                                                   target="_blank" 
+                                                   rel="noopener noreferrer" 
+                                                   class="action-btn btn-primary w-100 external-link"
+                                                   data-link-id="{{ link.id }}"
+                                                   title="Open this external link in a new tab"
+                                                   style="justify-content: center;">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                                        <polyline points="15 3 21 3 21 9"/>
+                                                        <line x1="10" y1="14" x2="21" y2="3"/>
+                                                    </svg>
+                                                    Open Link
+                                                </a>
+                                            </div>
+                                            <div class="action-buttons">
+                                                <button type="button" 
+                                                        class="action-btn btn-secondary w-100 copy-link-btn"
+                                                        data-url="{{ link.url }}"
+                                                        title="Copy link to clipboard"
+                                                        style="justify-content: center;">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                                    </svg>
+                                                    Copy URL
+                                                </button>
+                                            </div>
+                                            <div class="action-buttons">
+                                                <button type="button" 
+                                                        class="action-btn btn-success w-100 link-submitted-btn"
+                                                        data-link-id="{{ link.id }}"
+                                                        title="Confirm you submitted the form"
+                                                        style="justify-content: center;">
+                                                    Yes, I submitted
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% if link.sender %}
+                                            <div class="mt-2 text-center">
+                                                <small class="text-muted">From: {{ link.sender }}</small>
+                                            </div>
+                                        {% endif %}
+                                        <div class="mt-2 text-center">
+                                            <small class="text-muted">{{ link.createdAt|date('m/d/Y') }}</small>
+                                        </div>
+                                        {# Link Status Badge #}
+                                        <div class="link-status-badge">
+                                            {% if link.status == 'submitted' %}
+                                                <span class="badge bg-success">Submitted: {{ link.submittedAt|date('m/d/Y') }}</span>
+                                            {% elseif link.lastOpenedAt %}
+                                                <span class="badge bg-warning">Opened: {{ link.lastOpenedAt|date('m/d/Y') }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Not Opened</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if companyGroups|length == 0 and credentialingLinks|length == 0 %}
                     <div class="empty-grid-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                        </svg>
                         <h4>No pending document requests</h4>
-                        <p>There are no pending document requests from companies at this time.</p>
-                </div>
+                        <p>There are no pending document requests or external links at this time.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    
 
         {# Document Upload Form - Compact Version #}
     <div class="card app-card-settings">
@@ -1977,6 +2189,43 @@ div.container-xl,
         </div>
     </div>
 
+    {# Link Submission Modal #}
+    <div class="modal fade" id="linkSubmissionModal" tabindex="-1" aria-labelledby="linkSubmissionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="linkSubmissionModalLabel">Form Submission Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3" id="submission-status-icon">
+                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h4 id="submission-question">Did you submit the form?</h4>
+                        <p id="submission-instructions" class="text-muted">
+                            Please let us know if you completed and submitted the form on the external website.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" id="confirm-submission-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                            <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Yes, I Submitted
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="cancel-submission-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
+                            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        No, Not Yet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {# Uploaded Documents Table #}
     <div class="card app-card-settings">
         <div class="card-body">
@@ -2068,7 +2317,7 @@ div.container-xl,
                 <!-- Left Side: Document List -->
                 <div class="split-document-list" id="documents-split-list">
                     {% for document in documents %}
-                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.name ?: document.category }}">
+                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url=""{{ path('app_provider_document_view', {'id': document.id}) }}" data-document-name="{{ document.name ?: document.category }}">
                             <div class="split-document-card-header">
                                 <div class="flex-grow-1">
                                     <div class="split-document-card-title">{{ document.name ?: document.category }}</div>
@@ -2382,9 +2631,193 @@ div.container-xl,
             }
         }
 
-        // Tab functionality
+        // Link Tracking System - Merged from second code
         document.addEventListener('DOMContentLoaded', function() {
-            // Function to switch to a specific tab
+            // Track link opens and show confirmation modal
+            document.querySelectorAll('.request-card[data-link-id] a[target="_blank"], .open-credentialing-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const card = this.closest('.request-card');
+                    const linkId = card?.dataset?.linkId || this.dataset.linkId;
+                    const url = this.href || this.dataset.url;
+                    const linkTitle = card?.querySelector('.request-title')?.textContent || this.textContent || 'External Link';
+                    
+                    if (linkId) {
+                        // Store link info for modal
+                        sessionStorage.setItem('tracking_link_id', linkId);
+                        sessionStorage.setItem('tracking_link_url', url);
+                        sessionStorage.setItem('tracking_link_title', linkTitle);
+                        
+                        // Track the initial open
+                        trackLinkEvent(linkId, 'opened', url);
+                        
+                        // Open the link in background immediately
+                        setTimeout(() => {
+                            window.open(url, '_blank', 'noopener,noreferrer');
+                        }, 100);
+                    } else {
+                        // If no tracking ID, just open normally
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    }
+                });
+            });
+            
+           
+            // Simplified link tracking - Updated from second code
+document.querySelectorAll('.mark-credentialing-submitted-btn, .link-submitted-btn, .mark-submitted-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const linkId = this.dataset.linkId;
+        const card = this.closest('.request-card, .credential-card, .credentialing-link-item');
+        
+        if (!linkId) return;
+        
+        // Use SweetAlert for confirmation
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Submit Form?',
+                text: 'Have you completed and submitted this form? This will remove it from your pending list.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, I Submitted',
+                cancelButtonText: 'No, Not Yet'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    trackLinkEvent(linkId, 'submitted', button, card);
+                }
+            });
+        } else {
+            if (confirm('Have you completed and submitted this form? This will remove it from your pending list.')) {
+                trackLinkEvent(linkId, 'submitted', button, card);
+            }
+        }
+    });
+});
+
+// Simplified track link event function
+function trackLinkEvent(linkId, action, buttonElement, cardElement) {
+    // Show loading state on button
+    if (buttonElement) {
+        const originalText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    }
+    
+    return fetch('/provider/link-track/event', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            linkId: linkId,
+            action: action,
+            timestamp: new Date().toISOString()
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Reset button state
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = 'Yes, I Submitted';
+        }
+        
+        if (data && data.success) {
+            // Show success message
+            if (typeof showSuccessAlert !== 'undefined') {
+                showSuccessAlert('Success!', data.message);
+            } else {
+                alert(data.message);
+            }
+            
+            // Remove the link from the UI
+            if (cardElement) {
+                cardElement.style.transition = 'all 0.3s ease';
+                cardElement.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    cardElement.remove();
+                    updatePendingRequestsCount();
+                }, 500);
+            }
+        } else {
+            if (typeof showErrorAlert !== 'undefined') {
+                showErrorAlert('Error', data?.message || 'Failed to record submission. Please try again.');
+            } else {
+                alert(data?.message || 'Failed to record submission. Please try again.');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Reset button state
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = 'Yes, I Submitted';
+        }
+        
+        if (typeof showErrorAlert !== 'undefined') {
+            showErrorAlert('Error', 'Network error. Please try again.');
+        } else {
+            alert('Network error. Please try again.');
+        }
+    });
+}
+
+// Update pending requests count function
+function updatePendingRequestsCount() {
+    const companyGroups = document.querySelectorAll('.company-document-group');
+    companyGroups.forEach(group => {
+        const requestsGrid = group.querySelector('.requests-grid');
+        const requestCount = group.querySelector('.request-count');
+        
+        if (requestsGrid) {
+            const remainingCards = requestsGrid.querySelectorAll('.request-card, .credential-card').length;
+            
+            if (remainingCards === 0) {
+                group.style.opacity = '0.5';
+                setTimeout(() => {
+                    group.remove();
+                }, 500);
+            } else if (requestCount) {
+                requestCount.textContent = `${remainingCards} request(s)`;
+            }
+        }
+    });
+    
+    // Check if all pending items are gone
+    setTimeout(() => {
+        const allRequests = document.querySelectorAll('.request-card').length;
+        const allLinks = document.querySelectorAll('[data-link-id]').length;
+        
+        if (allRequests === 0 && allLinks === 0) {
+            const container = document.getElementById('requests-grid-wrapper');
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-grid-state">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 15L11 17L15 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h4>All caught up!</h4>
+                        <p>No pending document requests or external links.</p>
+                    </div>
+                `;
+            }
+        }
+    }, 600);
+}
+
+            // Tab functionality - From first code
             function switchToTab(tabName) {
                 // Remove active class from all tabs and contents
                 document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
@@ -4054,31 +4487,7 @@ div.container-xl,
                             <div class="document-preview-container">
                                 <div class="document-preview-header">
                                     <div class="document-preview-title">${documentName}</div>
-                                    <div class="document-preview-actions">
-                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            View Full Page
-                                        </a>
-                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                            Open in New Tab
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="document-preview-frame">
-                                    <iframe src="${documentUrl}" type="application/pdf"></iframe>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        previewHTML = `
-                            <div class="document-preview-container">
-                                <div class="document-preview-header">
-                                    <div class="document-preview-title">${documentName}</div>
+                        
                                     <div class="document-preview-actions">
                                         <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

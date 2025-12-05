@@ -6,6 +6,7 @@ use App\Entity\Document;
 use App\Entity\DocumentRequest;
 use App\Entity\CredentialingLink;
 use App\Entity\Application;
+use App\Entity\LinkTrackingLog;
 use App\Event\ApplicationEvent;
 use App\Form\DocumentType;
 use App\Repository\DocumentRepository;
@@ -26,6 +27,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Route('/provider')]
 class DocumentController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+    
     #[Route('/documents', name: 'app_provider_documents')]
     public function index(
         DocumentRepository $documentRepository,
@@ -304,7 +312,11 @@ class DocumentController extends AbstractController
 
         // Fetch other data for the page (document requests, credentialing links, etc.)
         $documentRequests = $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']);
-        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy(['provider' => $provider, 'isActive' => true], ['createdAt' => 'DESC']);
+        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
+            'provider' => $provider,
+            'isActive' => true,
+            'status' => ['pending', 'viewed']
+        ], ['createdAt' => 'DESC']);
         $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
         // Get the latest CV document for initial page load
@@ -320,7 +332,7 @@ class DocumentController extends AbstractController
             'credentialingLinks' => $credentialingLinks,
             'editMode' => false,
             'uploadDirectory' => '/uploads/' . $user->getId(),
-            'latestCV' => $latestCV  // This was missing!
+            'latestCV' => $latestCV
         ]);
     }
 
@@ -387,7 +399,8 @@ class DocumentController extends AbstractController
         // Get credentialing links using EntityManager
         $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
             'provider' => $provider,
-            'isActive' => true
+            'isActive' => true,
+            'status' => ['pending', 'viewed']
         ], ['createdAt' => 'DESC']);
 
         return $this->render('provider/document/index.html.twig', [
@@ -415,10 +428,20 @@ class DocumentController extends AbstractController
         $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
 
         if (!file_exists($documentPath)) {
-            throw $this->createNotFoundException('Document file not found.');
+            // Try alternative path if first fails
+            $altPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $user->getId() . '/' . $document->getFileName();
+            
+            if (!file_exists($altPath)) {
+                throw $this->createNotFoundException('Document file not found at: ' . $documentPath);
+            }
+            $documentPath = $altPath;
         }
 
+        // Determine MIME type
+        $mimeType = mime_content_type($documentPath) ?: 'application/octet-stream';
+        
         $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($documentPath);
+        $response->headers->set('Content-Type', $mimeType);
         $response->setContentDisposition(
             \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_INLINE,
             $document->getFileName()
@@ -725,5 +748,122 @@ class DocumentController extends AbstractController
         }, $links);
 
         return $this->json(['success' => true, 'documentRequests' => $data, 'credentialLinks' => $linksData]);
+    }
+
+#[Route('/link-track/event', name: 'app_provider_link_track_event', methods: ['POST'])]
+public function trackLinkEvent(Request $request): JsonResponse
+{
+    try {
+        $data = json_decode($request->getContent(), true);
+        
+        if (!isset($data['linkId']) || !isset($data['action'])) {
+            return $this->json(['success' => false, 'message' => 'Missing parameters'], 400);
+        }
+        
+        $link = $this->entityManager->getRepository(CredentialingLink::class)->find($data['linkId']);
+        
+        if (!$link) {
+            return $this->json(['success' => false, 'message' => 'Link not found'], 404);
+        }
+        
+        $currentUser = $this->getUser();
+        $currentProvider = $currentUser->getProvider();
+        
+        // Verify the link belongs to the current provider
+        if (!$currentProvider || $link->getProvider()->getId() !== $currentProvider->getId()) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        
+        $message = '';
+        
+        // Handle different actions
+        switch ($data['action']) {
+            case 'opened':
+                $link->setLastOpenedAt(new \DateTime());
+                $link->setOpenCount($link->getOpenCount() + 1);
+                
+                if ($link->getStatus() === 'pending') {
+                    $link->setStatus('viewed');
+                }
+                $message = 'Link opened successfully';
+                break;
+                
+            case 'submitted':
+                $link->setStatus('submitted');
+                $link->setSubmittedAt(new \DateTime());
+                $link->setProviderResponse('Form submitted by user');
+                $link->setIsActive(false);
+                $message = 'Form submitted successfully! The link has been moved to completed section.';
+                break;
+                
+            case 'completed':
+                $link->setStatus('completed');
+                $link->setCompletedAt(new \DateTime());
+                $link->setIsActive(false);
+                $message = 'Link marked as completed';
+                break;
+                
+            default:
+                return $this->json(['success' => false, 'message' => 'Unknown action'], 400);
+        }
+        
+        $this->entityManager->persist($link);
+        $this->entityManager->flush();
+        
+        return $this->json([
+            'success' => true,
+            'message' => $message,
+            'status' => $link->getStatus(),
+            'isActive' => $link->getIsActive()
+        ]);
+        
+    } catch (\Exception $e) {
+        error_log('Link tracking error: ' . $e->getMessage());
+        
+        return $this->json([
+            'success' => false, 
+            'message' => 'An error occurred. Please try again.'
+        ], 500);
+    }
+}
+
+// Remove the createSimpleDocumentRecord and createDocumentFromLink methods completely
+// They're no longer needed since we're not creating Document records
+
+#[Route('/link/{id}/complete', name: 'app_provider_link_complete', methods: ['POST'])]
+public function completeLink(Request $request, CredentialingLink $link): JsonResponse
+{
+    // Mark link as completed and remove from pending
+    $link->setStatus('submitted'); // Changed from 'completed' to 'submitted' for consistency
+    $link->setSubmittedAt(new \DateTime());
+    $link->setProviderResponse('User confirmed form submission');
+    $link->setIsActive(false);
+    
+    $this->entityManager->flush();
+    
+    return $this->json([
+        'success' => true,
+        'message' => 'Form submitted successfully! The link has been moved to completed section.',
+        'redirect' => $this->generateUrl('app_provider_documents')
+    ]);
+}
+
+    #[Route('/link/{id}/status', name: 'app_provider_link_status', methods: ['GET'])]
+    public function getLinkStatus(CredentialingLink $link): JsonResponse
+    {
+        $currentUser = $this->getUser();
+        $currentProvider = $currentUser->getProvider();
+        
+        if ($link->getProvider()->getId() !== $currentProvider->getId()) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        
+        return $this->json([
+            'success' => true,
+            'status' => $link->getStatus(),
+            'lastOpenedAt' => $link->getLastOpenedAt()?->format('Y-m-d H:i:s'),
+            'submittedAt' => $link->getSubmittedAt()?->format('Y-m-d H:i:s'),
+            'openCount' => $link->getOpenCount()
+        ]);
     }
 }

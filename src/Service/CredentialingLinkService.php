@@ -24,7 +24,7 @@ class CredentialingLinkService
         ?string $sender = null,
         ?Job $job = null
     ): CredentialingLink {
-        // Validate URL
+        $url = $this->normalizeUrl($url);
         if (!$this->isValidUrl($url)) {
             throw new \InvalidArgumentException('Invalid URL provided');
         }
@@ -54,6 +54,31 @@ class CredentialingLinkService
     {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
+
+    private function normalizeUrl(string $url): string
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        if ($host && stripos($host, 'drive.google.com') !== false) {
+            $id = null;
+            if (preg_match('/\/d\/([a-zA-Z0-9_-]+)/', $url, $m)) {
+                $id = $m[1];
+            } else {
+                $query = parse_url($url, PHP_URL_QUERY);
+                $params = [];
+                if ($query) {
+                    parse_str($query, $params);
+                }
+                if (!empty($params['id'])) {
+                    $id = $params['id'];
+                }
+            }
+            if (!empty($id)) {
+                $url = 'https://drive.google.com/file/d/' . $id . '/view?usp=sharing';
+            }
+        }
+        return $url;
+    }
+
 
     /**
      * Get active credentialing links for a provider

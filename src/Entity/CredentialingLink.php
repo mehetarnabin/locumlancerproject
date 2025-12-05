@@ -49,6 +49,24 @@ class CredentialingLink
     #[ORM\Column(name: 'is_active')]
     private bool $isActive = true;
 
+    #[ORM\Column(length: 50)]
+    private string $status = 'pending';
+
+    #[ORM\Column(name: 'submitted_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $submittedAt = null;
+
+    #[ORM\Column(name: 'last_opened_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastOpenedAt = null;
+
+    #[ORM\Column(name: 'open_count', type: Types::INTEGER)]
+    private int $openCount = 0;
+
+    #[ORM\Column(name: 'completed_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $completedAt = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $providerResponse = null;
+
 
     // Getters and setters...
     public function getId(): ?int
@@ -141,6 +159,72 @@ class CredentialingLink
     public function setJob(?Job $job): self
     {
         $this->job = $job;
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getSubmittedAt(): ?\DateTimeInterface
+    {
+        return $this->submittedAt;
+    }
+
+    public function setSubmittedAt(?\DateTimeInterface $submittedAt): self
+    {
+        $this->submittedAt = $submittedAt;
+        return $this;
+    }
+
+    public function getLastOpenedAt(): ?\DateTimeInterface
+    {
+        return $this->lastOpenedAt;
+    }
+
+    public function setLastOpenedAt(?\DateTimeInterface $lastOpenedAt): self
+    {
+        $this->lastOpenedAt = $lastOpenedAt;
+        return $this;
+    }
+
+    public function getOpenCount(): int
+    {
+        return $this->openCount;
+    }
+
+    public function setOpenCount(int $openCount): self
+    {
+        $this->openCount = $openCount;
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeInterface
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTimeInterface $completedAt): self
+    {
+        $this->completedAt = $completedAt;
+        return $this;
+    }
+
+    public function getProviderResponse(): ?string
+    {
+        return $this->providerResponse;
+    }
+
+    public function setProviderResponse(?string $providerResponse): self
+    {
+        $this->providerResponse = $providerResponse;
         return $this;
     }
 }
