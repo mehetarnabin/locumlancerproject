@@ -26,139 +26,303 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Route('/provider')]
 class DocumentController extends AbstractController
 {
-#[Route('/documents', name: 'app_provider_documents')]
-public function index(
-    DocumentRepository $documentRepository,
-    DocumentRequestRepository $documentRequestRepository,
-    Request $request,
-    EntityManagerInterface $em,
-    SluggerInterface $slugger,
-    #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-): Response
-{
-    $user = $this->getUser();
-    $provider = $user->getProvider();
+    #[Route('/documents', name: 'app_provider_documents')]
+    public function index(
+        DocumentRepository $documentRepository,
+        DocumentRequestRepository $documentRequestRepository,
+        Request $request,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): Response {
+        $user = $this->getUser();
+        $provider = $user->getProvider();
 
-    $document = new Document();
-    $form = $this->createForm(DocumentType::class, $document);
-    $form->handleRequest($request);
+        $document = new Document();
+        $form = $this->createForm(DocumentType::class, $document);
+        $form->handleRequest($request);
+        $deaDocumentsData = $request->request->all('dea_documents');
+        if (!is_array($deaDocumentsData)) {
+            $deaDocumentsData = [];
+        }
+        $deaDocumentsFiles = $request->files->all('dea_documents');
+        if (!is_array($deaDocumentsFiles)) {
+            $deaDocumentsFiles = [];
+        }
+        $deaProcessed = false;
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        /** @var UploadedFile $file */
-        $file = $form->get('fileName')->getData();
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $file */
+            $file = $form->get('fileName')->getData();
 
-        if ($file) {
-            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeFilename = $slugger->slug($originalFilename);
-            $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+            if ($file) {
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
-            try {
+                try {
+                    $userUploadDir = $uploadDirectory . '/' . $user->getId();
+                    if (!file_exists($userUploadDir)) {
+                        mkdir($userUploadDir, 0777, true);
+                    }
+                    $file->move($userUploadDir, $newFilename);
+                } catch (FileException $e) {
+                    if ($request->isXmlHttpRequest()) {
+                        return $this->json(['success' => false, 'message' => 'File upload failed: ' . $e->getMessage()], 500);
+                    }
+                    $this->addFlash('error', 'File upload failed: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_provider_documents');
+                }
+
+                $document->setFileName($newFilename);
+                $document->setMimeType($file->getClientMimeType());
+            }
+
+            $document->setUser($user);
+            if (!$document->getName() && $document->getCategory()) {
+                if ($document->getCategory() === 'All DEAs') {
+                    $document->setName('DEA 1');
+                } else {
+                    $document->setName($document->getCategory());
+                }
+            }
+
+            // Auto-expiry logic
+            $autoExpiryDocuments = [
+                'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
+                'Influenza vaccine proof',
+                'COVID-19 vaccine proof',
+                'Mask fit testing'
+            ];
+
+            if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
+                if ($document->getIssueDate() && !$document->getExpirationDate()) {
+                    $expirationDate = clone $document->getIssueDate();
+                    $expirationDate->modify('+1 year');
+                    $document->setExpirationDate($expirationDate);
+                }
+            }
+
+            $em->persist($document);
+
+            if (!empty($deaDocumentsFiles)) {
                 $userUploadDir = $uploadDirectory . '/' . $user->getId();
                 if (!file_exists($userUploadDir)) {
                     mkdir($userUploadDir, 0777, true);
                 }
-                $file->move($userUploadDir, $newFilename);
-            } catch (FileException $e) {
-                if ($request->isXmlHttpRequest()) {
-                    return $this->json(['success' => false, 'message' => 'File upload failed: ' . $e->getMessage()], 500);
+                foreach ($deaDocumentsFiles as $idx => $deaFileGroup) {
+                    $deaFile = $deaFileGroup['fileName'] ?? null;
+                    $deaData = $deaDocumentsData[$idx] ?? [];
+                    if (!$deaFile instanceof UploadedFile) {
+                        continue;
+                    }
+                    $orig = pathinfo($deaFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safe = $slugger->slug($orig);
+                    $new = $safe . '-' . uniqid() . '.' . $deaFile->guessExtension();
+                    try {
+                        $deaFile->move($userUploadDir, $new);
+                    } catch (FileException $e) {
+                        continue;
+                    }
+                    $deaDoc = new Document();
+                    $deaDoc->setUser($user);
+                    $deaDoc->setCategory(isset($deaData['category']) && $deaData['category'] ? $deaData['category'] : 'All DEAs');
+                    $deaDoc->setFileName($new);
+                    $deaDoc->setMimeType($deaFile->getClientMimeType());
+                    if (!empty($deaData['issueDate'])) {
+                        try {
+                            $deaDoc->setIssueDate(new \DateTime($deaData['issueDate']));
+                        } catch (\Exception $e) {
+                        }
+                    }
+                    if (!empty($deaData['expirationDate'])) {
+                        try {
+                            $deaDoc->setExpirationDate(new \DateTime($deaData['expirationDate']));
+                        } catch (\Exception $e) {
+                        }
+                    }
+                    if (!$deaDoc->getName()) {
+                        if (($deaDoc->getCategory() ?? '') === 'All DEAs') {
+                            $deaDoc->setName('DEA ' . ((int)$idx + 1));
+                        } else if ($deaDoc->getCategory()) {
+                            $deaDoc->setName($deaDoc->getCategory());
+                        }
+                    }
+                    $em->persist($deaDoc);
+                    $deaProcessed = true;
                 }
-                $this->addFlash('error', 'File upload failed: ' . $e->getMessage());
+            }
+            $em->flush();
+
+            // AJAX response for CV upload
+            if ($request->isXmlHttpRequest()) {
+                $cvListHtml = '';
+                $latestCV = null;
+
+                if ($document->getCategory() === 'CV') {
+                    // Get all CV documents for the list
+                    $cvDocuments = $documentRepository->findBy(
+                        ['user' => $user, 'category' => 'CV'],
+                        ['createdAt' => 'DESC']
+                    );
+
+                    $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
+                        'cvDocuments' => $cvDocuments,
+                        'uploadDirectory' => '/uploads/' . $user->getId()
+                    ]);
+
+                    // Get the latest CV document (most recently uploaded)
+                    $latestCVDocument = $documentRepository->findOneBy(
+                        ['user' => $user, 'category' => 'CV'],
+                        ['createdAt' => 'DESC']
+                    );
+
+                    if ($latestCVDocument) {
+                        $latestCV = [
+                            'fileName' => $latestCVDocument->getFileName(),
+                            'userId' => $user->getId()
+                        ];
+                    }
+                }
+
+                return $this->json([
+                    'success' => true,
+                    'message' => 'Document uploaded successfully.',
+                    'fileName' => $document->getName() ?: $file->getClientOriginalName(),
+                    'cvListHtml' => $cvListHtml,
+                    'latestCV' => $latestCV
+                ]);
+            }
+
+            $this->addFlash('success', 'Document uploaded successfully.');
+            return $this->redirectToRoute('app_provider_documents');
+        }
+
+        if ($request->isMethod('POST') && !empty($deaDocumentsFiles)) {
+            $userUploadDir = $uploadDirectory . '/' . $user->getId();
+            if (!file_exists($userUploadDir)) {
+                mkdir($userUploadDir, 0777, true);
+            }
+
+            $uploadErrors = [];
+            $deaProcessedCount = 0;
+
+            foreach ($deaDocumentsFiles as $idx => $deaFileGroup) {
+                $deaFile = $deaFileGroup['fileName'] ?? null;
+                $deaData = $deaDocumentsData[$idx] ?? [];
+
+                if (!$deaFile instanceof UploadedFile) {
+                    continue;
+                }
+
+                // Validation
+                $maxSize = 8 * 1024 * 1024; // 8MB
+                $allowedMimeTypes = [
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
+
+                if ($deaFile->getSize() > $maxSize) {
+                    $uploadErrors[] = sprintf('File "%s" exceeds the maximum allowed size of 8MB.', $deaFile->getClientOriginalName());
+                    continue;
+                }
+
+                if (!in_array($deaFile->getClientMimeType(), $allowedMimeTypes)) {
+                    $uploadErrors[] = sprintf('File "%s" has an invalid format. Only PDF and DOCX are allowed.', $deaFile->getClientOriginalName());
+                    continue;
+                }
+
+                $orig = pathinfo($deaFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safe = $slugger->slug($orig);
+                $new = $safe . '-' . uniqid() . '.' . $deaFile->guessExtension();
+
+                try {
+                    $deaFile->move($userUploadDir, $new);
+                } catch (FileException $e) {
+                    $uploadErrors[] = sprintf('Failed to upload file "%s": %s', $deaFile->getClientOriginalName(), $e->getMessage());
+                    continue;
+                }
+
+                $deaDoc = new Document();
+                $deaDoc->setUser($user);
+                $deaDoc->setCategory(isset($deaData['category']) && $deaData['category'] ? $deaData['category'] : 'All DEAs');
+                $deaDoc->setFileName($new);
+                $deaDoc->setMimeType($deaFile->getClientMimeType());
+
+                if (!empty($deaData['issueDate'])) {
+                    try {
+                        $deaDoc->setIssueDate(new \DateTime($deaData['issueDate']));
+                    } catch (\Exception $e) {
+                    }
+                }
+                if (!empty($deaData['expirationDate'])) {
+                    try {
+                        $deaDoc->setExpirationDate(new \DateTime($deaData['expirationDate']));
+                    } catch (\Exception $e) {
+                    }
+                }
+
+                if (!$deaDoc->getName()) {
+                    if (($deaDoc->getCategory() ?? '') === 'All DEAs') {
+                        // Find existing DEA documents to determine the next number
+                        $existingDeas = $documentRepository->createQueryBuilder('d')
+                            ->where('d.user = :user')
+                            ->andWhere('d.category = :category')
+                            ->setParameter('user', $user)
+                            ->setParameter('category', 'All DEAs')
+                            ->getQuery()
+                            ->getResult();
+
+                        $nextNum = count($existingDeas) + $deaProcessedCount + 1;
+                        $deaDoc->setName('DEA ' . $nextNum);
+                    } else if ($deaDoc->getCategory()) {
+                        $deaDoc->setName($deaDoc->getCategory());
+                    }
+                }
+
+                $em->persist($deaDoc);
+                $deaProcessed = true;
+                $deaProcessedCount++;
+            }
+
+            if ($deaProcessed) {
+                $em->flush();
+                $this->addFlash('success', 'DEA documents uploaded successfully.');
+            }
+
+            if (!empty($uploadErrors)) {
+                foreach ($uploadErrors as $error) {
+                    $this->addFlash('error', $error);
+                }
+            }
+
+            if ($deaProcessed || !empty($uploadErrors)) {
                 return $this->redirectToRoute('app_provider_documents');
             }
-
-            $document->setFileName($newFilename);
-            $document->setMimeType($file->getClientMimeType());
         }
 
-        $document->setUser($user);
-        if (!$document->getName() && $document->getCategory()) {
-            $document->setName($document->getCategory());
-        }
+        // Fetch other data for the page (document requests, credentialing links, etc.)
+        $documentRequests = $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']);
+        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy(['provider' => $provider, 'isActive' => true], ['createdAt' => 'DESC']);
+        $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
-        // Auto-expiry logic
-        $autoExpiryDocuments = [
-            'Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)',
-            'Influenza vaccine proof',
-            'COVID-19 vaccine proof',
-            'Mask fit testing'
-        ];
+        // Get the latest CV document for initial page load
+        $latestCV = $documentRepository->findOneBy(
+            ['user' => $user, 'category' => 'CV'],
+            ['createdAt' => 'DESC']
+        );
 
-        if ($document->getCategory() && in_array($document->getCategory(), $autoExpiryDocuments)) {
-            if ($document->getIssueDate() && !$document->getExpirationDate()) {
-                $expirationDate = clone $document->getIssueDate();
-                $expirationDate->modify('+1 year');
-                $document->setExpirationDate($expirationDate);
-            }
-        }
-
-        $em->persist($document);
-        $em->flush();
-
-        // AJAX response for CV upload
-        if ($request->isXmlHttpRequest()) {
-            $cvListHtml = '';
-            $latestCV = null;
-
-            if ($document->getCategory() === 'CV') {
-                // Get all CV documents for the list
-                $cvDocuments = $documentRepository->findBy(
-                    ['user' => $user, 'category' => 'CV'],
-                    ['createdAt' => 'DESC']
-                );
-
-                $cvListHtml = $this->renderView('provider/profile/_cv_list.html.twig', [
-                    'cvDocuments' => $cvDocuments,
-                    'uploadDirectory' => '/uploads/' . $user->getId()
-                ]);
-
-                // Get the latest CV document (most recently uploaded)
-                $latestCVDocument = $documentRepository->findOneBy(
-                    ['user' => $user, 'category' => 'CV'],
-                    ['createdAt' => 'DESC']
-                );
-
-                if ($latestCVDocument) {
-                    $latestCV = [
-                        'fileName' => $latestCVDocument->getFileName(),
-                        'userId' => $user->getId()
-                    ];
-                }
-            }
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Document uploaded successfully.',
-                'fileName' => $document->getName() ?: $file->getClientOriginalName(),
-                'cvListHtml' => $cvListHtml,
-                'latestCV' => $latestCV
-            ]);
-        }
-
-        $this->addFlash('success', 'Document uploaded successfully.');
-        return $this->redirectToRoute('app_provider_documents');
+        return $this->render('provider/document/index.html.twig', [
+            'form' => $form->createView(),
+            'documents' => $documents,
+            'documentRequests' => $documentRequests,
+            'credentialingLinks' => $credentialingLinks,
+            'editMode' => false,
+            'uploadDirectory' => '/uploads/' . $user->getId(),
+            'latestCV' => $latestCV  // This was missing!
+        ]);
     }
-
-    // Fetch other data for the page (document requests, credentialing links, etc.)
-    $documentRequests = $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']);
-    $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy(['provider' => $provider, 'isActive' => true], ['createdAt' => 'DESC']);
-    $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-
-    // Get the latest CV document for initial page load
-    $latestCV = $documentRepository->findOneBy(
-        ['user' => $user, 'category' => 'CV'],
-        ['createdAt' => 'DESC']
-    );
-
-    return $this->render('provider/document/index.html.twig', [
-        'form' => $form->createView(),
-        'documents' => $documents,
-        'documentRequests' => $documentRequests,
-        'credentialingLinks' => $credentialingLinks,
-        'editMode' => false,
-        'uploadDirectory' => '/uploads/' . $user->getId(),
-        'latestCV' => $latestCV  // This was missing!
-    ]);
-}
 
     #[Route('/documents/edit/{id}', name: 'app_provider_document_edit')]
     public function edit(
@@ -168,11 +332,10 @@ public function index(
         SluggerInterface $slugger,
         DocumentRequestRepository $documentRequestRepository,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
-        
+
         $form = $this->createForm(DocumentType::class, $document);
         $form->handleRequest($request);
 
@@ -183,7 +346,7 @@ public function index(
             if ($file) {
                 $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
                 try {
                     $file->move($uploadDirectory . '/' . $user->getId(), $newFilename);
@@ -195,7 +358,7 @@ public function index(
                 $document->setFileName($newFilename);
                 $document->setMimeType($file->getClientMimeType());
             }
-            
+
             if (!$document->getName() && $document->getCategory()) {
                 $document->setName($document->getCategory());
             }
@@ -242,16 +405,15 @@ public function index(
     public function view(
         Document $document,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
-        
+
         if ($document->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You do not have permission to view this document.');
         }
 
-        $documentPath = $uploadDirectory.'/'.$user->getId().'/'.$document->getFileName();
-        
+        $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
+
         if (!file_exists($documentPath)) {
             throw $this->createNotFoundException('Document file not found.');
         }
@@ -270,12 +432,11 @@ public function index(
         Document $document,
         EntityManagerInterface $em,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
 
-        $documentPath = $uploadDirectory.'/'.$user->getId().'/'.$document->getFileName();
-        if(file_exists($documentPath)) {
+        $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
+        if (file_exists($documentPath)) {
             unlink($documentPath);
         }
 
@@ -413,7 +574,7 @@ public function index(
             }
 
             $document = $documentRepo->find($documentId);
-            
+
             if (!$document) {
                 return $this->json([
                     'success' => false,
@@ -462,7 +623,7 @@ public function index(
 
             if ($documentRequest->getApplication()) {
                 $dispatcher->dispatch(
-                    new ApplicationEvent($documentRequest->getApplication()), 
+                    new ApplicationEvent($documentRequest->getApplication()),
                     ApplicationEvent::APPLICATION_DOCUMENT_PROVIDED
                 );
             }
@@ -472,10 +633,9 @@ public function index(
                 'message' => 'Document assigned successfully',
                 'providedAtFormatted' => $documentRequest->getProvidedAt()->format('m/d/Y')
             ]);
-
         } catch (\Exception $e) {
             error_log('Document assignment error: ' . $e->getMessage());
-            
+
             return $this->json([
                 'success' => false,
                 'message' => 'An error occurred while assigning the document. Please try again.'
@@ -497,7 +657,7 @@ public function index(
             if ($uploadedFile) {
                 $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$uploadedFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
 
                 $uploadedFile->move(
                     $this->getParameter('documents_directory'),

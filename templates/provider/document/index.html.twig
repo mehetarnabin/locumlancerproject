@@ -1959,11 +1959,11 @@ div.container-xl,
                             </div>
                             <div class="col-12 col-md-6" id="modal_issue-date-wrapper">
                                 <label class="form-label">Issue Date</label>
-                                <input type="date" class="form-control js-datepicker" id="modal_document_issueDate" name="document[issueDate]">
+                                <input type="text" class="form-control js-datepicker" id="modal_document_issueDate" name="document[issueDate]">
                             </div>
                             <div class="col-12 col-md-6" id="modal_expiration-date-wrapper">
                                 <label class="form-label">Expiration Date</label>
-                                <input type="date" class="form-control js-datepicker" id="modal_document_expirationDate" name="document[expirationDate]">
+                                <input type="text" class="form-control js-datepicker" id="modal_document_expirationDate" name="document[expirationDate]">
                                 <span id="modal_expiration-date-help" class="text-muted small d-block mt-1" style="display: none;"></span>
                             </div>
                         </div>
@@ -2006,7 +2006,7 @@ div.container-xl,
                         <div class="document-row">
                             <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
                             <div class="col-doc-name">
-                                    <strong>{{ document.category ?: document.name }}</strong>
+                                    <strong>{{ document.name ?: document.category }}</strong>
                             </div>
                             <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
                             <div class="col-expiry-date">
@@ -2068,10 +2068,10 @@ div.container-xl,
                 <!-- Left Side: Document List -->
                 <div class="split-document-list" id="documents-split-list">
                     {% for document in documents %}
-                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.category ?: document.name }}">
+                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.name ?: document.category }}">
                             <div class="split-document-card-header">
                                 <div class="flex-grow-1">
-                                    <div class="split-document-card-title">{{ document.category ?: document.name }}</div>
+                                    <div class="split-document-card-title">{{ document.name ?: document.category }}</div>
                                     <div class="split-document-card-company">{{ document.issueDate ? document.issueDate|date('m/d/Y') : 'No Issue Date' }}</div>
                                 </div>
                             </div>
@@ -2486,6 +2486,240 @@ div.container-xl,
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Form validation - highlight invalid fields
+            const documentForm = document.getElementById('document-upload-form');
+            if (documentForm) {
+                documentForm.addEventListener('submit', function(e) {
+                    console.log('Form submit triggered');
+                    console.log('Form is valid:', documentForm.checkValidity());
+                    
+                    // Remove previous validation states
+                    documentForm.querySelectorAll('.is-invalid').forEach(el => {
+                        el.classList.remove('is-invalid');
+                    });
+                    documentForm.querySelectorAll('.invalid-feedback').forEach(el => {
+                        el.remove();
+                    });
+
+                    // Check HTML5 validity
+                    if (!documentForm.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log('Form validation failed');
+
+                        // Find and highlight all invalid fields
+                        const invalidFields = documentForm.querySelectorAll(':invalid');
+                        console.log('Invalid fields:', invalidFields);
+                        let firstInvalidField = null;
+
+                        invalidFields.forEach(field => {
+                            // Skip the form itself
+                            if (field === documentForm) return;
+                            
+                            console.log('Invalid field:', field.name, field);
+
+                            // Add invalid class
+                            field.classList.add('is-invalid');
+
+                            // Add red border
+                            field.style.borderColor = '#dc3545';
+                            field.style.borderWidth = '2px';
+
+                            // Create error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback d-block';
+                            errorDiv.style.color = '#dc3545';
+                            errorDiv.style.fontSize = '0.875rem';
+                            errorDiv.style.marginTop = '0.25rem';
+
+                            // Get field name for error message
+                            const fieldLabel = field.closest('.mb-2, .mb-3')?.querySelector('label')?.textContent?.trim() || 'This field';
+                            errorDiv.textContent = `${fieldLabel} is required.`;
+
+                            // Insert error message after field
+                            field.parentNode.insertBefore(errorDiv, field.nextSibling);
+
+                            // Store first invalid field for scrolling
+                            if (!firstInvalidField) {
+                                firstInvalidField = field;
+                            }
+                        });
+
+                        // Scroll to first invalid field
+                        if (firstInvalidField) {
+                            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstInvalidField.focus();
+                        }
+
+                        return false;
+                    }
+
+                    console.log('Form validation passed, submitting...');
+                    
+                    // Use AJAX submission for all modes
+                    e.preventDefault();
+                    
+                    const formData = new FormData(documentForm);
+                    const submitBtn = documentForm.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.innerHTML;
+                    const isEditMode = documentForm.action.includes('/edit/');
+                    
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (isEditMode ? 'Updating...' : 'Uploading...');
+                    
+                    fetch(documentForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response Content-Type:', response.headers.get('Content-Type'));
+                        
+                        // Check if response is JSON
+                        const contentType = response.headers.get('Content-Type');
+                        if (contentType && contentType.includes('application/json')) {
+                            return response.json();
+                        }
+                        
+                        // Not JSON, return as text
+                        return response.text().then(html => ({ html, status: response.status }));
+                    })
+                    .then(data => {
+                        // Check if we got a JSON success response
+                        if (data && data.success) {
+                            console.log('Success! Document saved.');
+                            
+                            const successMessage = data.message || (isEditMode ? 'Document updated successfully.' : 'Document uploaded successfully.');
+                            
+                            if (typeof showSuccessAlert !== 'undefined') {
+                                showSuccessAlert('Success!', successMessage);
+                            } else {
+                                alert(successMessage);
+                            }
+                            
+                            // Reload the page to show updated documents list
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                            
+                            return;
+                        }
+                        
+                        // Check if we got a JSON error response
+                        if (data && data.success === false && data.errors) {
+                            console.log('Validation errors:', data.errors);
+                            
+                            let errorMessage = 'Please fix the following errors:\n';
+                            data.errors.forEach(err => {
+                                errorMessage += '- ' + err + '\n';
+                            });
+                            
+                            if (typeof showErrorAlert !== 'undefined') {
+                                showErrorAlert('Validation Error', errorMessage);
+                            } else {
+                                alert(errorMessage);
+                            }
+                            
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                            return;
+                        }
+                        
+                        // HTML response - parse for errors
+                        if (data && data.html) {
+                            console.log('Got HTML response, checking for errors...');
+                            
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(data.html, 'text/html');
+                            
+                            const flashErrors = doc.querySelectorAll('.alert-danger');
+                            const formErrors = doc.querySelectorAll('.invalid-feedback');
+                            
+                            console.log('Flash errors found:', flashErrors.length);
+                            console.log('Form errors found:', formErrors.length);
+                            
+                            if (flashErrors.length > 0 || formErrors.length > 0) {
+                                let errorMessage = 'Please fix the following errors:\n';
+                                
+                                flashErrors.forEach(err => {
+                                    const text = err.textContent.trim();
+                                    if (text) {
+                                        errorMessage += '- ' + text + '\n';
+                                    }
+                                });
+                                
+                                formErrors.forEach(err => {
+                                    const text = err.textContent.trim();
+                                    if (text) {
+                                        errorMessage += '- ' + text + '\n';
+                                    }
+                                });
+                                
+                                if (typeof showErrorAlert !== 'undefined') {
+                                    showErrorAlert('Validation Error', errorMessage);
+                                } else {
+                                    alert(errorMessage);
+                                }
+                            } else {
+                                console.error('Form returned HTML but no errors found.');
+                                if (typeof showErrorAlert !== 'undefined') {
+                                    showErrorAlert('Error', 'Unable to save document. Please check all required fields.');
+                                } else {
+                                    alert('Unable to save document. Please check all required fields.');
+                                }
+                            }
+                            
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (typeof showErrorAlert !== 'undefined') {
+                            showErrorAlert('Error', 'An error occurred. Please try again.');
+                        } else {
+                            alert('An error occurred. Please try again.');
+                        }
+                        
+                        // Reset button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    });
+                    
+                    return false;
+                });
+
+                // Remove invalid state when user starts typing/selecting
+                documentForm.addEventListener('input', function(e) {
+                    if (e.target.classList.contains('is-invalid')) {
+                        e.target.classList.remove('is-invalid');
+                        e.target.style.borderColor = '';
+                        e.target.style.borderWidth = '';
+                        const errorMsg = e.target.nextElementSibling;
+                        if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+
+                documentForm.addEventListener('change', function(e) {
+                    if (e.target.classList.contains('is-invalid')) {
+                        e.target.classList.remove('is-invalid');
+                        e.target.style.borderColor = '';
+                        e.target.style.borderWidth = '';
+                        const errorMsg = e.target.nextElementSibling;
+                        if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
+                            errorMsg.remove();
+                        }
+                    }
+                });
+            }
+
             initializeDocumentCategoryLogic();
         });
 
@@ -2750,6 +2984,19 @@ div.container-xl,
 
                 // Scroll to new section
                 newSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Initialize datepickers on cloned inputs
+                try {
+                    if (typeof flatpickr !== 'undefined') {
+                        newSection.querySelectorAll('.js-datepicker').forEach(function(input){
+                            if (!input._flatpickr) {
+                                flatpickr(input, { dateFormat: 'Y-m-d' });
+                            }
+                        });
+                    } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
+                        $(newSection).find('.js-datepicker').flatpickr();
+                    }
+                } catch(_) {}
             }
 
             window.removeDEAForm = function(index) {
@@ -3509,17 +3756,43 @@ div.container-xl,
                     let matchedCount = 0;
                     const matchPromises = [];
                     
+                    console.log('Match All: Starting matching process...');
+                    console.log('Found', documentSelects.length, 'request selects');
+                    
                         documentSelects.forEach(select => {
                         const requestName = select.dataset.requestName;
-                        if (!requestName || select.value) return; // Skip if already has a value
+                        if (!requestName || select.value) {
+                            console.log('Skipping request:', requestName, '(already has value or no name)');
+                            return; // Skip if already has a value
+                        }
+                        
+                        console.log('Processing request:', requestName);
                         
                         // Find matching document
                         const options = select.querySelectorAll('option[data-doc-name]');
                         let matched = false;
                         
+                        console.log('  Available documents:', Array.from(options).map(o => o.dataset.docName));
+                        
                         options.forEach(option => {
                             const docName = option.dataset.docName;
-                            if (docName && docName === requestName && !matched) {
+                            if (!docName || matched) return;
+                            
+                            // Improved fuzzy matching logic
+                            const normalizedDocName = docName.toLowerCase().trim();
+                            const normalizedRequestName = requestName.toLowerCase().trim();
+                            
+                            // Try multiple matching strategies
+                            const exactMatch = normalizedDocName === normalizedRequestName;
+                            const containsMatch = normalizedDocName.includes(normalizedRequestName) || normalizedRequestName.includes(normalizedDocName);
+                            
+                            // Remove common words and try matching
+                            const cleanDocName = normalizedDocName.replace(/\b(upload|document|copy|of|the|a|an)\b/g, '').trim();
+                            const cleanRequestName = normalizedRequestName.replace(/\b(upload|document|copy|of|the|a|an)\b/g, '').trim();
+                            const cleanMatch = cleanDocName === cleanRequestName || cleanDocName.includes(cleanRequestName) || cleanRequestName.includes(cleanDocName);
+                            
+                            if (exactMatch || containsMatch || cleanMatch) {
+                                console.log('  ✓ MATCHED:', docName, 'with request:', requestName);
                                 select.value = option.value;
                                 matched = true;
                                 matchedCount++;
@@ -3533,8 +3806,7 @@ div.container-xl,
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
-                                            'X-Requested-With': 'XMLHttpRequest',
-                                            'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
+                                            'X-Requested-With': 'XMLHttpRequest'
                                         },
                                         body: JSON.stringify({ documentId: documentId })
                                     })
@@ -3558,6 +3830,10 @@ div.container-xl,
                                 }
                             }
                         });
+                        
+                        if (!matched) {
+                            console.log('  ✗ No match found for:', requestName);
+                        }
                     });
                     
                     // Wait for all matches to complete
