@@ -1780,31 +1780,31 @@ div.container-xl,
                         {% for link in credentialingLinks %}
                             {% set rowIndex = rowIndex + 1 %}
                             <tr>
-                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
-                                <td>
-                                    <div>
-                                        <strong>{{ link.title }}</strong>
-                                        {% if link.description %}
-                                            <small class="text-muted d-block">{{ link.description }}</small>
-                                        {% endif %}
-                                        <small class="text-muted d-block">{{ link.url|replace({'https://': '', 'http://': ''})|slice(0, 60) }}{{ link.url|length > 60 ? '...' : '' }}</small>
-                                    </div>
-                                </td>
                                 <td><span class="text-muted">-</span></td>
                                 <td>
-                                    <div>
-                                        <strong>External Source</strong><br/>
-                                        <small class="text-muted">{{ link.sender ?: 'System' }}</small>
+                                    <div class="d-flex align-items-center">
+                                        <strong class="me-2">{{ link.title }}</strong>
+                                        {% if link.status == 'submitted' %}
+                                            <span class="badge bg-success ms-auto">Submitted</span>
+                                        {% elseif link.lastOpenedAt %}
+                                            <span class="badge bg-warning ms-auto">Open</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary ms-auto">Not Opened</span>
+                                        {% endif %}
                                     </div>
+                                    {% if link.description %}
+                                        <small class="text-muted d-block">{{ link.description }}</small>
+                                    {% endif %}
                                 </td>
-                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
+                                <td><span class="text-muted">-</span></td>
+                                <td><span class="text-muted">-</span></td>
+                                <td><span class="text-muted">-</span></td>
                                 <td><span class="text-warning">Pending</span></td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn external-link" data-link-id="{{ link.id }}" title="Open Link">
                                             Open Link
                                         </a>
-                                        <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL">Copy</button>
                                         <button type="button" class="action-btn btn-success link-submitted-btn" data-link-id="{{ link.id }}" title="I Submitted">Yes, I submitted</button>
                                     </div>
                                 </td>
@@ -1826,135 +1826,145 @@ div.container-xl,
         </div>
         
         {# Grid View for Document Requests - Grouped by Company #}
-        <div class="documents-grid-view-container" id="requests-grid-view-container">
-            <div class="grid-view-header">
-                <h5>Select Documents to Submit</h5>
-                <div class="grid-view-actions">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
-                    <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
-                </div>
-            </div>
-            <div class="documents-grid-wrapper" id="requests-grid-wrapper">
-                {% set companyGroups = {} %}
-                {% for documentRequest in documentRequests %}
-                    {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
-                        {% set companyName = documentRequest.application.employer.companyName %}
-                        {% if companyGroups[companyName] is not defined %}
-                            {% set companyGroups = companyGroups|merge({(companyName): []}) %}
-                    {% endif %}
-                        {% set companyGroups = companyGroups|merge({(companyName): companyGroups[companyName]|merge([documentRequest])}) %}
-                    {% endif %}
-                {% endfor %}
-                
-                {% if companyGroups|length > 0 %}
-                    {% for companyName, requests in companyGroups %}
-                        <div class="company-document-group">
-                            <div class="company-group-header">
-                                <h6 class="company-name">{{ companyName }}</h6>
-                                <span class="request-count">{{ requests|length }} request(s)</span>
-                            </div>
-                            <div class="requests-grid">
-                                {% for request in requests %}
-                                    <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
-                                        <div class="request-card-header">
-                                            <div class="request-title">{{ request.name }}</div>
-                                            <div class="request-document-select">
-                                                <select class="form-select document-select" 
-                                                        data-request-id="{{ request.id }}"
-                                                        data-request-name="{{ request.name|lower }}"
-                                                        id="request-{{ request.id }}-document">
-                                                    <option value="">Select Document</option>
-                                                    {% for document in documents %}
-                                                        <option value="{{ document.id }}" 
-                                                                data-doc-name="{{ (document.category ?: document.name)|lower }}"
-                                                                {% if request.document and request.document.id == document.id %}selected{% endif %}>
-                                                            {{ document.category ?: document.name }}
-                                                        </option>
-                                                    {% endfor %}
-                                                    <option value="__add_document__" class="add-document-option" data-request-id="{{ request.id }}">+ Add New Document</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
+<div class="documents-grid-view-container" id="requests-grid-view-container">
+    <div class="grid-view-header">
+        <h5>Select Documents to Submit</h5>
+        <div class="grid-view-actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
+            <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
+        </div>
+    </div>
+    <div class="documents-grid-wrapper" id="requests-grid-wrapper">
+        {% set companyGroups = {} %}
+        
+        {# Process document requests #}
+        {% for documentRequest in documentRequests %}
+            {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+                {% set companyName = documentRequest.application.employer.companyName %}
+                {% if companyGroups[companyName] is not defined %}
+                    {% set companyGroups = companyGroups|merge({(companyName): {
+                        'requests': [],
+                        'links': []
+                    }}) %}
                 {% endif %}
-                
-                {# Add Credentialing Links Section #}
-                {% if credentialingLinks|length > 0 %}
+                {% set companyGroups = companyGroups|merge({
+                    (companyName): companyGroups[companyName]|merge({
+                        'requests': companyGroups[companyName].requests|merge([documentRequest])
+                    })
+                }) %}
+            {% endif %}
+        {% endfor %}
+        
+        {# Process credentialing links - group by company #}
+        {% for link in credentialingLinks %}
+            {% if link.sender %}
+                {% set companyName = link.sender %}
+            {% elseif link.job and link.job.employer %}
+                {% set companyName = link.job.employer.companyName %}
+            {% else %}
+                {% set companyName = 'External Links' %}
+            {% endif %}
+            
+            {% if companyGroups[companyName] is not defined %}
+                {% set companyGroups = companyGroups|merge({(companyName): {
+                    'requests': [],
+                    'links': []
+                }}) %}
+            {% endif %}
+            
+            {% set companyGroups = companyGroups|merge({
+                (companyName): companyGroups[companyName]|merge({
+                    'links': companyGroups[companyName].links|merge([link])
+                })
+            }) %}
+        {% endfor %}
+        
+        {# Render each company group #}
+        {% if companyGroups|length > 0 %}
+            {% for companyName, data in companyGroups %}
+                {% if data.requests|length > 0 or data.links|length > 0 %}
                     <div class="company-document-group">
-                        <div class="company-group-header external-links">
-                            <h6 class="company-name external-links">External Links</h6>
-                            <span class="request-count external-links">{{ credentialingLinks|length }} link(s)</span>
+                        <div class="company-group-header {{ companyName == 'External Links' ? 'external-links' : '' }}">
+                            <h6 class="company-name {{ companyName == 'External Links' ? 'external-links' : '' }}">{{ companyName }}</h6>
+                            <span class="request-count {{ companyName == 'External Links' ? 'external-links' : '' }}">
+                                {{ data.requests|length + data.links|length }} item(s)
+                            </span>
                         </div>
                         <div class="requests-grid">
-                            {% for link in credentialingLinks %}
-                                <div class="request-card" data-link-id="{{ link.id }}" data-company="External Links">
+                            {# Render document requests #}
+                            {% for request in data.requests %}
+                                <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
                                     <div class="request-card-header">
-                                        <div class="request-title external-link">{{ link.title }}</div>
-                                        {% if link.description %}
-                                            <p class="text-muted small mb-2" style="font-size: 0.75rem;">{{ link.description|slice(0, 80) }}{{ link.description|length > 80 ? '...' : '' }}</p>
-                                        {% endif %}
-                                        <div class="d-flex flex-column gap-2">
-                                            <div class="action-buttons">
-                                                <a href="{{ link.url }}" 
-                                                   target="_blank" 
-                                                   rel="noopener noreferrer" 
-                                                   class="action-btn btn-primary w-100 external-link"
-                                                   data-link-id="{{ link.id }}"
-                                                   title="Open this external link in a new tab"
-                                                   style="justify-content: center;">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
-                                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                                        <polyline points="15 3 21 3 21 9"/>
-                                                        <line x1="10" y1="14" x2="21" y2="3"/>
-                                                    </svg>
-                                                    Open Link
-                                                </a>
-                                            </div>
-                                            <div class="action-buttons">
-                                                <button type="button" 
-                                                        class="action-btn btn-secondary w-100 copy-link-btn"
-                                                        data-url="{{ link.url }}"
-                                                        title="Copy link to clipboard"
-                                                        style="justify-content: center;">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
-                                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                                    </svg>
-                                                    Copy URL
-                                                </button>
-                                            </div>
-                                            <div class="action-buttons">
-                                                <button type="button" 
-                                                        class="action-btn btn-success w-100 link-submitted-btn"
-                                                        data-link-id="{{ link.id }}"
-                                                        title="Confirm you submitted the form"
-                                                        style="justify-content: center;">
-                                                    Yes, I submitted
-                                                </button>
-                                            </div>
+                                        <div class="request-title">{{ request.name }}</div>
+                                        <div class="request-document-select">
+                                            <select class="form-select document-select" 
+                                                    data-request-id="{{ request.id }}"
+                                                    data-request-name="{{ request.name|lower }}"
+                                                    id="request-{{ request.id }}-document">
+                                                <option value="">Select Document</option>
+                                                {% for document in documents %}
+                                                    <option value="{{ document.id }}" 
+                                                            data-doc-name="{{ (document.category ?: document.name)|lower }}"
+                                                            {% if request.document and request.document.id == document.id %}selected{% endif %}>
+                                                        {{ document.category ?: document.name }}
+                                                    </option>
+                                                {% endfor %}
+                                                <option value="__add_document__" class="add-document-option" data-request-id="{{ request.id }}">+ Add New Document</option>
+                                            </select>
                                         </div>
-                                        {% if link.sender %}
-                                            <div class="mt-2 text-center">
-                                                <small class="text-muted">From: {{ link.sender }}</small>
-                                            </div>
-                                        {% endif %}
-                                        <div class="mt-2 text-center">
-                                            <small class="text-muted">{{ link.createdAt|date('m/d/Y') }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            {# Render external links #}
+                            {% for link in data.links %}
+                                <div class="request-card" data-link-id="{{ link.id }}" data-company="{{ companyName }}">
+                                    <div class="request-card-header d-flex align-items-center">
+                                        <div class="request-title {{ companyName == 'External Links' ? 'external-link' : '' }}">
+                                            {{ link.title }}
+                                            {% if companyName == 'External Links' %}
+                                                <span class="badge bg-info ms-2">External</span>
+                                            {% endif %}
                                         </div>
-                                        {# Link Status Badge #}
-                                        <div class="link-status-badge">
+                                        <div class="ms-auto">
                                             {% if link.status == 'submitted' %}
-                                                <span class="badge bg-success">Submitted: {{ link.submittedAt|date('m/d/Y') }}</span>
+                                                <span class="badge bg-success">Submitted</span>
                                             {% elseif link.lastOpenedAt %}
-                                                <span class="badge bg-warning">Opened: {{ link.lastOpenedAt|date('m/d/Y') }}</span>
+                                                <span class="badge bg-warning">Opened</span>
                                             {% else %}
                                                 <span class="badge bg-secondary">Not Opened</span>
                                             {% endif %}
+                                        </div>
+                                    </div>
+                                    {% if link.description %}
+                                        <p class="text-muted small mb-2" style="font-size: 0.75rem;">{{ link.description|slice(0, 80) }}{{ link.description|length > 80 ? '...' : '' }}</p>
+                                    {% endif %}
+                                    <div class="d-flex flex-column gap-2">
+                                        <div class="action-buttons">
+                                            <a href="{{ link.url }}" 
+                                               target="_blank" 
+                                               rel="noopener noreferrer" 
+                                               class="action-btn btn-primary w-100 external-link"
+                                               data-link-id="{{ link.id }}"
+                                               title="Open this external link in a new tab"
+                                               style="justify-content: center;">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                                    <polyline points="15 3 21 3 21 9"/>
+                                                    <line x1="10" y1="14" x2="21" y2="3"/>
+                                                </svg>
+                                                Open Link
+                                            </a>
+                                        </div>
+                                        <div class="action-buttons">
+                                            <button type="button" 
+                                                    class="action-btn btn-success w-100 link-submitted-btn"
+                                                    data-link-id="{{ link.id }}"
+                                                    title="Confirm you submitted the form"
+                                                    style="justify-content: center;">
+                                                Yes, I submitted
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -1962,19 +1972,19 @@ div.container-xl,
                         </div>
                     </div>
                 {% endif %}
-                
-                {% if companyGroups|length == 0 and credentialingLinks|length == 0 %}
-                    <div class="empty-grid-state">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h4>No pending document requests</h4>
-                        <p>There are no pending document requests or external links at this time.</p>
-                    </div>
-                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="empty-grid-state">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h4>No pending document requests</h4>
+                <p>There are no pending document requests or external links at this time.</p>
             </div>
-        </div>
+        {% endif %}
+    </div>
+</div>
     </div>
 
     
@@ -2633,8 +2643,8 @@ div.container-xl,
 
         // Link Tracking System - Merged from second code
         document.addEventListener('DOMContentLoaded', function() {
-            // Track link opens and show confirmation modal
-            document.querySelectorAll('.request-card[data-link-id] a[target="_blank"], .open-credentialing-link').forEach(link => {
+            // Track link opens and update status badge immediately
+            document.querySelectorAll('.request-card[data-link-id] a[target="_blank"], .open-credentialing-link, a.external-link[data-link-id]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
@@ -2650,7 +2660,9 @@ div.container-xl,
                         sessionStorage.setItem('tracking_link_title', linkTitle);
                         
                         // Track the initial open
-                        trackLinkEvent(linkId, 'opened', url);
+                        trackLinkEvent(linkId, 'opened');
+                        // Update badge in UI immediately
+                        updateLinkStatusBadge(linkId, 'open');
                         
                         // Open the link in background immediately
                         setTimeout(() => {
@@ -2738,11 +2750,14 @@ function trackLinkEvent(linkId, action, buttonElement, cardElement) {
                 alert(data.message);
             }
             
-            // Remove the link from the UI
-            if (cardElement) {
+            // Update badge immediately for submitted
+            if (action === 'submitted') {
+                updateLinkStatusBadge(linkId, 'submitted');
+            }
+            // Remove the link from the UI after submission
+            if (action === 'submitted' && cardElement) {
                 cardElement.style.transition = 'all 0.3s ease';
                 cardElement.style.opacity = '0.5';
-                
                 setTimeout(() => {
                     cardElement.remove();
                     updatePendingRequestsCount();
@@ -2770,6 +2785,60 @@ function trackLinkEvent(linkId, action, buttonElement, cardElement) {
             alert('Network error. Please try again.');
         }
     });
+}
+
+// Update status badge for both grid cards and table rows
+function updateLinkStatusBadge(linkId, state) {
+    // Grid card badge
+    const gridCard = document.querySelector(`.request-card[data-link-id="${linkId}"]`);
+    if (gridCard) {
+        const badgeContainer = gridCard.querySelector('.request-card-header .ms-auto');
+        if (badgeContainer) {
+            let badge = badgeContainer.querySelector('.badge');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'badge';
+                badgeContainer.appendChild(badge);
+            }
+            if (state === 'submitted') {
+                badge.className = 'badge bg-success';
+                badge.textContent = 'Submitted';
+            } else if (state === 'open' || state === 'opened') {
+                badge.className = 'badge bg-warning';
+                badge.textContent = 'Open';
+            } else {
+                badge.className = 'badge bg-secondary';
+                badge.textContent = 'Not Opened';
+            }
+        }
+    }
+
+    // Table row badge inside title cell
+    const tableLink = document.querySelector(`a.external-link[data-link-id="${linkId}"]`);
+    if (tableLink) {
+        const row = tableLink.closest('tr');
+        const titleCell = row ? row.querySelector('td:nth-child(2) div') : null;
+        if (titleCell) {
+            // Find any existing badge inside title cell
+            let badge = titleCell.querySelector('.badge');
+            if (!badge) {
+                badge = document.createElement('span');
+                titleCell.appendChild(badge);
+            }
+            badge.classList.remove('bg-success', 'bg-warning', 'bg-secondary', 'float-end');
+            badge.classList.add('badge', 'float-end');
+            if (state === 'submitted') {
+                badge.classList.add('bg-success');
+                badge.textContent = 'Submitted';
+            } else if (state === 'open' || state === 'opened') {
+                badge.classList.add('bg-warning');
+                badge.textContent = 'Open';
+            } else {
+                badge.classList.add('bg-secondary');
+                badge.textContent = 'Not Opened';
+            }
+        }
+    }
 }
 
 // Update pending requests count function

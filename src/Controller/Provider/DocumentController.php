@@ -451,24 +451,47 @@ class DocumentController extends AbstractController
     }
 
     #[Route('/documents/delete/{id}', name: 'app_provider_document_delete', methods: ['GET'])]
-    public function delete(
-        Document $document,
-        EntityManagerInterface $em,
-        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): Response {
-        $user = $this->getUser();
+public function delete(
+    Document $document,
+    EntityManagerInterface $em,
+    #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+): Response {
+    $user = $this->getUser();
 
-        $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
-        if (file_exists($documentPath)) {
-            unlink($documentPath);
-        }
-
-        $em->remove($document);
-        $em->flush();
-
-        $this->addFlash('success', 'Document deleted successfully.');
-        return $this->redirectToRoute('app_provider_documents');
+    // Check if the document belongs to the current user
+    if ($document->getUser()->getId() !== $user->getId()) {
+        throw $this->createAccessDeniedException('You do not have permission to delete this document.');
     }
+
+    // First, check if there are any document requests referencing this document
+    $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['document' => $document]);
+    
+    if (count($documentRequests) > 0) {
+        // REMOVE THIS: Option A: Prevent deletion and show an error message
+        // $this->addFlash('error', 'Cannot delete this document because it is referenced by ' . count($documentRequests) . ' document request(s). Please reassign or delete those requests first.');
+        // return $this->redirectToRoute('app_provider_documents');
+        
+        // ADD THIS INSTEAD: Option B: Set document to null in all requests
+        foreach ($documentRequests as $request) {
+            $request->setDocument(null);
+            $em->persist($request);
+        }
+        $em->flush();
+    }
+
+    // Delete the file from the filesystem
+    $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
+    if (file_exists($documentPath)) {
+        unlink($documentPath);
+    }
+
+    // Remove the document entity
+    $em->remove($document);
+    $em->flush();
+
+    $this->addFlash('success', 'Document deleted successfully.');
+    return $this->redirectToRoute('app_provider_documents');
+}
 
     #[Route('/documents/assign-multiple', name: 'app_provider_document_request_assign_bulk', methods: ['POST'])]
     public function assignDocumentsBulk(

@@ -77,7 +77,7 @@ class ApplicationController extends AbstractController
         // Create ToDo for provider - ENHANCED VERSION
         $todo = new \App\Entity\ToDo();
         $todo->setProvider($application->getProvider());
-        $todo->setEmployer($currentEmployer->getCompanyName()); // Store employer name as string
+        $todo->setEmployer($currentEmployer); // Store employer name as string
         $todo->setDocumentRequest($documentRequest);
         $todo->setTitle('📄 Document Required: ' . $documentName);
         $todo->setDescription($documentName); // This will show as the specific document name in notification
