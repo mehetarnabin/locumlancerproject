@@ -304,15 +304,37 @@ div.container-xl,
     box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
 }
 
+.sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    background-color: #fff !important;
+    overflow: visible !important;
+}
+
 /* Force remove any fixed/sticky positioning from status bar and buttons */
-.job-section,
-.application,
-.actions-container {
+.job-section {
     position: relative !important;
     top: auto !important;
     bottom: auto !important;
     left: auto !important;
     right: auto !important;
+}
+
+.application {
+    padding-left: 11px !important;
+    padding-right: 11px !important;
+    position: relative !important;
+    padding-top: 15px !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 0 !important;
+    overflow: visible !important;
+}
+
+.actions-container {
+    position: relative !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
 }
 
 /* Exception: Allow filter panel and dropdowns to use absolute positioning - must come after the general rules */
@@ -363,25 +385,46 @@ div.container-xl,
     flex: 2;
 }
 .job-header {
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 20px !important;
+    padding-right: 14px !important;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
     height: 40px;
-    margin-bottom: 2px;
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
     font-size: 13px;
     min-width: 0;
+    position: relative !important;
     overflow: hidden;
+}
+
+/* Fix: Ensure job-header doesn't touch job-section on the left - no margin-top to keep header and rows aligned */
+.job-section .table-responsive-wrapper {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Small gap between actions-container and table header to match image */
+.actions-container + .table-responsive-wrapper,
+.actions-container ~ .table-responsive-wrapper {
+    margin-top: 0 !important;
+}
+
+.job-section .table-responsive-wrapper .job-header {
+    margin-left: 0 !important;
+}
+
+/* Ensure no gap between header and job-list-container */
+.job-list-container {
+    margin-top: 0 !important;
 }
 .job-row {
     border: none;
     padding: 8px 8px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin: 2px 0;
     align-items: center;
     margin: 2px 0;
     font-size: 13px;
@@ -391,6 +434,11 @@ div.container-xl,
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     min-width: 0;
     overflow: hidden;
+}
+
+/* Remove top margin from first job-row to align with header */
+.job-list-container .table-responsive-wrapper .job-lists:first-child .job-row {
+    margin-top: 0 !important;
 }
 .truncate-text {
     display: inline-block;
@@ -504,6 +552,12 @@ div.container-xl,
 /* Ensure filter panel is visible when not hidden */
 #filter-panel.filter-panel.custom-dropdown:not(.hidden) {
   display: block !important;
+}
+
+/* Ensure filter panel in split view uses fixed positioning to prevent clipping */
+#split-view-container #filter-panel.filter-panel.custom-dropdown:not(.hidden) {
+  position: fixed !important;
+  z-index: 99999 !important;
 }
 
 .columns-panel label {
@@ -977,7 +1031,8 @@ div.container-xl,
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
-  margin-top: 20px;
+  margin-top: 15px;
+  margin-bottom: 8px !important;
   pointer-events: auto !important;
 }
 
@@ -990,23 +1045,12 @@ div.container-xl,
   position: relative !important;
   z-index: 1001 !important;
 }
-  margin-bottom: 12px;
-  padding-left: 15px;
-  padding-right: 15px;
-  position: relative !important;
-  top: auto !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  transform: none !important;
-  /* Ensure dropdowns are not clipped */
-  overflow: visible !important;
-}
 
 /* Ensure parent containers don't clip the dropdown */
 .job-actions-left {
   overflow: visible !important;
   position: relative;
+  padding-left: 0; /* Padding handled by parent actions-container */
 }
 
 .position-relative {
@@ -1096,6 +1140,19 @@ div.container-xl,
     height: 48px;
 }
 
+/* ENFORCE EQUAL SPACING on both sides - Must match right padding - HIGHEST PRIORITY */
+div.job-header.d-flex.align-items-center.fw-semibold.py-2.flex-grow-1,
+div.job-header,
+.table-responsive-wrapper div.job-header,
+.job-lists div.job-header,
+.d-flex.flex-grow-1 div.job-header,
+[class*="job-header"] {
+  margin-left: 14px !important;
+  padding-left: 0 !important;
+  padding-right: 14px !important;
+  box-sizing: border-box !important;
+}
+
 .job-header > div,
 .job-row > div {
     min-height: 48px;
@@ -1129,6 +1186,7 @@ div.container-xl,
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: visible;
+  padding-left: 0; /* Padding handled by parent actions-container */
 }
 
 .job-actions-middle {
@@ -1150,7 +1208,7 @@ div.container-xl,
 
 .col-dropdowns {
     justify-self: end;
-    margin-right: 15px;
+    margin-right: 0; /* Padding handled by parent actions-container */
 }
 
 .table-responsive-wrapper {
@@ -1380,24 +1438,43 @@ div.container-xl,
 
 .split-view-container .split-job-list {
     width: 100%;
+    height: 100%;
+    max-height: 100%;
     opacity: 1;
     transition: all 0.3s ease;
     position: relative;
-    display: block;
+    display: flex;
+    flex-direction: column;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     border-radius: 10px;
     padding: 16px;
-    overflow-y: hidden; /* Disable vertical scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
     overflow-x: hidden; /* Disable horizontal scrolling */
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    min-height: 0; /* Important for flex children to allow shrinking */
+    scrollbar-width: thin; /* Firefox */
+    -ms-overflow-style: auto; /* IE and Edge */
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Show scrollbar for Chrome, Safari and Opera */
 .split-job-list::-webkit-scrollbar {
-    display: none;
+    display: block;
+    width: 8px;
+}
+
+.split-job-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.split-job-list::-webkit-scrollbar-thumb {
+    background: #85BB65;
+    border-radius: 4px;
+}
+
+.split-job-list::-webkit-scrollbar-thumb:hover {
+    background: #6FA050;
 }
 
 .split-job-details {
@@ -1917,6 +1994,14 @@ function applySpacingStyles() {
         col.style.setProperty('padding-left', '0', 'important');
         col.style.setProperty('margin-left', '0', 'important');
     });
+    
+    // ENFORCE EQUAL SPACING on both sides - Must match right padding
+    const jobHeaders = document.querySelectorAll('.job-header');
+    jobHeaders.forEach(header => {
+        header.style.setProperty('margin-left', '14px', 'important');
+        header.style.setProperty('padding-left', '0', 'important');
+        header.style.setProperty('padding-right', '14px', 'important');
+    });
 }
 
 // Run immediately
@@ -1964,8 +2049,9 @@ window.addEventListener('resize', function() {
                 </div>
             {% endfor %}
 
-            <div class="application">
-                <div class="row g-2">
+        <div class="sticky-header-container">
+        <div class="application">
+            <div class="row g-2">
                     <div class="col">
                         <a href="{{ path('app_provider_jobs_applications') }}">
                             <div class="card is-card mb-3 is-applied {% if app.request.get('status') and app.request.get('status') == '' %}active{% endif %}">
@@ -2204,16 +2290,14 @@ window.addEventListener('resize', function() {
                         <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg> Export Report</a>
                     </div>
-                  </div>
+                    </div>
                 </div>
             </div>
-
-            {% if applications|length > 0 %}
-            <div class="job-list-container bg-light p-3 rounded-3">
-            <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
+            
+            <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-left: 0;">
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
-                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; margin-left: 14px !important; padding-left: 0 !important; padding-right: 12px !important; box-sizing: border-box !important;">
                         <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
                         </div>
                         <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; cursor: pointer; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -2228,11 +2312,15 @@ window.addEventListener('resize', function() {
                     </div>
                 </div>
             </div>
-
-            {% for application in applications %}
+        </div>
+        </div>
+        {% if applications|length > 0 %}
+        <div class="job-list-container bg-light rounded-3" style="padding: 0 12px 12px 12px; margin-top: 0;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
+        {% for application in applications %}
             {% set job = application.job %}
               <div class="d-flex align-items-center job-lists">
-                <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; min-width: 0; width: 100%;">
+                <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; min-width: 0; width: 100%; margin-left: 2px !important; padding-left: 0 !important; padding-right: 0 !important; box-sizing: border-box !important;">
                   <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                       <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-status="{{ application.status }}" />
                   </div>
@@ -2266,20 +2354,38 @@ window.addEventListener('resize', function() {
                   </div>
                   <div class="col-start col-center col-todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;" data-todo-text="{{ (todoTask|default('—'))|e('html_attr') }}">
                       {% set todoTask = null %}
-                      {% if application.documentRequestedAt and not application.documentProvidedAt %}
+                      {% set pendingDocs = false %}
+                      {% set pendingDocNames = [] %}
+                      {% for dr in application.documentRequests %}
+                          {% if not dr.providedAt %}
+                              {% set pendingDocs = true %}
+                              {% set pendingDocNames = pendingDocNames|merge([dr.name]) %}
+                          {% endif %}
+                      {% endfor %}
+
+                      {% set hasNewRequests = application.documentRequests|length > 0 %}
+                      {% if hasNewRequests and pendingDocs %}
+                          {# Keep action generic for JS handler, but make display specific #}
                           {% set todoTask = 'Provide requested documents' %}
+                          {% set displayTask = 'Provide: ' ~ pendingDocNames|join(', ') %}
+                      {% elseif not hasNewRequests and application.documentRequestedAt and not application.documentProvidedAt %}
+                          {% set todoTask = 'Provide requested documents' %}
+                          {% set displayTask = todoTask %}
                       {% elseif application.contractSentAt and not application.contractSignedAt %}
                           {% set todoTask = 'Sign and return contract' %}
-                      {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
-                          {% set todoTask = 'Provide OneFile documents' %}
+                          {% set displayTask = todoTask %}
+                      {# {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
+                          {% set todoTask = 'Provide OneFile documents' %} #}
                       {% elseif application.status == 'interview' %}
                           {% set todoTask = 'Prepare for interview' %}
+                          {% set displayTask = todoTask %}
                       {% elseif application.status == 'negotiating' %}
                           {% set todoTask = 'Review and respond to offer' %}
+                          {% set displayTask = todoTask %}
                       {% endif %}
                       
                       {% if todoTask %}
-                          <div class="todo-icon-wrapper">
+                          <div class="todo-icon-wrapper" data-bs-toggle="tooltip" title="{{ displayTask }}">
                               <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
                                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                       <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2410,20 +2516,20 @@ window.addEventListener('resize', function() {
 
                 <!-- Timeline Drawer -->
                 <aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
-                    <div class="timeline-header">
-                        <h3 class="timeline-title">Job Timeline</h3>
-                        <button type="button" class="timeline-close" onclick="closeTimelinePanel()">
+                    <div class="timeline-header" style="padding: 12px 14px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
+                        <h6 class="timeline-title" style="margin: 0; font-size: 14px; font-weight: 600;">Job Timeline</h6>
+                        <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </button>
                     </div>
-                    <div class="timeline-body" id="timeline-content">
+                    <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 16px; overflow-y: auto;">
                         <div class="text-center py-5">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <p class="mt-2 text-muted">Loading timeline...</p>
+                            <p class="mt-2 text-muted" style="font-size: 12px;">Loading timeline...</p>
                         </div>
                     </div>
                 </aside>
@@ -3989,75 +4095,6 @@ window.addEventListener('resize', function() {
             closeAllDropdowns();
         });
     }
-    
-    // Handle Timeline button click
-    const timelineBtn = document.getElementById('timeline-job-btn');
-    if (timelineBtn) {
-        timelineBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Get job ID from selected job or active card
-            let jobId = window.selectedJobId || null;
-            
-            // If not found, try to find from active split job card
-            if (!jobId) {
-                const activeCard = document.querySelector('.split-job-card.active');
-                if (activeCard) {
-                    jobId = activeCard.getAttribute('data-job-id');
-                }
-            }
-            
-            // If still not found, try to find from checked checkbox
-            if (!jobId) {
-                const checkedCheckbox = document.querySelector('.job-checkbox:checked');
-                if (checkedCheckbox) {
-                    jobId = checkedCheckbox.getAttribute('data-job-id');
-                }
-            }
-            
-            // Also try to get application ID and job ID from application row
-            const dropdown = timelineBtn.closest('.menu-dropdown');
-            let applicationId = null;
-            
-            if (dropdown && !jobId) {
-                // Try to find application ID from nearby elements
-                const jobRow = dropdown.closest('.job-lists');
-                if (jobRow) {
-                    const checkbox = jobRow.querySelector('[data-application-id]');
-                    if (checkbox) {
-                        applicationId = checkbox.getAttribute('data-application-id');
-                        // Also try to get job ID from the same checkbox
-                        jobId = checkbox.getAttribute('data-job-id');
-                    }
-                }
-            }
-            
-            if (jobId) {
-                // Close notes panel if open
-                const notesPanel = document.getElementById('notes-panel');
-                if (notesPanel && notesPanel.classList.contains('open')) {
-                    notesPanel.classList.remove('open');
-                    notesPanel.setAttribute('aria-hidden', 'true');
-                    const jobDetails = document.getElementById('split-job-details');
-                    if (jobDetails) {
-                        jobDetails.classList.remove('notes-open');
-                    }
-                }
-                
-                // Open timeline panel
-                if (typeof window.openTimelinePanel === 'function') {
-                    window.openTimelinePanel(jobId);
-                }
-            } else {
-                if (typeof showToast === 'function') {
-                    showToast('Please select a job first', 'warning');
-                }
-            }
-            
-            closeAllDropdowns();
-        });
-    }
 
     // Handle Export Report button click
     const exportReportBtn = document.getElementById('export-report-btn');
@@ -4268,25 +4305,63 @@ window.addEventListener('resize', function() {
     });
 
     // Delete button handler with alert confirmation (for both top and bottom buttons)
-    const deleteButtons = [deleteBtn, document.getElementById('delete-btn-bottom')].filter(btn => btn);
-    deleteButtons.forEach(deleteBtn => {
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-            const selectedIds = selectedCheckboxes.map(cb => cb.dataset.applicationId || cb.dataset.jobId);
-            
-            if (selectedIds.length === 0) {
-                if (typeof showToast === 'function') {
-                    showToast('Please select at least one application to delete.', 'warning');
-                } else {
-                    alert('Please select at least one application to delete.');
+    // Use event delegation to handle dynamically loaded buttons
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('#delete-btn, #delete-btn-bottom');
+        if (!deleteBtn) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        // Check if button is in split view job details
+        const isInSplitView = deleteBtn.closest('#job-detail-content') || deleteBtn.closest('.split-job-details');
+        
+        let selectedIds = [];
+        
+        if (isInSplitView) {
+            // In split view, use the selected job
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                // Find the application ID for this job
+                const activeCard = document.querySelector('.split-job-card.active');
+                if (activeCard) {
+                    const checkbox = activeCard.querySelector('.job-checkbox');
+                    if (checkbox) {
+                        const applicationId = checkbox.dataset.applicationId || checkbox.dataset.jobId;
+                        if (applicationId) {
+                            selectedIds = [applicationId];
+                        }
+                    }
                 }
-                return;
+                // Fallback to job ID if application ID not found
+                if (selectedIds.length === 0) {
+                    selectedIds = [selectedJobId];
+                }
             }
+        } else {
+            // In list view, use checked checkboxes
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.job-check.job-checkbox:checked, .job-checkbox:checked, .job-check:checked, #split-job-list .job-checkbox:checked'));
+            selectedIds = selectedCheckboxes.map(cb => {
+                // Prioritize application ID - this is what we need for deleting
+                const appId = cb.dataset.applicationId || cb.getAttribute('data-application-id');
+                if (appId) {
+                    return appId;
+                }
+                // If no application ID, try to get it from the job ID (fallback)
+                const jobId = cb.dataset.jobId || cb.getAttribute('data-job-id');
+                return jobId;
+            }).filter(Boolean);
+        }
+        
+        if (selectedIds.length === 0) {
+            if (typeof showToast === 'function') {
+                showToast('Please select at least one application to delete.', 'warning');
+            } else {
+                alert('Please select at least one application to delete.');
+            }
+            return;
+        }
             
             // Show confirmation alert
             if (typeof showConfirmAlert === 'function') {
@@ -4414,9 +4489,7 @@ window.addEventListener('resize', function() {
                 }
             }
         });
-    }
-    });
-  });
+    }); // Close document.addEventListener for delete button
 
 // Function to show success/error message
 function showMessage(message, type = 'success') {
@@ -4714,8 +4787,8 @@ function initializeRankEditing() {
                     if (noDocumentsEl) noDocumentsEl.style.display = 'none';
                     if (actionEl) actionEl.style.display = 'none';
                     
-                    // Check if we should show document requests (not saved or completed status)
-                    if (applicationId && status && status !== 'saved' && status !== 'completed' && todoType === 'application') {
+                    // Check if we should show document requests (not saved status)
+                    if (applicationId && status && status !== 'saved' && todoType === 'application') {
                         // Show loading
                         if (loadingEl) loadingEl.style.display = 'block';
                         if (titleEl) titleEl.textContent = 'Document Requests';
@@ -4840,29 +4913,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Archive button handler - Ensure it works properly
 document.addEventListener('DOMContentLoaded', function () {
-    // Get all archive buttons (by ID and class)
-    const archiveBtn = document.getElementById('archive-btn');
-    const archiveBtnBottom = document.getElementById('archive-btn-bottom');
-    const archiveButtons = document.querySelectorAll('.archive-btn');
-    
-    const handleArchiveClick = async (event) => {
+    // Use event delegation for archive button to handle dynamically loaded buttons
+    document.addEventListener('click', async function(event) {
+        const archiveBtn = event.target.closest('#archive-btn, #archive-btn-bottom, .archive-btn');
+        if (!archiveBtn) return;
+        
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
 
-        // Collect selected application IDs from all checkbox types
-        const selectedIds = Array.from(document.querySelectorAll('.job-check.job-checkbox:checked, .job-checkbox:checked, .job-check:checked'))
-            .map(cb => {
-                // Prioritize application ID - this is what we need for archiving
-                const appId = cb.dataset.applicationId || cb.getAttribute('data-application-id');
-                if (appId) {
-                    return appId;
+        // Check if button is in split view job details
+        const isInSplitView = archiveBtn.closest('#job-detail-content') || archiveBtn.closest('.split-job-details');
+        
+        let selectedIds = [];
+        
+        if (isInSplitView) {
+            // In split view, use the selected job
+            const selectedJobId = window.selectedJobId;
+            if (selectedJobId) {
+                // Find the application ID for this job
+                const activeCard = document.querySelector('.split-job-card.active');
+                if (activeCard) {
+                    const checkbox = activeCard.querySelector('.job-checkbox');
+                    if (checkbox) {
+                        const applicationId = checkbox.dataset.applicationId || checkbox.dataset.jobId;
+                        if (applicationId) {
+                            selectedIds = [applicationId];
+                        }
+                    }
                 }
-                // If no application ID, try to get it from the job ID (fallback)
-                const jobId = cb.dataset.jobId || cb.getAttribute('data-job-id');
-                return jobId;
-            })
-            .filter(Boolean);
+                // Fallback to job ID if application ID not found
+                if (selectedIds.length === 0) {
+                    selectedIds = [selectedJobId];
+                }
+            }
+        } else {
+            // In list view, use checked checkboxes
+            selectedIds = Array.from(document.querySelectorAll('.job-check.job-checkbox:checked, .job-checkbox:checked, .job-check:checked, #split-job-list .job-checkbox:checked'))
+                .map(cb => {
+                    // Prioritize application ID - this is what we need for archiving
+                    const appId = cb.dataset.applicationId || cb.getAttribute('data-application-id');
+                    if (appId) {
+                        return appId;
+                    }
+                    // If no application ID, try to get it from the job ID (fallback)
+                    const jobId = cb.dataset.jobId || cb.getAttribute('data-job-id');
+                    return jobId;
+                })
+                .filter(Boolean);
+        }
         
         // Log for debugging
         console.log('Selected IDs for archiving:', selectedIds);
@@ -4980,35 +5079,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('An error occurred while archiving applications.');
             }
         }
-    };
-
-    // Attach handlers to all archive buttons
-    if (archiveBtn) {
-        archiveBtn.style.pointerEvents = 'auto';
-        archiveBtn.style.cursor = 'pointer';
-        archiveBtn.style.position = 'relative';
-        archiveBtn.style.zIndex = '1000';
-        archiveBtn.addEventListener('click', handleArchiveClick);
-    }
-    
-    if (archiveBtnBottom) {
-        archiveBtnBottom.style.pointerEvents = 'auto';
-        archiveBtnBottom.style.cursor = 'pointer';
-        archiveBtnBottom.style.position = 'relative';
-        archiveBtnBottom.style.zIndex = '1000';
-        archiveBtnBottom.addEventListener('click', handleArchiveClick);
-    }
-    
-    // Also attach to any buttons with archive-btn class
-    archiveButtons.forEach(btn => {
-        if (btn.id !== 'archive-btn' && btn.id !== 'archive-btn-bottom') {
-            btn.style.pointerEvents = 'auto';
-            btn.style.cursor = 'pointer';
-            btn.style.position = 'relative';
-            btn.style.zIndex = '1000';
-            btn.addEventListener('click', handleArchiveClick);
-        }
-    });
+    }); // Close document.addEventListener for archive button
 });
 
 // End of utilities script block
@@ -5121,6 +5192,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isHidden) {
       filterPanel.classList.remove('hidden');
       filterPanel.style.display = 'block';
+      
+      // Position the filter panel correctly to prevent clipping
+      const filterBtnRect = filterBtn.getBoundingClientRect();
+      const splitViewContainer = document.getElementById('split-view-container');
+      if (splitViewContainer && splitViewContainer.style.display === 'grid') {
+        // In split view, use fixed positioning
+        filterPanel.style.position = 'fixed';
+        filterPanel.style.left = filterBtnRect.left + 'px';
+        filterPanel.style.top = (filterBtnRect.bottom + 8) + 'px';
+        filterPanel.style.zIndex = '99999';
+      } else {
+        // In list view, use absolute positioning
+        filterPanel.style.position = 'absolute';
+        filterPanel.style.left = '0';
+        filterPanel.style.top = '100%';
+        filterPanel.style.zIndex = '9999';
+      }
     } else {
       filterPanel.classList.add('hidden');
       filterPanel.style.display = 'none';
@@ -5368,6 +5456,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (actionsContainer) {
                 actionsContainer.classList.remove('scrollable');
             }
+            // Show table header in list view
+            const tableHeaderWrapper = document.querySelector('.sticky-header-container .table-responsive-wrapper');
+            if (tableHeaderWrapper) {
+                tableHeaderWrapper.style.display = 'block';
+            }
             window.selectedJobId = null;
             if (detailNoteBtn) { detailNoteBtn.style.display = 'none'; }
             const detailTimelineBtn = document.getElementById('detail-timeline-btn');
@@ -5377,6 +5470,11 @@ document.addEventListener('DOMContentLoaded', function () {
             splitViewContainer.style.display = 'grid';
             listViewContainer.style.display = 'none';
             gridViewBtn.classList.add('active');
+            // Hide table header in split view
+            const tableHeaderWrapper = document.querySelector('.sticky-header-container .table-responsive-wrapper');
+            if (tableHeaderWrapper) {
+                tableHeaderWrapper.style.display = 'none';
+            }
             gridViewBtn.innerHTML = `
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -5388,11 +5486,24 @@ document.addEventListener('DOMContentLoaded', function () {
             if (actionsContainer) {
                 actionsContainer.classList.add('scrollable');
             }
-            // Auto-select the first job card
+            // Auto-select the checked job or first job card
             setTimeout(function() {
-                const firstJobCard = splitJobList ? splitJobList.querySelector('.split-job-card') : null;
-                if (firstJobCard && typeof window.selectJobCard === 'function') {
-                    window.selectJobCard(firstJobCard);
+                const checkedInList = listViewContainer.querySelector('.job-checkbox:checked');
+                let cardToSelect = null;
+                
+                if (checkedInList) {
+                    const jobId = checkedInList.dataset.jobId || checkedInList.dataset.applicationId;
+                    if (jobId && splitJobList) {
+                        cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+                    }
+                }
+                
+                if (!cardToSelect && splitJobList) {
+                    cardToSelect = splitJobList.querySelector('.split-job-card');
+                }
+
+                if (cardToSelect && typeof window.selectJobCard === 'function') {
+                    window.selectJobCard(cardToSelect);
                 } else {
                     selectedJobId = null;
                     window.selectedJobId = null;
@@ -5560,27 +5671,27 @@ document.addEventListener('DOMContentLoaded', function () {
               let interviewsHTML = '';
               if (data.interviews && data.interviews.length > 0) {
                   interviewsHTML = data.interviews.map(interview => `
-                      <div class="timeline-detail-item">
-                          <span class="timeline-detail-label">${interview.type}:</span>
-                          <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
+                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
+                          <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
                       </div>
                       ${interview.platform ? `
-                      <div class="timeline-detail-item">
-                          <span class="timeline-detail-label">Platform:</span>
-                          <span class="timeline-detail-value">${interview.platform}</span>
+                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
+                          <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
                       </div>
                       ` : ''}
                       ${interview.meetingUrl ? `
-                      <div class="timeline-detail-item">
-                          <span class="timeline-detail-label">Meeting Link:</span>
-                          <span class="timeline-detail-value">
+                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
+                          <span class="timeline-detail-value" style="color: #121C0C;">
                               <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
                           </span>
                       </div>
                       ` : ''}
                   `).join('');
               } else {
-                  interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
+                  interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
               }
               
               // Build timeline content with real data
@@ -5589,7 +5700,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <!-- Application Overview -->
                       <div class="timeline-event">
                           <div class="timeline-event-icon">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                   <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
@@ -5636,7 +5747,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <!-- Interview Information -->
                       <div class="timeline-event">
                           <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
                                   <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
                                   <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
@@ -5660,7 +5771,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <!-- Quick Actions -->
                       <div class="timeline-event">
                           <div class="timeline-event-icon">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
                                   <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
                               </svg>
@@ -5678,11 +5789,11 @@ document.addEventListener('DOMContentLoaded', function () {
                   
                   <style>
                       .timeline-events {
-                          padding: 10px 0;
+                          padding: 0;
                       }
                       .timeline-info-box {
                           background: #f8f9fa;
-                          border-left: 3px solid #85BB65;
+                          border-left: none !important;
                           padding: 12px 15px;
                           border-radius: 6px;
                           margin-bottom: 10px;
@@ -5703,13 +5814,13 @@ document.addEventListener('DOMContentLoaded', function () {
                       }
                       .timeline-event {
                           display: flex;
-                          gap: 15px;
-                          padding: 15px 0;
+                          gap: 12px;
+                          padding: 12px 0;
                       }
                       .timeline-event-icon {
                           flex-shrink: 0;
-                          width: 40px;
-                          height: 40px;
+                          width: 32px;
+                          height: 32px;
                           display: flex;
                           align-items: center;
                           justify-content: center;
@@ -5721,18 +5832,23 @@ document.addEventListener('DOMContentLoaded', function () {
                       }
                       .timeline-event-content {
                           flex: 1;
+                          border: none !important;
+                          border-left: none !important;
+                          background: transparent !important;
+                          box-shadow: none !important;
+                          padding: 0 !important;
                       }
                       .timeline-event-title {
                           font-size: 14px;
                           font-weight: 600;
                           margin-bottom: 8px;
-                          color: #121C0C;
+                          color: #333;
                       }
                       .timeline-detail-item {
                           display: flex;
                           gap: 8px;
                           margin-bottom: 6px;
-                          font-size: 13px;
+                          font-size: 12px;
                       }
                       .timeline-detail-label {
                           color: #6c757d;
@@ -5757,14 +5873,14 @@ document.addEventListener('DOMContentLoaded', function () {
                           margin-bottom: 6px;
                       }
                       .timeline-event-description {
-                          font-size: 13px;
+                          font-size: 12px;
                           color: #6c757d;
                           margin-bottom: 0;
                       }
                       .timeline-event-divider {
                           height: 1px;
                           background: #e6eef6;
-                          margin: 10px 0;
+                          margin: 8px 0;
                       }
                       .timeline-actions {
                           display: flex;
@@ -5910,12 +6026,12 @@ document.addEventListener('DOMContentLoaded', function () {
               jobDetails.scrollTop = 0;
           }
           
-          // Hide scrollbars on job list
-          const jobList = document.getElementById('split-job-list');
-          if (jobList) {
-              jobList.style.overflowY = 'hidden';
-              jobList.style.overflowX = 'hidden';
-          }
+          // Removed - allow scrolling in split-job-list
+          // const jobList = document.getElementById('split-job-list');
+          // if (jobList) {
+          //     jobList.style.overflowY = 'hidden';
+          //     jobList.style.overflowX = 'hidden';
+          // }
           
           // Open the panel
           panel.classList.add('open');

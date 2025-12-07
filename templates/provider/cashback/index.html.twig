@@ -39,9 +39,8 @@
   line-height: 1.5;
   transition: background-color 0.2s ease;
   border: none;
-  padding: 2px 14px;
+  padding: 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin: 2px 0;
   border-radius: 10px;
@@ -49,7 +48,7 @@
   border: 1px solid #e6eef6;
   box-shadow: 0 2px 6px rgba(11,22,40,0.03);
   min-height: 40px;
-  height: auto;
+  height: 40px;
 }
 
 .job-row:hover {
@@ -57,6 +56,13 @@
 }
 
 /* Perfect alignment between headers and rows */
+.job-header {
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
 .job-header > div,
 .job-row > div {
   display: flex;
@@ -64,8 +70,6 @@
   box-sizing: border-box;
   min-width: 0;
   overflow: hidden;
-  padding-left: 8px !important;
-  padding-right: 8px !important;
   min-height: 40px;
   height: 40px;
 }
@@ -117,36 +121,36 @@
 </style>
     <div class="container-xl">
         <div class="job-section shadow-lg p-3 rounded-3">
-            <h6 class="app-card-title mb-3">Cashback History</h6>
+            <h6 class="app-card-title mb-3" style="padding-left: 14px;">Cashback History</h6>
 
             {% if cashbacks|length > 0 %}
             <div class="job-list-container bg-light p-3 rounded-3">
                 <div class="d-flex align-items-center job-lists">
-                    <div class="d-flex align-items-center flex-grow-1">
-                        <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
-                            <div class="col-job flex-grow-2">Job</div>
-                            <div class="col-start col-center flex-grow-1">Employer</div>
-                            <div class="col-start col-center flex-grow-1">Amount($)</div>
-                            <div class="col-start col-center flex-grow-1">CreatedAt</div>
-                            <div class="col-start col-center flex-grow-1">Status</div>
+                    <div class="d-flex align-items-center flex-grow-1" style="padding-left: 0;">
+                        <div class="job-header d-flex align-items-center fw-semibold flex-grow-1" style="padding-left: 14px; padding-right: 14px;">
+                            <div class="col-job" style="flex: 2; padding-left: 8px; padding-right: 8px;">Job</div>
+                            <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">Employer</div>
+                            <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">Amount($)</div>
+                            <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">CreatedAt</div>
+                            <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">Status</div>
                         </div>
                     </div>
                 </div>
                 {% for cashback in cashbacks %}
                 <div class="d-flex align-items-center job-lists">
-                    <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
-                        <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
+                    <div class="job-row d-flex align-items-center flex-grow-1" style="padding-left: 14px; padding-right: 14px;">
+                        <div class="col-job d-flex align-items-center gap-2" style="flex: 2; padding-left: 8px; padding-right: 8px;">
                             <img src="{{ asset('assets/icons/job.png') }}"
                                  alt="Logo"
-                                 style="width: 40px; height: 40px; border-radius: 8px;" />
-                            <div class="flex-grow-2">
+                                 style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;" />
+                            <div>
                                 <a href="{{ path('app_provider_cashback_detail', {'id': cashback.id}) }}">{{ cashback.job }}</a>
                             </div>
                         </div>
-                        <div class="col-start col-center flex-grow-1">{{ cashback.employer }}</div>
-                        <div class="col-start col-center flex-grow-1">{{ cashback.amount|number_format }}</div>
-                        <div class="col-expiry col-center flex-grow-1">{{ cashback.createdAt ? cashback.createdAt|date('m/d/Y') : '' }}</div>
-                        <div class="col-start col-center flex-grow-1"><span class="badge badge-pill {% if cashback.status == 'pending' %}is-review{% elseif cashback.status == 'paid' %}is-hired{% endif %}">
+                        <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">{{ cashback.employer }}</div>
+                        <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">{{ cashback.amount|number_format }}</div>
+                        <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;">{{ cashback.createdAt ? cashback.createdAt|date('m/d/Y') : '' }}</div>
+                        <div class="col-start col-center" style="flex: 1; padding-left: 8px; padding-right: 8px;"><span class="badge badge-pill {% if cashback.status == 'pending' %}is-review{% elseif cashback.status == 'paid' %}is-hired{% endif %}">
                                     {{ cashback.status }}
                                 </span></div>
                     </div>

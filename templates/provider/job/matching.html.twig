@@ -162,9 +162,26 @@ div.container-xl,
     }
 }
 
+.sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    background-color: #fff !important;
+    overflow: visible !important;
+}
+
 .job-header, .job-row {
     display: flex;
     align-items: center;
+}
+
+.job-header {
+    margin-bottom: 0 !important;
+    position: relative !important;
+}
+
+.actions-container {
+    position: relative !important;
 }
 
 .col-job,
@@ -180,7 +197,6 @@ div.container-xl,
     flex: 2;
 }
 .job-header {
-    padding: 0;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
@@ -194,6 +210,19 @@ div.container-xl,
     line-height: 1.5;
     background: #F8FAF9;
     border-bottom: 2px solid #e6eef6;
+}
+
+/* ENFORCE EQUAL SPACING on both sides - Must match right padding - HIGHEST PRIORITY */
+div.job-header.d-flex.align-items-center.fw-semibold.py-2.flex-grow-1,
+div.job-header,
+.table-responsive-wrapper div.job-header,
+.job-lists div.job-header,
+.d-flex.flex-grow-1 div.job-header,
+[class*="job-header"] {
+  margin-left: 14px !important;
+  padding-left: 0 !important;
+  padding-right: 14px !important;
+  box-sizing: border-box !important;
 }
 
 /* Perfect alignment between headers and rows */
@@ -286,6 +315,26 @@ div.container-xl,
 }
 .job-section {
     background-color: #fff;
+}
+
+/* Fix: Ensure no spacing between header and job rows */
+.job-section .table-responsive-wrapper {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.job-section .table-responsive-wrapper .job-header {
+    margin-left: 0 !important;
+}
+
+/* Ensure no gap between header and job-list-container */
+.job-list-container {
+    margin-top: 0 !important;
+}
+
+/* Remove top margin from first job-row to align with header */
+.job-list-container .table-responsive-wrapper .job-lists:first-child .job-row {
+    margin-top: 0 !important;
 }
 /* Consistent rounded-square style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
@@ -511,10 +560,13 @@ div.container-xl,
     text-align: center;
 }
 .actions-container {
-    margin-top: 20px;
-    margin-bottom: 12px;
-    padding-left: 15px;
-    padding-right: 15px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  margin-bottom: 8px !important;
+  pointer-events: auto !important;
 }
 .sort-toggle {
   display: inline-flex;
@@ -534,11 +586,12 @@ div.container-xl,
 </style>
 <div class="container-xl">
     <div class="job-section shadow-lg p-3 rounded-3">
-        <div class="d-flex justify-content-between align-items-center ml-15-px" style="margin-bottom:30px;">
+        <div class="d-flex justify-content-between align-items-center" style="margin-bottom:30px; padding-left: 11px; padding-right: 11px;">
             <h6 class="app-card-title mb-0">Matching Jobs</h6>
         </div>
 
-        <div class="actions-container d-flex justify-content-between align-items-center ml-15-px mr-15-px">
+        <div class="sticky-header-container">
+        <div class="actions-container d-flex justify-content-between align-items-center" style="padding-left: 11px; padding-right: 11px;">
             <div class="job-actions" style="display: flex; gap: 8px; align-items: center;">
               <div class="position-relative" style="flex-shrink: 0;">
                 <button id="filter-btn" class="action-btn" title="Filter">
@@ -670,7 +723,7 @@ div.container-xl,
                     </svg>
                 </a>#}
             </div>
-            <div class="col-dropdowns d-flex gap-2" style="margin-right: 15px;">
+            <div class="col-dropdowns d-flex gap-2" style="margin-right: 14px;">
               <!-- Menu Dropdown -->
               <div class="menu-dropdown position-relative">
                 <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
@@ -684,14 +737,6 @@ div.container-xl,
                     </svg> 
                     <span>Print/Share</span>
                   </button>
-                  <a id="timeline-job-btn" href="{{ path('app_provider_interview_calendar') }}" class="menu-item">
-                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="#121C0C" stroke-width="1.5"/>
-                      <path d="M16 2V6M8 2V6M3 10H21" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
-                      <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg> 
-                    <span>Timeline</span>
-                  </a>
                   <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                   <!-- Regular Menu Items -->
                   <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -718,10 +763,10 @@ div.container-xl,
         <hr class="mb-4">#}
 
         {% if jobs|length > 0 %}
-        <div class="job-list-container bg-light p-3 rounded-3">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0; padding-left: 0;">
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1">
-                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0;">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0; margin-left: 14px !important; padding-left: 0 !important; padding-right: 14px !important; box-sizing: border-box !important;">
                         <div class="col-job sortable" data-sort="job" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; flex-grow: 2; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="location" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="posted" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -731,7 +776,11 @@ div.container-xl,
                     </div>
                 </div>
             </div>
-
+        </div>
+        </div>
+        {% if jobs|length > 0 %}
+        <div class="job-list-container bg-light rounded-3" style="padding: 0 12px 12px 12px; margin-top: 0;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
             {% for job in jobs %}
             <div class="d-flex align-items-center job-lists">
             <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0;">
@@ -1060,48 +1109,6 @@ div.container-xl,
             closeAllDropdowns();
         });
     }
-    
-    // Handle Timeline button click
-    const timelineBtn = document.getElementById('timeline-job-btn');
-    if (timelineBtn) {
-        timelineBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Get job ID from the closest job card
-            const dropdown = timelineBtn.closest('.menu-dropdown');
-            let jobId = null;
-            
-            if (dropdown) {
-                const jobCard = dropdown.closest('.job-lists, .split-job-card');
-                if (jobCard) {
-                    jobId = jobCard.getAttribute('data-job-id');
-                }
-                
-                if (!jobId) {
-                    const checkbox = dropdown.closest('.job-lists, .split-view-container')?.querySelector('[data-job-id]');
-                    if (checkbox) {
-                        jobId = checkbox.getAttribute('data-job-id');
-                    }
-                }
-            }
-            
-            if (jobId) {
-                // Open timeline panel
-                if (typeof window.openTimelinePanel === 'function') {
-                    window.openTimelinePanel(jobId);
-                }
-            } else {
-                if (typeof showToast === 'function') {
-                    showToast('Please select a job first', 'warning');
-                }
-            }
-            
-            closeAllDropdowns();
-        });
-    }
-
-
     function toggleActionsVisibility() {
       const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
       actionsDivs.forEach(div => {
@@ -1421,6 +1428,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+  
 });
 </script>
 
@@ -1744,6 +1752,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   </script>
 
+{% endif %}
 {% endblock %}
 
 {% block footer_scripts %}
@@ -1794,6 +1803,14 @@ function applySpacingStyles() {
             appWrapper.style.setProperty('transform', 'none', 'important');
         }
     }
+    
+    // ENFORCE EQUAL SPACING on both sides - Must match right padding
+    const jobHeaders = document.querySelectorAll('.job-header');
+    jobHeaders.forEach(header => {
+        header.style.setProperty('margin-left', '14px', 'important');
+        header.style.setProperty('padding-left', '0', 'important');
+        header.style.setProperty('padding-right', '14px', 'important');
+    });
 }
 
 // Run on load
@@ -1818,15 +1835,15 @@ window.addEventListener('resize', function() {
 
 <!-- Timeline Panel -->
 <aside id="timeline-panel" class="timeline-panel" aria-hidden="true" style="position: fixed; top: 0; right: 0; height: 100vh; width: 400px; max-width: 90vw; background: #fff; border-left: 1px solid #e6eef6; box-shadow: -2px 0 8px rgba(11,22,40,0.06); transform: translateX(100%); transition: transform 0.2s ease; display: flex; flex-direction: column; z-index: 9999; visibility: hidden; overflow-y: auto; pointer-events: none;">
-    <div class="timeline-header" style="padding: 20px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
-        <h3 class="timeline-title" style="margin: 0; font-size: 18px; font-weight: 600;">Job Timeline</h3>
-        <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6c757d; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+    <div class="timeline-header" style="padding: 12px 14px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
+        <h6 class="timeline-title" style="margin: 0; font-size: 14px; font-weight: 600;">Job Timeline</h6>
+        <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
     </div>
-    <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 20px; overflow-y: auto;">
+    <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 16px; overflow-y: auto;">
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -1847,6 +1864,13 @@ window.addEventListener('resize', function() {
 }
 .timeline-panel-overlay.active {
     display: block !important;
+}
+.timeline-event-content {
+    border: none !important;
+    border-left: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 </style>
 
@@ -1883,18 +1907,18 @@ window.openTimelinePanel = function(jobId) {
             let interviewsHTML = '';
             if (data.interviews && data.interviews.length > 0) {
                 interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                         <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
                         <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
                     </div>
                     ${interview.platform ? `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                         <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
                         <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
                     </div>
                     ` : ''}
                     ${interview.meetingUrl ? `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                         <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
                         <span class="timeline-detail-value" style="color: #121C0C;">
                             <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
@@ -1903,47 +1927,47 @@ window.openTimelinePanel = function(jobId) {
                     ` : ''}
                 `).join('');
             } else {
-                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 13px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
+                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
             }
             
             // Build timeline content with real data
             timelineContent.innerHTML = `
-                <div class="timeline-events" style="padding: 10px 0;">
-                    <div class="timeline-event" style="display: flex; gap: 15px; padding: 15px 0;">
-                        <div class="timeline-event-icon" style="flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 50%;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div class="timeline-events" style="padding: 0;">
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 50%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content" style="flex: 1;">
-                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #121C0C;">Application Overview</h6>
-                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                        <div class="timeline-event-content" style="flex: 1; border: none !important; border-left: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Application Overview</h6>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                                 <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Status:</span>
                                 <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="color: #121C0C;">${data.applicationStatus}</span>
                             </div>
                             ${data.applicationDate ? `
-                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                                 <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Applied On:</span>
                                 <span class="timeline-detail-value" style="color: #121C0C;">${data.applicationDate}</span>
                             </div>
                             ` : ''}
-                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px;">
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                                 <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Job Saved:</span>
                                 <span class="timeline-detail-value" style="color: #121C0C;">${data.bookmarkDate}</span>
                             </div>
                         </div>
                     </div>
-                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 10px 0;"></div>
-                    <div class="timeline-event" style="display: flex; gap: 15px; padding: 15px 0;">
-                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}" style="flex-shrink: 0; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: ${data.interviews && data.interviews.length > 0 ? '#e8f5e9' : '#f8f9fa'}; border-radius: 50%;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: ${data.interviews && data.interviews.length > 0 ? '#e8f5e9' : '#f8f9fa'}; border-radius: 50%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
                                 <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content" style="flex: 1;">
-                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #121C0C;">Interview Schedule</h6>
+                        <div class="timeline-event-content" style="flex: 1; border: none !important; border-left: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Interview Schedule</h6>
                             ${interviewsHTML}
                             <a href="{{ path('app_provider_interview_calendar') }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
                                 View Full Calendar

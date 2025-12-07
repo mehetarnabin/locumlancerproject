@@ -3919,7 +3919,11 @@ window.loadMessageInPanel = async function(messageId) {
     
     try {
         // Fetch message details using the show route
-        const response = await fetch(`/provider/message/${messageId}/show`);
+        const response = await fetch(`/provider/message/${messageId}/show`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
         const html = await response.text();
         
         if (response.ok) {
@@ -4167,6 +4171,18 @@ function closeEmailDetailPanel() {
         messagesContainer.classList.remove('has-detail');
     }
 }
+
+// Intercept message item links to load in detail panel instead of navigating
+document.addEventListener('click', function(event) {
+    const messageLink = event.target.closest('a.message-item');
+    if (messageLink) {
+        event.preventDefault();
+        const messageId = messageLink.getAttribute('data-message-id');
+        if (messageId && typeof loadMessageInPanel === 'function') {
+            loadMessageInPanel(messageId);
+        }
+    }
+});
 
 </script>
 {% endblock %}

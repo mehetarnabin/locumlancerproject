@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\ApplicationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Uid\Uuid;
 
@@ -73,6 +75,14 @@ class Application
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isArchived = false;
+
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: DocumentRequest::class)]
+    private Collection $documentRequests;
+
+    public function __construct()
+    {
+        $this->documentRequests = new ArrayCollection();
+    }
 
     public function getId(): ?Uuid
     {
@@ -281,6 +291,37 @@ class Application
     public function setAppliedAt(?\DateTimeInterface $appliedAt): self
     {
         $this->appliedAt = $appliedAt;
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, DocumentRequest>
+     */
+    public function getDocumentRequests(): Collection
+    {
+        return $this->documentRequests;
+    }
+
+    public function addDocumentRequest(DocumentRequest $documentRequest): static
+    {
+        if (!$this->documentRequests->contains($documentRequest)) {
+            $this->documentRequests->add($documentRequest);
+            $documentRequest->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDocumentRequest(DocumentRequest $documentRequest): static
+    {
+        if ($this->documentRequests->removeElement($documentRequest)) {
+            // set the owning side to null (unless already changed)
+            if ($documentRequest->getApplication() === $this) {
+                $documentRequest->setApplication(null);
+            }
+        }
+
         return $this;
     }
 }

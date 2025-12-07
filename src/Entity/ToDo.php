@@ -22,8 +22,16 @@ class ToDo
     private ?Provider $provider = null;
 
     #[ORM\ManyToOne(targetEntity: Employer::class)]
-    #[ORM\JoinColumn(name: 'employer_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'employer_id', nullable: true)]
     private ?Employer $employer = null;
+
+    #[ORM\ManyToOne(targetEntity: Bookmark::class)]
+    #[ORM\JoinColumn(name: 'bookmark_id', nullable: true)]
+    private ?Bookmark $bookmark = null;
+
+    #[ORM\ManyToOne(targetEntity: Job::class)]
+    #[ORM\JoinColumn(name: 'job_id', nullable: true)]
+    private ?Job $job = null;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -84,6 +92,51 @@ class ToDo
     public function getEmployerName(): ?string
     {
         return $this->employer ? ($this->employer->getCompanyName() ?: $this->employer->getName()) : null;
+    }
+
+    public function getBookmark(): ?Bookmark
+    {
+        return $this->bookmark;
+    }
+
+    public function setBookmark(?Bookmark $bookmark): static
+    {
+        $this->bookmark = $bookmark;
+        return $this;
+    }
+
+    public function getJob(): ?Job
+    {
+        return $this->job;
+    }
+
+    public function setJob(?Job $job): static
+    {
+        $this->job = $job;
+        return $this;
+    }
+
+    // Compatibility methods for JobController
+    public function getText(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setText(string $text): static
+    {
+        $this->title = $text;
+        return $this;
+    }
+
+    public function isDone(): bool
+    {
+        return $this->isCompleted;
+    }
+
+    public function setDone(bool $done): static
+    {
+        $this->setIsCompleted($done);
+        return $this;
     }
 
     public function getTitle(): ?string

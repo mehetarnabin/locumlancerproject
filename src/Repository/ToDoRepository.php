@@ -37,6 +37,26 @@ class ToDoRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Find all pending to-do items assigned to the provider (by employer or system)
+     */
+    public function findAllAssignedToProvider(Provider $provider): array
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.documentRequest', 'dr')
+            ->leftJoin('t.employer', 'e')
+            ->addSelect('dr', 'e')
+            ->where('t.provider = :provider')
+            ->andWhere('t.isCompleted = :completed')
+            ->andWhere('t.employer IS NOT NULL OR t.documentRequest IS NOT NULL OR t.type = :docType')
+            ->setParameter('provider', $provider)
+            ->setParameter('completed', false)
+            ->setParameter('docType', 'document_request')
+            ->orderBy('t.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findPendingDocumentRequestsByJob(Provider $provider, $jobId): array
     {
         return $this->createQueryBuilder('t')

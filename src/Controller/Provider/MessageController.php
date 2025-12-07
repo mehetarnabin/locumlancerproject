@@ -455,7 +455,7 @@ class MessageController extends AbstractController
     }
 
     #[Route('/message/{id}/show', name: 'app_provider_message_show', methods: ['GET'])]
-    public function show(Message $message, EntityManagerInterface $em)
+    public function show(Message $message, EntityManagerInterface $em, Request $request)
     {
         $user = $this->getUser();
         
@@ -478,13 +478,20 @@ class MessageController extends AbstractController
         // Get employers for compose modal
         $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
 
-        return $this->render('provider/message/show.html.twig', [
+        $data = [
             'message' => $message,
             'replies' => $em->getRepository(Message::class)->findBy(['parent' => $message], ['createdAt' => 'ASC']),
             'draft_count' => $draftCount,
             'trash_count' => $trashCount,
             'employers' => $employers,
-        ]);
+        ];
+
+        // If AJAX request, return partial template without full page wrapper
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('provider/message/show-partial.html.twig', $data);
+        }
+
+        return $this->render('provider/message/show.html.twig', $data);
     }
 
     #[Route('/messages/{id}/reply', name: 'app_provider_message_reply_ajax', methods: ['POST'])]

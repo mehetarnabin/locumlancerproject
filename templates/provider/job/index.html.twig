@@ -440,20 +440,20 @@
 
     <!-- Timeline Panel -->
     <aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
-        <div class="timeline-header">
-            <h3 class="timeline-title">Job Timeline</h3>
-            <button type="button" class="timeline-close" onclick="closeTimelinePanel()">
+        <div class="timeline-header" style="padding: 12px 14px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
+            <h6 class="timeline-title" style="margin: 0; font-size: 14px; font-weight: 600;">Job Timeline</h6>
+            <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
         </div>
-        <div class="timeline-body" id="timeline-content">
+        <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 16px; overflow-y: auto;">
             <div class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-2 text-muted">Loading timeline...</p>
+                <p class="mt-2 text-muted" style="font-size: 12px;">Loading timeline...</p>
             </div>
         </div>
     </aside>
@@ -1318,98 +1318,98 @@ window.openTimelinePanel = function(jobId) {
             let interviewsHTML = '';
             if (data.interviews && data.interviews.length > 0) {
                 interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">${interview.type}:</span>
-                        <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
                     </div>
                     ${interview.platform ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Platform:</span>
-                        <span class="timeline-detail-value">${interview.platform}</span>
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
                     </div>
                     ` : ''}
                     ${interview.meetingUrl ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Meeting Link:</span>
-                        <span class="timeline-detail-value">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">
                             <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
                         </span>
                     </div>
                     ` : ''}
                 `).join('');
             } else {
-                interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
+                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
             }
             
             // Build timeline content with real data
             timelineContent.innerHTML = `
-                <div class="timeline-events">
+                <div class="timeline-events" style="padding: 0;">
                     <!-- Job ID Section -->
-                    <div class="timeline-info-box">
-                        <div class="timeline-info-label">Job ID</div>
-                        <div class="timeline-info-value">${data.jobId}</div>
+                    <div class="timeline-info-box" style="background: #f8f9fa; border-left: none !important; padding: 12px 15px; border-radius: 6px; margin-bottom: 10px; text-align: center;">
+                        <div class="timeline-info-label" style="font-size: 11px; text-transform: uppercase; color: #6c757d; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.5px;">Job ID</div>
+                        <div class="timeline-info-value" style="font-size: 13px; color: #121C0C; font-weight: 500; font-family: monospace;">${data.jobId}</div>
                     </div>
                     
-                    <div class="timeline-event-divider"></div>
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                     
                     <!-- Application Overview -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 50%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Application Overview</h6>
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Status:</span>
-                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}">${data.applicationStatus}</span>
+                        <div class="timeline-event-content" style="flex: 1; border: none !important; border-left: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Application Overview</h6>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Status:</span>
+                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="color: #121C0C;">${data.applicationStatus}</span>
                             </div>
                             ${data.applicationDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Applied On:</span>
-                                <span class="timeline-detail-value">${data.applicationDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Applied On:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.applicationDate}</span>
                             </div>
                             ` : ''}
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Job Saved:</span>
-                                <span class="timeline-detail-value">${data.bookmarkDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Job Saved:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.bookmarkDate}</span>
                             </div>
                             ${data.hiredDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Hired Date:</span>
-                                <span class="timeline-detail-value">${data.hiredDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Hired Date:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.hiredDate}</span>
                             </div>
                             ` : ''}
                             ${data.contractSentDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Sent:</span>
-                                <span class="timeline-detail-value">${data.contractSentDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Contract Sent:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.contractSentDate}</span>
                             </div>
                             ` : ''}
                             ${data.contractSignedDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Signed:</span>
-                                <span class="timeline-detail-value">${data.contractSignedDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Contract Signed:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.contractSignedDate}</span>
                             </div>
                             ` : ''}
                         </div>
                     </div>
                     
-                    <div class="timeline-event-divider"></div>
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                     
                     <!-- Interview Information -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: ${data.interviews && data.interviews.length > 0 ? '#e8f5e9' : '#f8f9fa'}; border-radius: 50%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
                                 <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
                                 <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Interview Schedule</h6>
+                        <div class="timeline-event-content" style="flex: 1; border: none !important; border-left: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Interview Schedule</h6>
                             ${interviewsHTML}
                             <a href="{{ path('app_provider_interview_calendar') }}?jobId=${data.jobId}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
@@ -1421,18 +1421,18 @@ window.openTimelinePanel = function(jobId) {
                         </div>
                     </div>
                     
-                    <div class="timeline-event-divider"></div>
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                     
                     <!-- Quick Actions -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon" style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 50%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
                                 <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Quick Actions</h6>
+                        <div class="timeline-event-content" style="flex: 1; border: none !important; border-left: none !important; background: transparent !important; box-shadow: none !important; padding: 0 !important;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Quick Actions</h6>
                             <div class="timeline-actions">
                                 <a href="/provider/jobs/${data.jobId}/detail" class="btn btn-sm btn-outline-secondary">
                                     View Full Details

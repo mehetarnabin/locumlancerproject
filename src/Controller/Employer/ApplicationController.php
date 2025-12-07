@@ -54,13 +54,13 @@ class ApplicationController extends AbstractController
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($application->getEmployer() !== $currentEmployer) {
+        if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
         $documentName = $request->get('document_name');
-        
+
         if (empty($documentName)) {
             $this->addFlash('error', 'Document name is required.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
@@ -84,7 +84,7 @@ class ApplicationController extends AbstractController
         $todo->setType('document_request');
         $todo->setCreatedAt(new \DateTimeImmutable());
         $todo->setIsCompleted(false);
-        
+
         $em->persist($todo);
         $em->flush();
 
@@ -100,7 +100,7 @@ class ApplicationController extends AbstractController
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($application->getEmployer() !== $currentEmployer) {
+        if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
@@ -130,17 +130,17 @@ class ApplicationController extends AbstractController
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($application->getEmployer() !== $currentEmployer) {
+        if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
-        if($application->getOneFileRequestedAt()){
+        if ($application->getOneFileRequestedAt()) {
             $this->addFlash('error', 'One file already requested from provider.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
         }
 
-        if($application->getOneFileProvidedAt()){
+        if ($application->getOneFileProvidedAt()) {
             $this->addFlash('error', 'One file already provided by provider.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
         }
@@ -164,28 +164,27 @@ class ApplicationController extends AbstractController
         EventDispatcherInterface $dispatcher,
         SluggerInterface $slugger,
         #[Autowire('%kernel.project_dir%/public/uploads/contracts')] string $uploadDirectory
-    ): Response
-    {
+    ): Response {
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($application->getEmployer() !== $currentEmployer) {
+        if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
-        if($application->getContractSentAt()){
+        if ($application->getContractSentAt()) {
             $this->addFlash('error', 'Contract already sent to provider.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
         }
 
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $contractFile = $request->files->get('contractFile');
             if ($contractFile) {
                 $originalFilename = pathinfo($contractFile->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$contractFile->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $contractFile->guessExtension();
 
                 try {
                     $contractFile->move($uploadDirectory, $newFilename);
@@ -217,11 +216,10 @@ class ApplicationController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         EventDispatcherInterface $dispatcher,
-    ): Response
-    {
+    ): Response {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($application->getEmployer() !== $currentEmployer) {
+        if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirectToRoute('app_employer_applications');
         }
@@ -234,19 +232,20 @@ class ApplicationController extends AbstractController
             'reviewedBy' => 'EMPLOYER'
         ]);
 
-        if($existingReview){
+        if ($existingReview) {
             $this->addFlash('error', 'You already have write review for provider.');
             return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
         }
 
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $message = $request->get('message');
             $professionalism = (int)$request->get('professionalism');
             $quality = (int)$request->get('quality');
             $communication = (int)$request->get('communication');
             $emotionalIntelligence = (int)$request->get('emotional_intelligence');
 
-            if (!empty($message) &&
+            if (
+                !empty($message) &&
                 $professionalism && $quality && $communication && $emotionalIntelligence
             ) {
                 $review = new Review();
@@ -284,8 +283,8 @@ class ApplicationController extends AbstractController
 
                 $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::PROVIDER_REVIEWED);
 
-            $this->addFlash('success', 'Review added for provider successfully.');
-            return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
+                $this->addFlash('success', 'Review added for provider successfully.');
+                return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
             } else {
                 $this->addFlash('error', 'Unable to create review. Please fill in all required fields.');
                 return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
@@ -299,7 +298,7 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/delete', name: 'app_employer_application_delete', methods: ['GET'])]
     public function delete(Application $application, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
-        if($this->getUser()->getEmployer() != $application->getEmployer()){
+        if ($this->getUser()->getEmployer() != $application->getEmployer()) {
             $this->addFlash('error', 'You are not allowed to delete this application.');
             return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
         }

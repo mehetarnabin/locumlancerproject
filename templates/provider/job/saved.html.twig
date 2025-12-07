@@ -186,6 +186,21 @@ div.container-xl,
 .col-job {
     flex: 2;
 }
+.sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    background-color: #fff !important;
+    overflow: visible !important;
+}
+
+/* Disable sticky in split view */
+.split-view-container ~ .sticky-header-container,
+.split-view-container .sticky-header-container {
+    position: relative !important;
+    top: auto !important;
+}
+
 .job-header {
     padding-left: 10px;
     padding-right: 10px;
@@ -196,6 +211,8 @@ div.container-xl,
     height: 40px;
     margin-bottom: 2px;
     font-size: 13px;
+    position: relative !important;
+    background-color: #F8FAF9 !important;
 }
 .job-row {
     border: none;
@@ -1597,6 +1614,7 @@ window.addEventListener('resize', function() {
 <div class="container-xl">
     <div class="job-section shadow-lg p-3 rounded-3">
 
+        <div class="sticky-header-container">
         <div class="application">
             <div class="row g-2">
                 <div class="col">
@@ -1804,7 +1822,7 @@ window.addEventListener('resize', function() {
               <div class="menu-dropdown position-relative">
                 <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
                 <div class="dropdown-panel menu-panel custom-dropdown hidden">
-                  <!-- Print/Share and Timeline Buttons -->
+                  <!-- Print/Share Button -->
                   <button id="print-share-job-btn" class="menu-item">
                     <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6 9V2H18V9" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1813,14 +1831,6 @@ window.addEventListener('resize', function() {
                     </svg> 
                     <span>Print/Share</span>
                   </button>
-                  <a id="timeline-job-btn" href="{{ path('app_provider_interview_calendar') }}" class="menu-item">
-                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="#121C0C" stroke-width="1.5"/>
-                      <path d="M16 2V6M8 2V6M3 10H21" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
-                      <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg> 
-                    <span>Timeline</span>
-                  </a>
                   <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                   <!-- Regular Menu Items -->
                   <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item">
@@ -1845,8 +1855,7 @@ window.addEventListener('resize', function() {
         </div>
 
         {% if bookmarks|length > 0 %}
-        <div class="job-list-container bg-light p-3 rounded-3">
-          <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
           <div class="d-flex align-items-center job-lists">
             <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
               <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
@@ -1868,6 +1877,10 @@ window.addEventListener('resize', function() {
               </div>
             </div>
           </div>
+        </div>
+        </div>
+
+        <div class="job-list-container bg-light p-3 rounded-3">
 
           {% for bookmark in bookmarks %}
             {% set job = bookmark.job %}
@@ -2098,20 +2111,20 @@ window.addEventListener('resize', function() {
                 
                 <!-- Timeline Drawer -->
                 <aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
-                  <div class="timeline-header">
-                    <h3 class="timeline-title">Job Timeline</h3>
-                    <button type="button" class="timeline-close" onclick="closeTimelinePanel()">
+                  <div class="timeline-header" style="padding: 12px 14px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
+                    <h6 class="timeline-title" style="margin: 0; font-size: 14px; font-weight: 600;">Job Timeline</h6>
+                    <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </button>
                   </div>
-                  <div class="timeline-body" id="timeline-content">
+                  <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 16px; overflow-y: auto;">
                     <div class="text-center py-5">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2 text-muted">Loading timeline...</p>
+                        <p class="mt-2 text-muted" style="font-size: 12px;">Loading timeline...</p>
                     </div>
                   </div>
                 </aside>
@@ -2268,18 +2281,34 @@ window.addEventListener('resize', function() {
       border: 1px solid #e6eef6;
       border-radius: 10px;
       padding: 16px;
-      overflow-y: hidden; /* Disable vertical scrolling */
+      overflow-y: auto; /* Enable vertical scrolling */
       overflow-x: hidden; /* Disable horizontal scrolling */
       box-shadow: 0 2px 6px rgba(11,22,40,0.03);
       position: relative; /* for collapse arrow positioning */
-      /* Hide scrollbar */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
+      /* Show scrollbar */
+      scrollbar-width: thin; /* Firefox */
+      -ms-overflow-style: auto; /* IE and Edge */
+      max-height: 100%;
   }
   
-  /* Hide scrollbar for Chrome, Safari and Opera */
+  /* Show scrollbar for Chrome, Safari and Opera */
   .split-job-list::-webkit-scrollbar {
-      display: none;
+      display: block;
+      width: 8px;
+  }
+  
+  .split-job-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+  }
+  
+  .split-job-list::-webkit-scrollbar-thumb {
+      background: #85BB65;
+      border-radius: 4px;
+  }
+  
+  .split-job-list::-webkit-scrollbar-thumb:hover {
+      background: #6FA050;
   }
 
   .split-job-details {
@@ -2641,6 +2670,14 @@ window.addEventListener('resize', function() {
     padding: 12px 14px;
     border-bottom: 1px solid #e6eef6;
     font-weight: 600;
+    background-color: #fff;
+  }
+  
+  .timeline-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #121C0C;
   }
   
   .timeline-close, .notes-panel-close { 
@@ -3028,7 +3065,7 @@ function openNotesPanel(jobId) {
       // Hide scrollbars on job list
       const jobList = document.getElementById('split-job-list');
       if (jobList) {
-          jobList.style.overflowY = 'hidden';
+          jobList.style.overflowY = 'auto';
           jobList.style.overflowX = 'hidden';
       }
       
@@ -3327,8 +3364,14 @@ document.addEventListener('DOMContentLoaded', function () {
         e.stopPropagation();
         e.stopImmediatePropagation();
         
-        const selectedCheckboxes = Array.from(document.querySelectorAll('.job-list-container .job-checkbox:checked, .job-check.job-checkbox:checked'));
-        const selectedIds = selectedCheckboxes.map(cb => cb.dataset.bookmarkId || cb.dataset.jobId).filter(id => id);
+        // Collect selected bookmark IDs from both list and split view
+        const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+        const uniqueIds = new Set();
+        selectedCheckboxes.forEach(cb => {
+          const id = cb.dataset.bookmarkId || cb.dataset.jobId;
+          if (id) uniqueIds.add(id);
+        });
+        const selectedIds = Array.from(uniqueIds);
         
         if (selectedIds.length === 0) {
           if (typeof showWarningAlert === 'function') {
@@ -3482,10 +3525,14 @@ document.addEventListener('DOMContentLoaded', function () {
       e.stopPropagation();
       e.stopImmediatePropagation();
       
-      // Collect selected bookmark IDs
-      const selectedIds = Array.from(document.querySelectorAll(".job-check.job-checkbox:checked, .job-checkbox:checked"))
-                               .map(cb => cb.dataset.bookmarkId || cb.dataset.jobId)
-                               .filter(id => id);
+      // Collect selected bookmark IDs from both list and split view
+      const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+      const uniqueIds = new Set();
+      selectedCheckboxes.forEach(cb => {
+        const id = cb.dataset.bookmarkId || cb.dataset.jobId;
+        if (id) uniqueIds.add(id);
+      });
+      const selectedIds = Array.from(uniqueIds);
       
       if (selectedIds.length === 0) {
         if (typeof showWarningAlert === 'function') {
@@ -4012,7 +4059,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const container = document.getElementById('split-view-container');
       
       if (jobList) {
-          jobList.style.overflowY = 'hidden';
+          jobList.style.overflowY = 'auto';
           jobList.style.overflowX = 'hidden';
       }
       if (jobDetails) {
@@ -4206,6 +4253,12 @@ function showToast(message, type = 'info') {
             splitViewContainer.style.display = 'none';
             listViewContainer.style.display = 'block';
             gridViewBtn.classList.remove('active');
+            
+            // Show job header in list view
+            const jobHeader = document.querySelector('.sticky-header-container .table-responsive-wrapper');
+            if (jobHeader) {
+                jobHeader.style.display = 'block';
+            }
             gridViewBtn.innerHTML = `
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4242,7 +4295,19 @@ function showToast(message, type = 'info') {
         } else {
             // Switch to split view
             splitViewContainer.style.display = 'grid';
+            splitViewContainer.style.setProperty('display', 'grid', 'important');
             listViewContainer.style.display = 'none';
+            
+            // Hide job header in split view
+            const jobHeader = document.querySelector('.sticky-header-container .table-responsive-wrapper');
+            if (jobHeader) {
+                jobHeader.style.display = 'none';
+            }
+            
+            // Enable scrolling on split job list
+            if (splitJobList) {
+                splitJobList.style.overflowY = 'auto';
+            }
             gridViewBtn.classList.add('active');
             gridViewBtn.innerHTML = `
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

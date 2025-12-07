@@ -20,6 +20,17 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     <style>
+        /* Page fade-in to hide JavaScript loading irregularities - only on page navigation */
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+        body.page-loaded {
+            opacity: 1;
+        }
+    </style>
+
+    <style>
         /* ============================================
            TOP TOOLBAR - EXTRACTED AS INDIVIDUAL ELEMENT
            ============================================ */
@@ -279,29 +290,21 @@
             transform: none !important;
         }
         
-        /* Notifications dropdown */
+        /* Notifications dropdown - positioned like profile dropdown */
         .app-notifications-dropdown {
             position: relative;
-            z-index: 99999;
-        }
-        
-        .app-notifications-dropdown .dropdown-toggle {
-            position: relative;
-            z-index: 99999;
         }
         
         .app-notifications-dropdown .dropdown-menu {
-            z-index: 99999 !important;
-            position: fixed !important;
-            top: auto !important;
-            right: auto !important;
+            right: 0 !important;
             left: auto !important;
-            margin-top: 0 !important;
             min-width: 320px;
             max-width: 400px;
             max-height: 500px;
             overflow-y: auto;
-            transform: none !important;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .app-notifications-dropdown.show .dropdown-menu {
@@ -688,7 +691,6 @@
         .table tbody tr,
         .job-card,
         .job-row,
-        .job-lists,
         .split-job-card,
         .message-item,
         .todo-item,
@@ -698,31 +700,36 @@
         .history-table tbody tr,
         .application-row,
         .quick-link-card,
+        .upload-btn-custom.quick-link-card,
+        div.upload-btn-custom.quick-link-card,
+        button.upload-btn-custom.quick-link-card,
+        a.upload-btn-custom.quick-link-card,
         .document-row {
-            transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out !important;
+            transition: border-color 0.2s ease-in-out, transform 0.2s ease-in-out, background-color 0.2s ease-in-out !important;
             cursor: pointer;
+            transform: translateY(0) !important;
+            border: 1px solid #e6eef6 !important;
         }
         
         table tbody tr:hover,
         .table tbody tr:hover,
         .job-card:hover,
         .job-row:hover,
-        .job-lists:hover,
         .split-job-card:hover:not(.active),
         .message-item:hover,
-        .todo-item:hover {
+        .todo-item:hover,
+        .quick-link-card:hover,
+        .upload-btn-custom.quick-link-card:hover,
+        div.upload-btn-custom.quick-link-card:hover,
+        button.upload-btn-custom.quick-link-card:hover,
+        a.upload-btn-custom.quick-link-card:hover {
             background: #F4F9F1 !important;
             box-shadow: none !important;
             transform: translateY(-2px) !important;
             border-color: #85BB65 !important;
+            border: 1px solid #85BB65 !important;
         }
         
-        .quick-link-card:hover {
-            background: #F4F9F1 !important;
-            box-shadow: none !important;
-            transform: translateY(-2px) !important;
-            border-color: #85BB65 !important;
-        }
         
         .section-list-item:hover,
         .list-item:hover,
@@ -751,6 +758,20 @@
         .split-job-card.active:hover,
         .message-item.active:hover {
             transform: none !important;
+        }
+        
+        /* Remove border and animation from job-lists */
+        .job-lists {
+            border: none !important;
+            transition: none !important;
+            transform: none !important;
+            animation: none !important;
+        }
+        
+        .job-lists:hover {
+            border: none !important;
+            transform: none !important;
+            background: transparent !important;
         }
         
         /* Exclude status cards from table row animations */
@@ -916,10 +937,12 @@
             border-color: #85BB65 !important;
         }
         
+        
         /* ============================================
            NOTE: Animations are now only applied to specific selectors above.
            Generic divs will not have animations since we removed the broad
            [class*="card"] and div[class*="title"] selectors.
+           Quick Links are now fully included in the animation system.
            ============================================ */
         
         .swal2-confirm {
@@ -2183,12 +2206,17 @@
     });
     
     // Ensure user dropdown only opens when clicking on the profile dropdown toggle (not on hover)
-    document.addEventListener('DOMContentLoaded', function() {
+    function initializeUserDropdown() {
         const userDropdownToggle = document.getElementById('user-dropdown-toggle');
         const userDropdown = document.querySelector('.app-user-dropdown');
         const userDropdownMenu = document.querySelector('.app-user-dropdown .dropdown-menu');
         
         if (userDropdownToggle && userDropdown && userDropdownMenu) {
+            // Check if already initialized to avoid duplicate event listeners
+            if (userDropdownToggle.hasAttribute('data-dropdown-initialized')) {
+                return;
+            }
+            userDropdownToggle.setAttribute('data-dropdown-initialized', 'true');
             // Remove Bootstrap's default data-bs-toggle behavior completely
             userDropdownToggle.removeAttribute('data-bs-toggle');
             userDropdownToggle.removeAttribute('data-bs-target');
@@ -2230,42 +2258,6 @@
                 
                 let hoverTimeout = null;
                 
-                // Function to calculate and set dropdown position
-                function setDropdownPosition() {
-                    if (!notificationDropdownMenu) return;
-                    
-                    // Get header element
-                    const header = document.querySelector('.app-header');
-                    if (!header) return;
-                    
-                    // Get header dimensions
-                    const headerRect = header.getBoundingClientRect();
-                    const headerHeight = headerRect.height;
-                    const headerBottom = headerRect.bottom;
-                    
-                    // Get notification button position
-                    const toggleRect = notificationDropdownToggle.getBoundingClientRect();
-                    const toggleRight = toggleRect.right;
-                    const toggleLeft = toggleRect.left;
-                    
-                    // Calculate position: just below header border
-                    const spacing = 0; // No spacing - appear directly below toolbar border
-                    const topPosition = headerBottom + spacing;
-                    
-                    // Get dropdown width to calculate proper alignment
-                    const dropdownWidth = notificationDropdownMenu.offsetWidth || 320; // fallback to min-width
-                    
-                    // Position dropdown so its right edge aligns with the notification icon's right edge
-                    // Add a small offset to shift it slightly to the right
-                    const rightOffset = 0; // Align right edge with icon
-                    const rightPosition = window.innerWidth - toggleRight + rightOffset;
-                    
-                    // Set position with !important to override any CSS
-                    notificationDropdownMenu.style.setProperty('top', topPosition + 'px', 'important');
-                    notificationDropdownMenu.style.setProperty('margin-top', '0', 'important');
-                    notificationDropdownMenu.style.setProperty('right', rightPosition + 'px', 'important');
-                }
-                
                 // Function to open dropdown
                 function openNotificationDropdown() {
                     if (hoverTimeout) {
@@ -2279,9 +2271,6 @@
                             menu.classList.remove('show');
                         }
                     });
-                    
-                    // Calculate and set position before showing
-                    setDropdownPosition();
                     
                     // Open notification dropdown
                     notificationDropdownMenu.classList.add('show');
@@ -2301,20 +2290,6 @@
                         hoverTimeout = null;
                     }, 200); // Small delay to allow moving mouse to dropdown
                 }
-                
-                // Recalculate position on window resize
-                window.addEventListener('resize', function() {
-                    if (notificationDropdownMenu && notificationDropdownMenu.classList.contains('show')) {
-                        setDropdownPosition();
-                    }
-                });
-                
-                // Recalculate position on scroll (in case header is fixed)
-                window.addEventListener('scroll', function() {
-                    if (notificationDropdownMenu && notificationDropdownMenu.classList.contains('show')) {
-                        setDropdownPosition();
-                    }
-                }, true);
                 
                 // Open on hover over toggle button
                 notificationDropdownToggle.addEventListener('mouseenter', function(e) {
@@ -2561,207 +2536,85 @@
             // Also prevent hover from opening (extra safety)
             userDropdownMenu.style.pointerEvents = 'auto';
         }
-                    
-                    // Get header dimensions
-                    const headerRect = header.getBoundingClientRect();
-                    const headerHeight = headerRect.height;
-                    const headerBottom = headerRect.bottom;
-                    
-                    // Get documents button position
-                    const toggleRect = documentsDropdownToggle.getBoundingClientRect();
-                    const toggleRight = toggleRect.right;
-                    
-                    // Calculate position: just below header border (same as notifications)
-                    const spacing = 0; // No spacing - appear directly below toolbar border
-                    const topPosition = headerBottom + spacing;
-                    
-                    // Set position with !important to override any CSS
-                    documentsDropdownMenu.style.setProperty('top', topPosition + 'px', 'important');
-                    documentsDropdownMenu.style.setProperty('margin-top', '0', 'important');
-                    documentsDropdownMenu.style.setProperty('right', (window.innerWidth - toggleRight + 18) + 'px', 'important');
-                }
-                
-                // Function to open dropdown
-                function openDocumentsDropdown() {
-                    if (documentsHoverTimeout) {
-                        clearTimeout(documentsHoverTimeout);
-                        documentsHoverTimeout = null;
-                    }
-                    
-                    // Close all other dropdowns first
-                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                        if (menu !== documentsDropdownMenu && menu !== userDropdownMenu) {
-                            menu.classList.remove('show');
-                        }
-                    });
-                    
-                    // Calculate and set position before showing
-                    setDocumentsDropdownPosition();
-                    
-                    // Open documents dropdown
-                    documentsDropdownMenu.classList.add('show');
-                    documentsDropdown.classList.add('show');
-                    documentsDropdownToggle.setAttribute('aria-expanded', 'true');
-                }
-                
-                // Function to close dropdown
-                function closeDocumentsDropdown() {
-                    if (documentsHoverTimeout) {
-                        clearTimeout(documentsHoverTimeout);
-                    }
-                    documentsHoverTimeout = setTimeout(function() {
-                        documentsDropdownMenu.classList.remove('show');
-                        documentsDropdown.classList.remove('show');
-                        documentsDropdownToggle.setAttribute('aria-expanded', 'false');
-                        documentsHoverTimeout = null;
-                    }, 200); // Small delay to allow moving mouse to dropdown
-                }
-                
-                // Recalculate position on window resize
-                window.addEventListener('resize', function() {
-                    if (documentsDropdownMenu && documentsDropdownMenu.classList.contains('show')) {
-                        setDocumentsDropdownPosition();
-                    }
-                });
-                
-                // Recalculate position on scroll (in case header is fixed)
-                window.addEventListener('scroll', function() {
-                    if (documentsDropdownMenu && documentsDropdownMenu.classList.contains('show')) {
-                        setDocumentsDropdownPosition();
-                    }
-                }, true);
-                
-                // Open on hover over toggle button
-                documentsDropdownToggle.addEventListener('mouseenter', function(e) {
-                    e.stopPropagation();
-                    openDocumentsDropdown();
-                });
-                
-                // Keep open when hovering over dropdown menu
-                documentsDropdownMenu.addEventListener('mouseenter', function(e) {
-                    e.stopPropagation();
-                    if (documentsHoverTimeout) {
-                        clearTimeout(documentsHoverTimeout);
-                        documentsHoverTimeout = null;
-                    }
-                });
-                
-                // Close when mouse leaves the entire dropdown area
-                documentsDropdown.addEventListener('mouseleave', function(e) {
-                    e.stopPropagation();
-                    closeDocumentsDropdown();
-                });
-                
-                // Also close when mouse leaves the menu
-                documentsDropdownMenu.addEventListener('mouseleave', function(e) {
-                    e.stopPropagation();
-                    closeDocumentsDropdown();
-                });
-            }
-            
-            // Close dropdown when page becomes visible (e.g., after navigation)
-            document.addEventListener('visibilitychange', forceCloseDropdown);
-            
-            // Close dropdown when page loads
-            window.addEventListener('load', forceCloseDropdown);
-            
-            // Prevent any hover events from opening the dropdown
-            userDropdown.addEventListener('mouseenter', function(e) {
-                e.stopPropagation();
-            });
-            
-            userDropdown.addEventListener('mouseleave', function(e) {
-                e.stopPropagation();
-            });
-            
-            // Only allow click events on the toggle itself
-            userDropdownToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const isOpen = userDropdownMenu.classList.contains('show');
-                
-                // Close all other dropdowns first
-                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                    if (menu !== userDropdownMenu) {
-                        menu.classList.remove('show');
-                    }
-                });
-                
-                // Toggle this dropdown
-                if (isOpen) {
-                    userDropdownMenu.classList.remove('show');
-                    userDropdownToggle.setAttribute('aria-expanded', 'false');
+    }
+    
+    // Initialize on DOMContentLoaded or immediately if already loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeUserDropdown);
                 } else {
-                    userDropdownMenu.classList.add('show');
-                    userDropdownToggle.setAttribute('aria-expanded', 'true');
+        // DOM already loaded, initialize immediately
+        initializeUserDropdown();
                 }
-            });
-            
-            // Prevent clicks on other utility items from opening the dropdown
-            document.querySelectorAll('.app-utility-item').forEach(item => {
-                if (!item.contains(userDropdownToggle)) {
-                    item.addEventListener('click', function(e) {
-                        // Ensure dropdown is closed when clicking on any utility item
-                        userDropdownMenu.classList.remove('show');
-                        userDropdownToggle.setAttribute('aria-expanded', 'false');
-                        // Stop propagation to prevent any other handlers
-                        e.stopPropagation();
-                    }, true); // Use capture phase to run early
-                }
-            });
-            
-            // Specifically handle dashboard button click to ensure dropdown is closed
-            // Use capture phase to run BEFORE any other handlers
-            const dashboardLinks = document.querySelectorAll('a[href*="dashboard"][title="Dashboard"], a[href*="app_provider_dashboard"]');
-            dashboardLinks.forEach(dashboardLink => {
-                dashboardLink.addEventListener('click', function(e) {
-                    // Close dropdown immediately and prevent it from opening
-                    userDropdownMenu.classList.remove('show');
-                    userDropdownToggle.setAttribute('aria-expanded', 'false');
-                    // Stop propagation to prevent any dropdown handlers from running
-                    e.stopPropagation();
-                    // Allow navigation to proceed normally (don't prevent default)
-                }, true); // Use capture phase to run before other handlers
-                
-                // Also handle clicks on the parent utility item
-                const dashboardItem = dashboardLink.closest('.app-utility-item');
-                if (dashboardItem) {
-                    dashboardItem.addEventListener('click', function(e) {
-                        // If clicking anywhere on the dashboard item, ensure dropdown is closed
-                        userDropdownMenu.classList.remove('show');
-                        userDropdownToggle.setAttribute('aria-expanded', 'false');
-                        // Stop propagation to prevent dropdown from opening
-                        e.stopPropagation();
-                    }, true); // Use capture phase
-                }
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                // Check if clicking on dashboard link or its container
-                const isDashboardLink = e.target.closest('a[href*="dashboard"][title="Dashboard"]') || 
-                                       e.target.closest('a[href*="app_provider_dashboard"]');
-                const isDashboardItem = e.target.closest('.app-utility-item') && 
-                                       (e.target.closest('.app-utility-item').querySelector('a[href*="dashboard"][title="Dashboard"]') ||
-                                        e.target.closest('.app-utility-item').querySelector('a[href*="app_provider_dashboard"]'));
-                
-                // Close dropdown if clicking outside user dropdown AND not on dashboard
-                if (!userDropdown.contains(e.target) && !isDashboardLink && !isDashboardItem) {
-                    userDropdownMenu.classList.remove('show');
-                    userDropdownToggle.setAttribute('aria-expanded', 'false');
-                }
-            });
-            
-            // Also prevent hover from opening (extra safety)
-            userDropdownMenu.style.pointerEvents = 'auto';
-        }
-    });
 </script>
 
 {% block footer_scripts %}{% endblock %}
 
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <script>
+        // Page fade-in to hide JavaScript loading irregularities - only on actual page navigation
+        (function() {
+            // Fade in on page load
+            function fadeIn() {
+                document.body.classList.add('page-loaded');
+            }
+            
+            if (document.readyState === 'complete') {
+                fadeIn();
+            } else {
+                window.addEventListener('load', fadeIn);
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Small delay to ensure JS has initialized
+                    setTimeout(fadeIn, 50);
+                });
+            }
+            
+            // Handle page navigation - fade out before leaving (only for actual page changes)
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (!link || !link.href) return;
+                
+                // Skip if:
+                // - Has target attribute (opens in new window/tab)
+                // - Is same page anchor (#)
+                // - Has data attributes indicating it's not a page change (popup, modal, dropdown, etc.)
+                // - Is a JavaScript link (href="#", href="javascript:", etc.)
+                if (link.target || 
+                    link.href === window.location.href || 
+                    link.href.endsWith('#') ||
+                    link.href.startsWith('javascript:') ||
+                    link.hasAttribute('data-bs-toggle') ||
+                    link.hasAttribute('data-bs-target') ||
+                    link.hasAttribute('data-popup') ||
+                    link.hasAttribute('data-no-fade') ||
+                    link.closest('.dropdown-menu') ||
+                    link.closest('[data-bs-toggle="dropdown"]') ||
+                    link.closest('.modal') ||
+                    link.closest('[role="button"]:not(a)')) {
+                    return;
+                }
+                
+                try {
+                    const url = new URL(link.href);
+                    // Only fade if it's a same-origin navigation (actual page change)
+                    if (url.origin === window.location.origin && 
+                        url.pathname !== window.location.pathname) {
+                        document.body.style.opacity = '0';
+                    }
+                } catch (err) {
+                    // Invalid URL, ignore
+                }
+            });
+            
+            // Handle browser back/forward
+            window.addEventListener('pageshow', function(e) {
+                if (e.persisted) {
+                    // Page was loaded from cache
+                    fadeIn();
+                }
+            });
+        })();
+    </script>
     <script>
         window.showToast = function(message, type = 'success') {
             Toastify({

@@ -4,21 +4,80 @@
 
 {% block provider_body %}
 <style>
-/* Override container-xl to shift content left and remove left spacing */
-.container-xl {
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match other pages */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
-    max-width: 100% !important;
-    transform: translateX(-80px) !important; /* Shift entire container to the left */
+    padding-right: 0 !important;
 }
 
-/* Override app-content padding from base template to remove left spacing */
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
 .app-content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching other pages */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
 }
 </style>
 
-<div class="container-xl">
+<div class="container-xl" style="position: relative;">
     {# Back Button #}
     <div class="mb-4">
         <a href="{{ app.request.headers.get('referer')|default(path('app_provider_jobs_matching')) }}" 
@@ -554,111 +613,126 @@
     border-color: #85BB65;
 }
 
-/* Timeline Panel Styles */
-.timeline-panel-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1040;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.timeline-panel-overlay.show {
-    display: block;
-    opacity: 1;
-}
-
+/* Timeline Panel Styles - Match saved/applications style */
 .timeline-panel {
-    position: fixed;
+    position: absolute;
     top: 0;
-    right: -400px;
-    width: 400px;
+    right: 0;
     height: 100%;
+    width: 400px;
+    max-width: 90vw;
     background: #fff;
-    z-index: 1050;
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid #e6eef6;
+    box-shadow: -2px 0 8px rgba(11,22,40,0.06);
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
     display: flex;
     flex-direction: column;
+    z-index: 1000;
+    visibility: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    pointer-events: none;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.timeline-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.timeline-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.timeline-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.timeline-panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .timeline-panel.open {
-    right: 0;
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    display: flex !important;
 }
 
 .timeline-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid #e6eef6;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: #fff;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e6eef6;
+    font-weight: 600;
+    background-color: #fff;
 }
 
 .timeline-title {
-    font-size: 18px;
+    margin: 0;
+    font-size: 14px;
     font-weight: 600;
     color: #121C0C;
-    margin: 0;
-    font-family: "Lexend", serif;
 }
 
 .timeline-close {
-    background: none;
+    background: transparent;
     border: none;
-    color: #6b7280;
+    font-size: 22px;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
 .timeline-close:hover {
-    background: #f3f4f6;
-    color: #121C0C;
+    background: #f5f5f5;
+    color: #333;
 }
 
 .timeline-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    background: #f9fafb;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .timeline-info-box {
-    background: #fff;
-    border: 1px solid #e6eef6;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 24px;
-    text-align: center;
+    background: #f8f9fa;
+    border-left: 3px solid #85BB65;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 10px;
 }
 
 .timeline-info-label {
-    font-size: 12px;
-    color: #6b7280;
+    font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    color: #6c757d;
     font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
 }
 
 .timeline-info-value {
-    font-size: 16px;
+    font-size: 13px;
     color: #121C0C;
-    font-weight: 600;
+    font-weight: 500;
     font-family: monospace;
 }
 
 .timeline-event {
     display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 12px;
+    padding: 12px 0;
+    margin-bottom: 0;
     position: relative;
 }
 
@@ -670,8 +744,8 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #fff;
-    border: 2px solid #e6eef6;
+    background: #f8f9fa;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -681,18 +755,19 @@
 
 .timeline-event-content {
     flex: 1;
-    background: #fff;
-    border: 1px solid #e6eef6;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    background: transparent;
+    border: none !important;
+    border-left: none !important;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 .timeline-event-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    color: #121C0C;
-    margin: 0 0 12px 0;
+    color: #333;
+    margin: 0 0 8px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -701,8 +776,8 @@
 .timeline-detail-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
+    margin-bottom: 6px;
+    font-size: 12px;
 }
 
 .timeline-detail-item:last-child {
@@ -719,19 +794,26 @@
     text-align: right;
 }
 
+.timeline-events {
+    padding: 0;
+}
+
+.timeline-event-divider {
+    height: 1px;
+    background: #e6eef6;
+    margin: 8px 0;
+}
+
 .status-applied { color: #3b82f6; background: #eff6ff; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
 .status-interview { color: #8b5cf6; background: #f5f3ff; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
 .status-hired { color: #10b981; background: #ecfdf5; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
 .status-rejected { color: #ef4444; background: #fef2f2; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
 </style>
 
-<!-- Timeline Panel Overlay -->
-<div id="timeline-overlay" class="timeline-panel-overlay" onclick="closeTimelinePanel()"></div>
-
 <!-- Timeline Panel -->
 <aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
     <div class="timeline-header">
-        <h3 class="timeline-title">Job Timeline</h3>
+        <h6 class="timeline-title">Job Timeline</h6>
         <button type="button" class="timeline-close" onclick="closeTimelinePanel()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -743,7 +825,7 @@
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2 text-muted">Loading timeline...</p>
+            <p class="mt-2 text-muted" style="font-size: 12px;">Loading timeline...</p>
         </div>
     </div>
 </aside>
@@ -751,13 +833,11 @@
 <script>
 function openTimelinePanel(jobId) {
     const panel = document.getElementById('timeline-panel');
-    const overlay = document.getElementById('timeline-overlay');
     const timelineContent = document.getElementById('timeline-content');
     
-    // Show panel and overlay
+    // Show panel
     panel.classList.add('open');
-    overlay.classList.add('show');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    panel.setAttribute('aria-hidden', 'false');
     
     // Show loading state
     timelineContent.innerHTML = `
@@ -773,97 +853,99 @@ function openTimelinePanel(jobId) {
     fetch(`/provider/jobs/${jobId}/timeline-data`)
         .then(response => response.json())
         .then(data => {
-            // Build interview section HTML
+            // Build interview section HTML - match saved/applications style
             let interviewsHTML = '';
             if (data.interviews && data.interviews.length > 0) {
                 interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">${interview.type}:</span>
-                        <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
                     </div>
                     ${interview.platform ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Platform:</span>
-                        <span class="timeline-detail-value">${interview.platform}</span>
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
                     </div>
                     ` : ''}
                     ${interview.meetingUrl ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Meeting Link:</span>
-                        <span class="timeline-detail-value">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">
                             <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
                         </span>
                     </div>
                     ` : ''}
                 `).join('');
             } else {
-                interviewsHTML = '<p class="text-muted small mb-0">No interviews scheduled yet.</p>';
+                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; margin: 0;">No interviews scheduled yet.</p>';
             }
             
-            // Build timeline content
+            // Build timeline content - match saved/applications style
             timelineContent.innerHTML = `
-                <div class="timeline-events">
+                <div class="timeline-events" style="padding: 10px 0;">
                     <!-- Job ID Section -->
                     <div class="timeline-info-box">
                         <div class="timeline-info-label">Job ID</div>
                         <div class="timeline-info-value">${data.jobId}</div>
                     </div>
+                    <div class="timeline-event-divider"></div>
                     
                     <!-- Application Overview -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon" style="width: 32px; height: 32px; border-radius: 50%; background: #f8f9fa; border: none; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Application Overview</h6>
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Status:</span>
-                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}">${data.applicationStatus}</span>
+                        <div class="timeline-event-content" style="flex: 1; background: transparent; border: none !important; border-left: none !important; border-radius: 0; padding: 0; box-shadow: none;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Application Overview</h6>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Status:</span>
+                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="color: #121C0C;">${data.applicationStatus}</span>
                             </div>
                             ${data.applicationDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Applied On:</span>
-                                <span class="timeline-detail-value">${data.applicationDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Applied On:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.applicationDate}</span>
                             </div>
                             ` : ''}
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Job Saved:</span>
-                                <span class="timeline-detail-value">${data.bookmarkDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Job Saved:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.bookmarkDate}</span>
                             </div>
                             ${data.hiredDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Hired Date:</span>
-                                <span class="timeline-detail-value">${data.hiredDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Hired Date:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.hiredDate}</span>
                             </div>
                             ` : ''}
                             ${data.contractSentDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Sent:</span>
-                                <span class="timeline-detail-value">${data.contractSentDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Contract Sent:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.contractSentDate}</span>
                             </div>
                             ` : ''}
                             ${data.contractSignedDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Signed:</span>
-                                <span class="timeline-detail-value">${data.contractSignedDate}</span>
+                            <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                                <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Contract Signed:</span>
+                                <span class="timeline-detail-value" style="color: #121C0C;">${data.contractSignedDate}</span>
                             </div>
                             ` : ''}
                         </div>
                     </div>
+                    <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                     
                     <!-- Interview Schedule -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon" style="${data.interviews && data.interviews.length > 0 ? 'border-color: #85BB65;' : ''}">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#9ca3af'}" stroke-width="2"/>
-                                <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#9ca3af'}" stroke-width="2" stroke-linecap="round"/>
+                    <div class="timeline-event" style="display: flex; gap: 12px; padding: 12px 0;">
+                        <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}" style="width: 32px; height: 32px; border-radius: 50%; background: ${data.interviews && data.interviews.length > 0 ? '#e8f5e9' : '#f8f9fa'}; border: none; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 2;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
+                                <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Interview Schedule</h6>
+                        <div class="timeline-event-content" style="flex: 1; background: transparent; border: none !important; border-left: none !important; border-radius: 0; padding: 0; box-shadow: none;">
+                            <h6 class="timeline-event-title" style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333;">Interview Schedule</h6>
                             ${interviewsHTML}
                         </div>
                     </div>
@@ -889,11 +971,11 @@ function openTimelinePanel(jobId) {
 
 function closeTimelinePanel() {
     const panel = document.getElementById('timeline-panel');
-    const overlay = document.getElementById('timeline-overlay');
     
-    panel.classList.remove('open');
-    overlay.classList.remove('show');
-    document.body.style.overflow = ''; // Restore scrolling
+    if (panel) {
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+    }
 }
 </script>
 

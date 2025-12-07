@@ -24,7 +24,7 @@ class DocumentRequest
     #[ORM\ManyToOne]
     private ?Provider $provider = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'documentRequests')]
     private ?Application $application = null;
 
     #[ORM\ManyToOne]

@@ -29,6 +29,7 @@ use App\Entity\License;
 use App\Entity\Insurance;
 use App\Form\EducationType;
 use App\Form\InsuranceType;
+use Symfony\Component\Mailer\MailerInterface;
 
 #[Route('/provider/profile')]
 class ProfileController extends AbstractController
@@ -689,6 +690,65 @@ class ProfileController extends AbstractController
             || ($provider->getSpecialities() && $provider->getSpecialities()->count() > 0);
     }
 
+    #[Route('/share-quick-links', name: 'app_provider_share_quick_links', methods: ['POST'])]
+    public function shareQuickLinks(Request $request, MailerInterface $mailer): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        // Validate required fields
+        if (empty($data['email']) || empty($data['pdfData']) || empty($data['filename'])) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Missing required fields'
+            ], 400);
+        }
+
+        $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
+        if (!$email) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Invalid email address'
+            ], 400);
+        }
+
+        try {
+            // Decode base64 PDF data
+            $pdfContent = base64_decode($data['pdfData']);
+            if ($pdfContent === false) {
+                throw new \Exception('Failed to decode PDF data');
+            }
+
+            // Get selected links for email body
+            $selectedLinks = $data['selectedLinks'] ?? [];
+            $linksList = !empty($selectedLinks) ? implode(', ', $selectedLinks) : 'your profile information';
+
+            // Create email with attachment - from is always the logged-in user's email
+            $emailMessage = (new \Symfony\Bridge\Twig\Mime\TemplatedEmail())
+                ->from(new \Symfony\Component\Mime\Address($this->getUser()->getEmail(), $this->getUser()->getName()))
+                ->to($email)
+                ->subject('Your LocumLancer Quick Links')
+                ->htmlTemplate('emails/share_quick_links.html.twig')
+                ->context([
+                    'userName' => $this->getUser()->getName(),
+                    'selectedLinks' => $selectedLinks,
+                    'linksList' => $linksList,
+                ])
+                ->attach($pdfContent, $data['filename'], 'application/pdf');
+
+            // Send email using Symfony Mailer
+            $mailer->send($emailMessage);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'PDF sent successfully to ' . $email
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Failed to send email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     // Add these routes to your existing ProfileController class
 

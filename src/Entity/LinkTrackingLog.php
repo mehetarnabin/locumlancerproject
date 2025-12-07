@@ -90,4 +90,3 @@ class LinkTrackingLog
         return $this;
     }
 }
-

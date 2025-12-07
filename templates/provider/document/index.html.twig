@@ -1508,7 +1508,9 @@ div.container-xl,
 }
 
 .documents-tab {
-    padding: 16px 24px;
+    padding: 12px 16px;
+    font-size: 0.9375rem;
+    margin-bottom: -2px;
     border: none;
     background: none;
     font-weight: 500;
@@ -1520,13 +1522,14 @@ div.container-xl,
 }
 
 .documents-tab:hover {
-    color: #000000;
+    color: #85BB65;
     background: #f9fafb;
 }
 
 .documents-tab.active {
     color: #85BB65;
     border-bottom-color: #85BB65;
+    font-weight: 600;
 }
 
 .documents-tab.active::after {
@@ -1679,12 +1682,53 @@ div.container-xl,
     }
     
     .documents-tab {
-        padding: 12px 16px;
-        font-size: 0.9rem;
+        
     }
     
     .credentials-grid {
         grid-template-columns: 1fr;
+    }
+    /* History Pagination Styling */
+    .history-pagination-wrapper {
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #e6eef6;
+    }
+
+    .history-pagination-wrapper .pagination {
+        margin-bottom: 0;
+    }
+
+    .history-pagination-wrapper .pagination .page-link {
+        color: #85BB65;
+        border-color: #e6eef6;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    .history-pagination-wrapper .pagination .page-link:hover {
+        background-color: #F4F9F1;
+        border-color: #85BB65;
+        color: #6a9a4f;
+    }
+
+    .history-pagination-wrapper .pagination .page-item.active .page-link {
+        background-color: #85BB65;
+        border-color: #85BB65;
+        color: #fff;
+    }
+
+    .history-pagination-wrapper .pagination .page-item.disabled .page-link {
+        color: #9ca3af;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #e6eef6;
+        cursor: not-allowed;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #6b7280;
     }
     
     .credential-actions {
@@ -1698,8 +1742,7 @@ div.container-xl,
 </style>
 
     <div class="container-xl">
-    
-
+    <h1 class="app-page-title">Documents</h1>
    {# Document Requests Table - Only Pending Requests #}
 <div class="card app-card-settings">
     <div class="card-body">
@@ -1840,31 +1883,40 @@ div.container-xl,
         
         {# Process document requests #}
         {% for documentRequest in documentRequests %}
-            {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+        {% if documentRequest.providedAt is null %}
+            {% set companyName = 'Unknown Employer' %}
+            
+            {% if documentRequest.application and documentRequest.application.employer %}
                 {% set companyName = documentRequest.application.employer.companyName %}
-                {% if companyGroups[companyName] is not defined %}
-                    {% set companyGroups = companyGroups|merge({(companyName): {
-                        'requests': [],
-                        'links': []
-                    }}) %}
-                {% endif %}
-                {% set companyGroups = companyGroups|merge({
-                    (companyName): companyGroups[companyName]|merge({
-                        'requests': companyGroups[companyName].requests|merge([documentRequest])
-                    })
-                }) %}
             {% endif %}
+
+            {% if companyGroups[companyName] is not defined %}
+                {% set companyGroups = companyGroups|merge({(companyName): {
+                    'requests': [],
+                    'links': []
+                }}) %}
+            {% endif %}
+            
+            {% set companyGroups = companyGroups|merge({
+                (companyName): companyGroups[companyName]|merge({
+                    'requests': companyGroups[companyName].requests|merge([documentRequest])
+                })
+            }) %}
+        {% endif %}
         {% endfor %}
         
         {# Process credentialing links - group by company #}
         {% for link in credentialingLinks %}
-            {% if link.sender %}
-                {% set companyName = link.sender %}
-            {% elseif link.job and link.job.employer %}
-                {% set companyName = link.job.employer.companyName %}
+            {% if link.sender and link.sender is not empty %}
+                {% set companyName = link.sender|default('External Links') %}
+            {% elseif link.job and link.job.employer and link.job.employer.companyName %}
+                {% set companyName = link.job.employer.companyName|default('External Links') %}
             {% else %}
                 {% set companyName = 'External Links' %}
             {% endif %}
+            
+            {# Ensure companyName is a string #}
+            {% set companyName = companyName ~ '' %}
             
             {% if companyGroups[companyName] is not defined %}
                 {% set companyGroups = companyGroups|merge({(companyName): {

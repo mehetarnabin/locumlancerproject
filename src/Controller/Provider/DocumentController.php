@@ -33,7 +33,7 @@ class DocumentController extends AbstractController
     {
         $this->entityManager = $entityManager;
     }
-    
+
     #[Route('/documents', name: 'app_provider_documents')]
     public function index(
         DocumentRepository $documentRepository,
@@ -430,7 +430,7 @@ class DocumentController extends AbstractController
         if (!file_exists($documentPath)) {
             // Try alternative path if first fails
             $altPath = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $user->getId() . '/' . $document->getFileName();
-            
+
             if (!file_exists($altPath)) {
                 throw $this->createNotFoundException('Document file not found at: ' . $documentPath);
             }
@@ -439,7 +439,7 @@ class DocumentController extends AbstractController
 
         // Determine MIME type
         $mimeType = mime_content_type($documentPath) ?: 'application/octet-stream';
-        
+
         $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($documentPath);
         $response->headers->set('Content-Type', $mimeType);
         $response->setContentDisposition(
@@ -451,47 +451,47 @@ class DocumentController extends AbstractController
     }
 
     #[Route('/documents/delete/{id}', name: 'app_provider_document_delete', methods: ['GET'])]
-public function delete(
-    Document $document,
-    EntityManagerInterface $em,
-    #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-): Response {
-    $user = $this->getUser();
+    public function delete(
+        Document $document,
+        EntityManagerInterface $em,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): Response {
+        $user = $this->getUser();
 
-    // Check if the document belongs to the current user
-    if ($document->getUser()->getId() !== $user->getId()) {
-        throw $this->createAccessDeniedException('You do not have permission to delete this document.');
-    }
-
-    // First, check if there are any document requests referencing this document
-    $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['document' => $document]);
-    
-    if (count($documentRequests) > 0) {
-        // REMOVE THIS: Option A: Prevent deletion and show an error message
-        // $this->addFlash('error', 'Cannot delete this document because it is referenced by ' . count($documentRequests) . ' document request(s). Please reassign or delete those requests first.');
-        // return $this->redirectToRoute('app_provider_documents');
-        
-        // ADD THIS INSTEAD: Option B: Set document to null in all requests
-        foreach ($documentRequests as $request) {
-            $request->setDocument(null);
-            $em->persist($request);
+        // Check if the document belongs to the current user
+        if ($document->getUser()->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException('You do not have permission to delete this document.');
         }
+
+        // First, check if there are any document requests referencing this document
+        $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['document' => $document]);
+
+        if (count($documentRequests) > 0) {
+            // REMOVE THIS: Option A: Prevent deletion and show an error message
+            // $this->addFlash('error', 'Cannot delete this document because it is referenced by ' . count($documentRequests) . ' document request(s). Please reassign or delete those requests first.');
+            // return $this->redirectToRoute('app_provider_documents');
+
+            // ADD THIS INSTEAD: Option B: Set document to null in all requests
+            foreach ($documentRequests as $request) {
+                $request->setDocument(null);
+                $em->persist($request);
+            }
+            $em->flush();
+        }
+
+        // Delete the file from the filesystem
+        $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
+        if (file_exists($documentPath)) {
+            unlink($documentPath);
+        }
+
+        // Remove the document entity
+        $em->remove($document);
         $em->flush();
+
+        $this->addFlash('success', 'Document deleted successfully.');
+        return $this->redirectToRoute('app_provider_documents');
     }
-
-    // Delete the file from the filesystem
-    $documentPath = $uploadDirectory . '/' . $user->getId() . '/' . $document->getFileName();
-    if (file_exists($documentPath)) {
-        unlink($documentPath);
-    }
-
-    // Remove the document entity
-    $em->remove($document);
-    $em->flush();
-
-    $this->addFlash('success', 'Document deleted successfully.');
-    return $this->redirectToRoute('app_provider_documents');
-}
 
     #[Route('/documents/assign-multiple', name: 'app_provider_document_request_assign_bulk', methods: ['POST'])]
     public function assignDocumentsBulk(
@@ -519,13 +519,13 @@ public function delete(
         $requests = $documentRequestRepository->findBy(['id' => $requestIds]);
         $requestMap = [];
         foreach ($requests as $req) {
-            $requestMap[$req->getId()] = $req;
+            $requestMap[(string) $req->getId()] = $req;
         }
 
         $documents = $documentRepository->findBy(['id' => $documentIds, 'user' => $currentUser]);
         $documentMap = [];
         foreach ($documents as $doc) {
-            $documentMap[$doc->getId()] = $doc;
+            $documentMap[(string) $doc->getId()] = $doc;
         }
 
         if (count($documentMap) === 0) {
@@ -541,12 +541,12 @@ public function delete(
         $documentIdCount = count($documentIds);
 
         foreach ($requestIds as $index => $requestId) {
-            if (!isset($requestMap[$requestId])) {
+            if (!isset($requestMap[(string) $requestId])) {
                 $errors[] = sprintf('Request %s not found.', $requestId);
                 continue;
             }
 
-            $documentRequest = $requestMap[$requestId];
+            $documentRequest = $requestMap[(string) $requestId];
 
             if ($documentRequest->getProvider()->getId() !== $currentProvider->getId()) {
                 $errors[] = sprintf('You cannot update request %s', $requestId);
@@ -559,7 +559,7 @@ public function delete(
             }
 
             $documentId = $documentIds[$index] ?? $documentIds[$documentIdCount - 1];
-            $document = $documentMap[$documentId] ?? null;
+            $document = $documentMap[(string) $documentId] ?? null;
 
             if (!$document) {
                 $errors[] = sprintf('Document %s not available.', $documentId);
@@ -773,114 +773,113 @@ public function delete(
         return $this->json(['success' => true, 'documentRequests' => $data, 'credentialLinks' => $linksData]);
     }
 
-#[Route('/link-track/event', name: 'app_provider_link_track_event', methods: ['POST'])]
-public function trackLinkEvent(Request $request): JsonResponse
-{
-    try {
-        $data = json_decode($request->getContent(), true);
-        
-        if (!isset($data['linkId']) || !isset($data['action'])) {
-            return $this->json(['success' => false, 'message' => 'Missing parameters'], 400);
+    #[Route('/link-track/event', name: 'app_provider_link_track_event', methods: ['POST'])]
+    public function trackLinkEvent(Request $request): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+
+            if (!isset($data['linkId']) || !isset($data['action'])) {
+                return $this->json(['success' => false, 'message' => 'Missing parameters'], 400);
+            }
+
+            $link = $this->entityManager->getRepository(CredentialingLink::class)->find($data['linkId']);
+
+            if (!$link) {
+                return $this->json(['success' => false, 'message' => 'Link not found'], 404);
+            }
+
+            $currentUser = $this->getUser();
+            $currentProvider = $currentUser->getProvider();
+
+            // Verify the link belongs to the current provider
+            if (!$currentProvider || $link->getProvider()->getId() !== $currentProvider->getId()) {
+                return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
+
+            $message = '';
+
+            // Handle different actions
+            switch ($data['action']) {
+                case 'opened':
+                    $link->setLastOpenedAt(new \DateTime());
+                    $link->setOpenCount($link->getOpenCount() + 1);
+
+                    if ($link->getStatus() === 'pending') {
+                        $link->setStatus('viewed');
+                    }
+                    $message = 'Link opened successfully';
+                    break;
+
+                case 'submitted':
+                    $link->setStatus('submitted');
+                    $link->setSubmittedAt(new \DateTime());
+                    $link->setProviderResponse('Form submitted by user');
+                    $link->setIsActive(false);
+                    $message = 'Form submitted successfully! The link has been moved to completed section.';
+                    break;
+
+                case 'completed':
+                    $link->setStatus('completed');
+                    $link->setCompletedAt(new \DateTime());
+                    $link->setIsActive(false);
+                    $message = 'Link marked as completed';
+                    break;
+
+                default:
+                    return $this->json(['success' => false, 'message' => 'Unknown action'], 400);
+            }
+
+            $this->entityManager->persist($link);
+            $this->entityManager->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => $message,
+                'status' => $link->getStatus(),
+                'isActive' => $link->getIsActive()
+            ]);
+        } catch (\Exception $e) {
+            error_log('Link tracking error: ' . $e->getMessage());
+
+            return $this->json([
+                'success' => false,
+                'message' => 'An error occurred. Please try again.'
+            ], 500);
         }
-        
-        $link = $this->entityManager->getRepository(CredentialingLink::class)->find($data['linkId']);
-        
-        if (!$link) {
-            return $this->json(['success' => false, 'message' => 'Link not found'], 404);
-        }
-        
-        $currentUser = $this->getUser();
-        $currentProvider = $currentUser->getProvider();
-        
-        // Verify the link belongs to the current provider
-        if (!$currentProvider || $link->getProvider()->getId() !== $currentProvider->getId()) {
-            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-        
-        $message = '';
-        
-        // Handle different actions
-        switch ($data['action']) {
-            case 'opened':
-                $link->setLastOpenedAt(new \DateTime());
-                $link->setOpenCount($link->getOpenCount() + 1);
-                
-                if ($link->getStatus() === 'pending') {
-                    $link->setStatus('viewed');
-                }
-                $message = 'Link opened successfully';
-                break;
-                
-            case 'submitted':
-                $link->setStatus('submitted');
-                $link->setSubmittedAt(new \DateTime());
-                $link->setProviderResponse('Form submitted by user');
-                $link->setIsActive(false);
-                $message = 'Form submitted successfully! The link has been moved to completed section.';
-                break;
-                
-            case 'completed':
-                $link->setStatus('completed');
-                $link->setCompletedAt(new \DateTime());
-                $link->setIsActive(false);
-                $message = 'Link marked as completed';
-                break;
-                
-            default:
-                return $this->json(['success' => false, 'message' => 'Unknown action'], 400);
-        }
-        
-        $this->entityManager->persist($link);
+    }
+
+    // Remove the createSimpleDocumentRecord and createDocumentFromLink methods completely
+    // They're no longer needed since we're not creating Document records
+
+    #[Route('/link/{id}/complete', name: 'app_provider_link_complete', methods: ['POST'])]
+    public function completeLink(Request $request, CredentialingLink $link): JsonResponse
+    {
+        // Mark link as completed and remove from pending
+        $link->setStatus('submitted'); // Changed from 'completed' to 'submitted' for consistency
+        $link->setSubmittedAt(new \DateTime());
+        $link->setProviderResponse('User confirmed form submission');
+        $link->setIsActive(false);
+
         $this->entityManager->flush();
-        
+
         return $this->json([
             'success' => true,
-            'message' => $message,
-            'status' => $link->getStatus(),
-            'isActive' => $link->getIsActive()
+            'message' => 'Form submitted successfully! The link has been moved to completed section.',
+            'redirect' => $this->generateUrl('app_provider_documents')
         ]);
-        
-    } catch (\Exception $e) {
-        error_log('Link tracking error: ' . $e->getMessage());
-        
-        return $this->json([
-            'success' => false, 
-            'message' => 'An error occurred. Please try again.'
-        ], 500);
     }
-}
-
-// Remove the createSimpleDocumentRecord and createDocumentFromLink methods completely
-// They're no longer needed since we're not creating Document records
-
-#[Route('/link/{id}/complete', name: 'app_provider_link_complete', methods: ['POST'])]
-public function completeLink(Request $request, CredentialingLink $link): JsonResponse
-{
-    // Mark link as completed and remove from pending
-    $link->setStatus('submitted'); // Changed from 'completed' to 'submitted' for consistency
-    $link->setSubmittedAt(new \DateTime());
-    $link->setProviderResponse('User confirmed form submission');
-    $link->setIsActive(false);
-    
-    $this->entityManager->flush();
-    
-    return $this->json([
-        'success' => true,
-        'message' => 'Form submitted successfully! The link has been moved to completed section.',
-        'redirect' => $this->generateUrl('app_provider_documents')
-    ]);
-}
 
     #[Route('/link/{id}/status', name: 'app_provider_link_status', methods: ['GET'])]
     public function getLinkStatus(CredentialingLink $link): JsonResponse
     {
         $currentUser = $this->getUser();
         $currentProvider = $currentUser->getProvider();
-        
+
         if ($link->getProvider()->getId() !== $currentProvider->getId()) {
             return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
-        
+
         return $this->json([
             'success' => true,
             'status' => $link->getStatus(),

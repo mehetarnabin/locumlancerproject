@@ -16,7 +16,49 @@
     <!-- App CSS -->
     <link id="theme-style" rel="stylesheet" href="{{ asset('assets/admin/css/portal.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/custom.css') }}">
+
     <style>
+        /* Page fade-in to hide JavaScript loading irregularities - only on page navigation */
+        body {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+        body.page-loaded {
+            opacity: 1;
+        }
+    </style>
+
+    <style>
+        /* Notifications dropdown - positioned like profile dropdown */
+        .app-notifications-dropdown {
+            position: relative;
+        }
+        
+        .app-notifications-dropdown .dropdown-menu {
+            right: 0 !important;
+            left: auto !important;
+            min-width: 320px;
+            max-width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-user-dropdown {
+            position: relative;
+        }
+        
+        .app-user-dropdown .dropdown-menu {
+            right: 0 !important;
+            left: auto !important;
+            min-width: 180px;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
         /* ============================================
            EMPLOYER DASHBOARD - SPACING & ALIGNMENT FIXES
            Match provider dashboard layout and spacing
@@ -677,6 +719,71 @@
 </script>
 
 {% block footer_scripts %}{% endblock %}
+
+<script>
+    // Page fade-in to hide JavaScript loading irregularities - only on actual page navigation
+    (function() {
+        // Fade in on page load
+        function fadeIn() {
+            document.body.classList.add('page-loaded');
+        }
+        
+        if (document.readyState === 'complete') {
+            fadeIn();
+        } else {
+            window.addEventListener('load', fadeIn);
+            document.addEventListener('DOMContentLoaded', function() {
+                // Small delay to ensure JS has initialized
+                setTimeout(fadeIn, 50);
+            });
+        }
+        
+        // Handle page navigation - fade out before leaving (only for actual page changes)
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (!link || !link.href) return;
+            
+            // Skip if:
+            // - Has target attribute (opens in new window/tab)
+            // - Is same page anchor (#)
+            // - Has data attributes indicating it's not a page change (popup, modal, dropdown, etc.)
+            // - Is a JavaScript link (href="#", href="javascript:", etc.)
+            if (link.target || 
+                link.href === window.location.href || 
+                link.href.endsWith('#') ||
+                link.href.startsWith('javascript:') ||
+                link.hasAttribute('data-bs-toggle') ||
+                link.hasAttribute('data-bs-target') ||
+                link.hasAttribute('data-popup') ||
+                link.hasAttribute('data-no-fade') ||
+                link.closest('.dropdown-menu') ||
+                link.closest('[data-bs-toggle="dropdown"]') ||
+                link.closest('.modal') ||
+                link.closest('[role="button"]:not(a)')) {
+                return;
+            }
+            
+            try {
+                const url = new URL(link.href);
+                // Only fade if it's a same-origin navigation (actual page change)
+                if (url.origin === window.location.origin && 
+                    url.pathname !== window.location.pathname) {
+                    document.body.style.opacity = '0';
+                }
+            } catch (err) {
+                // Invalid URL, ignore
+            }
+        });
+        
+        // Handle browser back/forward
+        window.addEventListener('pageshow', function(e) {
+            if (e.persisted) {
+                // Page was loaded from cache
+                fadeIn();
+            }
+        });
+    })();
+</script>
 
 </body>
 </html>

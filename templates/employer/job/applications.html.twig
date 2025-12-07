@@ -254,33 +254,73 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <h5 class="mb-3 summary-title">Documents</h5>
-                                <table class="table">
-                                    <tr>
-                                        <th>SN</th>
-                                        <th>Name</th>
-                                        <th>Requested At</th>
-                                        <th>Provided At</th>
-                                        <th>File</th>
-                                    </tr>
+                                <div id="documentRequestsAccordion">
                                     {% for documentRequest in documentRequests %}
                                         {% set document = documentRequest.document %}
-                                        <tr>
-                                            <td>{{ loop.index }}</td>
-                                            <td>{{ documentRequest.name }}</td>
-                                            <td>{{ documentRequest.createdAt|date('m/d/Y') }}</td>
-                                            <td>{{ documentRequest.providedAt ? documentRequest.providedAt|date('m/d/Y') : '-' }}</td>
-                                            <td>
-                                                {% if document %}
-                                                    <a href="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" target="_blank">
-                                                        {{ document.fileName }}
-                                                    </a>
-                                                {% else %}
-                                                    -
-                                                {% endif %}
-                                            </td>
-                                        </tr>
+                                        <div class="card mb-2">
+                                            <div class="card-header" id="heading{{ documentRequest.id }}">
+                                                <h5 class="mb-0">
+                                                    <button class="btn btn-link {% if not loop.first %}collapsed{% endif %}" 
+                                                            type="button" 
+                                                            data-toggle="collapse" 
+                                                            data-target="#collapse{{ documentRequest.id }}" 
+                                                            aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
+                                                            aria-controls="collapse{{ documentRequest.id }}">
+                                                        <div class="d-flex justify-content-between align-items-center w-100 text-left">
+                                                            <div>
+                                                                <strong>{{ documentRequest.name }}</strong>
+                                                                <span class="badge {% if document %}badge-success{% else %}badge-warning{% endif %} ml-2">
+                                                                    {% if document %}Provided{% else %}Pending{% endif %}
+                                                                </span>
+                                                            </div>
+                                                            <small class="text-muted">Requested: {{ documentRequest.createdAt|date('m/d/Y') }}</small>
+                                                        </div>
+                                                    </button>
+                                                </h5>
+                                            </div>
+                                            <div id="collapse{{ documentRequest.id }}" 
+                                                 class="collapse {% if loop.first %}show{% endif %}" 
+                                                 aria-labelledby="heading{{ documentRequest.id }}" 
+                                                 data-parent="#documentRequestsAccordion">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Requested At:</strong> {{ documentRequest.createdAt|date('m/d/Y H:i') }}</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Provided At:</strong> 
+                                                                {% if documentRequest.providedAt %}
+                                                                    {{ documentRequest.providedAt|date('m/d/Y H:i') }}
+                                                                {% else %}
+                                                                    <span class="text-muted">Not provided yet</span>
+                                                                {% endif %}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    {% if document %}
+                                                        <div class="mt-3 p-3 bg-light rounded">
+                                                            <p class="mb-2"><strong>Document File:</strong></p>
+                                                            <a href="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" 
+                                                               target="_blank" 
+                                                               class="btn btn-sm btn-outline-primary">
+                                                                <i class="fa fa-file"></i> {{ document.fileName }}
+                                                            </a>
+                                                            {% if document.category %}
+                                                                <p class="mt-2 mb-0"><small><strong>Category:</strong> {{ document.category }}</small></p>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="mt-3 p-3 bg-warning rounded" style="background-color: rgba(255, 193, 7, 0.1) !important;">
+                                                            <p class="mb-0 text-muted">
+                                                                <i class="fa fa-clock"></i> Document not provided yet. Waiting for provider to upload.
+                                                            </p>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
                                     {% endfor %}
-                                </table>
+                                </div>
                             </div>
                         </div>
                     {% endif %}
@@ -792,6 +832,62 @@
     </script>
 
     <style>
+        /* Document Requests Accordion Styling */
+        #documentRequestsAccordion .card {
+            border: 1px solid #dee2e6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        #documentRequestsAccordion .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+        }
+        
+        #documentRequestsAccordion .card-header .btn-link {
+            color: #121C0C;
+            text-decoration: none;
+            width: 100%;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        #documentRequestsAccordion .card-header .btn-link:hover {
+            color: #85BB65;
+            text-decoration: none;
+        }
+        
+        #documentRequestsAccordion .card-header .btn-link:focus {
+            box-shadow: none;
+            outline: none;
+        }
+        
+        #documentRequestsAccordion .card-header .btn-link:not(.collapsed)::after {
+            content: "−";
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #85BB65;
+        }
+        
+        #documentRequestsAccordion .card-header .btn-link.collapsed::after {
+            content: "+";
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #6c757d;
+        }
+        
+        #documentRequestsAccordion .card-body {
+            padding: 1.25rem;
+        }
+        
+        #documentRequestsAccordion .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+        
         .star-rating {
             direction: rtl;
             display: inline-flex;
