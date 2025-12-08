@@ -73,6 +73,19 @@ class ToDoRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Find todos by bookmark ID
+     */
+    public function findByBookmark($bookmarkId): array
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.bookmark = :bookmarkId')
+            ->setParameter('bookmarkId', $bookmarkId)
+            ->orderBy('t.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function save(ToDo $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);

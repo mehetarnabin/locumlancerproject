@@ -50,133 +50,6 @@
     will-change: auto !important;
 }
 
-/* Style for external links cards */
-.request-card[data-company="External Links"] {
-    border-left: 4px solid #3b82f6; /* Blue border for external links */
-}
-
-.request-card[data-company="External Links"] .request-title {
-    color: #3b82f6; /* Blue text for external links */
-}
-
-/* Link Submission Modal Styles */
-#linkSubmissionModal .modal-content {
-    border-radius: 16px;
-    overflow: hidden;
-    border: 2px solid #e6eef6;
-}
-
-#linkSubmissionModal .modal-header {
-    background: #F4F9F1;
-    border-bottom: 1px solid #e6eef6;
-    padding: 16px 24px;
-}
-
-#linkSubmissionModal .modal-body {
-    padding: 32px 24px;
-}
-
-#linkSubmissionModal .modal-footer {
-    border-top: 1px solid #e6eef6;
-    padding: 20px 24px;
-    background: #f9fafb;
-}
-
-#linkSubmissionModal .btn-success {
-    background: #10b981;
-    border-color: #10b981;
-    padding: 10px 24px;
-    font-weight: 500;
-}
-
-#linkSubmissionModal .btn-success:hover {
-    background: #0da271;
-    border-color: #0da271;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-#linkSubmissionModal .btn-secondary {
-    padding: 10px 24px;
-    font-weight: 500;
-}
-
-#linkSubmissionModal .btn-secondary:hover {
-    background: #e5e7eb;
-    border-color: #d1d5db;
-    transform: translateY(-2px);
-}
-
-#submission-status-icon {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Status badges for credentialing links */
-.link-status-badge {
-    margin-top: 8px;
-    display: flex;
-    justify-content: center;
-}
-
-.link-status-badge .badge {
-    font-size: 0.7rem;
-    padding: 4px 8px;
-}
-
-.badge.bg-warning {
-    background-color: #f59e0b !important;
-}
-
-.badge.bg-secondary {
-    background-color: #6b7280 !important;
-}
-
-.badge.bg-success {
-    background-color: #10b981 !important;
-}
-
-/* External link card enhancements */
-.request-card[data-company="External Links"] .request-title {
-    color: #3b82f6;
-    margin-bottom: 8px;
-}
-
-.request-card[data-company="External Links"] .link-status-badge {
-    margin-top: 12px;
-}
-
-/* Status-specific styling */
-.request-card.status-submitted {
-    border-color: #10b981;
-    background-color: rgba(16, 185, 129, 0.05);
-}
-
-.request-card.status-completed {
-    opacity: 0.7;
-    border-color: #6b7280;
-}
-
-/* Company group header for external links */
-.company-group-header.external-links {
-    border-left: 4px solid #3b82f6;
-    background: #eff6ff;
-}
-
-.company-name.external-links {
-    color: #3b82f6;
-}
-
-.request-count.external-links {
-    background: #eff6ff;
-    color: #3b82f6;
-}
-
 /* Layout reset to match dashboard spacing */
 body.app .app-wrapper,
 .app-wrapper {
@@ -314,6 +187,8 @@ div.container-xl,
     padding: 10px 14px;
     font-size: 0.875rem;
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-control:focus, .form-select:focus {
@@ -337,6 +212,25 @@ div.container-xl,
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Fix for inline dropzone in form */
+#uploadDropzone {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 60px !important;
+    padding: 16px !important;
+}
+
+/* Edit Modal Styling - Responsive */
+@media (max-width: 768px) {
+    #editDocumentModal .modal-body > form > div:last-child > div {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
 }
 
 .upload-dropzone:hover {
@@ -525,6 +419,10 @@ div.container-xl,
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .document-table-wrapper::-webkit-scrollbar {
@@ -551,7 +449,8 @@ div.container-xl,
     align-items: center;
     min-width: 0;
     overflow: hidden;
-    padding: 0 8px;
+    padding: 0;
+    gap: 0;
 }
 
 .col-uploaded-at,
@@ -559,70 +458,106 @@ div.container-xl,
 .col-issue-date,
 .col-expiry-date,
 .col-actions {
-    flex: 1;
-    min-width: 120px;
-    padding: 0 8px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
+    padding: 0 16px;
+}
+
+.col-uploaded-at {
+    flex: 0 0 140px;
+    min-width: 140px;
+    max-width: 140px;
+    justify-content: center;
+    text-align: center;
 }
 
 .col-doc-name {
-    flex: 2;
+    flex: 1 1 auto;
+    min-width: 200px;
     justify-content: flex-start;
+    padding-right: 24px;
 }
 
-.col-uploaded-at,
-.col-issue-date,
+.col-issue-date {
+    flex: 0 0 130px;
+    min-width: 130px;
+    max-width: 130px;
+    justify-content: center;
+    text-align: center;
+}
+
 .col-expiry-date {
+    flex: 0 0 180px;
+    min-width: 180px;
+    max-width: 180px;
     justify-content: center;
     text-align: center;
 }
 
 .col-actions {
+    flex: 0 0 140px;
+    min-width: 140px;
+    max-width: 140px;
     justify-content: center;
-    min-width: 120px;
-    max-width: 120px;
     flex-shrink: 0;
 }
 
 .document-header {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: #000000;
+    color: #374151;
     letter-spacing: 0.01em;
     line-height: 1.5;
     background: #F8FAF9;
+    border: none;
     border-bottom: 2px solid #e6eef6;
-    border-radius: 10px 10px 0 0;
-    border: 1px solid #e6eef6;
-    border-bottom: 2px solid #e6eef6;
-    height: 40px;
-    margin-bottom: 2px;
-    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 8px 8px 0 0;
+    height: 48px;
+    margin-bottom: 0;
 }
 
 .document-row {
-    font-size: 12px;
+    font-size: 0.875rem;
     font-weight: 400;
-    color: #000000;
+    color: #1f2937;
     line-height: 1.5;
     background: #fff;
-    border: 1px solid #e6eef6;
-    border-radius: 8px;
-    margin-bottom: 2px;
-    min-height: 48px;
-    height: 48px;
+    border: none;
+    border-top: 1px solid #e6eef6;
+    border-radius: 0;
+    margin-bottom: 0;
+    min-height: 56px;
+    height: auto;
+    padding: 12px 0;
+    transition: background-color 0.15s ease;
 }
 
-.document-header > div,
-.document-row > div {
+.document-row:hover {
+    background: #f9fafb;
+}
+
+.document-row:last-child {
+    border-radius: 0 0 8px 8px;
+    border-bottom: none;
+}
+
+.document-header > div {
     display: flex;
     align-items: center;
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
     height: 48px;
+}
+
+.document-row > div {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    min-height: 32px;
 }
 
 .table tbody tr:hover {
@@ -710,6 +645,8 @@ div.container-xl,
     padding: 12px;
     margin-bottom: 12px;
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .dea-form-section:not(:first-child) {
@@ -1112,7 +1049,7 @@ div.container-xl,
 /* Grid View Styles */
 .documents-grid-view-container {
     display: none;
-    margin-top: 20px;
+    margin-top: 8px;
     background: #fff;
     border: 1px solid #e6eef6;
     border-radius: 12px;
@@ -1124,8 +1061,8 @@ div.container-xl,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #e6eef6;
     transition: none !important;
     animation: none !important;
@@ -1152,7 +1089,7 @@ div.container-xl,
 }
 
 .company-document-group {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .company-document-group:last-child {
@@ -1163,7 +1100,7 @@ div.container-xl,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     padding: 12px 16px;
     background: #F4F9F1;
     border-radius: 8px;
@@ -1171,17 +1108,24 @@ div.container-xl,
     transition: none !important;
     animation: none !important;
     transform: none !important;
+    cursor: pointer;
+    user-select: none;
+}
+
+.company-group-header:hover {
+    background: #E8F4E0;
 }
 
 .company-name-wrapper {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     flex: 1;
     padding: 0 8px;
     transition: none !important;
     animation: none !important;
     transform: none !important;
+    gap: 12px;
 }
 
 .company-name {
@@ -1189,10 +1133,11 @@ div.container-xl,
     font-size: 16px;
     font-weight: 600;
     color: #000000;
-    text-align: center;
+    text-align: left;
     transition: none !important;
     animation: none !important;
     transform: none !important;
+    flex: 1;
 }
 
 .request-count {
@@ -1202,6 +1147,43 @@ div.container-xl,
     padding: 4px 12px;
     border-radius: 12px;
     font-weight: 500;
+    white-space: nowrap;
+}
+
+.accordion-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #85BB65;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.accordion-toggle-btn:hover {
+    color: #6a9a4f;
+}
+
+.accordion-toggle-btn[aria-expanded="false"] .accordion-icon {
+    transform: rotate(-90deg);
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+    width: 20px;
+    height: 20px;
+}
+
+.accordion-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.accordion-content.collapsed {
+    display: none !important;
 }
 
 .documents-grid {
@@ -1500,25 +1482,25 @@ div.container-xl,
 /* Tabs Styling */
 .documents-tabs {
     display: flex;
-    border-bottom: 1px solid #e5e7eb;
-    margin: 40px 0 24px 0;
+    border-bottom: 2px solid #e5e7eb;
+    margin: 0 0 20px 0;
     background: #fff;
-    border-radius: 12px 12px 0 0;
-    padding: 0 24px;
+    padding: 0;
+    gap: 0;
 }
 
 .documents-tab {
-    padding: 12px 16px;
-    font-size: 0.9375rem;
-    margin-bottom: -2px;
+    padding: 12px 24px;
     border: none;
     background: none;
     font-weight: 500;
+    font-size: 0.9375rem;
     color: #6b7280;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
     position: relative;
+    margin-bottom: -2px;
 }
 
 .documents-tab:hover {
@@ -1576,6 +1558,49 @@ div.container-xl,
 .action-badge.assigned {
     background: #E0F2FE;
     color: #0369A1;
+}
+
+/* History Pagination Styling */
+.history-pagination-wrapper {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e6eef6;
+}
+
+.history-pagination-wrapper .pagination {
+    margin-bottom: 0;
+}
+
+.history-pagination-wrapper .pagination .page-link {
+    color: #85BB65;
+    border-color: #e6eef6;
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.history-pagination-wrapper .pagination .page-link:hover {
+    background-color: #F4F9F1;
+    border-color: #85BB65;
+    color: #6a9a4f;
+}
+
+.history-pagination-wrapper .pagination .page-item.active .page-link {
+    background-color: #85BB65;
+    border-color: #85BB65;
+    color: #fff;
+}
+
+.history-pagination-wrapper .pagination .page-item.disabled .page-link {
+    color: #9ca3af;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #e6eef6;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #6b7280;
 }
 
 /* Credentials Section */
@@ -1682,53 +1707,12 @@ div.container-xl,
     }
     
     .documents-tab {
-        
+        padding: 12px 16px;
+        font-size: 0.9rem;
     }
     
     .credentials-grid {
         grid-template-columns: 1fr;
-    }
-    /* History Pagination Styling */
-    .history-pagination-wrapper {
-        margin-top: 24px;
-        padding-top: 16px;
-        border-top: 1px solid #e6eef6;
-    }
-
-    .history-pagination-wrapper .pagination {
-        margin-bottom: 0;
-    }
-
-    .history-pagination-wrapper .pagination .page-link {
-        color: #85BB65;
-        border-color: #e6eef6;
-        padding: 8px 12px;
-        font-size: 14px;
-    }
-
-    .history-pagination-wrapper .pagination .page-link:hover {
-        background-color: #F4F9F1;
-        border-color: #85BB65;
-        color: #6a9a4f;
-    }
-
-    .history-pagination-wrapper .pagination .page-item.active .page-link {
-        background-color: #85BB65;
-        border-color: #85BB65;
-        color: #fff;
-    }
-
-    .history-pagination-wrapper .pagination .page-item.disabled .page-link {
-        color: #9ca3af;
-        pointer-events: none;
-        background-color: #fff;
-        border-color: #e6eef6;
-        cursor: not-allowed;
-    }
-
-    .pagination-info {
-        font-size: 14px;
-        color: #6b7280;
     }
     
     .credential-actions {
@@ -1743,6 +1727,7 @@ div.container-xl,
 
     <div class="container-xl">
     <h1 class="app-page-title">Documents</h1>
+
    {# Document Requests Table - Only Pending Requests #}
 <div class="card app-card-settings">
     <div class="card-body">
@@ -1823,32 +1808,31 @@ div.container-xl,
                         {% for link in credentialingLinks %}
                             {% set rowIndex = rowIndex + 1 %}
                             <tr>
-                                <td><span class="text-muted">-</span></td>
+                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <strong class="me-2">{{ link.title }}</strong>
-                                        {% if link.status == 'submitted' %}
-                                            <span class="badge bg-success ms-auto">Submitted</span>
-                                        {% elseif link.lastOpenedAt %}
-                                            <span class="badge bg-warning ms-auto">Open</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary ms-auto">Not Opened</span>
+                                    <div>
+                                        <strong>{{ link.title }}</strong>
+                                        {% if link.description %}
+                                            <small class="text-muted d-block">{{ link.description }}</small>
                                         {% endif %}
+                                        <small class="text-muted d-block">{{ link.url|replace({'https://': '', 'http://': ''})|slice(0, 60) }}{{ link.url|length > 60 ? '...' : '' }}</small>
                                     </div>
-                                    {% if link.description %}
-                                        <small class="text-muted d-block">{{ link.description }}</small>
-                                    {% endif %}
                                 </td>
                                 <td><span class="text-muted">-</span></td>
-                                <td><span class="text-muted">-</span></td>
-                                <td><span class="text-muted">-</span></td>
+                                <td>
+                                    <div>
+                                        <strong>External Source</strong><br/>
+                                        <small class="text-muted">{{ link.sender ?: 'System' }}</small>
+                                    </div>
+                                </td>
+                                <td>{{ link.createdAt|date('m/d/Y') }}</td>
                                 <td><span class="text-warning">Pending</span></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn external-link" data-link-id="{{ link.id }}" title="Open Link">
+                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn" title="Open Link">
                                             Open Link
                                         </a>
-                                        <button type="button" class="action-btn btn-success link-submitted-btn" data-link-id="{{ link.id }}" title="I Submitted">Yes, I submitted</button>
+                                        <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL">Copy</button>
                                     </div>
                                 </td>
                             </tr>
@@ -1869,183 +1853,87 @@ div.container-xl,
         </div>
         
         {# Grid View for Document Requests - Grouped by Company #}
-<div class="documents-grid-view-container" id="requests-grid-view-container">
-    <div class="grid-view-header">
-        <h5>Select Documents to Submit</h5>
-        <div class="grid-view-actions">
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
-            <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
+        <div class="documents-grid-view-container" id="requests-grid-view-container">
+            <div class="grid-view-header">
+                <h5>Select Documents to Submit</h5>
+                <div class="grid-view-actions">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
+                    <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
+                </div>
+            </div>
+            <div class="documents-grid-wrapper" id="requests-grid-wrapper">
+                {% set companyGroups = {} %}
+                {% for documentRequest in documentRequests %}
+                    {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+                        {% set companyName = documentRequest.application.employer.companyName %}
+                        {% if companyGroups[companyName] is not defined %}
+                            {% set companyGroups = companyGroups|merge({(companyName): []}) %}
+                    {% endif %}
+                        {% set companyGroups = companyGroups|merge({(companyName): companyGroups[companyName]|merge([documentRequest])}) %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if companyGroups|length > 0 %}
+                    {% for companyName, requests in companyGroups %}
+                        <div class="company-document-group">
+                            <div class="company-group-header" data-accordion-toggle>
+                                <div class="company-name-wrapper">
+                                    <h6 class="company-name">{{ companyName }}</h6>
+                                    <span class="request-count">{{ requests|length }} request(s)</span>
+                                </div>
+                                <button class="accordion-toggle-btn" type="button" aria-expanded="false">
+                                    <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6 9l6 6 6-6"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="requests-grid accordion-content collapsed" style="display: none;">
+                                {% for request in requests %}
+                                    <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
+                                        <div class="request-card-header">
+                                            <div class="request-title">{{ request.name }}</div>
+                                            <div class="request-document-select">
+                                                <select class="form-select document-select" 
+                                                        data-request-id="{{ request.id }}"
+                                                        data-request-name="{{ request.name|lower }}"
+                                                        id="request-{{ request.id }}-document">
+                                                    <option value="">Select Document</option>
+                                                    {% for document in documents %}
+                                                        <option value="{{ document.id }}" 
+                                                                data-doc-name="{{ (document.category ?: document.name)|lower }}"
+                                                                {% if request.document and request.document.id == document.id %}selected{% endif %}>
+                                                            {{ document.category ?: document.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                    <option value="__add_document__" class="add-document-option" data-request-id="{{ request.id }}">+ Add New Document</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-grid-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                        <h4>No pending document requests</h4>
+                        <p>There are no pending document requests from companies at this time.</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="documents-grid-wrapper" id="requests-grid-wrapper">
-        {% set companyGroups = {} %}
-        
-        {# Process document requests #}
-        {% for documentRequest in documentRequests %}
-        {% if documentRequest.providedAt is null %}
-            {% set companyName = 'Unknown Employer' %}
-            
-            {% if documentRequest.application and documentRequest.application.employer %}
-                {% set companyName = documentRequest.application.employer.companyName %}
-            {% endif %}
 
-            {% if companyGroups[companyName] is not defined %}
-                {% set companyGroups = companyGroups|merge({(companyName): {
-                    'requests': [],
-                    'links': []
-                }}) %}
-            {% endif %}
-            
-            {% set companyGroups = companyGroups|merge({
-                (companyName): companyGroups[companyName]|merge({
-                    'requests': companyGroups[companyName].requests|merge([documentRequest])
-                })
-            }) %}
-        {% endif %}
-        {% endfor %}
-        
-        {# Process credentialing links - group by company #}
-        {% for link in credentialingLinks %}
-            {% if link.sender and link.sender is not empty %}
-                {% set companyName = link.sender|default('External Links') %}
-            {% elseif link.job and link.job.employer and link.job.employer.companyName %}
-                {% set companyName = link.job.employer.companyName|default('External Links') %}
-            {% else %}
-                {% set companyName = 'External Links' %}
-            {% endif %}
-            
-            {# Ensure companyName is a string #}
-            {% set companyName = companyName ~ '' %}
-            
-            {% if companyGroups[companyName] is not defined %}
-                {% set companyGroups = companyGroups|merge({(companyName): {
-                    'requests': [],
-                    'links': []
-                }}) %}
-            {% endif %}
-            
-            {% set companyGroups = companyGroups|merge({
-                (companyName): companyGroups[companyName]|merge({
-                    'links': companyGroups[companyName].links|merge([link])
-                })
-            }) %}
-        {% endfor %}
-        
-        {# Render each company group #}
-        {% if companyGroups|length > 0 %}
-            {% for companyName, data in companyGroups %}
-                {% if data.requests|length > 0 or data.links|length > 0 %}
-                    <div class="company-document-group">
-                        <div class="company-group-header {{ companyName == 'External Links' ? 'external-links' : '' }}">
-                            <h6 class="company-name {{ companyName == 'External Links' ? 'external-links' : '' }}">{{ companyName }}</h6>
-                            <span class="request-count {{ companyName == 'External Links' ? 'external-links' : '' }}">
-                                {{ data.requests|length + data.links|length }} item(s)
-                            </span>
-                        </div>
-                        <div class="requests-grid">
-                            {# Render document requests #}
-                            {% for request in data.requests %}
-                                <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
-                                    <div class="request-card-header">
-                                        <div class="request-title">{{ request.name }}</div>
-                                        <div class="request-document-select">
-                                            <select class="form-select document-select" 
-                                                    data-request-id="{{ request.id }}"
-                                                    data-request-name="{{ request.name|lower }}"
-                                                    id="request-{{ request.id }}-document">
-                                                <option value="">Select Document</option>
-                                                {% for document in documents %}
-                                                    <option value="{{ document.id }}" 
-                                                            data-doc-name="{{ (document.category ?: document.name)|lower }}"
-                                                            {% if request.document and request.document.id == document.id %}selected{% endif %}>
-                                                        {{ document.category ?: document.name }}
-                                                    </option>
-                                                {% endfor %}
-                                                <option value="__add_document__" class="add-document-option" data-request-id="{{ request.id }}">+ Add New Document</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                            
-                            {# Render external links #}
-                            {% for link in data.links %}
-                                <div class="request-card" data-link-id="{{ link.id }}" data-company="{{ companyName }}">
-                                    <div class="request-card-header d-flex align-items-center">
-                                        <div class="request-title {{ companyName == 'External Links' ? 'external-link' : '' }}">
-                                            {{ link.title }}
-                                            {% if companyName == 'External Links' %}
-                                                <span class="badge bg-info ms-2">External</span>
-                                            {% endif %}
-                                        </div>
-                                        <div class="ms-auto">
-                                            {% if link.status == 'submitted' %}
-                                                <span class="badge bg-success">Submitted</span>
-                                            {% elseif link.lastOpenedAt %}
-                                                <span class="badge bg-warning">Opened</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">Not Opened</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    {% if link.description %}
-                                        <p class="text-muted small mb-2" style="font-size: 0.75rem;">{{ link.description|slice(0, 80) }}{{ link.description|length > 80 ? '...' : '' }}</p>
-                                    {% endif %}
-                                    <div class="d-flex flex-column gap-2">
-                                        <div class="action-buttons">
-                                            <a href="{{ link.url }}" 
-                                               target="_blank" 
-                                               rel="noopener noreferrer" 
-                                               class="action-btn btn-primary w-100 external-link"
-                                               data-link-id="{{ link.id }}"
-                                               title="Open this external link in a new tab"
-                                               style="justify-content: center;">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
-                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                                    <polyline points="15 3 21 3 21 9"/>
-                                                    <line x1="10" y1="14" x2="21" y2="3"/>
-                                                </svg>
-                                                Open Link
-                                            </a>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button type="button" 
-                                                    class="action-btn btn-success w-100 link-submitted-btn"
-                                                    data-link-id="{{ link.id }}"
-                                                    title="Confirm you submitted the form"
-                                                    style="justify-content: center;">
-                                                Yes, I submitted
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            <div class="empty-grid-state">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <h4>No pending document requests</h4>
-                <p>There are no pending document requests or external links at this time.</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-    </div>
-
-    
-
-        {# Document Upload Form - Compact Version #}
-    <div class="card app-card-settings">
-            <div class="card-body" style="padding: 16px;">
-            <div class="card-header-row" style="margin-bottom: 12px;">
-                <h5 class="card-title" style="font-size: 1rem; margin: 0;">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
+        {# Document Upload Form - Clean and Compact #}
+    <div class="card app-card-settings" style="margin-top: 12px;">
+            <div class="card-body" style="padding: 24px;">
+            <div class="card-header-row" style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e6eef6;">
+                <h5 class="card-title" style="font-size: 1.125rem; margin: 0; font-weight: 600; color: #1f2937;">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
             </div>
             
             {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'document-upload-form'}}) }}
@@ -2055,102 +1943,85 @@ div.container-xl,
             
             {# Active DEA form sections container #}
             <div id="dea-forms-container">
-                <div class="dea-form-section" data-dea-index="0">
-            <div class="row g-3">
-                {# Left Side: Text and Date Fields #}
-                <div class="col-12 col-lg-8">
-                    <div class="row g-3">
+                <div class="dea-form-section" data-dea-index="0" style="background: transparent; border: none; padding: 0; margin: 0;">
+                    <div class="row g-3" style="margin: 0;">
                 {# Document Name Field (Category) #}
-                <div class="col-12">
-                            <div class="mb-2">
-                                {{ form_label(form.category, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
-                                {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
+                        <div class="col-12" style="margin-bottom: 16px;">
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category', 'placeholder': 'Select Document Name', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
                         {{ form_errors(form.category) }}
-                    </div>
                 </div>
 
-                        {# Document Name Field (Only for Miscellaneous) #}
-                        <div class="col-12" id="document-name-wrapper" style="display: none;">
-                            <div class="mb-2">
-                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Document Name <span class="text-danger">*</span></label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="document_name" 
-                                       name="document[name]" 
-                                       placeholder="Enter document name"
-                                       style="padding: 6px 10px; font-size: 0.875rem;">
-                                <small class="text-muted" style="font-size: 0.75rem;">Enter a custom name for this miscellaneous document</small>
-                        </div>
-                        </div>
+                {# Document Name Field (Only for Miscellaneous) #}
+                        <div class="col-12" id="document-name-wrapper" style="display: none; margin-bottom: 16px;">
+                        <input type="text" 
+                               class="form-control" 
+                               id="document_name" 
+                               name="document[name]" 
+                                   placeholder="Document Name"
+                                   style="padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;">
+                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 4px; display: block;">Enter a custom name for this miscellaneous document</small>
+                </div>
 
+                {# Dates and File Upload Row #}
+                        <div class="col-12" style="margin-bottom: 0;">
+                            <div class="row g-3" style="margin: 0;">
                         {# Issue Date #}
-                        <div class="col-12 col-md-6" id="issue-date-wrapper">
-                            <div class="mb-2">
-                                {{ form_label(form.issueDate, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
-                                {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
+                                <div class="col-12 col-md-4" id="issue-date-wrapper" style="margin-bottom: 0;">
+                                    {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate', 'placeholder': 'Issue date', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
                                 {{ form_errors(form.issueDate) }}
-                            </div>
                         </div>
 
                         {# Expiration Date #}
-                        <div class="col-12 col-md-6" id="expiration-date-wrapper">
-                            <div class="mb-2">
-                                {{ form_label(form.expirationDate, null, {'label_attr': {'class': 'form-label', 'style': 'font-size: 0.875rem; margin-bottom: 4px;'}}) }}
-                                {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate', 'style': 'padding: 6px 10px; font-size: 0.875rem;'}}) }}
-                                <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem;"></span>
+                                <div class="col-12 col-md-4" id="expiration-date-wrapper" style="margin-bottom: 0;">
+                                    {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate', 'placeholder': 'Expiration date', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
+                                    <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem; margin-top: 4px;">Enter the expiration date as it appears on the document.</span>
                                 {{ form_errors(form.expirationDate) }}
-                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {# Right Side: File Upload Dropzone (Small and Cute) #}
-                <div class="col-12 col-lg-4">
-                    <div class="mb-2">
-                        <div class="form-label-wrapper" style="padding-left: 0; margin-bottom: 4px;">
-                        <label class="form-label" style="font-size: 0.875rem; padding-left: 0;">Choose File</label>
-                        </div>
-                        <div class="upload-dropzone position-relative" id="uploadDropzone" style="min-height: 140px; padding: 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1;">
-                            {{ form_widget(form.fileName, {
-                                'attr': {
-                                    'class': 'dropzone-input',
-                                    'id': 'fileInput',
-                                    'accept': '.pdf,.doc,.docx',
-                                    'onchange': 'handleFileChange(this)'
-                                }
-                            }) }}
-                            
-                            <div id="fileBadge" class="file-badge" style="display:none;">
-                                <span id="fileNameText"></span>
-                                <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
-                            </div>
+                        {# File Upload Dropzone #}
+                                <div class="col-12 col-md-4" style="margin-bottom: 0;">
+                                    <div class="upload-dropzone position-relative" id="uploadDropzone" style="min-height: 60px; padding: 16px; border: 2px dashed #85BB65; border-radius: 6px; background: #F4F9F1; cursor: pointer; width: 100%; box-sizing: border-box;">
+                                    {{ form_widget(form.fileName, {
+                                        'attr': {
+                                            'class': 'dropzone-input',
+                                            'id': 'fileInput',
+                                            'accept': '.pdf,.doc,.docx',
+                                            'onchange': 'handleFileChange(this)'
+                                        }
+                                    }) }}
+                                    
+                                    <div id="fileBadge" class="file-badge" style="display:none;">
+                                        <span id="fileNameText"></span>
+                                        <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
+                                    </div>
 
-                            <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                </svg>
-                                <p class="upload-text mb-1" style="font-size: 0.75rem; margin-top: 0; text-align: center; color: #6b7280;">Click to upload</p>
-                                <p class="upload-subtext mb-0" style="font-size: 0.65rem; text-align: center; color: #9ca3af;">Max: 8MB</p>
-                            </div>
+                                    <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; height: 100%; gap: 8px;">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                        </svg>
+                                        <div style="text-align: left;">
+                                                <p class="upload-text mb-0" style="font-size: 0.9375rem; color: #374151; font-weight: 500;">Click to upload</p>
+                                                <p class="upload-subtext mb-0" style="font-size: 0.8125rem; color: #6b7280;">Max: 8MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{ form_errors(form.fileName) }}
                         </div>
-                        {{ form_errors(form.fileName) }}
                     </div>
                 </div>
                     </div>
                 </div>
                 </div>
 
-            <div class="d-flex justify-content-end gap-2 mt-3" id="form-actions-container">
+            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top" id="form-actions-container" style="border-color: #e6eef6 !important; margin-top: 24px; padding-top: 16px;">
                 {% if editMode is defined %}
-                    <a href="{{ path('app_provider_documents') }}" class="btn btn-secondary">Cancel</a>
+                    <a href="{{ path('app_provider_documents') }}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px;">Cancel</a>
                 {% endif %}
-                <button type="button" class="btn btn-outline-primary btn-sm" id="add-more-dea-btn" style="display: none; font-size: 0.75rem; padding: 4px 12px;">
+                <button type="button" class="btn btn-outline-primary" id="add-more-dea-btn" style="display: none; padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px;">
                     + Add More DEA
                 </button>
-                <button type="submit" class="btn btn-primary btn-upload btn-sm" style="font-size: 0.75rem; padding: 4px 12px;">
+                <button type="submit" class="btn btn-primary btn-upload" style="padding: 10px 24px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; background-color: #85BB65; border-color: #85BB65;">
                     {{ editMode is defined ? 'Update Document' : 'Upload Document' }}
                 </button>
             </div>
@@ -2251,49 +2122,105 @@ div.container-xl,
         </div>
     </div>
 
-    {# Link Submission Modal #}
-    <div class="modal fade" id="linkSubmissionModal" tabindex="-1" aria-labelledby="linkSubmissionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="linkSubmissionModalLabel">Form Submission Status</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    {# Edit Document Modal #}
+    <div class="modal fade" id="editDocumentModal" tabindex="-1" aria-labelledby="editDocumentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="border-bottom: 1px solid #e6eef6; padding: 20px 24px;">
+                    <h5 class="modal-title" id="editDocumentModalLabel" style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 0;">Edit Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin: 0;"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3" id="submission-status-icon">
-                            <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h4 id="submission-question">Did you submit the form?</h4>
-                        <p id="submission-instructions" class="text-muted">
-                            Please let us know if you completed and submitted the form on the external website.
-                        </p>
-                    </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <form id="edit-document-modal-form" method="POST" enctype="multipart/form-data" action="">
+                        <input type="hidden" name="document[_token]" value="{{ csrf_token('form') }}">
+                        <input type="hidden" id="edit_document_id" name="document_id" value="">
+                        
+                        <div style="margin-bottom: 20px;">
+                            <select class="form-control form-select" id="edit_modal_document_category" name="document[category]" required style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                <option value="">Select Document Name</option>
+                                <option value="CV Upload">CV Upload</option>
+                                <option value="Driver's license">Driver's license</option>
+                                <option value="Copy of passport">Copy of passport</option>
+                                <option value="Passport photo 2&quot; x 2&quot;">Passport photo 2" x 2"</option>
+                                <option value="USMLE Step 1-3/COMLEX">USMLE Step 1-3/COMLEX</option>
+                                <option value="Specialty and Subspecialty Exam Certification">Specialty and Subspecialty Exam Certification</option>
+                                <option value="Medical school diploma">Medical school diploma</option>
+                                <option value="Postgraduate certificates (eg: Residency and Fellowship completion)">Postgraduate certificates (eg: Residency and Fellowship completion)</option>
+                                <option value="Life support certifications">Life support certifications</option>
+                                <option value="Active and Inactive medical licenses">Active and Inactive medical licenses</option>
+                                <option value="All DEAs">All DEAs</option>
+                                <option value="CSR (Controlled Substance Registration)">CSR (Controlled Substance Registration)</option>
+                                <option value="Copy of undergraduate transcript">Copy of undergraduate transcript</option>
+                                <option value="Vaccine titers: Hepatitis B, Varicella, MMR">Vaccine titers: Hepatitis B, Varicella, MMR</option>
+                                <option value="Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)">Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)</option>
+                                <option value="Influenza vaccine proof">Influenza vaccine proof</option>
+                                <option value="COVID-19 vaccine proof">COVID-19 vaccine proof</option>
+                                <option value="Mask fit testing">Mask fit testing</option>
+                                <option value="MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)">MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)</option>
+                                <option value="PROCEDURE LOGS last 2 years">PROCEDURE LOGS last 2 years</option>
+                                <option value="Case Logs last 2 years">Case Logs last 2 years</option>
+                                <option value="Application/ Certification: A list of everywhere lived for the last 10 years">Application/ Certification: A list of everywhere lived for the last 10 years</option>
+                                <option value="All Hospital Affiliations and Training Programs">All Hospital Affiliations and Training Programs</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                        </div>
+                        
+                        <div id="edit_modal_document-name-wrapper" style="display: none; margin-bottom: 20px;">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="edit_modal_document_name" 
+                                   name="document[name]" 
+                                   placeholder="Document Name"
+                                   style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                            <small class="text-muted" style="font-size: 0.75rem; margin-top: 6px; display: block; color: #6b7280;">Enter a custom name for this miscellaneous document</small>
+                        </div>
+                        
+                        <div style="margin-bottom: 0;">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                                <div id="edit_modal_issue-date-wrapper">
+                                    <input type="date" class="form-control js-datepicker" id="edit_modal_document_issueDate" name="document[issueDate]" placeholder="Issue date" style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                </div>
+                                <div id="edit_modal_expiration-date-wrapper">
+                                    <input type="date" class="form-control js-datepicker" id="edit_modal_document_expirationDate" name="document[expirationDate]" placeholder="Expiration date" style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                    <span id="edit_modal_expiration-date-help" class="text-muted small d-block mt-2" style="display: none; font-size: 0.75rem; color: #6b7280;">Enter the expiration date as it appears on the document.</span>
+                                </div>
+                                <div>
+                                    <div class="upload-dropzone position-relative" id="editModalUploadDropzone" style="min-height: 56px; padding: 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1; cursor: pointer; width: 100%; box-sizing: border-box;">
+                                        <input type="file" class="dropzone-input" id="edit_modal_fileInput" name="document[fileName]" accept=".pdf,.doc,.docx">
+                                        <div id="edit_modal_fileBadge" class="file-badge" style="display:none;">
+                                            <span id="edit_modal_fileNameText"></span>
+                                            <button type="button" class="file-remove-btn" onclick="clearEditModalFile()">×</button>
+                                        </div>
+                                        <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; height: 100%; gap: 8px;">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14 2 14 8 20 8"/>
+                                            </svg>
+                                            <div style="text-align: left;">
+                                                <p class="upload-text mb-0" style="font-size: 0.875rem; color: #374151; font-weight: 500; line-height: 1.2;">Click to upload</p>
+                                                <p class="upload-subtext mb-0" style="font-size: 0.75rem; color: #6b7280; line-height: 1.2;">Max: 8MB</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-success" id="confirm-submission-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
-                            <path d="M20 6L9 17L4 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Yes, I Submitted
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancel-submission-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-2">
-                            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        No, Not Yet
-                    </button>
+                <div class="modal-footer" style="border-top: 1px solid #e6eef6; padding: 16px 24px; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px; min-width: 100px;">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submit-edit-modal-document" style="background-color: #85BB65; border-color: #85BB65; padding: 10px 24px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; min-width: 140px;">Update Document</button>
                 </div>
             </div>
         </div>
     </div>
 
-    {# Uploaded Documents Table #}
-    <div class="card app-card-settings">
+    {# Combined Documents Table with Tabs #}
+    <div class="card app-card-settings" style="margin-top: 24px;">
         <div class="card-body">
-            <div class="card-header-row">
-                <h5 class="card-title">Uploaded Documents</h5>
-                <button id="documents-split-view-btn" class="action-btn" title="Split View">
+            <div class="card-header-row" style="margin-bottom: 0; padding-bottom: 0;">
+                <h5 class="card-title">Documents</h5>
+                <button id="documents-split-view-btn" class="action-btn" title="Split View" style="display: none;">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2304,134 +2231,143 @@ div.container-xl,
                 </button>
             </div>
             
-            <div class="document-table-wrapper" id="documents-list-view">
-                <div class="document-header">
-                    <div class="col-uploaded-at">Uploaded At</div>
-                    <div class="col-doc-name">Document Name</div>
-                    <div class="col-issue-date">Issue Date</div>
-                    <div class="col-expiry-date">Expiration Date</div>
-                    <div class="col-actions">Actions</div>
-                </div>
-                {% if documents|length > 0 %}
-                        {% for document in documents %}
-                        <div class="document-row">
-                            <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
-                            <div class="col-doc-name">
-                                    <strong>{{ document.name ?: document.category }}</strong>
-                            </div>
-                            <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
-                            <div class="col-expiry-date">
-                                    {% if document.expirationDate %}
-                                        {% set daysUntilExpiry = (document.expirationDate|date('U') - 'now'|date('U')) / 86400 %}
-                                        {% if daysUntilExpiry < 0 %}
-                                            <span class="text-danger">{{ document.expirationDate|date('m/d/Y') }} <small>(Expired)</small></span>
-                                        {% elseif daysUntilExpiry <= 30 %}
-                                            <span class="text-warning">{{ document.expirationDate|date('m/d/Y') }} <small>(Expiring Soon)</small></span>
-                                        {% else %}
-                                            {{ document.expirationDate|date('m/d/Y') }}
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">-</span>
-                                    {% endif %}
-                            </div>
-                            <div class="col-actions">
-                                <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center;">
-                                        <a href="{{ path('app_provider_document_view', {'id': document.id}) }}"
-                                           class="action-btn" 
-                                           title="View Document">
-                                            <img src="{{ asset('assets/icons/shared-folder.png') }}" alt="View"/>
-                                        </a>
-                                        <a href="{{ path('app_provider_document_edit', {'id': document.id}) }}"
-                                           class="action-btn"
-                                           title="Edit Document">
-                                            <img src="{{ asset('assets/icons/compose.png') }}" alt="Edit"/>
-                                        </a>
-                                        <a href="{{ path('app_provider_document_delete', {'id': document.id}) }}"
-                                           class="action-btn delete-document-btn"
-                                           title="Delete Document"
-                                           data-document-name="{{ document.category ?: document.name }}"
-                                           data-document-id="{{ document.id }}">
-                                            <img src="{{ asset('assets/icons/trash-bin.png') }}" alt="Delete"/>
-                                        </a>
-                                    </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="document-row" style="justify-content: center; padding: 40px;">
-                        <div style="text-align: center;">
-                            <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📄</div>
-                            <p class="mb-0" style="font-size: 14px; color: #6b7280;">No documents uploaded yet.</p>
-                            <p class="text-muted small mt-2" style="font-size: 12px;">Upload your first document using the form above.</p>
-                        </div>
-                    </div>
-                {% endif %}
-                </div>
+            {# Tabs for Documents and History #}
+            <div class="documents-tabs" style="margin-top: 0; margin-bottom: 20px;">
+                <button class="documents-tab active" data-tab="uploaded-documents">
+                    Uploaded Documents
+                </button>
+                <button class="documents-tab" data-tab="document-history">
+                    Document History
+                </button>
             </div>
             
-            {# Split View for Uploaded Documents #}
-            <div class="split-view-container" id="documents-split-view-container" style="display: none;">
-                <button class="list-toggle-btn" id="documents-list-toggle-btn" style="display: none;" title="Toggle document list">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <!-- Left Side: Document List -->
-                <div class="split-document-list" id="documents-split-list">
-                    {% for document in documents %}
-                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url=""{{ path('app_provider_document_view', {'id': document.id}) }}" data-document-name="{{ document.name ?: document.category }}">
-                            <div class="split-document-card-header">
-                                <div class="flex-grow-1">
-                                    <div class="split-document-card-title">{{ document.name ?: document.category }}</div>
-                                    <div class="split-document-card-company">{{ document.issueDate ? document.issueDate|date('m/d/Y') : 'No Issue Date' }}</div>
+            {# Uploaded Documents Tab Content #}
+            <div class="tab-content active" id="uploaded-documents-tab">
+                <div class="document-table-wrapper" id="documents-list-view">
+                    <div class="document-header">
+                        <div class="col-uploaded-at">Uploaded At</div>
+                        <div class="col-doc-name">Document Name</div>
+                        <div class="col-issue-date">Issue Date</div>
+                        <div class="col-expiry-date">Expiration Date</div>
+                        <div class="col-actions">Actions</div>
+                    </div>
+                    {% if documents|length > 0 %}
+                            {% for document in documents %}
+                            <div class="document-row">
+                                <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
+                                <div class="col-doc-name">
+                                        <strong>{{ document.category ?: document.name }}</strong>
+                                </div>
+                                <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
+                                <div class="col-expiry-date">
+                                        {% if document.expirationDate %}
+                                            {% set daysUntilExpiry = (document.expirationDate|date('U') - 'now'|date('U')) / 86400 %}
+                                            {% if daysUntilExpiry < 0 %}
+                                                <span class="text-danger">{{ document.expirationDate|date('m/d/Y') }} <small>(Expired)</small></span>
+                                            {% elseif daysUntilExpiry <= 30 %}
+                                                <span class="text-warning">{{ document.expirationDate|date('m/d/Y') }} <small>(Expiring Soon)</small></span>
+                                            {% else %}
+                                                {{ document.expirationDate|date('m/d/Y') }}
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                </div>
+                                <div class="col-actions">
+                                    <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                                            <a href="{{ path('app_provider_document_view', {'id': document.id}) }}"
+                                               class="action-btn" 
+                                               title="View Document"
+                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease;">
+                                                <img src="{{ asset('assets/icons/shared-folder.png') }}" alt="View" style="width: 18px; height: 18px;"/>
+                                            </a>
+                                            <button type="button"
+                                               class="action-btn edit-document-btn"
+                                               title="Edit Document"
+                                               data-document-id="{{ document.id }}"
+                                               data-document-category="{{ document.category ?: document.name }}"
+                                               data-document-issue-date="{{ document.issueDate ? document.issueDate|date('Y-m-d') : '' }}"
+                                               data-document-expiration-date="{{ document.expirationDate ? document.expirationDate|date('Y-m-d') : '' }}"
+                                               data-document-name="{{ document.name }}"
+                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease; border: none; background: none; cursor: pointer;">
+                                                <img src="{{ asset('assets/icons/compose.png') }}" alt="Edit" style="width: 18px; height: 18px;"/>
+                                            </button>
+                                            <a href="{{ path('app_provider_document_delete', {'id': document.id}) }}"
+                                               class="action-btn delete-document-btn"
+                                               title="Delete Document"
+                                               data-document-name="{{ document.category ?: document.name }}"
+                                               data-document-id="{{ document.id }}"
+                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease;">
+                                                <img src="{{ asset('assets/icons/trash-bin.png') }}" alt="Delete" style="width: 18px; height: 18px;"/>
+                                            </a>
+                                        </div>
                                 </div>
                             </div>
-                            <div class="split-document-summary">
-                                <div class="split-document-summary-item">
-                                    <span class="split-document-meta-label">Issue:</span>
-                                    <span class="split-document-meta-value">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</span>
-                                </div>
-                                <div class="split-document-summary-item">
-                                    <span class="split-document-meta-label">Expires:</span>
-                                    <span class="split-document-meta-value">
-                                        {% if document.expirationDate %}
-                                            {{ document.expirationDate|date('m/d/Y') }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </span>
-                                </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="document-row" style="justify-content: center; padding: 40px;">
+                            <div style="text-align: center;">
+                                <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📄</div>
+                                <p class="mb-0" style="font-size: 14px; color: #6b7280;">No documents uploaded yet.</p>
+                                <p class="text-muted small mt-2" style="font-size: 12px;">Upload your first document using the form above.</p>
                             </div>
                         </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
                 
-                <!-- Right Side: Document Preview -->
-                <div class="split-document-details" id="documents-split-details">
-                    <div class="no-document-selected">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                {# Split View for Uploaded Documents #}
+                <div class="split-view-container" id="documents-split-view-container" style="display: none;">
+                    <button class="list-toggle-btn" id="documents-list-toggle-btn" style="display: none;" title="Toggle document list">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <h4>Select a document to view</h4>
-                        <p>Click on any document from the list to see its preview here.</p>
+                    </button>
+                    <!-- Left Side: Document List -->
+                    <div class="split-document-list" id="documents-split-list">
+                        {% for document in documents %}
+                            <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.category ?: document.name }}">
+                                <div class="split-document-card-header">
+                                    <div class="flex-grow-1">
+                                        <div class="split-document-card-title">{{ document.category ?: document.name }}</div>
+                                        <div class="split-document-card-company">{{ document.issueDate ? document.issueDate|date('m/d/Y') : 'No Issue Date' }}</div>
+                                    </div>
+                                </div>
+                                <div class="split-document-summary">
+                                    <div class="split-document-summary-item">
+                                        <span class="split-document-meta-label">Issue:</span>
+                                        <span class="split-document-meta-value">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</span>
+                                    </div>
+                                    <div class="split-document-summary-item">
+                                        <span class="split-document-meta-label">Expires:</span>
+                                        <span class="split-document-meta-value">
+                                            {% if document.expirationDate %}
+                                                {{ document.expirationDate|date('m/d/Y') }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
-                    <div id="documents-document-content" style="display: none;"></div>
+                    
+                    <!-- Right Side: Document Preview -->
+                    <div class="split-document-details" id="documents-split-details">
+                        <div class="no-document-selected">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <h4>Select a document to view</h4>
+                            <p>Click on any document from the list to see its preview here.</p>
+                        </div>
+                        <div id="documents-document-content" style="display: none;"></div>
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-
-    
-
-    {# History Section #}
-    <div class="tab-content active" id="history-tab">
-        <div class="card app-card-settings">
-            <div class="card-body">
-                <div class="card-header-row">
-                    <h5 class="card-title">Document History</h5>
-                </div>
-
+            {# Document History Tab Content #}
+            <div class="tab-content" id="document-history-tab">
                 <div class="document-table-wrapper">
                             {% set historyEntries = [] %}
                             
@@ -2468,6 +2404,10 @@ div.container-xl,
                             
                             {# Sort history by date (newest first) #}
                             {% set historyEntries = historyEntries|sort((a, b) => b.date <=> a.date) %}
+                            {% set totalHistoryEntries = historyEntries|length %}
+                            {% set historyEntriesPerPage = 10 %}
+                            {% set totalPages = (totalHistoryEntries / historyEntriesPerPage)|round(0, 'ceil') %}
+                            {% set paginatedHistoryEntries = historyEntries|slice(0, historyEntriesPerPage) %}
                     
                     <div class="document-header">
                         <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">S. No</div>
@@ -2477,9 +2417,10 @@ div.container-xl,
                         <div class="col-history-details" style="flex: 2; justify-content: flex-start;">Details</div>
                     </div>
                             
-                            {% if historyEntries|length > 0 %}
-                                {% for entry in historyEntries %}
-                            <div class="document-row">
+                            <div id="history-entries-container">
+                            {% if paginatedHistoryEntries|length > 0 %}
+                                {% for entry in paginatedHistoryEntries %}
+                            <div class="document-row history-entry" data-entry-index="{{ loop.index0 }}">
                                 <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">{{ loop.index }}</div>
                                 <div class="col-history-name" style="flex: 2; justify-content: flex-start;">
                                             <strong>{{ entry.name }}</strong>
@@ -2506,6 +2447,40 @@ div.container-xl,
                             </div>
                         </div>
                             {% endif %}
+                            </div>
+                            
+                            {# Pagination Controls #}
+                            {% if totalHistoryEntries > historyEntriesPerPage %}
+                            <div class="history-pagination-wrapper" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e6eef6;">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div class="pagination-info" style="font-size: 14px; color: #6b7280;">
+                                        Showing <span id="history-start-index">1</span> - <span id="history-end-index">{{ paginatedHistoryEntries|length }}</span> of <span id="history-total-count">{{ totalHistoryEntries }}</span> entries
+                                    </div>
+                                    <nav aria-label="History pagination">
+                                        <ul class="pagination mb-0" id="history-pagination">
+                                            <li class="page-item" id="history-prev-page">
+                                                <a class="page-link" href="#" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            {% for page in 1..totalPages %}
+                                            <li class="page-item history-page-item {% if page == 1 %}active{% endif %}" data-page="{{ page }}">
+                                                <a class="page-link" href="#">{{ page }}</a>
+                                            </li>
+                                            {% endfor %}
+                                            <li class="page-item" id="history-next-page">
+                                                <a class="page-link" href="#" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {# Store all history entries in data attribute for JavaScript pagination #}
+                            <script type="application/json" id="history-entries-data">{{ historyEntries|json_encode|raw }}</script>
                 </div>
             </div>
         </div>
@@ -2693,269 +2668,30 @@ div.container-xl,
             }
         }
 
-        // Link Tracking System - Merged from second code
+        // Tab functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Track link opens and update status badge immediately
-            document.querySelectorAll('.request-card[data-link-id] a[target="_blank"], .open-credentialing-link, a.external-link[data-link-id]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const card = this.closest('.request-card');
-                    const linkId = card?.dataset?.linkId || this.dataset.linkId;
-                    const url = this.href || this.dataset.url;
-                    const linkTitle = card?.querySelector('.request-title')?.textContent || this.textContent || 'External Link';
-                    
-                    if (linkId) {
-                        // Store link info for modal
-                        sessionStorage.setItem('tracking_link_id', linkId);
-                        sessionStorage.setItem('tracking_link_url', url);
-                        sessionStorage.setItem('tracking_link_title', linkTitle);
-                        
-                        // Track the initial open
-                        trackLinkEvent(linkId, 'opened');
-                        // Update badge in UI immediately
-                        updateLinkStatusBadge(linkId, 'open');
-                        
-                        // Open the link in background immediately
-                        setTimeout(() => {
-                            window.open(url, '_blank', 'noopener,noreferrer');
-                        }, 100);
-                    } else {
-                        // If no tracking ID, just open normally
-                        window.open(url, '_blank', 'noopener,noreferrer');
-                    }
-                });
-            });
-            
-           
-            // Simplified link tracking - Updated from second code
-document.querySelectorAll('.mark-credentialing-submitted-btn, .link-submitted-btn, .mark-submitted-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const linkId = this.dataset.linkId;
-        const card = this.closest('.request-card, .credential-card, .credentialing-link-item');
-        
-        if (!linkId) return;
-        
-        // Use SweetAlert for confirmation
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Submit Form?',
-                text: 'Have you completed and submitted this form? This will remove it from your pending list.',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, I Submitted',
-                cancelButtonText: 'No, Not Yet'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    trackLinkEvent(linkId, 'submitted', button, card);
-                }
-            });
-        } else {
-            if (confirm('Have you completed and submitted this form? This will remove it from your pending list.')) {
-                trackLinkEvent(linkId, 'submitted', button, card);
-            }
-        }
-    });
-});
-
-// Simplified track link event function
-function trackLinkEvent(linkId, action, buttonElement, cardElement) {
-    // Show loading state on button
-    if (buttonElement) {
-        const originalText = buttonElement.innerHTML;
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-    }
-    
-    return fetch('/provider/link-track/event', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({
-            linkId: linkId,
-            action: action,
-            timestamp: new Date().toISOString()
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Reset button state
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.innerHTML = 'Yes, I Submitted';
-        }
-        
-        if (data && data.success) {
-            // Show success message
-            if (typeof showSuccessAlert !== 'undefined') {
-                showSuccessAlert('Success!', data.message);
-            } else {
-                alert(data.message);
-            }
-            
-            // Update badge immediately for submitted
-            if (action === 'submitted') {
-                updateLinkStatusBadge(linkId, 'submitted');
-            }
-            // Remove the link from the UI after submission
-            if (action === 'submitted' && cardElement) {
-                cardElement.style.transition = 'all 0.3s ease';
-                cardElement.style.opacity = '0.5';
-                setTimeout(() => {
-                    cardElement.remove();
-                    updatePendingRequestsCount();
-                }, 500);
-            }
-        } else {
-            if (typeof showErrorAlert !== 'undefined') {
-                showErrorAlert('Error', data?.message || 'Failed to record submission. Please try again.');
-            } else {
-                alert(data?.message || 'Failed to record submission. Please try again.');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Reset button state
-        if (buttonElement) {
-            buttonElement.disabled = false;
-            buttonElement.innerHTML = 'Yes, I Submitted';
-        }
-        
-        if (typeof showErrorAlert !== 'undefined') {
-            showErrorAlert('Error', 'Network error. Please try again.');
-        } else {
-            alert('Network error. Please try again.');
-        }
-    });
-}
-
-// Update status badge for both grid cards and table rows
-function updateLinkStatusBadge(linkId, state) {
-    // Grid card badge
-    const gridCard = document.querySelector(`.request-card[data-link-id="${linkId}"]`);
-    if (gridCard) {
-        const badgeContainer = gridCard.querySelector('.request-card-header .ms-auto');
-        if (badgeContainer) {
-            let badge = badgeContainer.querySelector('.badge');
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'badge';
-                badgeContainer.appendChild(badge);
-            }
-            if (state === 'submitted') {
-                badge.className = 'badge bg-success';
-                badge.textContent = 'Submitted';
-            } else if (state === 'open' || state === 'opened') {
-                badge.className = 'badge bg-warning';
-                badge.textContent = 'Open';
-            } else {
-                badge.className = 'badge bg-secondary';
-                badge.textContent = 'Not Opened';
-            }
-        }
-    }
-
-    // Table row badge inside title cell
-    const tableLink = document.querySelector(`a.external-link[data-link-id="${linkId}"]`);
-    if (tableLink) {
-        const row = tableLink.closest('tr');
-        const titleCell = row ? row.querySelector('td:nth-child(2) div') : null;
-        if (titleCell) {
-            // Find any existing badge inside title cell
-            let badge = titleCell.querySelector('.badge');
-            if (!badge) {
-                badge = document.createElement('span');
-                titleCell.appendChild(badge);
-            }
-            badge.classList.remove('bg-success', 'bg-warning', 'bg-secondary', 'float-end');
-            badge.classList.add('badge', 'float-end');
-            if (state === 'submitted') {
-                badge.classList.add('bg-success');
-                badge.textContent = 'Submitted';
-            } else if (state === 'open' || state === 'opened') {
-                badge.classList.add('bg-warning');
-                badge.textContent = 'Open';
-            } else {
-                badge.classList.add('bg-secondary');
-                badge.textContent = 'Not Opened';
-            }
-        }
-    }
-}
-
-// Update pending requests count function
-function updatePendingRequestsCount() {
-    const companyGroups = document.querySelectorAll('.company-document-group');
-    companyGroups.forEach(group => {
-        const requestsGrid = group.querySelector('.requests-grid');
-        const requestCount = group.querySelector('.request-count');
-        
-        if (requestsGrid) {
-            const remainingCards = requestsGrid.querySelectorAll('.request-card, .credential-card').length;
-            
-            if (remainingCards === 0) {
-                group.style.opacity = '0.5';
-                setTimeout(() => {
-                    group.remove();
-                }, 500);
-            } else if (requestCount) {
-                requestCount.textContent = `${remainingCards} request(s)`;
-            }
-        }
-    });
-    
-    // Check if all pending items are gone
-    setTimeout(() => {
-        const allRequests = document.querySelectorAll('.request-card').length;
-        const allLinks = document.querySelectorAll('[data-link-id]').length;
-        
-        if (allRequests === 0 && allLinks === 0) {
-            const container = document.getElementById('requests-grid-wrapper');
-            if (container) {
-                container.innerHTML = `
-                    <div class="empty-grid-state">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M9 15L11 17L15 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <h4>All caught up!</h4>
-                        <p>No pending document requests or external links.</p>
-                    </div>
-                `;
-            }
-        }
-    }, 600);
-}
-
-            // Tab functionality - From first code
+            // Function to switch to a specific tab
             function switchToTab(tabName) {
                 // Remove active class from all tabs and contents
-                document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.documents-tab').forEach(function(t) {
+                    t.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-content').forEach(function(c) {
+                    c.classList.remove('active');
+                });
                 
                 // Find and activate the target tab
-                const targetTab = document.querySelector(`.documents-tab[data-tab="${tabName}"]`);
+                const targetTab = document.querySelector('.documents-tab[data-tab="' + tabName + '"]');
                 if (targetTab) {
                     targetTab.classList.add('active');
                 }
                 
                 // Show corresponding content
-                const content = document.getElementById(`${tabName}-tab`);
+                const content = document.getElementById(tabName + '-tab');
                 if (content) {
                     content.classList.add('active');
                     // Scroll to the tab section
-                    setTimeout(() => {
+                    setTimeout(function() {
                         content.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 100);
                 }
@@ -2980,7 +2716,7 @@ function updatePendingRequestsCount() {
             });
             
             // Tab switching
-            document.querySelectorAll('.documents-tab').forEach(tab => {
+            document.querySelectorAll('.documents-tab').forEach(function(tab) {
                 tab.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
                     switchToTab(tabId);
@@ -3455,17 +3191,19 @@ function updatePendingRequestsCount() {
                     const storedItem = document.createElement('div');
                     storedItem.className = 'stored-dea-item';
                     storedItem.dataset.deaIndex = deaFormIndex;
-                    storedItem.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong>DEA ${deaFormIndex + 1}</strong>
-                                ${fileNameText && fileNameText.textContent ? '<span style="margin-left: 8px; color: #6b7280;">' + fileNameText.textContent + '</span>' : ''}
-                                ${issueInput && issueInput.value ? '<span style="margin-left: 8px; color: #6b7280;">Issue: ' + issueInput.value + '</span>' : ''}
-                                ${expiryInput && expiryInput.value ? '<span style="margin-left: 8px; color: #6b7280;">Expiry: ' + expiryInput.value + '</span>' : ''}
-                            </div>
-                            <button type="button" class="dea-form-section-remove" onclick="removeStoredDEA(${deaFormIndex})">Remove</button>
-                        </div>
-                    `;
+                    var deaIndexPlusOne = deaFormIndex + 1;
+                    var fileNameHtml = (fileNameText && fileNameText.textContent) ? '<span style="margin-left: 8px; color: #6b7280;">' + fileNameText.textContent + '</span>' : '';
+                    var issueHtml = (issueInput && issueInput.value) ? '<span style="margin-left: 8px; color: #6b7280;">Issue: ' + issueInput.value + '</span>' : '';
+                    var expiryHtml = (expiryInput && expiryInput.value) ? '<span style="margin-left: 8px; color: #6b7280;">Expiry: ' + expiryInput.value + '</span>' : '';
+                    storedItem.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                        '<div>' +
+                        '<strong>DEA ' + deaIndexPlusOne + '</strong>' +
+                        fileNameHtml +
+                        issueHtml +
+                        expiryHtml +
+                        '</div>' +
+                        '<button type="button" class="dea-form-section-remove" onclick="removeStoredDEA(' + deaFormIndex + ')">Remove</button>' +
+                        '</div>';
                     storedDEAContainer.appendChild(storedItem);
                     storedDEAContainer.style.display = 'block';
                 }
@@ -3527,10 +3265,8 @@ function updatePendingRequestsCount() {
                 // Add remove button
                 const sectionHeader = document.createElement('div');
                 sectionHeader.className = 'dea-form-section-header';
-                sectionHeader.innerHTML = `
-                    <span class="dea-form-section-title">DEA ${deaFormIndex + 1}</span>
-                    <button type="button" class="dea-form-section-remove" onclick="removeDEAForm(${deaFormIndex})">Remove</button>
-                `;
+                sectionHeader.innerHTML = '<span class="dea-form-section-title">DEA ' + (deaFormIndex + 1) + '</span>' +
+                    '<button type="button" class="dea-form-section-remove" onclick="removeDEAForm(' + deaFormIndex + ')">Remove</button>';
                 newSection.insertBefore(sectionHeader, newSection.firstChild);
 
                 // Insert before the form actions
@@ -3627,7 +3363,7 @@ function updatePendingRequestsCount() {
 
                     showConfirmAlert(
                         'Delete Document',
-                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
+                        'Are you sure you want to delete "' + documentName + '"? This action cannot be undone.',
                         'Yes, Delete',
                         'Cancel',
                         function(confirmed) {
@@ -3640,7 +3376,7 @@ function updatePendingRequestsCount() {
             });
             
             // Also attach directly to existing buttons
-            document.querySelectorAll('.delete-document-btn').forEach(btn => {
+            document.querySelectorAll('.delete-document-btn').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3649,7 +3385,7 @@ function updatePendingRequestsCount() {
 
                     showConfirmAlert(
                         'Delete Document',
-                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
+                        'Are you sure you want to delete "' + documentName + '"? This action cannot be undone.',
                         'Yes, Delete',
                         'Cancel',
                         function(confirmed) {
@@ -3681,7 +3417,7 @@ function updatePendingRequestsCount() {
                     selectElement.disabled = true;
 
                     // FIX: Add /provider prefix to match the controller route
-                    fetch(`/provider/document-request/${requestId}/assign-document`, {
+                    fetch('/provider/document-request/' + requestId + '/assign-document', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -3690,24 +3426,24 @@ function updatePendingRequestsCount() {
                         },
                         body: JSON.stringify({ documentId: documentId })
                     })
-                    .then(response => {
+                    .then(function(response) {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
                         return response.json();
                     })
-                    .then(data => {
+                    .then(function(data) {
                         selectElement.disabled = false;
                         if (data.success) {
                             // Success handling
                             const row = selectElement.closest('tr');
                             row.style.opacity = '0.5';
-                            setTimeout(() => {
+                            setTimeout(function() {
                                 row.remove();
                                 updateEmptyState();
                                 
                                 // Also remove from split view if it exists
-                                const splitCard = document.querySelector(`.split-document-card[data-request-id="${requestId}"]`);
+                                const splitCard = document.querySelector('.split-document-card[data-request-id="' + requestId + '"]');
                                 if (splitCard) {
                                     splitCard.remove();
                                     updateSplitViewEmptyState();
@@ -3776,13 +3512,13 @@ function updatePendingRequestsCount() {
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
                     {% if label == 'success' %}
-                        showSuccessAlert('Success!', '{{ message|e('js') }}');
+                        showSuccessAlert('Success!', {{ message|json_encode|raw }});
                     {% elseif label == 'error' %}
-                        showErrorAlert('Error!', '{{ message|e('js') }}');
+                        showErrorAlert('Error!', {{ message|json_encode|raw }});
                     {% elseif label == 'warning' %}
-                        showWarningAlert('Warning!', '{{ message|e('js') }}');
+                        showWarningAlert('Warning!', {{ message|json_encode|raw }});
                     {% else %}
-                        showInfoAlert('Information', '{{ message|e('js') }}');
+                        showInfoAlert('Information', {{ message|json_encode|raw }});
                     {% endif %}
                 {% endfor %}
             {% endfor %}
@@ -3878,7 +3614,7 @@ function updatePendingRequestsCount() {
                 const year = expirationDate.getFullYear();
                 const month = String(expirationDate.getMonth() + 1).padStart(2, '0');
                 const day = String(expirationDate.getDate()).padStart(2, '0');
-                expirationDateInput.value = `${year}-${month}-${day}`;
+                expirationDateInput.value = year + '-' + month + '-' + day;
             }
 
             // Listen for category changes
@@ -3904,15 +3640,13 @@ function updatePendingRequestsCount() {
                 
                 if (remainingRows.length === 0 || 
                     (remainingRows.length === 1 && remainingRows[0].querySelector('.empty-state'))) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                <div class="empty-state-icon">📋</div>
-                                <p class="mb-0">No pending document requests found.</p>
-                                <p class="text-muted small mt-2">All document requests have been provided.</p>
-                            </td>
-                        </tr>
-                    `;
+                    tbody.innerHTML = '<tr>' +
+                        '<td colspan="7" class="empty-state">' +
+                        '<div class="empty-state-icon">📋</div>' +
+                        '<p class="mb-0">No pending document requests found.</p>' +
+                        '<p class="text-muted small mt-2">All document requests have been provided.</p>' +
+                        '</td>' +
+                        '</tr>';
                 }
             };
 
@@ -3927,25 +3661,23 @@ function updatePendingRequestsCount() {
             };
 
             // Copy link functionality for credentialing links
-            document.querySelectorAll('.copy-link-btn').forEach(btn => {
+            document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     const url = this.getAttribute('data-url');
-                    navigator.clipboard.writeText(url).then(() => {
+                    navigator.clipboard.writeText(url).then(function() {
                         // Show temporary success feedback
                         const originalHtml = this.innerHTML;
-                        this.innerHTML = `
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20 6L9 17l-5-5"/>
-                            </svg>
-                            Copied!
-                        `;
+                        this.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
+                            '<path d="M20 6L9 17l-5-5"/>' +
+                            '</svg>' +
+                            'Copied!';
                         this.classList.add('btn-success');
                         
-                        setTimeout(() => {
+                        setTimeout(function() {
                             this.innerHTML = originalHtml;
                             this.classList.remove('btn-success');
-                        }, 2000);
-                    }).catch(err => {
+                        }.bind(this), 2000);
+                    }).catch(function(err) {
                         console.error('Failed to copy: ', err);
                         alert('Failed to copy link to clipboard');
                     });
@@ -3987,7 +3719,7 @@ function updatePendingRequestsCount() {
 
             // Auto-match documents by name (case-insensitive)
             function autoMatchDocuments() {
-                document.querySelectorAll('.document-select[data-request-name]').forEach(select => {
+                document.querySelectorAll('.document-select[data-request-name]').forEach(function(select) {
                     const requestName = select.dataset.requestName;
                     if (!requestName || select.value) return; // Skip if already has a value
 
@@ -3995,7 +3727,7 @@ function updatePendingRequestsCount() {
                     const options = select.querySelectorAll('option[data-doc-name]');
                     let matched = false;
                     
-                    options.forEach(option => {
+                    options.forEach(function(option) {
                         const docName = option.dataset.docName;
                         if (docName && docName === requestName && !matched) {
                             select.value = option.value;
@@ -4008,7 +3740,7 @@ function updatePendingRequestsCount() {
                                 if (typeof window.updateRequestsSubmitButton === 'function') {
                                     window.updateRequestsSubmitButton();
                                 }
-                    } else {
+                            } else {
                                 // Auto-submit for list view
                                 select.dispatchEvent(new Event('change'));
                             }
@@ -4020,8 +3752,50 @@ function updatePendingRequestsCount() {
             // Run auto-match on page load
             autoMatchDocuments();
 
+            // Accordion functionality for company groups - Collapsible
+            document.querySelectorAll('.company-group-header[data-accordion-toggle]').forEach(function(header) {
+                const toggleBtn = header.querySelector('.accordion-toggle-btn');
+                const content = header.nextElementSibling;
+                
+                if (!toggleBtn || !content) return;
+                
+                // Toggle function
+                function toggleAccordion(e) {
+                    if (e) {
+                        e.stopPropagation();
+                    }
+                    const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+                    
+                    if (isExpanded) {
+                        // Collapse
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                        content.classList.add('collapsed');
+                        content.style.display = 'none';
+                    } else {
+                        // Expand - show the grid view
+                        toggleBtn.setAttribute('aria-expanded', 'true');
+                        content.classList.remove('collapsed');
+                        // Use grid display to show the document request cards in grid layout
+                        if (content.classList.contains('requests-grid')) {
+                            content.style.display = 'grid';
+                        } else {
+                            content.style.display = 'block';
+                        }
+                    }
+                }
+                
+                // Make header clickable
+                header.addEventListener('click', toggleAccordion);
+                
+                // Also make button clickable (but prevent double toggle)
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleAccordion(e);
+                });
+            });
+
             // Handle "Add Document" option in dropdown
-            document.querySelectorAll('.document-select').forEach(select => {
+            document.querySelectorAll('.document-select').forEach(function(select) {
                 select.addEventListener('change', function() {
                     if (this.value === '__add_document__') {
                         // Reset to empty
@@ -4167,6 +3941,164 @@ function updatePendingRequestsCount() {
                 });
             }
 
+            // Handle Edit Document Button Click
+            document.addEventListener('click', function(e) {
+                const editBtn = e.target.closest('.edit-document-btn');
+                if (editBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const documentId = editBtn.dataset.documentId;
+                    const documentCategory = editBtn.dataset.documentCategory || '';
+                    const documentIssueDate = editBtn.dataset.documentIssueDate || '';
+                    const documentExpirationDate = editBtn.dataset.documentExpirationDate || '';
+                    const documentName = editBtn.dataset.documentName || '';
+                    
+                    // Populate edit modal
+                    const editModal = document.getElementById('editDocumentModal');
+                    const editForm = document.getElementById('edit-document-modal-form');
+                    const editDocumentIdInput = document.getElementById('edit_document_id');
+                    const editCategorySelect = document.getElementById('edit_modal_document_category');
+                    const editIssueDateInput = document.getElementById('edit_modal_document_issueDate');
+                    const editExpirationDateInput = document.getElementById('edit_modal_document_expirationDate');
+                    const editNameInput = document.getElementById('edit_modal_document_name');
+                    const editNameWrapper = document.getElementById('edit_modal_document-name-wrapper');
+                    
+                    if (editDocumentIdInput) editDocumentIdInput.value = documentId;
+                    if (editForm) {
+                        // Construct the edit URL
+                        const baseUrl = window.location.origin;
+                        const editUrl = baseUrl + '/provider/documents/edit/' + documentId;
+                        editForm.action = editUrl;
+                    }
+                    
+                    // Set category
+                    if (editCategorySelect) {
+                        editCategorySelect.value = documentCategory;
+                        // Trigger change to show/hide name field if Miscellaneous
+                        if (documentCategory === 'Miscellaneous') {
+                            if (editNameWrapper) editNameWrapper.style.display = 'block';
+                            if (editNameInput) editNameInput.value = documentName;
+                        } else {
+                            if (editNameWrapper) editNameWrapper.style.display = 'none';
+                        }
+                    }
+                    
+                    // Set dates
+                    if (editIssueDateInput && documentIssueDate) {
+                        editIssueDateInput.value = documentIssueDate;
+                    }
+                    if (editExpirationDateInput && documentExpirationDate) {
+                        editExpirationDateInput.value = documentExpirationDate;
+                    }
+                    
+                    // Clear file input
+                    const editFileInput = document.getElementById('edit_modal_fileInput');
+                    const editFileBadge = document.getElementById('edit_modal_fileBadge');
+                    const editFileNameText = document.getElementById('edit_modal_fileNameText');
+                    if (editFileInput) editFileInput.value = '';
+                    if (editFileBadge) editFileBadge.style.display = 'none';
+                    if (editFileNameText) editFileNameText.textContent = '';
+                    
+                    // Show modal
+                    if (editModal) {
+                        const modal = new bootstrap.Modal(editModal);
+                        modal.show();
+                    }
+                }
+            });
+
+            // Handle Edit Modal Form Submission
+            const submitEditModalBtn = document.getElementById('submit-edit-modal-document');
+            if (submitEditModalBtn) {
+                submitEditModalBtn.addEventListener('click', function() {
+                    const form = document.getElementById('edit-document-modal-form');
+                    const documentId = document.getElementById('edit_document_id').value;
+
+                    // Check for Miscellaneous name field
+                    const editCategory = document.getElementById('edit_modal_document_category');
+                    const editNameInput = document.getElementById('edit_modal_document_name');
+                    if (editCategory && editCategory.value === 'Miscellaneous') {
+                        if (!editNameInput || !editNameInput.value.trim()) {
+                            alert('Please enter a document name for Miscellaneous documents.');
+                            if (editNameInput) editNameInput.focus();
+                            return;
+                        }
+                    }
+
+                    // Validate form
+                    if (!form.checkValidity()) {
+                        form.reportValidity();
+                        return;
+                    }
+
+                    // Show loading
+                    this.disabled = true;
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+                    // Submit form
+                    form.submit();
+                });
+            }
+
+            // Handle file change in edit modal
+            function handleEditModalFileChange(input) {
+                if (input.files && input.files[0]) {
+                    const file = input.files[0];
+                    const fileNameText = document.getElementById('edit_modal_fileNameText');
+                    const fileBadge = document.getElementById('edit_modal_fileBadge');
+                    const dropzoneContent = input.closest('.upload-dropzone').querySelector('.dropzone-content');
+                    
+                    if (fileNameText) fileNameText.textContent = file.name;
+                    if (fileBadge) fileBadge.style.display = 'flex';
+                    if (dropzoneContent) dropzoneContent.style.display = 'none';
+                }
+            }
+
+            function clearEditModalFile() {
+                const fileInput = document.getElementById('edit_modal_fileInput');
+                const fileBadge = document.getElementById('edit_modal_fileBadge');
+                const fileNameText = document.getElementById('edit_modal_fileNameText');
+                const dropzoneContent = document.getElementById('editModalUploadDropzone').querySelector('.dropzone-content');
+                
+                if (fileInput) fileInput.value = '';
+                if (fileBadge) fileBadge.style.display = 'none';
+                if (fileNameText) fileNameText.textContent = '';
+                if (dropzoneContent) dropzoneContent.style.display = 'flex';
+            }
+
+            // Attach file change handler to edit modal file input
+            const editFileInput = document.getElementById('edit_modal_fileInput');
+            if (editFileInput) {
+                editFileInput.addEventListener('change', function() {
+                    handleEditModalFileChange(this);
+                });
+            }
+
+            // Handle edit modal dropzone click
+            const editModalDropzone = document.getElementById('editModalUploadDropzone');
+            if (editModalDropzone) {
+                editModalDropzone.addEventListener('click', function(e) {
+                    if (e.target.closest('.file-remove-btn')) return;
+                    const fileInput = document.getElementById('edit_modal_fileInput');
+                    if (fileInput) fileInput.click();
+                });
+            }
+
+            // Handle category change in edit modal to show/hide name field
+            const editCategorySelect = document.getElementById('edit_modal_document_category');
+            if (editCategorySelect) {
+                editCategorySelect.addEventListener('change', function() {
+                    const editNameWrapper = document.getElementById('edit_modal_document-name-wrapper');
+                    if (this.value === 'Miscellaneous') {
+                        if (editNameWrapper) editNameWrapper.style.display = 'block';
+                    } else {
+                        if (editNameWrapper) editNameWrapper.style.display = 'none';
+                    }
+                });
+            }
+
             // Split View Functionality for Uploaded Documents
             const documentsSplitViewBtn = document.getElementById('documents-split-view-btn');
             const documentsListView = document.getElementById('documents-list-view');
@@ -4193,29 +4125,25 @@ function updatePendingRequestsCount() {
                         documentsSplitViewContainer.style.display = 'none';
                         documentsListView.style.display = 'block';
                         documentsSplitViewBtn.classList.remove('active');
-                        documentsSplitViewBtn.innerHTML = `
-                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Split View
-                        `;
+                        documentsSplitViewBtn.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+                            '<path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+                            '<path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+                            '<path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+                            '<path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+                            '</svg>' +
+                            'Split View';
                         if (documentsToggleBtn) documentsToggleBtn.style.display = 'none';
                     } else {
                         // Switch to split view
                         documentsSplitViewContainer.style.display = 'grid';
                         documentsListView.style.display = 'none';
                         documentsSplitViewBtn.classList.add('active');
-                        documentsSplitViewBtn.innerHTML = `
-                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                            List View
-                        `;
+                        documentsSplitViewBtn.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+                            '<path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+                            '<path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+                            '<path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+                            '</svg>' +
+                            'List View';
                         if (documentsToggleBtn) {
                             documentsToggleBtn.style.display = 'flex';
                             updateToggleButtonPosition('documents');
@@ -4356,7 +4284,7 @@ function updatePendingRequestsCount() {
                                 const documentId = option.value;
                                 
                                 if (requestId && documentId) {
-                                    const matchPromise = fetch(`/provider/document-request/${requestId}/assign-document`, {
+                                    const matchPromise = fetch('/provider/document-request/' + requestId + '/assign-document', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
@@ -4364,18 +4292,23 @@ function updatePendingRequestsCount() {
                                         },
                                         body: JSON.stringify({ documentId: documentId })
                                     })
-                                    .then(response => response.json())
-                                    .then(data => {
+                                    .then(function(response) {
+                                        return response.json();
+                                    })
+                                    .then(function(data) {
                                         if (data.success) {
                                             // Remove the request card after successful match
-                                            const requestCard = container.querySelector(`[data-request-id="${requestId}"]`);
+                                            const requestCard = container.querySelector('[data-request-id="' + requestId + '"]');
                                             if (requestCard) {
-                                                requestCard.closest('.request-card')?.remove();
+                                                const closestCard = requestCard.closest('.request-card');
+                                                if (closestCard) {
+                                                    closestCard.remove();
+                                                }
                                             }
                                         }
                                         return data;
                                     })
-                                    .catch(error => {
+                                    .catch(function(error) {
                                         console.error('Error matching document:', error);
                                         return { success: false };
                                     });
@@ -4401,13 +4334,13 @@ function updatePendingRequestsCount() {
                         // Show success message
                         if (successCount > 0) {
                             if (typeof showSuccessAlert !== 'undefined') {
-                                showSuccessAlert('Success!', `Successfully matched and submitted ${successCount} document(s).`);
+                                showSuccessAlert('Success!', 'Successfully matched and submitted ' + successCount + ' document(s).');
                             } else {
-                                alert(`Successfully matched and submitted ${successCount} document(s).`);
+                                alert('Successfully matched and submitted ' + successCount + ' document(s).');
                             }
                             
                             // Reload page after a short delay to show updated state
-                            setTimeout(() => {
+                            setTimeout(function() {
                                 window.location.reload();
                             }, 1500);
                         } else if (matchedCount > 0) {
@@ -4462,8 +4395,8 @@ function updatePendingRequestsCount() {
                     if (typeof Swal !== 'undefined') {
                         const container = document.getElementById('requests-grid-view-container');
                         const uniqueCompanies = new Set();
-                        selectedPairs.forEach(p => {
-                            const requestCard = container ? container.querySelector(`[data-request-id="${p.requestId}"]`) : null;
+                        selectedPairs.forEach(function(p) {
+                            const requestCard = container ? container.querySelector('[data-request-id="' + p.requestId + '"]') : null;
                             if (requestCard) {
                                 uniqueCompanies.add(requestCard.dataset.company || '');
                             }
@@ -4471,7 +4404,7 @@ function updatePendingRequestsCount() {
                         
                         Swal.fire({
                             title: 'Submit Documents?',
-                            text: `You are about to submit ${selectedPairs.length} document(s) to ${uniqueCompanies.size} company/companies. Continue?`,
+                            text: 'You are about to submit ' + selectedPairs.length + ' document(s) to ' + uniqueCompanies.size + ' company/companies. Continue?',
                             icon: 'question',
                             showCancelButton: true,
                             confirmButtonColor: '#85BB65',
@@ -4514,10 +4447,12 @@ function updatePendingRequestsCount() {
                         documentIds: documentIds
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
                     if (data.success) {
-                        showSuccessAlert('Success!', `Successfully submitted ${data.assignedRequestIds.length} document(s).`);
+                        showSuccessAlert('Success!', 'Successfully submitted ' + data.assignedRequestIds.length + ' document(s).');
                         
                         // Reload page after a short delay
                         setTimeout(() => {
@@ -4608,7 +4543,31 @@ function updatePendingRequestsCount() {
                             <div class="document-preview-container">
                                 <div class="document-preview-header">
                                     <div class="document-preview-title">${documentName}</div>
-                        
+                                    <div class="document-preview-actions">
+                                        <a href="/provider/documents/view/${documentId}" class="action-btn" title="View Full Page">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            View Full Page
+                                        </a>
+                                        <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M13 3H21V11M21 3L11 13M21 3V7M21 3H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Open in New Tab
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="document-preview-frame">
+                                    <iframe src="${documentUrl}" type="application/pdf"></iframe>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        previewHTML = `
+                            <div class="document-preview-container">
+                                <div class="document-preview-header">
+                                    <div class="document-preview-title">${documentName}</div>
                                     <div class="document-preview-actions">
                                         <a href="${documentUrl}" target="_blank" class="action-btn" title="Open in New Tab">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -4737,6 +4696,154 @@ function updatePendingRequestsCount() {
                 }
             }
 
+            // Document History Pagination
+            (function() {
+                const historyEntriesData = document.getElementById('history-entries-data');
+                if (!historyEntriesData) return;
+                
+                try {
+                    const jsonText = historyEntriesData.textContent || historyEntriesData.innerText || '';
+                    if (!jsonText) return;
+                    const allHistoryEntries = JSON.parse(jsonText);
+                    const entriesPerPage = 10;
+                    let currentPage = 1;
+                    const totalPages = Math.ceil(allHistoryEntries.length / entriesPerPage);
+                    
+                    if (totalPages <= 1) return; // No pagination needed
+                    
+                    const historyContainer = document.getElementById('history-entries-container');
+                    const pagination = document.getElementById('history-pagination');
+                    const prevBtn = document.getElementById('history-prev-page');
+                    const nextBtn = document.getElementById('history-next-page');
+                    const startIndexEl = document.getElementById('history-start-index');
+                    const endIndexEl = document.getElementById('history-end-index');
+                    
+                    if (!historyContainer || !pagination) return;
+                    
+                    // Helper functions defined first
+                    function escapeHtml(text) {
+                        const div = document.createElement('div');
+                        div.textContent = text;
+                        return div.innerHTML;
+                    }
+                    
+                    function formatDate(dateString) {
+                        const date = new Date(dateString);
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const year = date.getFullYear();
+                        let hours = date.getHours();
+                        const minutes = String(date.getMinutes()).padStart(2, '0');
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        hours = hours ? hours : 12;
+                        return month + '/' + day + '/' + year + ' ' + hours + ':' + minutes + ' ' + ampm;
+                    }
+                    
+                    function getActionBadge(action) {
+                        const badges = {
+                            'uploaded': '<span class="action-badge uploaded">Uploaded</span>',
+                            'updated': '<span class="action-badge updated">Updated</span>',
+                            'assigned': '<span class="action-badge assigned">Assigned</span>'
+                        };
+                        return badges[action] || '';
+                    }
+                    
+                    function renderHistoryPage(page) {
+                        const startIndex = (page - 1) * entriesPerPage;
+                        const endIndex = Math.min(startIndex + entriesPerPage, allHistoryEntries.length);
+                        const pageEntries = allHistoryEntries.slice(startIndex, endIndex);
+                        
+                        // Clear container
+                        historyContainer.innerHTML = '';
+                        
+                        // Render entries
+                        pageEntries.forEach(function(entry, index) {
+                            const entryIndex = startIndex + index;
+                            const entryHTML = '<div class="document-row history-entry" data-entry-index="' + entryIndex + '">' +
+                                '<div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">' + (entryIndex + 1) + '</div>' +
+                                '<div class="col-history-name" style="flex: 2; justify-content: flex-start;">' +
+                                '<strong>' + escapeHtml(entry.name) + '</strong>' +
+                                '</div>' +
+                                '<div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">' +
+                                getActionBadge(entry.action) +
+                                '</div>' +
+                                '<div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">' + formatDate(entry.date) + '</div>' +
+                                '<div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #6b7280;">' + escapeHtml(entry.details) + '</div>' +
+                                '</div>';
+                            historyContainer.innerHTML += entryHTML;
+                        });
+                        
+                        // Update pagination info
+                        if (startIndexEl) startIndexEl.textContent = startIndex + 1;
+                        if (endIndexEl) endIndexEl.textContent = endIndex;
+                        
+                        // Update active page
+                        document.querySelectorAll('.history-page-item').forEach(function(item) {
+                            item.classList.remove('active');
+                            if (parseInt(item.dataset.page) === page) {
+                                item.classList.add('active');
+                            }
+                        });
+                        
+                        // Update prev/next buttons
+                        if (prevBtn) {
+                            if (page === 1) {
+                                prevBtn.classList.add('disabled');
+                                prevBtn.querySelector('a').style.pointerEvents = 'none';
+                            } else {
+                                prevBtn.classList.remove('disabled');
+                                prevBtn.querySelector('a').style.pointerEvents = 'auto';
+                            }
+                        }
+                        if (nextBtn) {
+                            if (page === totalPages) {
+                                nextBtn.classList.add('disabled');
+                                nextBtn.querySelector('a').style.pointerEvents = 'none';
+                            } else {
+                                nextBtn.classList.remove('disabled');
+                                nextBtn.querySelector('a').style.pointerEvents = 'auto';
+                            }
+                        }
+                    }
+                    
+                    // Page click handlers
+                    document.querySelectorAll('.history-page-item').forEach(function(item) {
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const page = parseInt(this.dataset.page);
+                            if (page !== currentPage) {
+                                currentPage = page;
+                                renderHistoryPage(currentPage);
+                            }
+                        });
+                    });
+                    
+                    // Prev/Next handlers
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (currentPage > 1) {
+                                currentPage--;
+                                renderHistoryPage(currentPage);
+                            }
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (currentPage < totalPages) {
+                                currentPage++;
+                                renderHistoryPage(currentPage);
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.warn('History pagination error:', e);
+                }
+            })();
+
             // Deep-link: open a specific document request in grid view if provided via query param
             (function() {
                 try {
@@ -4749,12 +4856,12 @@ function updatePendingRequestsCount() {
                             requestsGridViewContainer.style.display = 'block';
                         }
                         // Scroll to the request in grid view
-                        setTimeout(() => {
-                            const requestItem = document.querySelector(`[data-request-id="${openRequestId}"]`);
+                        setTimeout(function() {
+                            const requestItem = document.querySelector('[data-request-id="' + openRequestId + '"]');
                             if (requestItem) {
                                 requestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 requestItem.style.background = '#fff3cd';
-                                setTimeout(() => {
+                                setTimeout(function() {
                                     requestItem.style.background = '';
                                 }, 2000);
                             }

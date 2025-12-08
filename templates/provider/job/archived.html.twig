@@ -163,9 +163,7 @@ div.container-xl,
 }
 
 .sticky-header-container {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 100 !important;
+    position: relative !important;
     background-color: #fff !important;
     overflow: visible !important;
 }
@@ -176,10 +174,8 @@ div.container-xl,
 }
 
 .job-header {
-    margin-bottom: 0 !important;
+    margin-bottom: 1px !important;
     position: relative !important;
-    padding-left: 20px !important;
-    padding-right: 14px !important;
 }
 
 .actions-container {
@@ -203,9 +199,9 @@ div.container-xl,
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
-    height: 48px;
-    margin-bottom: 2px;
-    font-size: 18px;
+    height: 40px;
+    margin-bottom: 1px !important;
+    font-size: 13px;
 }
 
 /* ENFORCE EQUAL SPACING on both sides - Must match right padding - HIGHEST PRIORITY */
@@ -215,22 +211,22 @@ div.job-header,
 .job-lists div.job-header,
 .d-flex.flex-grow-1 div.job-header,
 [class*="job-header"] {
-  margin-left: 14px !important;
-  padding-left: 0 !important;
-  padding-right: 14px !important;
+  padding: 2px 14px 2px 0 !important;
   box-sizing: border-box !important;
 }
 .job-row {
     border: none;
-    padding: 20px 14px;
+    padding: 2px 14px 2px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 4px 0;
-    font-size: 18px;
+    margin: 2px 0;
+    font-size: 12px;
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
+    min-height: 40px;
+    height: auto;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
 }
 .truncate-text {
@@ -822,8 +818,16 @@ input[type="checkbox"].job-checkbox:checked::after {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
-  margin-top: 20px;
-  margin-bottom: 8px !important;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  white-space: nowrap;
+  overflow-y: visible !important;
+  overflow-x: visible;
+  position: relative;
+  z-index: 1;
+  flex-wrap: nowrap;
   pointer-events: auto !important;
 }
 
@@ -887,16 +891,12 @@ input[type="checkbox"].job-checkbox:checked::after {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: 12px 8px;
-  min-width: 0;
-  overflow: hidden;
-  height: 48px;
 }
 
 /* Ensure consistent vertical alignment */
 .job-header {
-  min-height: 48px;
-  height: 48px;
+  height: 40px;
+  margin-bottom: 1px !important;
 }
 
 /* Center content for numeric/text columns */
@@ -1132,14 +1132,12 @@ input[type="checkbox"].job-checkbox:checked::after {
               </div>
             </div>
         </div>
-        
+
         {% if archivedApplications is defined and archivedApplications|length > 0 %}
-        {% set applications = archivedApplications %}
-        {% set status = 'archived' %}
-        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0; padding-left: 0;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
         <div class="d-flex align-items-center job-lists">
             <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
-                <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; margin-left: 14px !important; padding-left: 0 !important; padding-right: 14px !important; box-sizing: border-box !important;">
+                <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
                     <div class="col-job sortable" data-sort="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; cursor: pointer;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     <div class="col-start col-center sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     <div class="col-start col-center sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -1152,9 +1150,8 @@ input[type="checkbox"].job-checkbox:checked::after {
                 </div>
             </div>
         </div>
-        </div>
         {% if archivedApplications is defined and archivedApplications|length > 0 %}
-        <div class="job-list-container bg-light rounded-3" style="padding: 0 12px 12px 12px; margin-top: 0;">
+        <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem; padding-right: 1rem !important; margin-top: 0;">
         <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
             {% set applications = archivedApplications %}
             {% set status = 'archived' %}

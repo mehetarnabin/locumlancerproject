@@ -312,11 +312,17 @@ class DocumentController extends AbstractController
 
         // Fetch other data for the page (document requests, credentialing links, etc.)
         $documentRequests = $documentRequestRepository->findBy(['provider' => $provider], ['createdAt' => 'DESC']);
-        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
-            'provider' => $provider,
-            'isActive' => true,
-            'status' => ['pending', 'viewed']
-        ], ['createdAt' => 'DESC']);
+        
+        // Query credentialing links - status field is not ORM mapped
+        $qb = $em->getRepository(CredentialingLink::class)->createQueryBuilder('cl');
+        $qb->where('cl.provider = :provider')
+           ->andWhere('cl.isActive = :isActive')
+           ->setParameter('provider', $provider)
+           ->setParameter('isActive', true)
+           ->orderBy('cl.createdAt', 'DESC');
+        
+        $credentialingLinks = $qb->getQuery()->getResult();
+        
         $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
         // Get the latest CV document for initial page load
@@ -396,12 +402,15 @@ class DocumentController extends AbstractController
             return $this->redirectToRoute('app_provider_documents');
         }
 
-        // Get credentialing links using EntityManager
-        $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy([
-            'provider' => $provider,
-            'isActive' => true,
-            'status' => ['pending', 'viewed']
-        ], ['createdAt' => 'DESC']);
+        // Get credentialing links for this provider
+        $qb = $em->getRepository(CredentialingLink::class)->createQueryBuilder('cl');
+        $qb->where('cl.provider = :provider')
+           ->andWhere('cl.isActive = :isActive')
+           ->setParameter('provider', $provider)
+           ->setParameter('isActive', true)
+           ->orderBy('cl.createdAt', 'DESC');
+        
+        $credentialingLinks = $qb->getQuery()->getResult();
 
         return $this->render('provider/document/index.html.twig', [
             'form' => $form->createView(),
@@ -805,13 +814,13 @@ class DocumentController extends AbstractController
                     $link->setLastOpenedAt(new \DateTime());
                     $link->setOpenCount($link->getOpenCount() + 1);
 
-                    if ($link->getStatus() === 'pending') {
-                        $link->setStatus('viewed');
-                    }
+                    // Only set status if column exists (status is now a transient property)
+                    // Status updates will be handled when column is added via migration
                     $message = 'Link opened successfully';
                     break;
 
                 case 'submitted':
+                    // Status is now transient - will be saved when column is added
                     $link->setStatus('submitted');
                     $link->setSubmittedAt(new \DateTime());
                     $link->setProviderResponse('Form submitted by user');
@@ -820,6 +829,7 @@ class DocumentController extends AbstractController
                     break;
 
                 case 'completed':
+                    // Status is now transient - will be saved when column is added
                     $link->setStatus('completed');
                     $link->setCompletedAt(new \DateTime());
                     $link->setIsActive(false);
@@ -836,7 +846,7 @@ class DocumentController extends AbstractController
             return $this->json([
                 'success' => true,
                 'message' => $message,
-                'status' => $link->getStatus(),
+                'status' => $link->getStatus() ?? 'pending',
                 'isActive' => $link->getIsActive()
             ]);
         } catch (\Exception $e) {
@@ -856,6 +866,7 @@ class DocumentController extends AbstractController
     public function completeLink(Request $request, CredentialingLink $link): JsonResponse
     {
         // Mark link as completed and remove from pending
+        // Status is now transient - will be saved when column is added
         $link->setStatus('submitted'); // Changed from 'completed' to 'submitted' for consistency
         $link->setSubmittedAt(new \DateTime());
         $link->setProviderResponse('User confirmed form submission');
@@ -882,7 +893,7 @@ class DocumentController extends AbstractController
 
         return $this->json([
             'success' => true,
-            'status' => $link->getStatus(),
+            'status' => $link->getStatus() ?? 'pending',
             'lastOpenedAt' => $link->getLastOpenedAt()?->format('Y-m-d H:i:s'),
             'submittedAt' => $link->getSubmittedAt()?->format('Y-m-d H:i:s'),
             'openCount' => $link->getOpenCount()
