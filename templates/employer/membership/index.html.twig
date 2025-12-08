@@ -1,0 +1,163 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Membership{% endblock %}
+
+{% block employer_body %}
+<style>
+.membership-page{display:flex;flex-direction:column;gap:32px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px}
+.plan-card{border:1px solid #e2e8f0;border-radius:18px;padding:32px 28px;background:#fff;box-shadow:0 20px 35px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:16px}
+.plan-card.popular{border:2px solid #85BB65;box-shadow:0 25px 40px rgba(133,187,101,.15)}
+.plan-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#DCFCE7;color:#166534;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+.plan-card h3{margin:0;font-size:1.25rem;color:#0f172a}
+.plan-price{font-size:2.4rem;font-weight:600;color:#0f172a}
+.plan-price small{font-size:.85rem;color:#475467;margin-left:6px}
+.plan-features{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.plan-features li{display:flex;align-items:center;gap:10px;color:#0f172a;font-weight:500}
+.plan-features li svg{color:#85BB65;flex-shrink:0}
+.plan-card button{margin-top:auto;border:none;border-radius:999px;padding:12px 20px;font-weight:600;font-size:.95rem;transition:all .2s ease;cursor:pointer}
+.plan-card button.primary{background:#0f172a;color:#fff;box-shadow:0 10px 25px rgba(15,23,42,.25)}
+.plan-card button.outline{background:#fff;color:#0f172a;border:1px solid #cbd5f5}
+.plan-card button:hover{transform:translateY(-2px);box-shadow:0 15px 30px rgba(15,23,42,.15)}
+.plan-card button:disabled{opacity:.6;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.faq-section{border:1px solid #e2e8f0;border-radius:18px;background:#fff;padding:32px;display:flex;flex-direction:column;gap:18px}
+.faq-card{border-bottom:1px solid #f1f5f9;padding-bottom:18px}
+.faq-card:last-child{border-bottom:none;padding-bottom:0}
+.faq-card h4{font-size:1rem;color:#0f172a;margin-bottom:8px}
+.faq-card p{margin:0;color:#475467;line-height:1.6}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin 1s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+
+<div class="container-xl membership-page">
+    <div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h2 class="mb-1" style="font-size:1.5rem;color:#0f172a;">Choose your plan</h2>
+                <p class="text-muted mb-0">Memberships built for streamlined hiring.</p>
+            </div>
+            <span class="badge bg-light text-dark px-3 py-2" style="border-radius:999px;">Real packages from database</span>
+        </div>
+        <div class="plan-grid">
+            {% for plan in plans %}
+                <div class="plan-card {{ plan.popular ? 'popular' }}">
+                    {% if plan.popular %}
+                        <div class="plan-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+                            Recommended
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h3>{{ plan.name }}</h3>
+                        <p class="mb-2 text-muted">{{ plan.tagline }}</p>
+                        {% if plan.type %}
+                            <span class="badge bg-secondary">{{ plan.type|capitalize }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="plan-price">
+                        {{ plan.price }}
+                        <small>/ {{ plan.duration }}</small>
+                    </div>
+                    <ul class="plan-features">
+                        {% for feature in plan.features %}
+                            <li>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                {{ feature }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if plan.id == 'fallback_essential' or plan.price == '$0.00' %}
+                        <button class="outline" disabled>Current Plan</button>
+                    {% else %}
+                        <button 
+                            class="{{ plan.popular ? 'primary' : 'outline' }} buy-package-btn"
+                            data-package-id="{{ plan.id }}"
+                            data-package-name="{{ plan.name }}"
+                        >
+                            {{ plan.cta }}
+                        </button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% set jobPostFee = getConfig('employer_job_post_flat_fee') %}
+    {% set feePercent = getConfig('employer_hire_fee_percent') %}
+    {% set flatFeeText = jobPostFee ? ('$' ~ jobPostFee ~ ' per job post') : 'x dollars per job post' %}
+    {% set feePercentText = feePercent ? (feePercent ~ '%') : 'x %' %}
+
+    <div class="faq-section" style="padding:0; overflow:hidden;">
+        <div style="background:#0d5a73;color:#fff;padding:16px 24px;font-weight:600;">Featured</div>
+        <div style="padding:24px;background:#f1f5f9;">
+            <ul style="margin:0;padding-left:18px;">
+                <li style="margin-bottom:10px;">Flat fee {{ flatFeeText }} or included for Gold/Diamond members</li>
+                <li style="margin-bottom:10px;">Fees after hire which will be {{ feePercentText }} of declared total compensation</li>
+                <li>All urgent jobs will be featured automatically</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2 style="font-size:1.5rem;color:#0f172a;margin-bottom:4px;">Membership FAQs</h2>
+        <p class="text-muted mb-4">Answers to common questions from employers.</p>
+        {% for faq in faqs %}
+            <div class="faq-card">
+                <h4>{{ faq.question }}</h4>
+                <p>{{ faq.answer }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stripePublicKey = '{{ stripe_public_key|e('js') }}';
+    if (!stripePublicKey || stripePublicKey.includes('...')) {
+        alert('Payment system not configured. Please contact support.');
+        return;
+    }
+    const stripe = Stripe(stripePublicKey);
+    document.querySelectorAll('.buy-package-btn').forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const packageId = this.dataset.packageId;
+            const originalText = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner"></span> Processing...';
+            try {
+                const response = await fetch('/payment/package/' + packageId + '/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const result = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+                    if (result.error) {
+                        alert('Error: ' + result.error.message);
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    }
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again. Error: ' + error.message);
+                this.disabled = false;
+                this.innerHTML = originalText;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
