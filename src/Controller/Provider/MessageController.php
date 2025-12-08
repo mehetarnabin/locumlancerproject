@@ -63,8 +63,8 @@ class MessageController extends AbstractController
                 break;
         }
 
-        // Get messages with pagination
-        $messages = $em->getRepository(Message::class)->getAll($offset, $perPage, $filters);
+        // Get thread-based messages with pagination
+        $messageThreads = $em->getRepository(Message::class)->getThreadBasedMessages($offset, $perPage, $filters);
         
         // Get total count for pagination
         $totalMessages = $em->getRepository(Message::class)->getCount($filters);
@@ -78,7 +78,8 @@ class MessageController extends AbstractController
         $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
 
         return $this->render('provider/message/index.html.twig', [
-            'messages' => $messages,
+            'message_threads' => $messageThreads,
+            'messages' => array_map(function($thread) { return $thread['root']; }, $messageThreads), // For backward compatibility
             'draft_count' => $draftCount,
             'trash_count' => $trashCount,
             'current_type' => $type,
@@ -455,7 +456,7 @@ class MessageController extends AbstractController
     }
 
     #[Route('/message/{id}/show', name: 'app_provider_message_show', methods: ['GET'])]
-    public function show(Message $message, EntityManagerInterface $em, Request $request)
+    public function show(Message $message, EntityManagerInterface $em)
     {
         $user = $this->getUser();
         
@@ -478,20 +479,21 @@ class MessageController extends AbstractController
         // Get employers for compose modal
         $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
 
-        $data = [
+        // Get root message (thread starter)
+        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+        
+        // Get all messages in the thread
+        $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+        
+        return $this->render('provider/message/show.html.twig', [
             'message' => $message,
-            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $message], ['createdAt' => 'ASC']),
+            'root_message' => $rootMessage,
+            'thread_messages' => $threadMessages,
+            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $rootMessage], ['createdAt' => 'ASC']),
             'draft_count' => $draftCount,
             'trash_count' => $trashCount,
             'employers' => $employers,
-        ];
-
-        // If AJAX request, return partial template without full page wrapper
-        if ($request->isXmlHttpRequest()) {
-            return $this->render('provider/message/show-partial.html.twig', $data);
-        }
-
-        return $this->render('provider/message/show.html.twig', $data);
+        ]);
     }
 
     #[Route('/messages/{id}/reply', name: 'app_provider_message_reply_ajax', methods: ['POST'])]

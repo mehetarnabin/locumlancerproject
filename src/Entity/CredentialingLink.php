@@ -49,8 +49,8 @@ class CredentialingLink
     #[ORM\Column(name: 'is_active')]
     private bool $isActive = true;
 
-    #[ORM\Column(length: 50)]
-    private string $status = 'pending';
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $status = 'pending';
 
     #[ORM\Column(name: 'submitted_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $submittedAt = null;
@@ -162,12 +162,12 @@ class CredentialingLink
         return $this;
     }
 
-    public function getStatus(): string
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(?string $status): self
     {
         $this->status = $status;
         return $this;

@@ -507,6 +507,32 @@ body {
     min-height: 50px;
 }
 
+.thread-messages-container {
+    padding: 0;
+}
+
+.thread-message-card {
+    transition: all 0.2s ease;
+}
+
+.thread-message-card.active-message {
+    border-color: #85BB65 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15) !important;
+}
+
+.thread-message-card .message-header-info {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.thread-message-card .message-body {
+    padding: 16px 24px;
+}
+
+.thread-message-card .message-attachment {
+    margin: 0 24px 16px 24px;
+}
+
 .message-attachment {
     display: flex;
     align-items: center;
@@ -1354,43 +1380,94 @@ body {
         </a>
         
         <div class="message-actions">
-            <a href="{{ path('app_provider_message_forward', {id: message.id}) }}" class="forward-btn">
+            <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="forward-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 9H5L4 10V14L5 15H10V18L15 13L10 8V9Z" fill="currentColor"/>
-                    <path d="M14 15H19L20 14V10L19 9H14V6L9 11L14 16V15Z" fill="currentColor"/>
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Forward
             </a>
         </div>
     </div>
-
-    <!-- Message Detail -->
-    <div class="message-detail-content">
-        <div class="message-header-info">
-            {% set senderName = message.sender.name|default(message.sender.email) %}
-            {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
-            
-            <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar">
-            <div class="message-header-details">
-                <div class="message-sender-name">{{ senderName }}</div>
-                <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
-                                        </div>
-                                    </div>
-
-        <div class="message-body">
-                                        {{ message.text|raw }}
-        </div>
-
-                                        {% if message.attachment %}
-            <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank" class="message-attachment">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    {% if thread_messages is defined and thread_messages|length > 1 %}
+        <div class="thread-header" style="background: #f8f9fa; padding: 12px 24px; border-bottom: 1px solid #e6eef6; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #5f6368;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>{{ message.attachment }}</span>
-            </a>
-                                        {% endif %}
-                                    </div>
+                <span><strong>{{ thread_messages|length }}</strong> messages in this conversation</span>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Thread Messages -->
+    {% if thread_messages is defined and thread_messages|length > 1 %}
+        <div class="thread-messages-container" style="margin-bottom: 24px;">
+            {% for threadMsg in thread_messages %}
+                <div class="thread-message-card {% if threadMsg.id == message.id %}active-message{% endif %}" style="background: {% if threadMsg.id == message.id %}#e8f5e9{% else %}#fff{% endif %}; border: 1px solid #e6eef6; border-radius: 10px; padding: 0; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div class="message-header-info">
+                        {% set msgSenderName = threadMsg.sender.name|default(threadMsg.sender.email) %}
+                        {% set msgSenderAvatar = threadMsg.sender.profilePictureFilename ? '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                        
+                        <img src="{{ msgSenderAvatar }}" alt="{{ msgSenderName }}" class="message-sender-avatar">
+                        <div class="message-header-details" style="flex: 1;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div class="message-sender-name">{{ msgSenderName }}</div>
+                                    <div class="message-date">{{ threadMsg.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
+                                </div>
+                                {% if threadMsg.id != root_message.id %}
+                                    <span style="font-size: 11px; color: #85BB65; background: #e8f5e9; padding: 4px 8px; border-radius: 12px; font-weight: 500;">Reply</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-body">
+                        {{ threadMsg.text|raw }}
+                    </div>
+                    
+                    {% if threadMsg.attachment %}
+                        <a href="{{ '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.attachment }}" target="_blank" class="message-attachment">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>{{ threadMsg.attachment }}</span>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Single Message Detail -->
+        <div class="message-detail-content">
+            <div class="message-header-info">
+                {% set senderName = message.sender.name|default(message.sender.email) %}
+                {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                
+                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar">
+                <div class="message-header-details">
+                    <div class="message-sender-name">{{ senderName }}</div>
+                    <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
+                </div>
+            </div>
+
+            <div class="message-body">
+                {{ message.text|raw }}
+            </div>
+
+            {% if message.attachment %}
+                <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank" class="message-attachment">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ message.attachment }}</span>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
 
     <!-- Replies Section -->
     <div class="replies-section">
@@ -1431,16 +1508,24 @@ body {
         <h5 class="reply-form-title">Write a Reply</h5>
         <form id="reply-form" enctype="multipart/form-data" class="reply-form">
             <textarea name="message" placeholder="Type your reply here..." required></textarea>
-                                            <input type="file" name="attachment" class="form-control">
-            <button type="submit">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Send Reply
-            </button>
-                                    </form>
-                                    <div id="reply-status" class="mt-2"></div>
-        </div>
+            <input type="file" name="attachment" class="form-control">
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px;">
+                <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="email-detail-forward-btn" style="text-decoration: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward
+                </a>
+                <button type="submit" style="margin-left: auto;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Send Reply
+                </button>
+            </div>
+        </form>
+        <div id="reply-status" class="mt-2"></div>
+    </div>
                     </div>
                 </div>
             </div>
@@ -1788,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const form = e.target;
             const formData = new FormData(form);
-            const messageId = '{{ message.id }}';
+            const messageId = '{{ root_message.id }}';
             const button = form.querySelector('button[type="submit"]');
             const originalButtonText = button.innerHTML;
 
@@ -1805,17 +1890,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (result.success) {
-                    // Add the new reply to the list
-                    const repliesList = document.querySelector('.replies-list');
-                    if (repliesList) {
-                        repliesList.insertAdjacentHTML('beforeend', result.replyHtml);
-                    } else {
-                        // If no replies list exists, reload the page
-                        location.reload();
-                    }
-                form.reset();
-                    showToast('success', 'Reply sent successfully');
-            } else {
+                    // Reload the page to show the new reply in the thread
+                    location.reload();
+                } else {
                     showToast('error', result.error || 'An error occurred.');
                 }
             } catch (error) {

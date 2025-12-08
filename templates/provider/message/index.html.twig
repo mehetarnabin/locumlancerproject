@@ -1739,7 +1739,7 @@ a.message-item:hover {
 
 /* Email Detail Panel */
 .email-detail-panel {
-    display: none;
+    display: flex;
     flex: 1;
     background: #fff;
     border-left: 1px solid #e6eef6;
@@ -1747,10 +1747,18 @@ a.message-item:hover {
     overflow-x: hidden;
     min-width: 0;
     flex-direction: column;
+    visibility: hidden;
+    opacity: 0;
+    width: 0;
+    max-width: 0;
+    transition: opacity 0.2s ease, visibility 0.2s ease, width 0.3s ease, max-width 0.3s ease;
 }
 
 .email-detail-panel.active {
-    display: flex;
+    visibility: visible;
+    opacity: 1;
+    width: 50%;
+    max-width: 50%;
 }
 
 .email-detail-header {
@@ -2042,8 +2050,82 @@ a.message-item:hover {
 
 .messages-container.has-detail .email-detail-panel {
     flex: 1;
-    width: 100%;
-    max-width: 100%;
+    width: 50%;
+    max-width: 50%;
+    visibility: visible;
+    opacity: 1;
+}
+
+.messages-container.has-detail .messages-content {
+    flex: 1;
+    width: 50%;
+    max-width: 50%;
+}
+
+/* Thread-based message styles */
+.message-thread {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.2s ease;
+}
+
+.message-thread:hover {
+    background-color: #f8f9fa;
+}
+
+.message-thread-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.thread-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #5f6368;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.thread-count-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.message-thread.expanded .thread-indicator svg {
+    transform: rotate(90deg);
+}
+
+.thread-messages {
+    display: none;
+    padding-left: 24px;
+    border-left: 2px solid #e6eef6;
+    margin-left: 16px;
+}
+
+.message-thread.expanded .thread-messages {
+    display: block;
+}
+
+.thread-message-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.thread-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.thread-message-item:last-child {
+    border-bottom: none;
 }
 </style>
 
@@ -2249,86 +2331,139 @@ a.message-item:hover {
                         <div class="messages-list-container">
                         {% if messages|length > 0 %}
                             <div class="messages-list">
-                                {% for message in messages %}
-                                    {% if current_type == 'drafts' %}
-                                        {# Draft item template #}
-                                        {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
-                                        {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
+                                {% if message_threads is defined and message_threads|length > 0 and current_type != 'drafts' %}
+                                    {# Thread-based view for inbox and sent #}
+                                    {% for thread in message_threads %}
+                                        {% set message = thread.root %}
+                                        {% set hasReplies = thread.has_replies %}
+                                        {% set replyCount = thread.reply_count %}
+                                        {% set latestReply = thread.latest_reply %}
                                         
-                                        <div class="message-item draft-item" data-draft-id="{{ message.id }}">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="loadDraftFromServer('{{ message.id }}')">
-                                                <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
-                                                <div class="message-content">
-                                                    <div class="message-sender">To: {{ receiverName }}</div>
-                                                    <div class="message-text">{{ message.text|striptags|slice(0, 100) }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                        <div class="message-thread {% if hasReplies %}has-replies{% endif %}" data-thread-id="{{ message.id }}">
+                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
+                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                    {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                                    {% set senderAvatar = current_type == 'sent' 
+                                                        ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                                        : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                                    {% set isRead = message.seen|default(false) %}
+                                                    {% set messageText = message.text|striptags|slice(0, 100) %}
+                                                    
+                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                    <div class="message-content" style="flex: 1;">
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                                            <div class="message-sender">{{ senderName }}</div>
+                                                            {% if hasReplies %}
+                                                                <span class="thread-count-badge">{{ replyCount }} {{ replyCount == 1 ? 'reply' : 'replies' }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                        {% if latestReply %}
+                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                                                                Latest: {{ latestReply.sender.name|default(latestReply.sender.email) }} - {{ latestReply.createdAt|time_diff }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        {% if not isRead and current_type != 'sent' %}
+                                                            <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
+                                                        {% endif %}
+                                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                    </div>
                                                 </div>
-                                                <div class="message-meta">
-                                                    <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
-                                                </div>
-                                            </div>
+                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    <span class="message-forward-btn-text">Forward</span>
+                                                </button>
+                                            </a>
                                         </div>
-                                    {% elseif current_type == 'trash' %}
-                                        {# Trash item template with restore and permanent delete options #}
-                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                                        {% set senderAvatar = current_type == 'sent' 
-                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                                        {% set isRead = message.seen|default(false) %}
-                                        {% set messageText = message.text|striptags|slice(0, 100) %}
-                                        
-                                        <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons();" onclick="event.stopPropagation();">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                <div class="message-content">
-                                                    <div class="message-sender">{{ senderName }}</div>
-                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                </div>
-                                                <div class="message-meta">
-                                                    <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
-                                                </div>
-                                            </div>
-                                            <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                <span class="message-forward-btn-text">Forward</span>
-                                            </button>
-                                        </a>
-                                    {% else %}
-                                        {# Regular message item template #}
-                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                                        {% set senderAvatar = current_type == 'sent' 
-                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                                        {% set isRead = message.seen|default(false) %}
-                                        {% set messageText = message.text|striptags|slice(0, 100) %}
-                                        
-                                        <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
-                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                <div class="message-content">
-                                                    <div class="message-sender">{{ senderName }}</div>
-                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                </div>
-                                                <div class="message-meta">
-                                                    {% if not isRead and current_type != 'sent' %}
-                                                        <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
-                                                    {% endif %}
-                                                    <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    {# Regular message view for drafts and fallback #}
+                                    {% for message in messages %}
+                                        {% if current_type == 'drafts' %}
+                                            {# Draft item template #}
+                                            {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
+                                            {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
+                                            
+                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
+                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="loadDraftFromServer('{{ message.id }}')">
+                                                    <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
+                                                    <div class="message-content">
+                                                        <div class="message-sender">To: {{ receiverName }}</div>
+                                                        <div class="message-text">{{ message.text|striptags|slice(0, 100) }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                </svg>
-                                                <span class="message-forward-btn-text">Forward</span>
-                                            </button>
-                                        </a>
-                                    {% endif %}
-                                {% endfor %}
+                                        {% elseif current_type == 'trash' %}
+                                            {# Trash item template with restore and permanent delete options #}
+                                            {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                            {% set senderAvatar = current_type == 'sent' 
+                                                ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                                : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                            {% set isRead = message.seen|default(false) %}
+                                            {% set messageText = message.text|striptags|slice(0, 100) %}
+                                            
+                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons();" onclick="event.stopPropagation();">
+                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                    <div class="message-content">
+                                                        <div class="message-sender">{{ senderName }}</div>
+                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    <span class="message-forward-btn-text">Forward</span>
+                                                </button>
+                                            </a>
+                                            {% else %}
+                                            {# Regular message item template #}
+                                            {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                            {% set senderAvatar = current_type == 'sent' 
+                                                ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                                : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                            {% set isRead = message.seen|default(false) %}
+                                            {% set messageText = message.text|striptags|slice(0, 100) %}
+                                            
+                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
+                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                    <div class="message-content">
+                                                        <div class="message-sender">{{ senderName }}</div>
+                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        {% if not isRead and current_type != 'sent' %}
+                                                            <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
+                                                        {% endif %}
+                                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                    <span class="message-forward-btn-text">Forward</span>
+                                                </button>
+                                            </a>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                             </div>
 
                             <!-- Pagination -->
@@ -3919,11 +4054,7 @@ window.loadMessageInPanel = async function(messageId) {
     
     try {
         // Fetch message details using the show route
-        const response = await fetch(`/provider/message/${messageId}/show`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+        const response = await fetch(`/provider/message/${messageId}/show`);
         const html = await response.text();
         
         if (response.ok) {
@@ -3940,8 +4071,10 @@ window.loadMessageInPanel = async function(messageId) {
                 return;
             }
             
-            // Extract the entire content from messages-content-body, but remove the back button header
+            // Extract the entire content from messages-content-body
             const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+            const threadHeader = contentContainer.querySelector('.thread-header');
+            const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container');
             const messageDetailContent = contentContainer.querySelector('.message-detail-content');
             const repliesSection = contentContainer.querySelector('.replies-section');
             const replyForm = contentContainer.querySelector('.reply-form-section');
@@ -3949,8 +4082,16 @@ window.loadMessageInPanel = async function(messageId) {
             // Build the content HTML
             let contentHTML = '';
             
-            // Extract message header and body from message-detail-content
-            if (messageDetailContent) {
+            // If thread messages container exists, use it (thread view)
+            if (threadMessagesContainer) {
+                // Add thread header if it exists
+                if (threadHeader) {
+                    contentHTML += threadHeader.outerHTML;
+                }
+                // Add thread messages
+                contentHTML += threadMessagesContainer.outerHTML;
+            } else if (messageDetailContent) {
+                // Otherwise use single message view
                 const messageHeader = messageDetailContent.querySelector('.message-header-info');
                 const messageBody = messageDetailContent.querySelector('.message-body');
                 const attachment = messageDetailContent.querySelector('.message-attachment');
@@ -3992,7 +4133,8 @@ window.loadMessageInPanel = async function(messageId) {
                 }
             }
             
-            // Add replies section
+            // Add replies section (only if not using thread view)
+            if (!threadMessagesContainer) {
             if (repliesSection) {
                 const repliesTitle = repliesSection.querySelector('.replies-section-title');
                 const repliesTitleText = repliesTitle ? repliesTitle.textContent.trim() : 'Replies';
@@ -4048,6 +4190,7 @@ window.loadMessageInPanel = async function(messageId) {
                         const forwardBtn = document.createElement('a');
                         forwardBtn.href = `/provider/messages/${messageId}/forward-message`;
                         forwardBtn.className = 'email-detail-forward-btn';
+                        forwardBtn.style.textDecoration = 'none';
                         forwardBtn.innerHTML = `
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4057,7 +4200,9 @@ window.loadMessageInPanel = async function(messageId) {
                         
                         // Add forward button and submit button to actions container
                         actionsContainer.appendChild(forwardBtn);
-                        actionsContainer.appendChild(submitButton.cloneNode(true));
+                        const clonedSubmitBtn = submitButton.cloneNode(true);
+                        clonedSubmitBtn.style.marginLeft = 'auto';
+                        actionsContainer.appendChild(clonedSubmitBtn);
                         
                         // Replace submit button with actions container
                         submitButton.parentNode.replaceChild(actionsContainer, submitButton);
@@ -4171,18 +4316,6 @@ function closeEmailDetailPanel() {
         messagesContainer.classList.remove('has-detail');
     }
 }
-
-// Intercept message item links to load in detail panel instead of navigating
-document.addEventListener('click', function(event) {
-    const messageLink = event.target.closest('a.message-item');
-    if (messageLink) {
-        event.preventDefault();
-        const messageId = messageLink.getAttribute('data-message-id');
-        if (messageId && typeof loadMessageInPanel === 'function') {
-            loadMessageInPanel(messageId);
-        }
-    }
-});
 
 </script>
 {% endblock %}

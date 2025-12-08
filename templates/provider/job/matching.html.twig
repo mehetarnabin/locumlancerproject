@@ -163,9 +163,7 @@ div.container-xl,
 }
 
 .sticky-header-container {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 100 !important;
+    position: relative !important;
     background-color: #fff !important;
     overflow: visible !important;
 }
@@ -176,8 +174,9 @@ div.container-xl,
 }
 
 .job-header {
-    margin-bottom: 0 !important;
+    margin-bottom: 1px !important;
     position: relative !important;
+    height: 40px;
 }
 
 .actions-container {
@@ -212,16 +211,14 @@ div.container-xl,
     border-bottom: 2px solid #e6eef6;
 }
 
-/* ENFORCE EQUAL SPACING on both sides - Must match right padding - HIGHEST PRIORITY */
+/* ENFORCE EQUAL SPACING on both sides - Must match job-row padding - HIGHEST PRIORITY */
 div.job-header.d-flex.align-items-center.fw-semibold.py-2.flex-grow-1,
 div.job-header,
 .table-responsive-wrapper div.job-header,
 .job-lists div.job-header,
 .d-flex.flex-grow-1 div.job-header,
 [class*="job-header"] {
-  margin-left: 14px !important;
-  padding-left: 0 !important;
-  padding-right: 14px !important;
+  padding: 2px 14px 2px 0 !important;
   box-sizing: border-box !important;
 }
 
@@ -279,12 +276,12 @@ div.job-header,
 
 .job-row {
     border: none;
-    padding: 0;
+    padding: 2px 14px 2px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 2px 0;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     color: #1a1a1a;
     line-height: 1.5;
@@ -292,6 +289,8 @@ div.job-header,
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    min-height: 40px;
+    height: auto;
     transition: background-color 0.2s ease;
 }
 
@@ -302,8 +301,8 @@ div.job-header,
 /* Ensure consistent vertical alignment */
 .job-header > div,
 .job-row > div {
-    min-height: 48px;
-    height: 48px;
+    display: flex;
+    align-items: center;
 }
 .truncate-text {
     display: inline-block;
@@ -564,8 +563,16 @@ div.job-header,
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px;
-  margin-top: 20px;
-  margin-bottom: 8px !important;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  white-space: nowrap;
+  overflow-y: visible !important;
+  overflow-x: visible;
+  position: relative;
+  z-index: 1;
+  flex-wrap: nowrap;
   pointer-events: auto !important;
 }
 .sort-toggle {
@@ -763,10 +770,10 @@ div.job-header,
         <hr class="mb-4">#}
 
         {% if jobs|length > 0 %}
-        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0; padding-left: 0;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1">
-                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0; margin-left: 14px !important; padding-left: 0 !important; padding-right: 14px !important; box-sizing: border-box !important;">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
                         <div class="col-job sortable" data-sort="job" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; flex-grow: 2; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="location" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="posted" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -779,11 +786,11 @@ div.job-header,
         </div>
         </div>
         {% if jobs|length > 0 %}
-        <div class="job-list-container bg-light rounded-3" style="padding: 0 12px 12px 12px; margin-top: 0;">
+        <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem; padding-right: 1rem !important; margin-top: 0;">
         <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
             {% for job in jobs %}
             <div class="d-flex align-items-center job-lists">
-            <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0;">
+            <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; box-sizing: border-box !important;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                     <input type="checkbox" class="job-check" data-job-id="{{ job.id }}" />
                 </div>
@@ -806,8 +813,8 @@ div.job-header,
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
                 <div class="col-expiry col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
-                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
-                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
+                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.formattedHourlyRate }}</div>
+                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #121C0C;">
                     {% if job.workType == 'locums' %}
                         Locums
                     {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
@@ -1433,6 +1440,58 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
+// No results popup function
+function showNoResultsPopup(message, callback) {
+  // Create popup element
+  const popup = document.createElement('div');
+  popup.id = 'no-results-popup';
+  popup.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 24px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100000;
+    text-align: center;
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 500;
+    min-width: 280px;
+    animation: fadeIn 0.3s ease-in;
+  `;
+  popup.innerHTML = message;
+  
+  // Add fade-in animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // No overlay - just show the popup
+  document.body.appendChild(popup);
+  
+  // Auto-close after 3 seconds
+  setTimeout(() => {
+    popup.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => {
+      if (popup.parentNode) popup.parentNode.removeChild(popup);
+      if (style.parentNode) style.parentNode.removeChild(style);
+      if (callback) callback();
+    }, 300);
+  }, 3000);
+}
+
 // Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filter-btn');
@@ -1517,6 +1576,28 @@ document.addEventListener('DOMContentLoaded', function() {
     })
       .then(res => res.json())
       .then(data => {
+        // Check if no jobs found - check for various "no results" messages
+        if (data.html && (
+          data.html.includes('No jobs found') || 
+          data.html.includes('Jobs not found') || 
+          data.html.includes('jobs not found') || 
+          data.html.includes('Matching jobs not found') ||
+          data.html.includes('No matching jobs') ||
+          data.html.includes('match the selected filters')
+        )) {
+          // Clear loading spinner first
+          if (container) {
+            container.innerHTML = '';
+          }
+          // Show custom popup for 3 seconds, then redirect
+          showNoResultsPopup('No jobs found', function() {
+            // Redirect to the current page (reload without filters)
+            window.location.href = "{{ path('app_provider_jobs_matching') }}";
+          });
+          // Close the filter panel
+          filterPanel.classList.add('hidden');
+          return;
+        }
         container.outerHTML = data.html;
         filterPanel.classList.add('hidden');
       })
@@ -1804,12 +1885,10 @@ function applySpacingStyles() {
         }
     }
     
-    // ENFORCE EQUAL SPACING on both sides - Must match right padding
+    // ENFORCE EQUAL SPACING on both sides - Must match job-row padding
     const jobHeaders = document.querySelectorAll('.job-header');
     jobHeaders.forEach(header => {
-        header.style.setProperty('margin-left', '14px', 'important');
-        header.style.setProperty('padding-left', '0', 'important');
-        header.style.setProperty('padding-right', '14px', 'important');
+        header.style.setProperty('padding', '2px 14px 2px 0', 'important');
     });
 }
 

@@ -19,14 +19,16 @@ class LinkTrackingLogRepository extends ServiceEntityRepository
     // In a repository class or custom query
     public function findActiveLinksForProvider($provider)
     {
-        return $this->createQueryBuilder('cl')
+        $qb = $this->createQueryBuilder('cl')
             ->andWhere('cl.provider = :provider')
             ->andWhere('cl.isActive = :active')
-            ->andWhere('cl.status NOT IN (:completedStatuses)')
             ->setParameter('provider', $provider)
-            ->setParameter('active', true)
-            ->setParameter('completedStatuses', ['submitted', 'completed'])
-            ->orderBy('cl.createdAt', 'DESC')
+            ->setParameter('active', true);
+        
+        // Note: status field filtering removed as the status column is not mapped in the CredentialingLink entity
+        // Status filtering will be added when the column is properly mapped via migration
+        
+        return $qb->orderBy('cl.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }

@@ -135,4 +135,95 @@ class MessageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Get root message (thread starter) for a given message
+     */
+    public function getRootMessage(Message $message): Message
+    {
+        $current = $message;
+        while ($current->getParent() !== null) {
+            $current = $current->getParent();
+        }
+        return $current;
+    }
+
+    /**
+     * Get all messages in a thread (root + all replies)
+     */
+    public function getThreadMessages(Message $rootMessage): array
+    {
+        $messages = [$rootMessage];
+        
+        // Recursively get all replies
+        $this->getRepliesRecursive($rootMessage, $messages);
+        
+        // Sort by creation date
+        usort($messages, function($a, $b) {
+            return $a->getCreatedAt() <=> $b->getCreatedAt();
+        });
+        
+        return $messages;
+    }
+    
+    /**
+     * Recursively get all replies for a message
+     */
+    private function getRepliesRecursive(Message $message, array &$messages): void
+    {
+        $replies = $this->findBy(['parent' => $message], ['createdAt' => 'ASC']);
+        
+        foreach ($replies as $reply) {
+            $messages[] = $reply;
+            $this->getRepliesRecursive($reply, $messages);
+        }
+    }
+
+    /**
+     * Get thread-based messages (grouped by root parent)
+     * Returns only root messages with metadata about thread
+     */
+    public function getThreadBasedMessages(int $offset = 0, int $limit = 10, array $filters = []): array
+    {
+        $queryBuilder = $this->createQueryBuilder('m')
+            ->leftJoin('m.sender', 'sender')
+            ->leftJoin('m.receiver', 'receiver')
+            ->leftJoin('m.employer', 'employer')
+            ->addSelect('sender', 'receiver', 'employer')
+            ->orderBy('m.createdAt', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        $this->applyFilters($queryBuilder, $filters);
+
+        $rootMessages = $queryBuilder->getQuery()->getResult();
+        
+        // For each root message, get reply count and latest reply info
+        $threads = [];
+        foreach ($rootMessages as $rootMessage) {
+            $replyCount = $this->createQueryBuilder('m')
+                ->select('COUNT(m.id)')
+                ->where('m.parent = :root')
+                ->setParameter('root', $rootMessage->getId()->toBinary())
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $latestReply = $this->createQueryBuilder('m')
+                ->where('m.parent = :root')
+                ->setParameter('root', $rootMessage->getId()->toBinary())
+                ->orderBy('m.createdAt', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getOneOrNullResult();
+            
+            $threads[] = [
+                'root' => $rootMessage,
+                'reply_count' => (int)$replyCount,
+                'latest_reply' => $latestReply,
+                'has_replies' => $replyCount > 0
+            ];
+        }
+        
+        return $threads;
+    }
 }

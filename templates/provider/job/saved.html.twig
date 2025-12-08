@@ -187,9 +187,7 @@ div.container-xl,
     flex: 2;
 }
 .sticky-header-container {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 100 !important;
+    position: relative !important;
     background-color: #fff !important;
     overflow: visible !important;
 }
@@ -202,21 +200,20 @@ div.container-xl,
 }
 
 .job-header {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 2px 14px 2px 0;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
     border: 1px solid #e6eef6;
     height: 40px;
-    margin-bottom: 2px;
+    margin-bottom: 1px !important;
     font-size: 13px;
     position: relative !important;
     background-color: #F8FAF9 !important;
 }
 .job-row {
     border: none;
-    padding: 2px 14px;
+    padding: 2px 14px 2px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -228,6 +225,19 @@ div.container-xl,
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     min-height: 40px;
     height: auto;
+}
+/* Remove all spacing between job header and first job row */
+.table-responsive-wrapper {
+    margin-bottom: 0 !important;
+}
+.job-list-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+.job-list-container .job-lists:first-child .job-row,
+.job-list-container > .job-lists:first-of-type .job-row,
+.job-list-container .job-lists:first-child {
+    margin-top: 0 !important;
 }
 .truncate-text {
     display: inline-block;
@@ -1166,7 +1176,7 @@ div.container-xl,
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 12px;
   padding-left: 15px;
   padding-right: 15px;
@@ -1855,10 +1865,10 @@ window.addEventListener('resize', function() {
         </div>
 
         {% if bookmarks|length > 0 %}
-        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%;">
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
           <div class="d-flex align-items-center job-lists">
             <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
-              <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
+              <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
                 </div>
                 <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -1880,12 +1890,12 @@ window.addEventListener('resize', function() {
         </div>
         </div>
 
-        <div class="job-list-container bg-light p-3 rounded-3">
+        <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem; padding-right: 1rem !important;">
 
           {% for bookmark in bookmarks %}
             {% set job = bookmark.job %}
             <div class="d-flex align-items-center job-lists">
-              <div class="job-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0;">
+              <div class="job-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0; box-sizing: border-box !important;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                   <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-bookmark-id="{{ bookmark.id }}" />
                 </div>
@@ -5504,6 +5514,58 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
+// No results popup function
+function showNoResultsPopup(message, callback) {
+  // Create popup element
+  const popup = document.createElement('div');
+  popup.id = 'no-results-popup';
+  popup.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 24px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100000;
+    text-align: center;
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 500;
+    min-width: 280px;
+    animation: fadeIn 0.3s ease-in;
+  `;
+  popup.innerHTML = message;
+  
+  // Add fade-in animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // No overlay - just show the popup
+  document.body.appendChild(popup);
+  
+  // Auto-close after 3 seconds
+  setTimeout(() => {
+    popup.style.animation = 'fadeOut 0.3s ease-out';
+    setTimeout(() => {
+      if (popup.parentNode) popup.parentNode.removeChild(popup);
+      if (style.parentNode) style.parentNode.removeChild(style);
+      if (callback) callback();
+    }, 300);
+  }, 3000);
+}
+
 // Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filter-btn');
@@ -5624,6 +5686,28 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Filter response received:', data);
         if (!data || !data.html) {
           throw new Error('Invalid response format');
+        }
+        
+        // Check if no jobs found - check for various "no results" messages
+        if (data.html && (
+          data.html.includes('No saved jobs found') || 
+          data.html.includes('Saved jobs not found') || 
+          data.html.includes('saved jobs not found') ||
+          data.html.includes('No saved jobs match') ||
+          data.html.includes('match the selected filters')
+        )) {
+          // Clear loading spinner first
+          if (listContainer) {
+            listContainer.innerHTML = '';
+          }
+          // Show custom popup for 3 seconds, then redirect
+          showNoResultsPopup('No saved jobs found', function() {
+            // Redirect to the current page (reload without filters)
+            window.location.href = "{{ path('app_provider_jobs_saved') }}";
+          });
+          // Close the filter panel
+          filterPanel.classList.add('hidden');
+          return;
         }
         
         if (listContainer) {

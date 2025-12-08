@@ -1547,12 +1547,12 @@ class JobController extends AbstractController
     #[Route('/{id}/todos', name: 'app_provider_jobs_todos_list', methods: ['GET'])]
     public function getTodos($id, BookmarkRepository $bookmarkRepo, ToDoRepository $todoRepo, Request $request): JsonResponse
     {
-        $provider = $this->getUser()->getProvider();
+        $user = $this->getUser();
 
         // Find the bookmark
         $bookmark = $bookmarkRepo->findOneBy([
             'id' => $id,
-            'provider' => $provider
+            'user' => $user
         ]);
 
         if (!$bookmark) {
@@ -1580,12 +1580,13 @@ class JobController extends AbstractController
     #[Route('/{id}/todos/add', name: 'app_provider_jobs_todos_add', methods: ['POST'])]
     public function addTodo($id, BookmarkRepository $bookmarkRepo, EntityManagerInterface $em, Request $request): JsonResponse
     {
-        $provider = $this->getUser()->getProvider();
+        $user = $this->getUser();
+        $provider = $user->getProvider();
 
         // Find the bookmark
         $bookmark = $bookmarkRepo->findOneBy([
             'id' => $id,
-            'provider' => $provider
+            'user' => $user
         ]);
 
         if (!$bookmark) {
