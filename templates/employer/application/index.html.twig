@@ -254,13 +254,13 @@
 .application .col:first-child {
     max-width: 80px;
 }
-.application .col .card-body {
+.application .col:first-child .card-body {
     justify-content: center;
     flex-direction: column-reverse;
     text-align: center;
     align-items: center;
 }
-.application .col .card-body .card-title {
+.application .col:first-child .card-body .card-title {
     font-size: 16px;
 }
 .is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-rejected:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-rejected.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
@@ -372,6 +372,113 @@
 .is-rejected, .rejected {
     border: none;
 }
+
+/* Add these styles to change the request button colors */
+
+/* Main action button in the top section */
+.action-btn[data-bs-target="#askDocumentModal"] {
+    background: #E3F2FD;
+    border: 1px solid #2196F3;
+    color: #1976D2;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"]:hover {
+    background: #BBDEFB;
+    border: 1px solid #1976D2;
+    color: #0D47A1;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"] svg {
+    color: #2196F3;
+}
+
+.action-btn[data-bs-target="#askDocumentModal"]:hover svg {
+    color: #1976D2;
+}
+
+/* Individual request buttons in the application rows */
+.btn-outline-primary[data-bs-target="#askDocumentModal"] {
+    background: #E8F5E8;
+    border: 1px solid #4CAF50;
+    color: #2E7D32;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"]:hover {
+    background: #C8E6C9;
+    border: 1px solid #2E7D32;
+    color: #1B5E20;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"] .fas {
+    color: #4CAF50;
+}
+
+.btn-outline-primary[data-bs-target="#askDocumentModal"]:hover .fas {
+    color: #2E7D32;
+}
+
+/* Send Link button styles */
+.send-link-btn {
+    background: #E8F4FD !important;
+    border: 1px solid #2196F3 !important;
+    color: #1976D2 !important;
+}
+
+.send-link-btn:hover {
+    background: #BBDEFB !important;
+    border: 1px solid #1976D2 !important;
+    color: #0D47A1 !important;
+}
+
+.send-link-btn .fas {
+    color: #2196F3;
+}
+
+.send-link-btn:hover .fas {
+    color: #1976D2;
+}
+</style>
+
+<style>
+.todo-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+.todo-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: #85BB65;
+    fill: none;
+}
+.todo-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.todo-popup {
+    position: fixed;
+    background: #fff;
+    color: #121C0C;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    box-shadow: 0 2px 10px rgba(11,22,40,0.15);
+    z-index: 99999;
+    max-width: 260px;
+    display: none;
+    border: 1px solid #e6eef6;
+}
+
+.todo-popup.show {
+    display: block;
+}
 </style>
 
     {% set statusColors = {
@@ -379,6 +486,7 @@
         'in_review': 'review',
         'interview': 'interview',
         'offered': 'offered',
+        'accepted': 'accepted', 
         'rejected': 'rejected',
         'hired': 'hired',
         'completed': 'completed'
@@ -676,18 +784,20 @@
                     <use xlink:href="#icon-apply"/>
                     </svg> Completed
                   </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
+                  {% if app.request.get('status') == 'applied' %}
+                  <button type="button" class="action-btn" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#askDocumentModal" 
+                          title="Request Documents">
                     <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
                     </svg> Request Documents
                   </button>
+                  {% endif %}
                   <button id="apply-btn" class="action-btn" disabled title="Apply">
                     <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <g data-name="Layer 2">
@@ -815,15 +925,14 @@
                 <div class="d-flex align-items-center job-lists">
                     <div class="d-flex align-items-center flex-grow-1">
                         <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
-                            <div class="col-check" style="width: 25px;">
-                                <input type="checkbox" id="select-all-checkbox" class="job-check" title="Select All" />
-                            </div>
                             <div class="col-job flex-grow-2">Job</div>
                             <div class="col-start col-center flex-grow-1">Provider</div>
                             <div class="col-start col-center flex-grow-1">Location</div>
                             <div class="col-expiry col-center flex-grow-1">Schedule</div>
                             <div class="col-start col-center flex-grow-1">Applied At</div>           
+                            <div class="col-start col-center flex-grow-1">To Do</div>
                             <div class="col-start col-center flex-grow-1">Status</div>
+                            <div class="col-action flex-grow-1 text-center">Actions</div>
                         </div>
                     </div>
                 </div>
@@ -833,7 +942,7 @@
                     <div class="d-flex align-items-center job-lists">
                         <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
                             <div class="col-check" style="width: 25px;">
-                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" />
+                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-application-status="{{ application.status }}" />
                             </div>
                             <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
                                 <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
@@ -848,12 +957,159 @@
                             </div>
                             <div class="col-start col-center flex-grow-1">{{ application.provider }}</div>
                             <div class="col-start col-center flex-grow-1">{{ job.state }}</div>
-                            <div class="col-start col-center flex-grow-1">{{ job.schedule }}}</div>
+                            <div class="col-start col-center flex-grow-1">{{ job.schedule }}</div>
                             <div class="col-start col-center flex-grow-1">{{ application.createdAt|date('m/d/Y') }}</div>
+                            <div class="col-start col-center flex-grow-1" style="position: relative;">
+                                {% set todoTask = null %}
+                                {% set hasNewRequests = application.documentRequests|length > 0 %}
+                                {% set pendingDocs = false %}
+                                {% set pendingDocNames = [] %}
+                                {% for dr in application.documentRequests %}
+                                    {% if not dr.providedAt %}
+                                        {% set pendingDocs = true %}
+                                        {% set pendingDocNames = pendingDocNames|merge([dr.name]) %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if hasNewRequests and pendingDocs %}
+                                    {% set todoTask = 'Follow up: ' ~ pendingDocNames|join(', ') %}
+                                {% elseif application.status == 'applied' %}
+                                    {% set todoTask = 'Revisit Alert' %}
+                                {% elseif application.status == 'in_review' %}
+                                    {% set todoTask = 'Open Response' %}
+                                {% elseif application.status == 'interview' %}
+                                    {% set todoTask = 'Confirm Interview' %}
+                                {% elseif application.status == 'offered' %}
+                                    {% set todoTask = 'Review Signed Offer' %}
+                                {% elseif application.status == 'accepted' %}
+                                    {% set todoTask = 'Request Credentialing Docs' %}
+                                {% elseif application.status == 'completed' %}
+                                    {% set todoTask = 'See Your Review' %}
+                                {% endif %}
+
+                                {% if todoTask %}
+                                    <div class="todo-icon-wrapper" title="{{ todoTask }}" data-todo-text="{{ todoTask }}">
+                                        <div class="todo-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
                             <div class="col-start col-center flex-grow-1">
                                 <span class="badge badge-pill is-{{ statusColors[application.status] }}">
                                         {{ application.status | replace({'_': ' '}) | title }}
                                 </span>
+                            </div>
+                            <!-- UPDATED: Status-based individual actions -->
+                            <div class="col-action flex-grow-1 text-center">
+                                {% if application.status == 'in_review' %}
+                                    <!-- Shortlisted: Schedule Interview -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#interviewModal"
+                                            data-application_id="{{ application.id }}"
+                                            title="Schedule Interview">
+                                        <i class="fas fa-calendar-alt"></i> Interview
+                                    </button>
+                                    
+                                {% elseif application.status == 'interview' %}
+                                    <!-- Interviewing: Request Documents -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#askDocumentModal" 
+                                            data-application_id="{{ application.id }}"
+                                            title="Request Document">
+                                        <i class="fas fa-file-import"></i> Doc
+                                    </button>
+                                    
+                                {% elseif application.status == 'offered' %}
+                                    <!-- Negotiating: Send Offer letter or contract letter -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#contractModal"
+                                            data-application_id="{{ application.id }}"
+                                            title="Send Offer Letter">
+                                        <i class="fas fa-file-contract"></i> Offer
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#askDocumentModal" 
+                                            data-application_id="{{ application.id }}"
+                                            title="Request Document">
+                                        <i class="fas fa-file-import"></i> Doc
+                                    </button>
+                                    
+                                {% elseif application.status == 'hired' %}
+                                    <!-- Hired: show only Request Document; link shown after opening -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#askDocumentModal" 
+                                            data-application_id="{{ application.id }}"
+                                            data-provider-id="{{ application.provider.id }}"
+                                            data-sender_name="{{ application.job and application.job.employer ? application.job.employer.companyName : (app.user.employer ? app.user.employer.companyName : 'Employer') }}"
+                                            title="Request Document">
+                                        <i class="fas fa-file-import"></i> Doc
+                                    </button>
+                                    
+                                {% elseif application.status == 'completed' %}
+                                    <!-- Completed: Write Review -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reviewModal"
+                                            data-application_id="{{ application.id }}"
+                                            title="Write Review">
+                                        <i class="fas fa-star"></i> Review
+                                    </button>
+                                    
+                                {% elseif application.status == 'applied' %}
+                                    <!-- Applied: show only Request Document; link shown after opening -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#askDocumentModal" 
+                                            data-application_id="{{ application.id }}"
+                                            data-provider-id="{{ application.provider.id }}"
+                                            data-sender_name="{{ application.job and application.job.employer ? application.job.employer.companyName : (app.user.employer ? app.user.employer.companyName : 'Employer') }}"
+                                            title="Request Document">
+                                        <i class="fas fa-file-import"></i> Doc
+                                    </button>
+                                    
+                                    
+                                {% elseif application.status == 'rejected' %}
+                                    <!-- Rejected: No actions -->
+                                    <span class="text-muted">No actions</span>
+                                    
+                                {% else %}
+                                    <!-- Default for other statuses: Request Documents and External Link -->
+                                    {% if application.status not in ['rejected', 'completed'] %}
+                                        <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#askDocumentModal" 
+                                                data-application_id="{{ application.id }}"
+                                                title="Request Document">
+                                            <i class="fas fa-file-import"></i> Doc
+                                        </button>
+                                        
+                                        <!-- Send Link Button - for allowed statuses -->
+                                        {% set linkAllowedStatuses = ['applied', 'in_review', 'interview', 'offered', 'hired'] %}
+                                        {% if application.status in linkAllowedStatuses %}
+                                            <button type="button" class="btn btn-sm send-link-btn mr-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#sendLinkModal" 
+                                                    data-application-id="{{ application.id }}"
+                                                    data-provider-id="{{ application.provider.id }}"
+                                                    data-sender_name="{{ application.job and application.job.employer ? application.job.employer.companyName : (app.user.employer ? app.user.employer.companyName : 'Employer') }}"
+                                                    data-provider-uuid="{{ application.provider.id }}"
+                                                    title="Send External Link">
+                                                <i class="fas fa-link"></i> Link
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -891,7 +1147,6 @@
     <div class="modal fade" id="askDocumentModal" tabindex="-1" aria-labelledby="askDocumentLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-
                 <div class="modal-header">
                     <h5 class="modal-title" id="askDocumentLabel">Request Document</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -903,13 +1158,145 @@
                             <label for="documentName" class="form-label">Document Name</label>
                             <input type="text" class="form-control" id="documentName" name="document_name" required>
                         </div>
+                        <input type="hidden" id="selectedApplicationId" name="application_id">
                     </div>
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Send Request</button>
+                        <button type="button" id="switchToLinkButton" class="btn btn-outline-secondary send-link-btn" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#sendLinkModal" 
+                                data-application-id="" 
+                                data-provider-id="" 
+                                data-sender_name="" 
+                                title="Send Credential Link">
+                            <i class="fas fa-link"></i> Credential Link
+                        </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
 
+    <!-- Send External Link Modal -->
+    <div class="modal fade" id="sendLinkModal" tabindex="-1" aria-labelledby="sendLinkLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendLinkLabel">Send External Link</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form id="sendExternalLinkForm">
+                    <input type="hidden" id="linkProviderId" value="">
+                    <input type="hidden" id="linkApplicationId" value="">
+                    
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Link Title *</label>
+                            <input type="text" id="linkTitle" class="form-control" 
+                                   placeholder="e.g., Background Check Form, Credentialing Portal" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">URL *</label>
+                            <input type="url" id="linkUrl" class="form-control" 
+                                   placeholder="https://example.com/form" required>
+                            <div class="form-text">Must include https:// or http://</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea id="linkDescription" class="form-control" rows="3" 
+                                      placeholder="Instructions for the provider..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Sender Name</label>
+                            <input type="text" id="linkSender" class="form-control" 
+                                   value="{{ app.user.employer ? app.user.employer.companyName : (app.user.companyName ?? app.user.getCompanyName() ?? 'Employer') }}" 
+                                   placeholder="Your organization name">
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="sendLinkBtn" class="btn btn-primary">
+                            <span id="sendLinkText">Send Link</span>
+                            <span id="sendLinkSpinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewLabel">Write Review for Provider</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="employerReviewForm" method="post" action="">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="reviewMessage" class="form-label">Review</label>
+                            <textarea id="reviewMessage" name="message" class="form-control" placeholder="Share your experience" required></textarea>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label">Professionalism</label>
+                                <select name="professionalism" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Quality</label>
+                                <select name="quality" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Communication</label>
+                                <select name="communication" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Emotional Intelligence</label>
+                                <select name="emotional_intelligence" class="form-control" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -956,7 +1343,8 @@
 {% endblock %}
 
 {% block footer_scripts %}
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <!-- Replace slim jQuery with full jQuery for AJAX support -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
@@ -964,155 +1352,350 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
-        $(".js-datepicker").flatpickr({
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-            time_24hr: true // optional: use 24-hour format
+        // Initialize datepicker
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof flatpickr !== "undefined") {
+                flatpickr(".js-datepicker", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    time_24hr: true
+                });
+            }
         });
     </script>
 
 <script>
-    $(document).ready(function() {
-        $('#contractModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var applicationId = button.data('application_id'); // Get application ID
-            var form = $(this).find('form'); // Find the form inside the modal
-            var actionUrl = "{{ path('app_employer_application_sendcontract', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-            form.attr('action', actionUrl); // Set the form action
-        });
-    });
+    // Fix for modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Contract Modal
+        const contractModal = document.getElementById('contractModal');
+        if (contractModal) {
+            contractModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application_id');
+                var form = this.querySelector('form');
+                var actionUrl = "{{ path('app_employer_application_sendcontract', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                form.setAttribute('action', actionUrl);
+            });
+        }
 
-    $(document).ready(function() {
-        $('#askDocumentModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var applicationId = button.data('application_id'); // Get application ID
-            var form = $(this).find('form'); // Find the form inside the modal
-            var actionUrl = "{{ path('app_employer_application_askfordocument', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-            form.attr('action', actionUrl); // Set the form action
-        });
-    });
+        // Document Modal
+        const askDocumentModal = document.getElementById('askDocumentModal');
+        if (askDocumentModal) {
+            askDocumentModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application_id');
+                var providerId = button.getAttribute('data-provider-id');
+                var senderName = button.getAttribute('data-sender_name');
+                var form = this.querySelector('form');
+                var actionUrl = "{{ path('app_employer_application_askfordocument', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                form.setAttribute('action', actionUrl);
+                
+                // Set the application ID in the hidden field
+                document.getElementById('selectedApplicationId').value = applicationId;
 
-    $(document).ready(function() {
-        $('#interviewModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var applicationId = button.data('application_id'); // Get application ID
-            var form = $(this).find('form'); // Find the form inside the modal
-            var actionUrl = "{{ path('app_employer_application_scheduleinterview', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-            form.attr('action', actionUrl); // Set the form action
-        });
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const checkboxes = document.querySelectorAll('.job-checkbox');
-    const applyBtn = document.getElementById('apply-btn');
-    const saveBtn = document.getElementById('save-btn');
-    const deleteBtn = document.getElementById('delete-btn');
-    const actionsDivs = document.querySelectorAll('.hidden-buttons');
-    const selectAllCheckbox = document.getElementById('select-all-checkbox');
-    const columnsBtn = document.querySelector('.columns-dropdown-btn');
-    const menuBtn = document.querySelector('.menu-dropdown-btn');
-    const columnsPanel = document.querySelector('.columns-panel');
-    const menuPanel = document.querySelector('.menu-panel');
+                var switchBtn = document.getElementById('switchToLinkButton');
+                if (switchBtn) {
+                    switchBtn.setAttribute('data-application-id', applicationId || '');
+                    switchBtn.setAttribute('data-provider-id', providerId || '');
+                    if (senderName) {
+                        switchBtn.setAttribute('data-sender_name', senderName);
+                    }
+                }
+            });
+        }
 
-    function toggleDropdown(panel, btn) {
-        const isOpen = !panel.classList.contains('hidden');
-        closeAllDropdowns();
-        if (!isOpen) panel.classList.remove('hidden');
-    }
+        // Interview Modal
+        const interviewModal = document.getElementById('interviewModal');
+        if (interviewModal) {
+            interviewModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application_id');
+                var form = this.querySelector('form');
+                var actionUrl = "{{ path('app_employer_application_scheduleinterview', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                form.setAttribute('action', actionUrl);
+            });
+        }
 
-    function closeAllDropdowns() {
-        columnsPanel.classList.add('hidden');
-        menuPanel.classList.add('hidden');
-    }
-
-    columnsBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleDropdown(columnsPanel, columnsBtn);
-    });
-
-    menuBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleDropdown(menuPanel, menuBtn);
-    });
-
-    document.addEventListener('click', e => {
-        // Only close if click is outside both dropdowns and buttons
-        if (
-          !columnsPanel.contains(e.target) &&
-          !columnsBtn.contains(e.target) &&
-          !menuPanel.contains(e.target) &&
-          !menuBtn.contains(e.target)
-        ) {
-          closeAllDropdowns();
+        // Review Modal
+        const reviewModal = document.getElementById('reviewModal');
+        if (reviewModal) {
+            reviewModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application_id');
+                var form = document.getElementById('employerReviewForm');
+                var actionUrl = "{{ path('app_employer_application_review_provider', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                if (form) {
+                    form.setAttribute('action', actionUrl);
+                }
+            });
         }
     });
 
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', function () {
+    // Send External Link functionality - Fixed version
+    document.addEventListener('DOMContentLoaded', function() {
+        const sendLinkModal = document.getElementById('sendLinkModal');
+        const sendExternalLinkForm = document.getElementById('sendExternalLinkForm');
+        
+        if (sendLinkModal && sendExternalLinkForm) {
+            // Modal show event
+            sendLinkModal.addEventListener('show.bs.modal', function(event) {
+                var button = event.relatedTarget;
+                var applicationId = button.getAttribute('data-application-id');
+                var providerId = button.getAttribute('data-provider-id');
+                var senderName = button.getAttribute('data-sender_name');
+                
+                // Set the values in the form
+                document.getElementById('linkApplicationId').value = applicationId || '';
+                document.getElementById('linkProviderId').value = providerId || '';
+                
+                if (senderName) {
+                    document.getElementById('linkSender').value = senderName;
+                }
+                
+                // Clear form fields when modal opens
+                document.getElementById('linkTitle').value = '';
+                document.getElementById('linkUrl').value = '';
+                document.getElementById('linkDescription').value = '';
+            });
+
+            // Form submission
+            sendExternalLinkForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var applicationId = document.getElementById('linkApplicationId').value;
+                var providerId = document.getElementById('linkProviderId').value;
+                var title = document.getElementById('linkTitle').value;
+                var url = document.getElementById('linkUrl').value;
+                var description = document.getElementById('linkDescription').value;
+                var sender = document.getElementById('linkSender').value;
+
+                // Validate required fields
+                if (!title.trim()) {
+                    alert('Please enter a link title');
+                    return;
+                }
+
+                if (!url.trim()) {
+                    alert('Please enter a URL');
+                    return;
+                }
+
+                // Validate URL
+                if (!isValidUrl(url)) {
+                    alert('Please enter a valid URL starting with http:// or https://');
+                    return;
+                }
+
+                // Show loading state
+                var sendLinkText = document.getElementById('sendLinkText');
+                var sendLinkSpinner = document.getElementById('sendLinkSpinner');
+                var sendLinkBtn = document.getElementById('sendLinkBtn');
+                
+                if (sendLinkText) sendLinkText.textContent = 'Sending...';
+                if (sendLinkSpinner) sendLinkSpinner.style.display = 'inline-block';
+                if (sendLinkBtn) sendLinkBtn.disabled = true;
+
+                // Send AJAX request using fetch API instead of jQuery
+                fetch('{{ path("create_credentialing_link") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        providerId: providerId,
+                        title: title,
+                        url: url,
+                        description: description,
+                        sender: sender
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        alert('Link sent successfully!');
+                        
+                        // Close modal using Bootstrap
+                        var modal = bootstrap.Modal.getInstance(sendLinkModal);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    } else {
+                        alert('Error: ' + (data.message || 'Unknown error occurred'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error sending link. Please try again.');
+                })
+                .finally(() => {
+                    // Reset loading state
+                    if (sendLinkText) sendLinkText.textContent = 'Send Link';
+                    if (sendLinkSpinner) sendLinkSpinner.style.display = 'none';
+                    if (sendLinkBtn) sendLinkBtn.disabled = false;
+                });
+            });
+
+            function isValidUrl(string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            }
+        }
+    });
+
+        // Dropdown and checkbox functionality - Fixed version
+        document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.job-checkbox');
+        const applyBtn = document.getElementById('apply-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const actionsDivs = document.querySelectorAll('.hidden-buttons');
+        const columnsBtn = document.querySelector('.columns-dropdown-btn');
+        const menuBtn = document.querySelector('.menu-dropdown-btn');
+        const columnsPanel = document.querySelector('.columns-panel');
+        const menuPanel = document.querySelector('.menu-panel');
+        const requestDocBtn = document.getElementById('request-doc-btn');
+
+        // Only proceed if elements exist
+        if (!columnsBtn || !menuBtn || !columnsPanel || !menuPanel) {
+            return;
+        }
+
+        function toggleDropdown(panel, btn) {
+            const isOpen = !panel.classList.contains('hidden');
+            closeAllDropdowns();
+            if (!isOpen) {
+                panel.classList.remove('hidden');
+            }
+        }
+
+        function closeAllDropdowns() {
+            if (columnsPanel) columnsPanel.classList.add('hidden');
+            if (menuPanel) menuPanel.classList.add('hidden');
+        }
+
+        if (columnsBtn) {
+            columnsBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                toggleDropdown(columnsPanel, columnsBtn);
+            });
+        }
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                toggleDropdown(menuPanel, menuBtn);
+            });
+        }
+
+        document.addEventListener('click', e => {
+            // Only close if click is outside both dropdowns and buttons
+            if (columnsPanel && menuPanel && columnsBtn && menuBtn) {
+                if (
+                    !columnsPanel.contains(e.target) &&
+                    !columnsBtn.contains(e.target) &&
+                    !menuPanel.contains(e.target) &&
+                    !menuBtn.contains(e.target)
+                ) {
+                    closeAllDropdowns();
+                }
+            }
+        });
+
+        function toggleActionsVisibility() {
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            actionsDivs.forEach(div => {
+                if (div) {
+                    div.style.visibility = anyChecked ? 'visible' : 'hidden';
+                }
+            });
+        }
+
+        function updateBulkActions() {
+            const checked = Array.from(checkboxes).filter(cb => cb.checked);
+            
+            // Enable bulk document request if any applications are selected and not in excluded statuses
+            const eligibleApplications = checked.filter(cb => {
+                const status = cb.dataset.applicationStatus;
+                return !['rejected', 'completed'].includes(status);
+            });
+            
+            if (requestDocBtn) {
+                requestDocBtn.disabled = eligibleApplications.length === 0;
+            }
+            
+            // Set selected application IDs for bulk modal
+            if (eligibleApplications.length > 0) {
+                const selectedIds = eligibleApplications.map(cb => cb.dataset.applicationId);
+                const selectedApplications = document.getElementById('selectedApplications');
+                if (selectedApplications) {
+                    selectedApplications.value = selectedIds.join(',');
+                }
+            }
+        }
+
         checkboxes.forEach(cb => {
-          cb.checked = selectAllCheckbox.checked;
+            cb.addEventListener('change', toggleActionsVisibility);
+            cb.addEventListener('change', updateBulkActions);
         });
+
+        // Initial check in case some boxes are pre-checked
         toggleActionsVisibility();
-        updateActions();
-      });
+        updateBulkActions();
 
-      // Sync master checkbox if user manually toggles individual ones
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', function () {
-          const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-          selectAllCheckbox.checked = allChecked;
+        // Individual document request button handlers
+        document.querySelectorAll('[data-bs-target="#askDocumentModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                const applicationId = this.getAttribute('data-application_id');
+                const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
+                if (applicationId && hiddenInput) {
+                    hiddenInput.value = applicationId;
+                }
+            });
         });
-      });
-    }
 
-    function toggleActionsVisibility() {
-      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-      actionsDivs.forEach(div => {
-        div.style.visibility = anyChecked ? 'visible' : 'hidden';
-      });
-    }
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', toggleActionsVisibility);
+        // To-Do popup functionality
+        (function(){
+            let popupEl = null;
+            function ensurePopup(){
+                if(!popupEl){
+                    popupEl = document.createElement('div');
+                    popupEl.className = 'todo-popup';
+                    document.body.appendChild(popupEl);
+                }
+            }
+            function showPopup(anchor, text){
+                ensurePopup();
+                popupEl.textContent = text;
+                const rect = anchor.getBoundingClientRect();
+                const top = window.scrollY + rect.top - 10;
+                const left = window.scrollX + rect.left + rect.width + 8;
+                popupEl.style.top = top + 'px';
+                popupEl.style.left = left + 'px';
+                popupEl.classList.add('show');
+            }
+            function hidePopup(){
+                if(popupEl){
+                    popupEl.classList.remove('show');
+                }
+            }
+            document.querySelectorAll('.todo-icon-wrapper').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const text = el.getAttribute('data-todo-text') || el.getAttribute('title') || 'To-Do';
+                    showPopup(el, text);
+                });
+            });
+            document.addEventListener('click', hidePopup);
+            window.addEventListener('scroll', hidePopup, { passive: true });
+            window.addEventListener('resize', hidePopup, { passive: true });
+        })();
     });
-
-    // Initial check in case some boxes are pre-checked
-    toggleActionsVisibility();
-
-    function updateActions() {
-      const checked = Array.from(checkboxes).filter(cb => cb.checked);
-      applyBtn.disabled = checked.length !== 1;
-    }
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', updateActions);
-    });
-
-    applyBtn.addEventListener('click', () => {
-      const selected = Array.from(checkboxes).filter(cb => cb.checked);
-      if (selected.length === 1) {
-        const jobId = selected[0].dataset.jobId;
-        // Trigger apply logic here
-        console.log('Applying to job:', jobId);
-      }
-    });
-
-    saveBtn.addEventListener('click', () => {
-      const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.dataset.jobId);
-      // Trigger batch save logic here
-      console.log('Saving jobs:', selectedIds);
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      const selectedIds = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.dataset.jobId);
-      // Trigger batch delete logic here
-      console.log('Deleting jobs:', selectedIds);
-    });
-  });
 </script>
 {% endblock %}

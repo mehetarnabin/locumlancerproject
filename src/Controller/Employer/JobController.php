@@ -164,7 +164,11 @@ class JobController extends AbstractController
         $educations = $em->getRepository(Education::class)->findBy(['user' => $user]);
         $experiences = $em->getRepository(Experience::class)->findBy(['user' => $user]);
         $insurances = $em->getRepository(Insurance::class)->findBy(['user' => $user]);
-        $review = $em->getRepository(Review::class)->findOneBy(['application' => $application, 'provider' => $provider]);
+        $review = $em->getRepository(Review::class)->findOneBy([
+            'application' => $application,
+            'provider' => $provider,
+            'reviewedBy' => 'EMPLOYER'
+        ]);
 
         $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $application->getProvider(), 'application' => $application]);
 
