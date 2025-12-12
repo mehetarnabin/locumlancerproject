@@ -74,7 +74,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 12px;
     box-shadow: none;
     flex-shrink: 0;
@@ -84,10 +84,12 @@ body {
     height: 100%;
     overflow: visible;
     z-index: 10;
+    padding-top: 12px;
+    margin-top: 70px; /* Shift toolbar down */
 }
 
 .sidebar-icon {
-    width: 56px;
+    width: 56px;    
     height: 56px;
     border-radius: 12px;
     display: flex;
@@ -513,13 +515,14 @@ body {
     flex-direction: column;
     overflow: hidden;
     min-width: 0;
-    border-top: 1px solid #e6eef6;
+    border-top: none; /* Remove border-top, let search handle it */
     border-bottom: 1px solid #e6eef6;
 }
 
 .messages-content-header {
     padding: 12px 20px;
-    border-bottom: 1px solid #f1f3f4;
+    border-top: 1px solid #e6eef6; /* Match top border */
+    border-bottom: 1px solid #e6eef6; /* Match other borders */
     display: flex;
     align-items: center;
     gap: 16px;
@@ -581,14 +584,15 @@ body {
 
 .messages-search {
     padding: 12px 20px;
-    border-bottom: 1px solid #f1f3f4;
+    border-top: 1px solid #e6eef6; /* Match top border */
+    border-bottom: 1px solid #e6eef6; /* Match other borders */
     background: #fff;
     flex-shrink: 0;
 }
 
 .messages-search .input-group {
     display: flex;
-    gap: 8px;
+    gap: 0; /* Remove gap to join elements */
     align-items: center;
     background: #f1f3f4;
     border-radius: 24px;
@@ -596,10 +600,12 @@ body {
     transition: all 0.2s ease;
     width: 100%;
     box-sizing: border-box;
+    border: 1px solid transparent; /* Add border for uniformity */
 }
 
 .messages-search .input-group:focus-within {
     background: #fff;
+    border-color: #85BB65; /* Green border on focus */
     box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.2);
 }
 
@@ -608,6 +614,7 @@ body {
     height: 20px;
     color: #5f6368;
     flex-shrink: 0;
+    margin-right: 8px; /* Add margin instead of gap */
 }
 
 .messages-search input {
@@ -631,15 +638,21 @@ body {
     background: transparent;
     color: #5f6368;
     border: none;
-    padding: 4px;
+    padding: 4px 8px; /* Increase padding for better alignment */
+    margin-left: 8px; /* Add margin instead of gap */
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Make it circular */
+    width: 24px;
+    height: 24px;
 }
 
 .messages-search button:hover {
     color: #000000;
+    background: rgba(0, 0, 0, 0.05); /* Subtle hover background */
 }
 
 .messages-list {
@@ -835,55 +848,44 @@ a.message-item:hover {
     min-width: 100px;
 }
 
-.message-forward-btn {
+/* Forward button removed from tiles - now only in toolbar */
+.message-forward-btn-toolbar {
     background: transparent;
-    border: 1px solid #e6eef6;
-    color: #5f6368;
-    padding: 6px 8px;
-    cursor: pointer;
+    border: 1px solid transparent;
+    color: #000000;
+    padding: 6px;
     border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+}
+
+.message-forward-btn-toolbar:hover:not(:disabled) {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+    opacity: 1;
+}
+
+.message-forward-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.message-forward-btn-toolbar svg {
+    width: 14px;
+    height: 14px;
+    color: #000000;
+    stroke: #000000;
     transition: all 0.2s ease;
-    opacity: 0.7;
-    margin-left: 8px;
-    flex-shrink: 0;
-    z-index: 10;
-    position: relative;
-    min-width: 50px;
 }
 
-.message-item:hover .message-forward-btn {
-    opacity: 1;
-    border-color: #85BB65;
+.message-forward-btn-toolbar:hover:not(:disabled) svg {
     color: #85BB65;
-}
-
-.message-forward-btn:hover {
-    background: #f1f3f4;
-    color: #85BB65;
-    border-color: #85BB65;
-    opacity: 1;
-}
-
-.message-forward-btn svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-    flex-shrink: 0;
-}
-
-.message-forward-btn-text {
-    font-size: 10px;
-    font-weight: 500;
-    line-height: 1;
-    margin: 0;
-    white-space: nowrap;
+    stroke: #85BB65;
 }
 
 .message-actions {
@@ -989,10 +991,19 @@ a.message-item:hover {
     margin-left: 8px;
 }
 
+#trash-actions-toolbar {
+    flex: 0 0 auto;
+}
+
+.messages-content-header .trash-actions:not(#trash-actions-toolbar) {
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
 .restore-btn-toolbar {
     background: transparent;
-    border: 1px solid #85BB65;
-    color: #85BB65;
+    border: 1px solid transparent;
+    color: #000000;
     padding: 6px;
     border-radius: 4px;
     font-size: 12px;
@@ -1004,8 +1015,9 @@ a.message-item:hover {
 }
 
 .restore-btn-toolbar:hover:not(:disabled) {
-    background: #85BB65;
-    color: white;
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
 }
 
 .restore-btn-toolbar:disabled {
@@ -1013,12 +1025,23 @@ a.message-item:hover {
     cursor: not-allowed;
 }
 
+.restore-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.restore-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
 .permanent-delete-btn-toolbar {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     color: #000000;
     padding: 6px;
-    border-radius: 0;
+    border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1029,6 +1052,7 @@ a.message-item:hover {
 
 .permanent-delete-btn-toolbar:hover:not(:disabled) {
     background: transparent;
+    border-color: #85BB65;
     color: #000000;
     opacity: 1;
 }
@@ -1041,6 +1065,12 @@ a.message-item:hover {
 .permanent-delete-btn-toolbar svg {
     color: #000000;
     stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.permanent-delete-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 .message-actions-toolbar {
@@ -1052,10 +1082,10 @@ a.message-item:hover {
 
 .message-delete-btn-toolbar {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     color: #000000;
     padding: 6px;
-    border-radius: 0;
+    border-radius: 4px;
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1066,6 +1096,7 @@ a.message-item:hover {
 
 .message-delete-btn-toolbar:hover:not(:disabled) {
     background: transparent;
+    border-color: #85BB65;
     color: #000000;
     opacity: 1;
 }
@@ -1078,30 +1109,50 @@ a.message-item:hover {
 .message-delete-btn-toolbar svg {
     color: #000000;
     stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.message-delete-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 .empty-trash-btn {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
+    background: transparent;
+    color: #000000;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-left: auto;
 }
 
 .empty-trash-btn:hover {
-    background: #c82333;
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
     transform: translateY(-1px);
 }
 
 .empty-trash-btn:active {
     transform: translateY(0);
+}
+
+.empty-trash-btn svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.empty-trash-btn:hover svg {
+    color: #85BB65;
+    stroke: #85BB65;
 }
 
 .permanent-delete-btn {
@@ -1276,8 +1327,8 @@ a.message-item:hover {
 }
 
 .compose-modal-header {
-    background: #404040;
-    color: #fff;
+    background: #85BB65;
+    color: #000;
     padding: 12px 16px;
     display: flex;
     justify-content: space-between;
@@ -1291,6 +1342,7 @@ a.message-item:hover {
 .compose-modal-title {
     font-size: 14px;
     font-weight: 500;
+    color: #000;
 }
 
 .compose-modal-actions {
@@ -1302,7 +1354,7 @@ a.message-item:hover {
 .compose-modal-btn {
     background: transparent;
     border: none;
-    color: #fff;
+    color: #000;
     padding: 6px 8px;
     cursor: pointer;
     border-radius: 4px;
@@ -1315,7 +1367,7 @@ a.message-item:hover {
 }
 
 .compose-modal-btn:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.1);
     transform: scale(1.1);
 }
 
@@ -1739,26 +1791,17 @@ a.message-item:hover {
 
 /* Email Detail Panel */
 .email-detail-panel {
-    display: flex;
-    flex: 1;
+    display: none;
     background: #fff;
     border-left: 1px solid #e6eef6;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     min-width: 0;
     flex-direction: column;
-    visibility: hidden;
-    opacity: 0;
-    width: 0;
-    max-width: 0;
-    transition: opacity 0.2s ease, visibility 0.2s ease, width 0.3s ease, max-width 0.3s ease;
+    height: 100%;
 }
 
 .email-detail-panel.active {
-    visibility: visible;
-    opacity: 1;
-    width: 50%;
-    max-width: 50%;
+    display: flex;
 }
 
 .email-detail-header {
@@ -1818,6 +1861,8 @@ a.message-item:hover {
     flex: 1;
     padding: 24px;
     overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
 }
 
 .email-detail-message-header {
@@ -1948,39 +1993,96 @@ a.message-item:hover {
 
 .email-detail-reply-form textarea {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e6eef6;
-    border-radius: 8px;
+    padding: 16px;
+    border: 2px solid #85BB65; /* Green border - match show.html.twig */
+    border-radius: 12px; /* Match inbox border-radius */
     font-size: 14px;
-    color: #000000;
+    color: #121C0C;
     resize: vertical;
-    min-height: 120px;
+    min-height: 220px; /* Longer textarea - match show.html.twig */
     font-family: inherit;
     margin-bottom: 16px;
+    background: #fff;
+    line-height: 1.6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.email-detail-reply-form textarea::placeholder {
+    color: #9ca3af;
 }
 
 .email-detail-reply-form textarea:focus {
     outline: none;
     border-color: #85BB65;
-    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.15);
 }
 
 .email-detail-reply-form button {
     background: #85BB65;
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 12px; /* Match inbox border-radius */
+    padding: 12px 32px; /* Match show.html.twig */
     font-weight: 600;
-    font-size: 14px;
+    font-size: 15px; /* Match show.html.twig */
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);
 }
 
 .email-detail-reply-form button:hover {
+    background: #6fa050;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(133, 187, 101, 0.3);
+}
+
+.email-detail-reply-form button:active {
+    transform: translateY(0);
+}
+
+/* File attachment styling for inline reply form */
+.email-detail-reply-form input[type="file"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e6eef6;
+    border-radius: 12px; /* Match inbox border-radius */
+    font-size: 14px;
+    color: #121C0C;
+    margin-bottom: 16px;
+    background: #F4F9F1; /* Light green background */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.email-detail-reply-form input[type="file"]:hover {
+    border-color: #85BB65;
+    background: #f0f7ec;
+}
+
+.email-detail-reply-form input[type="file"]:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    background: #fff;
+}
+
+.email-detail-reply-form input[type="file"]::file-selector-button {
+    padding: 8px 16px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #85BB65;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.email-detail-reply-form input[type="file"]::file-selector-button:hover {
     background: #6fa050;
 }
 
@@ -1989,6 +2091,8 @@ a.message-item:hover {
     align-items: center;
     gap: 12px;
     margin-top: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 .email-detail-forward-btn {
@@ -2037,7 +2141,10 @@ a.message-item:hover {
 }
 
 .messages-container.has-detail .messages-list-container {
-    display: none;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
 }
 
 .messages-container.has-detail .messages-content-header {
@@ -2048,18 +2155,130 @@ a.message-item:hover {
     display: none;
 }
 
-.messages-container.has-detail .email-detail-panel {
+/* Message list always 100% width - inline expansion */
+.messages-container.has-detail .messages-content {
     flex: 1;
-    width: 50%;
-    max-width: 50%;
-    visibility: visible;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.messages-container.has-detail .email-detail-panel {
+    display: none !important;
+}
+
+/* Inline message expansion */
+.message-item-expanded {
+    display: none;
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #e6eef6;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.message-thread.expanded .message-item-expanded {
+    display: block;
+}
+
+.message-item-expanded-content {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Gmail-style thread messages */
+.gmail-style-thread {
+    border-top: 1px solid #e6eef6;
+}
+
+.gmail-message-item {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.1s ease;
+}
+
+.gmail-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.gmail-message-item.active-message {
+    background-color: #f1f3f4;
+}
+
+.gmail-message-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    min-height: 48px;
+}
+
+.gmail-message-avatar {
+    flex-shrink: 0;
+}
+
+.gmail-sender-name {
+    font-weight: 600;
+    color: #202124;
+}
+
+.gmail-message-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 1; /* Always visible */
+    transition: none; /* No animation */
+    visibility: visible; /* Always visible */
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.gmail-message-item:hover .gmail-message-actions {
     opacity: 1;
 }
 
-.messages-container.has-detail .messages-content {
-    flex: 1;
-    width: 50%;
-    max-width: 50%;
+.gmail-action-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: color 0.2s ease; /* Only transition color */
+    opacity: 1; /* Always visible */
+    visibility: visible; /* Always visible */
+}
+
+.gmail-action-btn:hover {
+    background-color: #e8eaed;
+    color: #85BB65; /* Green on hover */
+}
+
+.gmail-message-content {
+    padding: 0 16px 12px 16px;
+}
+
+.gmail-message-content.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.gmail-message-item.collapsed .gmail-message-content.collapsible-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.gmail-message-item.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+    color: #5f6368;
 }
 
 /* Thread-based message styles */
@@ -2127,6 +2346,30 @@ a.message-item:hover {
 .thread-message-item:last-child {
     border-bottom: none;
 }
+
+/* Job Header and Job Row Spacing - Prevent overlap on hover */
+/* Job rows have margin: 2px 0, so spacing between rows = 2px (bottom) + 2px (top) = 4px total */
+/* Match this exact spacing between header and first row */
+.job-header {
+    margin-bottom: 2px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* First job row margin-top: 4px to shift it down */
+/* Using multiple selectors to ensure it applies and overrides any conflicting rules */
+.job-list-container .job-lists:first-child .job-row,
+.job-list-container > .job-lists:first-of-type .job-row,
+.table-responsive-wrapper .job-lists:first-child .job-row,
+.job-lists:first-child .job-row,
+.job-lists:first-of-type .job-row,
+.job-list-container .job-row:first-child,
+.table-responsive-wrapper .job-row:first-child,
+.job-list-container .job-lists .job-row:first-child {
+    margin-top: 4px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
 </style>
 
 <div class="email-app-wrapper">
@@ -2146,17 +2389,6 @@ a.message-item:hover {
                     {% endif %}
                 </h6>
                 
-                <!-- Trash Actions -->
-                {% if current_type == 'trash' and messages|length > 0 %}
-                <div class="trash-actions">
-                    <button type="button" class="empty-trash-btn" onclick="emptyTrash()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Empty Trash
-                    </button>
-                </div>
-                {% endif %}
             </div>
 
             <div class="messages-container">
@@ -2173,8 +2405,13 @@ a.message-item:hover {
                         <li class="folder-item">
                             <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" 
                             class="folder-link {% if current_type == 'inbox' or current_type is empty %}active{% endif %}">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g id="style=stroke">
+                                    <g id="email">
+                                    <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"/>
+                                    <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"/>
+                                    </g>
+                                    </g>
                                 </svg>
                                 <span>Inbox</span>
                             </a>
@@ -2311,12 +2548,27 @@ a.message-item:hover {
                                     </svg>
                                 </button>
                             </div>
+                            {% if messages|length > 0 %}
+                            <div class="trash-actions">
+                                <button type="button" class="empty-trash-btn" onclick="emptyTrash()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Empty Trash
+                                </button>
+                            </div>
+                            {% endif %}
                         {% else %}
                             <div class="select-all">
                                 <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
                                 <label for="select-all-checkbox">Select all</label>
                             </div>
                             <div class="message-actions-toolbar" id="message-actions-toolbar" style="display: none;">
+                                <button type="button" class="message-forward-btn-toolbar" onclick="forwardSelectedMessage()" id="forward-selected-message-btn" disabled title="Forward Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
                                 <button type="button" class="message-delete-btn-toolbar" onclick="deleteSelectedMessages()" id="delete-selected-messages-btn" disabled title="Delete Selected">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2339,9 +2591,9 @@ a.message-item:hover {
                                         {% set replyCount = thread.reply_count %}
                                         {% set latestReply = thread.latest_reply %}
                                         
-                                        <div class="message-thread {% if hasReplies %}has-replies{% endif %}" data-thread-id="{{ message.id }}">
-                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
-                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
+                                        <div class="message-thread {% if hasReplies %}has-replies{% endif %}" data-thread-id="{{ message.id }}" data-message-id="{{ message.id }}">
+                                            <div class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
                                                 <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
                                                     {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
                                                     {% set senderAvatar = current_type == 'sent' 
@@ -2372,13 +2624,12 @@ a.message-item:hover {
                                                         <div class="message-time">{{ message.createdAt|time_diff }}</div>
                                                     </div>
                                                 </div>
-                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                    <span class="message-forward-btn-text">Forward</span>
-                                                </button>
-                                            </a>
+                                            </div>
+                                            <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                                <div class="message-item-expanded-content">
+                                                    <div class="email-detail-loading">Loading message...</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     {% endfor %}
                                 {% else %}
@@ -2389,80 +2640,92 @@ a.message-item:hover {
                                             {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
                                             {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
                                             
-                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}">
-                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar()">
-                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;" onclick="loadDraftFromServer('{{ message.id }}')">
+                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}" data-message-id="{{ message.id }}">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                                <div class="draft-item-content" style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;">
                                                     <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
-                                                    <div class="message-content">
+                                                    <div class="message-content" style="flex: 1;">
                                                         <div class="message-sender">To: {{ receiverName }}</div>
-                                                        <div class="message-text">{{ message.text|striptags|slice(0, 100) }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                        <div class="message-text">{{ message.subject ?: '(No subject)' }}</div>
+                                                        {% if message.text %}
+                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ message.text|striptags|slice(0, 80) }}{% if message.text|striptags|length > 80 %}...{% endif %}</div>
+                                                        {% endif %}
                                                     </div>
                                                     <div class="message-meta">
                                                         <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        {% elseif current_type == 'trash' %}
-                                            {# Trash item template with restore and permanent delete options #}
-                                            {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                                            {% set senderAvatar = current_type == 'sent' 
-                                                ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                                : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                                            {% set isRead = message.seen|default(false) %}
-                                            {% set messageText = message.text|striptags|slice(0, 100) %}
-                                            
-                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
-                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons();" onclick="event.stopPropagation();">
-                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                    <div class="message-content">
-                                                        <div class="message-sender">{{ senderName }}</div>
-                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                    </div>
-                                                    <div class="message-meta">
-                                                        <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
-                                                    </div>
+                                    {% elseif current_type == 'trash' %}
+                                        {# Trash item template with restore and permanent delete options #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-thread" data-message-id="{{ message.id }}">
+                                        <div class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
                                                 </div>
-                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    </svg>
-                                                    <span class="message-forward-btn-text">Forward</span>
-                                                </button>
-                                            </a>
-                                            {% else %}
-                                            {# Regular message item template #}
-                                            {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                                            {% set senderAvatar = current_type == 'sent' 
-                                                ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                                : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                                            {% set isRead = message.seen|default(false) %}
-                                            {% set messageText = message.text|striptags|slice(0, 100) %}
-                                            
-                                            <a href="{{ path('app_provider_message_show', {id: message.id}) }}" class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
-                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar();" onclick="event.stopPropagation();">
-                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                    <div class="message-content">
-                                                        <div class="message-sender">{{ senderName }}</div>
-                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                    </div>
-                                                    <div class="message-meta">
-                                                        {% if not isRead and current_type != 'sent' %}
-                                                            <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
-                                                        {% endif %}
-                                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
-                                                    </div>
+                                                <div class="message-meta">
+                                                    <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
                                                 </div>
-                                                <button type="button" class="message-forward-btn" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{{ path('app_provider_message_forward', {id: message.id}) }}';" title="Forward">
+                                            </div>
+                                            <div class="message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+                                                <button type="button" class="permanent-delete-btn" onclick="event.stopPropagation(); event.preventDefault(); permanentlyDeleteMessage({{ message.id }}, this);" title="Permanently Delete">
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
-                                                    <span class="message-forward-btn-text">Forward</span>
                                                 </button>
-                                            </a>
-                                        {% endif %}
-                                    {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                            <div class="message-item-expanded-content">
+                                                <div class="email-detail-loading">Loading message...</div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    {% else %}
+                                        {# Regular message item template #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-thread" data-message-id="{{ message.id }}">
+                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    {% if not isRead and current_type != 'sent' %}
+                                                        <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
+                                                    {% endif %}
+                                                    <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                            <div class="message-item-expanded-content">
+                                                <div class="email-detail-loading">Loading message...</div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
                                 {% endif %}
                             </div>
 
@@ -2533,30 +2796,30 @@ a.message-item:hover {
                             </div>
                         {% endif %}
                         </div>
-                        
-                        <!-- Email Detail Panel -->
-                        <div id="email-detail-panel" class="email-detail-panel">
-                            <div class="email-detail-header">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </button>
-                                    <h6>Message</h6>
-                                </div>
-                                <button type="button" class="email-detail-close" onclick="closeEmailDetailPanel()">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div id="email-detail-content" class="email-detail-content">
-                                <div class="email-detail-loading">Select a message to view</div>
-                            </div>
+                </div>
+                
+                <!-- Email Detail Panel -->
+                <div id="email-detail-panel" class="email-detail-panel">
+                    <div class="email-detail-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <h6>Message</h6>
                         </div>
+                        <button type="button" class="email-detail-close" onclick="closeEmailDetailPanel()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="email-detail-content" class="email-detail-content">
+                        <div class="email-detail-loading">Select a message to view</div>
                     </div>
                 </div>
+            </div>
 
                 <!-- Right Sidebar -->
                 <div class="right-sidebar">
@@ -2695,6 +2958,118 @@ let currentDraftId = null;
 
 // File attachment management
 let selectedFiles = [];
+
+// Make loadDraftFromServer globally accessible
+window.loadDraftFromServer = async function(draftId) {
+    console.log('Loading draft:', draftId);
+    
+    try {
+        const response = await fetch(`/provider/messages/draft/${draftId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const draft = result.draft;
+            console.log('Draft loaded:', draft);
+            
+            // Get form elements
+            const receiverSelect = document.getElementById('compose-receiver');
+            const subjectInput = document.getElementById('compose-subject');
+            const messageTextarea = document.getElementById('compose-message');
+            const draftIdInput = document.getElementById('compose-draft-id');
+            const draftIndicator = document.getElementById('draft-indicator');
+            
+            if (!receiverSelect || !subjectInput || !messageTextarea || !draftIdInput) {
+                console.error('Compose form elements not found');
+                showToast('error', 'Compose form not found');
+                return;
+            }
+            
+            // Clear form first
+            receiverSelect.value = '';
+            subjectInput.value = '';
+            messageTextarea.value = '';
+            draftIdInput.value = '';
+            currentDraftId = null;
+            if (draftIndicator) {
+                draftIndicator.classList.remove('visible');
+            }
+            
+            // Set draft values
+            receiverSelect.value = draft.receiver_id || '';
+            subjectInput.value = draft.subject || '';
+            messageTextarea.value = draft.message || '';
+            draftIdInput.value = draftId;
+            currentDraftId = draftId;
+            
+            // Show draft indicator badge
+            if (draftIndicator) {
+                draftIndicator.classList.add('visible');
+                console.log('Draft indicator badge shown');
+            } else {
+                console.warn('Draft indicator element not found');
+            }
+            
+            // Clear any existing files first
+            selectedFiles = [];
+            
+            // Handle attachment if exists
+            if (draft.attachment && draft.attachment_info) {
+                console.log('Loading draft with attachment:', draft.attachment_info);
+                
+                // Create a mock file object with the attachment info
+                const mockFile = {
+                    name: draft.attachment_info.original_filename,
+                    size: draft.attachment_info.file_exists ? draft.attachment_info.file_size || 0 : 0,
+                    type: getFileType(draft.attachment_info.original_filename),
+                    draftFile: true,
+                    actualFilename: draft.attachment // Store the actual filename for later use
+                };
+                
+                selectedFiles = [mockFile];
+                
+                // Update file display
+                updateFileDisplay();
+                updateAttachmentButton();
+                
+                showToast('info', `Loaded draft with attachment: ${draft.attachment_info.original_filename}`);
+            } else {
+                // No attachment, ensure display is cleared
+                updateFileDisplay();
+                updateAttachmentButton();
+            }
+            
+            // Open compose modal - do this after setting all values
+            openComposeModal();
+            
+            // Ensure draft indicator is visible after modal opens
+            setTimeout(() => {
+                if (draftIndicator) {
+                    draftIndicator.classList.add('visible');
+                }
+            }, 100);
+            
+            // Auto-resize textarea after a short delay to ensure modal is visible
+            setTimeout(() => {
+                if (messageTextarea) {
+                    autoResizeTextarea(messageTextarea);
+                }
+            }, 200);
+            
+            console.log('Draft loaded successfully');
+        } else {
+            console.error('Failed to load draft:', result.error);
+            showToast('error', result.error || 'Error loading draft');
+        }
+    } catch (error) {
+        console.error('Error loading draft:', error);
+        showToast('error', 'Error loading draft: ' + error.message);
+    }
+};
 
 // Email Templates Configuration
 const emailTemplates = {
@@ -3142,6 +3517,7 @@ function toggleSelectAll(selectAllCheckbox) {
     });
     updateTrashActionButtons();
     updateMessageActionsToolbar();
+    handleCheckboxChange();
 }
 
 // Update trash action buttons state
@@ -3167,6 +3543,14 @@ function updateTrashActionButtons() {
     if (deleteBtn) {
         deleteBtn.disabled = selectedCount === 0;
     }
+    
+    // Also handle forward button visibility
+    handleCheckboxChange();
+}
+
+// Handle checkbox change - forward button is now in toolbar, not on tiles
+function handleCheckboxChange() {
+    // No longer needed - forward button is in toolbar
 }
 
 // Update message actions toolbar visibility and state
@@ -3174,6 +3558,7 @@ function updateMessageActionsToolbar() {
     const selectedCount = getSelectedMessageIds().length;
     const toolbar = document.getElementById('message-actions-toolbar');
     const deleteBtn = document.getElementById('delete-selected-messages-btn');
+    const forwardBtn = document.getElementById('forward-selected-message-btn');
     
     if (toolbar) {
         if (selectedCount > 0) {
@@ -3186,6 +3571,14 @@ function updateMessageActionsToolbar() {
     if (deleteBtn) {
         deleteBtn.disabled = selectedCount === 0;
     }
+    
+    if (forwardBtn) {
+        // Forward button only works with single message selection
+        forwardBtn.disabled = selectedCount !== 1;
+    }
+    
+    // Also handle forward button visibility
+    handleCheckboxChange();
 }
 
 // Delete selected messages (for inbox/sent/drafts)
@@ -3427,60 +3820,69 @@ function saveAsDraft() {
     form.submit();
 }
 
-// Load draft from server with attachment support
-async function loadDraftFromServer(draftId) {
+// Duplicate removed - function is defined above in global scope
+
+// Forward selected message - loads message data into compose modal
+async function forwardSelectedMessage() {
+    const selectedIds = getSelectedMessageIds();
+    
+    if (selectedIds.length !== 1) {
+        showToast('error', 'Please select exactly one message to forward');
+        return;
+    }
+    
+    const messageId = selectedIds[0];
+    
     try {
-        const response = await fetch(`/provider/messages/draft/${draftId}`);
+        // Fetch message data from JSON endpoint
+        const response = await fetch(`/provider/messages/${messageId}/forward-data`);
         const result = await response.json();
         
-        if (result.success) {
-            const draft = result.draft;
-            document.getElementById('compose-receiver').value = draft.receiver_id || '';
-            document.getElementById('compose-subject').value = draft.subject || '';
-            document.getElementById('compose-message').value = draft.message || '';
-            document.getElementById('compose-draft-id').value = draftId;
-            currentDraftId = draftId;
-            
-            document.getElementById('draft-indicator').classList.add('visible');
-            openComposeModal();
-            
-            // Clear any existing files first
-            selectedFiles = [];
-            
-            // Handle attachment if exists
-            if (draft.attachment && draft.attachment_info) {
-                console.log('Loading draft with attachment:', draft.attachment_info);
-                
-                // Create a mock file object with the attachment info
-                const mockFile = {
-                    name: draft.attachment_info.original_filename,
-                    size: draft.attachment_info.file_exists ? draft.attachment_info.file_size || 0 : 0,
-                    type: getFileType(draft.attachment_info.original_filename),
-                    draftFile: true,
-                    actualFilename: draft.attachment // Store the actual filename for later use
-                };
-                
-                selectedFiles = [mockFile];
-                
-                // Update file display
-                updateFileDisplay();
-                updateAttachmentButton();
-                
-                showToast('info', `Loaded draft with attachment: ${draft.attachment_info.original_filename}`);
-            } else {
-                // No attachment, ensure display is cleared
-                updateFileDisplay();
-                updateAttachmentButton();
-            }
-            
-            // Auto-resize textarea
-            setTimeout(() => {
-                autoResizeTextarea(document.getElementById('compose-message'));
-            }, 100);
+        if (!result.success || !result.message) {
+            showToast('error', result.error || 'Error loading message data');
+            return;
         }
+        
+        const msg = result.message;
+        
+        // Build forward message content
+        const forwardContent = `---------- Forwarded message ----------\n` +
+            `From: ${msg.sender_name}\n` +
+            `Date: ${msg.created_at}\n` +
+            `Subject: ${msg.subject}\n\n` +
+            `${msg.text}\n\n`;
+        
+        // Clear compose form
+        document.getElementById('compose-receiver').value = '';
+        document.getElementById('compose-subject').value = `Fwd: ${msg.subject}`;
+        document.getElementById('compose-message').value = forwardContent;
+        document.getElementById('compose-draft-id').value = '';
+        currentDraftId = null;
+        document.getElementById('draft-indicator').classList.remove('visible');
+        
+        // Clear attachments
+        selectedFiles = [];
+        updateFileDisplay();
+        updateAttachmentButton();
+        
+        // Open compose modal
+        openComposeModal();
+        
+        // Auto-resize textarea
+        setTimeout(() => {
+            autoResizeTextarea(document.getElementById('compose-message'));
+        }, 100);
+        
+        // Uncheck the message
+        const checkbox = document.querySelector(`.message-checkbox[data-message-id="${messageId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            updateMessageActionsToolbar();
+        }
+        
     } catch (error) {
-        console.error('Error loading draft:', error);
-        showToast('error', 'Error loading draft');
+        console.error('Error loading message for forward:', error);
+        showToast('error', 'Error loading message for forwarding');
     }
 }
 
@@ -3868,6 +4270,360 @@ function showToast(type, message) {
 // ============================================================================
 
 // Handle template dropdown toggle
+// Load message in detail panel - make it globally accessible (define before DOMContentLoaded)
+window.loadMessageInPanel = async function(messageId) {
+    const panel = document.getElementById('email-detail-panel');
+    const content = document.getElementById('email-detail-content');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    if (!panel || !content) {
+        return;
+    }
+    
+    // Helper function to escape HTML to prevent XSS and syntax errors
+    const escapeHtml = (str) => {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+    
+    // Show loading state
+    content.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
+    panel.classList.add('active');
+    if (messagesContainer) {
+        messagesContainer.classList.add('has-detail');
+    }
+    
+    try {
+        // Fetch message details using the show route
+        const response = await fetch(`/provider/message/${messageId}/show`);
+        const html = await response.text();
+        
+        if (response.ok) {
+            // Parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Find the messages-content-body container (where all message content is)
+            const contentContainer = doc.querySelector('.messages-content-body');
+            
+            if (!contentContainer) {
+                console.error('Could not find .messages-content-body in response');
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+                return;
+            }
+            
+            // Extract the entire content from messages-content-body
+            const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+            const threadHeader = contentContainer.querySelector('.thread-header');
+            const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container, .gmail-style-thread');
+            const messageDetailContent = contentContainer.querySelector('.message-detail-content');
+            const repliesSection = contentContainer.querySelector('.replies-section');
+            const replyForm = contentContainer.querySelector('.reply-form-section');
+            
+            // Build the content HTML
+            let contentHTML = '';
+            
+            // Note: Header will be extracted in the expanded content section below
+            
+            // If thread messages container exists, use it (thread view - Gmail style)
+            if (threadMessagesContainer) {
+                // Add thread header if it exists
+                if (threadHeader) {
+                    contentHTML += threadHeader.outerHTML;
+                }
+                // Add thread messages (Gmail style)
+                let threadHTML = threadMessagesContainer.outerHTML;
+                // Remove any window.open calls from forward buttons in thread messages
+                threadHTML = threadHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                threadHTML = threadHTML.replace(/onclick='[^']*window\.open[^']*'/gi, '');
+                // Replace window.open with window.location.href for forward buttons
+                threadHTML = threadHTML.replace(/window\.open\(([^,]+),\s*['"]_blank['"]\)/gi, 'window.location.href=$1');
+                contentHTML += threadHTML;
+                
+                // Re-initialize collapsible functionality
+                setTimeout(() => {
+                    document.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                        if (header.onclick) return; // Already has handler
+                        header.addEventListener('click', function(e) {
+                            if (e.target.closest('.gmail-action-btn')) return; // Don't collapse on button click
+                            toggleMessageCollapse(this);
+                        });
+                    });
+                }, 100);
+            } else if (messageDetailContent) {
+                // Otherwise use single message view
+                const messageHeader = messageDetailContent.querySelector('.message-header-info');
+                const messageBody = messageDetailContent.querySelector('.message-body');
+                const attachment = messageDetailContent.querySelector('.message-attachment');
+                
+                if (messageHeader) {
+                    const avatarImg = messageHeader.querySelector('img.message-sender-avatar, img');
+                    const avatar = avatarImg ? (avatarImg.getAttribute('src') || avatarImg.src) : '';
+                    const senderNameEl = messageHeader.querySelector('.message-sender-name');
+                    const senderName = senderNameEl ? senderNameEl.textContent.trim() : '';
+                    const dateEl = messageHeader.querySelector('.message-date');
+                    const date = dateEl ? dateEl.textContent.trim() : '';
+                    
+                    const safeAvatar = escapeHtml(avatar);
+                    const safeSenderName = escapeHtml(senderName);
+                    const safeDate = escapeHtml(date);
+                    
+                    contentHTML += `
+                        <div class="email-detail-message-header">
+                            <img src="${safeAvatar}" alt="${safeSenderName}" class="email-detail-avatar">
+                            <div class="email-detail-sender-info">
+                                <div class="email-detail-sender-name">${safeSenderName}</div>
+                                <div class="email-detail-date">${safeDate}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (messageBody) {
+                    const bodyText = messageBody.innerHTML || messageBody.textContent || '';
+                    if (bodyText.trim()) {
+                        contentHTML += `<div class="email-detail-body">${bodyText}</div>`;
+                    }
+                }
+                
+                if (attachment) {
+                    let attachmentHTML = attachment.outerHTML;
+                    attachmentHTML = attachmentHTML.replace(/message-attachment/g, 'email-detail-attachment');
+                    contentHTML += attachmentHTML;
+                }
+            }
+            
+            // Add replies section (only if not using thread view)
+            if (!threadMessagesContainer) {
+                if (repliesSection) {
+                    const repliesTitle = repliesSection.querySelector('.replies-section-title');
+                    const repliesTitleText = repliesTitle ? repliesTitle.textContent.trim() : 'Replies';
+                    const repliesList = repliesSection.querySelector('.replies-list');
+                    
+                    const safeRepliesTitleText = escapeHtml(repliesTitleText);
+                    
+                    contentHTML += `
+                        <div class="email-detail-replies">
+                            <div class="email-detail-replies-title">${safeRepliesTitleText}</div>
+                    `;
+                    
+                    if (repliesList && repliesList.children.length > 0) {
+                        Array.from(repliesList.children).forEach(replyItem => {
+                            let replyHTML = replyItem.outerHTML;
+                            replyHTML = replyHTML.replace(/reply-item/g, 'email-detail-reply-item')
+                                .replace(/reply-header/g, 'email-detail-reply-header')
+                                .replace(/reply-avatar/g, 'email-detail-reply-avatar')
+                                .replace(/reply-sender/g, 'email-detail-reply-sender')
+                                .replace(/reply-date/g, 'email-detail-reply-date')
+                                .replace(/reply-text/g, 'email-detail-reply-text')
+                                .replace(/reply-attachment/g, 'email-detail-attachment');
+                            contentHTML += replyHTML;
+                        });
+                    } else {
+                        contentHTML += '<div class="empty-replies">No replies yet.</div>';
+                    }
+                    
+                    contentHTML += '</div>';
+                }
+            }
+            
+            // Add reply form
+            if (replyForm) {
+                let formHTML = replyForm.outerHTML;
+                formHTML = formHTML.replace(/reply-form-section/g, 'email-detail-reply-form')
+                    .replace(/id="reply-form"/g, 'id="email-detail-reply-form"')
+                    .replace(/reply-form(?![^<]*>)/g, 'email-detail-reply-form');
+                
+                // Add forward button next to the reply button
+                // Create a temporary DOM element to manipulate the form
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = formHTML;
+                const form = tempDiv.querySelector('form');
+                
+                if (form) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        // Create actions container
+                        const actionsContainer = document.createElement('div');
+                        actionsContainer.className = 'email-detail-reply-form-actions';
+                        
+                        // Create forward button
+                        const forwardBtn = document.createElement('a');
+                        forwardBtn.href = `/provider/messages/${messageId}/forward-message`;
+                        forwardBtn.className = 'email-detail-forward-btn';
+                        forwardBtn.style.textDecoration = 'none';
+                        forwardBtn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            window.location.href = this.href;
+                            return false;
+                        };
+                        forwardBtn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Forward
+                        `;
+                        
+                        // Add forward button and submit button to actions container
+                        actionsContainer.appendChild(forwardBtn);
+                        const clonedSubmitBtn = submitButton.cloneNode(true);
+                        clonedSubmitBtn.style.marginLeft = 'auto';
+                        actionsContainer.appendChild(clonedSubmitBtn);
+                        
+                        // Replace submit button with actions container
+                        submitButton.parentNode.replaceChild(actionsContainer, submitButton);
+                    }
+                    
+                    formHTML = tempDiv.innerHTML;
+                }
+                
+                contentHTML += formHTML;
+                
+                // Re-initialize reply form handler
+                setTimeout(() => {
+                    const replyFormElement = document.querySelector('#email-detail-content #email-detail-reply-form, #email-detail-content .email-detail-reply-form form');
+                    if (replyFormElement) {
+                        // Remove any existing listeners by cloning
+                        const newForm = replyFormElement.cloneNode(true);
+                        replyFormElement.parentNode.replaceChild(newForm, replyFormElement);
+                        
+                        newForm.addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(this);
+                            
+                            // Find the submit button - it might be in the actions container now
+                            const actionsContainer = this.querySelector('.email-detail-reply-form-actions');
+                            const button = actionsContainer ? actionsContainer.querySelector('button[type="submit"]') : this.querySelector('button[type="submit"]');
+                            
+                            if (!button) {
+                                console.error('Submit button not found');
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'Submit button not found. Please refresh the page.');
+                                }
+                                return;
+                            }
+                            
+                            const originalButtonText = button.innerHTML;
+                            
+                            button.disabled = true;
+                            button.innerHTML = '<span>Sending...</span>';
+                            
+                            try {
+                                const response = await fetch(`/provider/messages/${messageId}/reply`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                
+                                if (result.success) {
+                                    this.reset();
+                                    if (typeof showToast === 'function') {
+                                        showToast('success', 'Reply sent successfully');
+                                    }
+                                    // Reload the message to show the new reply
+                                    window.loadMessageInPanel(messageId);
+                                } else {
+                                    if (typeof showToast === 'function') {
+                                        showToast('error', result.error || 'An error occurred.');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error sending reply:', error);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'An error occurred while sending your reply.');
+                                }
+                            } finally {
+                                button.disabled = false;
+                                button.innerHTML = originalButtonText;
+                            }
+                        });
+                    }
+                }, 100);
+            }
+            
+            if (contentHTML.trim() === '') {
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not extract message content. Please try again.</div>';
+            } else {
+                content.innerHTML = contentHTML;
+                
+                // Re-initialize collapsible messages if Gmail style
+                setTimeout(() => {
+                    if (typeof toggleMessageCollapse === 'function') {
+                        document.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                            if (!header.hasAttribute('data-initialized')) {
+                                header.setAttribute('data-initialized', 'true');
+                                header.addEventListener('click', function(e) {
+                                    if (e.target.closest('.gmail-action-btn')) return;
+                                    toggleMessageCollapse(this);
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Fix forward buttons to navigate in same window (not open new window)
+                    // This is for the old panel view, but we'll keep it for compatibility
+                    document.querySelectorAll('#email-detail-content .forward-btn, #email-detail-content .gmail-action-btn').forEach(function(btn) {
+                        if (btn.href) {
+                            btn.onclick = null; // Remove existing
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                window.location.href = this.href;
+                            }, true);
+                        }
+                    });
+                    
+                    // Fix back button to close expanded section instead of navigating
+                    const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                    if (expandedContentArea) {
+                        const backBtn = expandedContentArea.querySelector('.back-button');
+                        if (backBtn) {
+                            backBtn.href = 'javascript:void(0);';
+                            backBtn.onclick = function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (typeof window.toggleMessageExpansion === 'function') {
+                                    window.toggleMessageExpansion(messageId);
+                                }
+                                return false;
+                            };
+                        }
+                    }
+                }, 100);
+                
+                // Mark message as read
+                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageItem) {
+                    messageItem.classList.remove('unread');
+                    messageItem.classList.add('read');
+                    const newBadge = messageItem.querySelector('.btn-new-message');
+                    if (newBadge) {
+                        newBadge.remove();
+                    }
+                }
+            }
+        } else {
+            content.innerHTML = '<div class="email-detail-loading">Error loading message (Status: ' + response.status + '). Please try again.</div>';
+        }
+    } catch (error) {
+        console.error('Error loading message:', error);
+        content.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const dropdownBtn = document.getElementById('templatesDropdownBtn');
     const dropdownMenu = document.getElementById('templatesDropdownMenu');
@@ -3984,6 +4740,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize message actions toolbar
     updateMessageActionsToolbar();
     updateTrashCount();
+    handleCheckboxChange();
     
     // Initialize trash action buttons if in trash view
     if (window.location.href.includes('type=trash')) {
@@ -3993,7 +4750,22 @@ document.addEventListener('DOMContentLoaded', function() {
         updateMessageActionsToolbar();
     }
     
-    // Handle message item clicks - load in split view instead of navigating
+    // Handle draft item clicks - load draft in compose modal
+    document.addEventListener('click', function(e) {
+        // Check if clicking on draft item (but not checkbox)
+        const draftItem = e.target.closest('.draft-item');
+        if (draftItem && !e.target.closest('input[type="checkbox"]')) {
+            const draftId = draftItem.getAttribute('data-draft-id');
+            if (draftId && typeof loadDraftFromServer === 'function') {
+                e.preventDefault();
+                e.stopPropagation();
+                loadDraftFromServer(draftId);
+                return;
+            }
+        }
+    }, true); // Use capture phase to catch events early
+    
+    // Handle message item clicks - open message when clicking on tile, select when clicking checkbox
     document.addEventListener('click', function(e) {
         // Don't intercept if clicking on checkbox, button, or other interactive elements
         if (e.target.type === 'checkbox' || 
@@ -4001,308 +4773,254 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.closest('button') || 
             e.target.tagName === 'BUTTON' ||
             e.target.closest('.message-forward-btn') ||
-            e.target.closest('.btn-new-message')) {
+            e.target.closest('.btn-new-message') ||
+            e.target.closest('.permanent-delete-btn') ||
+            e.target.closest('.restore-btn') ||
+            e.target.closest('a[href*="forward"]')) {
             return;
         }
         
-        // Find the closest message-item link
-        const messageLink = e.target.closest('a.message-item');
-        
-        if (messageLink) {
-            // Prevent default navigation
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Get message ID from data attribute or href
-            const messageId = messageLink.getAttribute('data-message-id') || 
-                            messageLink.getAttribute('href')?.match(/\/message\/([^\/]+)/)?.[1];
-            
-            if (messageId && typeof loadMessageInPanel === 'function') {
-                loadMessageInPanel(messageId);
-            }
+        // Don't intercept draft items - they have their own click handler above
+        const draftItem = e.target.closest('.draft-item');
+        if (draftItem) {
+            return;
         }
-    });
-});
-
-// Load message in detail panel - make it globally accessible
-window.loadMessageInPanel = async function(messageId) {
-    const panel = document.getElementById('email-detail-panel');
-    const content = document.getElementById('email-detail-content');
-    const messagesContainer = document.querySelector('.messages-container');
-    
-    if (!panel || !content) {
-        return;
-    }
-    
-    // Helper function to escape HTML to prevent XSS and syntax errors
-    const escapeHtml = (str) => {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    };
-    
-    // Show loading state
-    content.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
-    panel.classList.add('active');
-    if (messagesContainer) {
-        messagesContainer.classList.add('has-detail');
-    }
-    
-    try {
-        // Fetch message details using the show route
-        const response = await fetch(`/provider/message/${messageId}/show`);
-        const html = await response.text();
         
-        if (response.ok) {
-            // Parse the HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
+        // Handle message item clicks - open/expand message
+        const messageItem = e.target.closest('.message-item');
+        if (messageItem) {
+            // Get the message ID from the checkbox or message item
+            const checkbox = messageItem.querySelector('.message-checkbox');
+            const messageId = checkbox ? checkbox.getAttribute('data-message-id') : messageItem.getAttribute('data-message-id');
             
-            // Find the messages-content-body container (where all message content is)
-            const contentContainer = doc.querySelector('.messages-content-body');
-            
-            if (!contentContainer) {
-                console.error('Could not find .messages-content-body in response');
-                content.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+            if (messageId) {
+                // Open/expand the message
+                if (typeof window.toggleMessageExpansion === 'function') {
+                    window.toggleMessageExpansion(messageId);
+                }
+                e.preventDefault();
+                e.stopPropagation();
                 return;
             }
-            
-            // Extract the entire content from messages-content-body
-            const backButtonHeader = contentContainer.querySelector('.message-detail-header');
-            const threadHeader = contentContainer.querySelector('.thread-header');
-            const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container');
-            const messageDetailContent = contentContainer.querySelector('.message-detail-content');
-            const repliesSection = contentContainer.querySelector('.replies-section');
-            const replyForm = contentContainer.querySelector('.reply-form-section');
-            
-            // Build the content HTML
-            let contentHTML = '';
-            
-            // If thread messages container exists, use it (thread view)
-            if (threadMessagesContainer) {
-                // Add thread header if it exists
-                if (threadHeader) {
-                    contentHTML += threadHeader.outerHTML;
-                }
-                // Add thread messages
-                contentHTML += threadMessagesContainer.outerHTML;
-            } else if (messageDetailContent) {
-                // Otherwise use single message view
-                const messageHeader = messageDetailContent.querySelector('.message-header-info');
-                const messageBody = messageDetailContent.querySelector('.message-body');
-                const attachment = messageDetailContent.querySelector('.message-attachment');
+        }
+    }, true); // Use capture phase to catch events early
+});
+
+// Toggle message expansion inline (dropdown style)
+window.toggleMessageExpansion = async function(messageId) {
+    const messageThread = document.querySelector(`[data-message-id="${messageId}"].message-thread`);
+    if (!messageThread) return;
+    
+    const expandedContent = messageThread.querySelector('.message-item-expanded');
+    if (!expandedContent) return;
+    
+    const isExpanded = messageThread.classList.contains('expanded');
+    
+    if (isExpanded) {
+        // Collapse
+        messageThread.classList.remove('expanded');
+    } else {
+        // Expand - load message content
+        messageThread.classList.add('expanded');
+        
+        const contentDiv = expandedContent.querySelector('.message-item-expanded-content');
+        if (contentDiv && contentDiv.innerHTML.includes('Loading message')) {
+            try {
+                const response = await fetch(`/provider/message/${messageId}/show`);
+                const html = await response.text();
                 
-                if (messageHeader) {
-                    const avatarImg = messageHeader.querySelector('img.message-sender-avatar, img');
-                    const avatar = avatarImg ? (avatarImg.getAttribute('src') || avatarImg.src) : '';
-                    const senderNameEl = messageHeader.querySelector('.message-sender-name');
-                    const senderName = senderNameEl ? senderNameEl.textContent.trim() : '';
-                    const dateEl = messageHeader.querySelector('.message-date');
-                    const date = dateEl ? dateEl.textContent.trim() : '';
+                if (response.ok) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const contentContainer = doc.querySelector('.messages-content-body');
                     
-                    const safeAvatar = escapeHtml(avatar);
-                    const safeSenderName = escapeHtml(senderName);
-                    const safeDate = escapeHtml(date);
-                    
-                    contentHTML += `
-                        <div class="email-detail-message-header">
-                            <img src="${safeAvatar}" alt="${safeSenderName}" class="email-detail-avatar">
-                            <div class="email-detail-sender-info">
-                                <div class="email-detail-sender-name">${safeSenderName}</div>
-                                <div class="email-detail-date">${safeDate}</div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                if (messageBody) {
-                    const bodyText = messageBody.innerHTML || messageBody.textContent || '';
-                    if (bodyText.trim()) {
-                        contentHTML += `<div class="email-detail-body">${bodyText}</div>`;
-                    }
-                }
-                
-                if (attachment) {
-                    let attachmentHTML = attachment.outerHTML;
-                    attachmentHTML = attachmentHTML.replace(/message-attachment/g, 'email-detail-attachment');
-                    contentHTML += attachmentHTML;
-                }
-            }
-            
-            // Add replies section (only if not using thread view)
-            if (!threadMessagesContainer) {
-            if (repliesSection) {
-                const repliesTitle = repliesSection.querySelector('.replies-section-title');
-                const repliesTitleText = repliesTitle ? repliesTitle.textContent.trim() : 'Replies';
-                const repliesList = repliesSection.querySelector('.replies-list');
-                
-                const safeRepliesTitleText = escapeHtml(repliesTitleText);
-                
-                contentHTML += `
-                    <div class="email-detail-replies">
-                        <div class="email-detail-replies-title">${safeRepliesTitleText}</div>
-                `;
-                
-                if (repliesList && repliesList.children.length > 0) {
-                    Array.from(repliesList.children).forEach(replyItem => {
-                        let replyHTML = replyItem.outerHTML;
-                        replyHTML = replyHTML.replace(/reply-item/g, 'email-detail-reply-item')
-                            .replace(/reply-header/g, 'email-detail-reply-header')
-                            .replace(/reply-avatar/g, 'email-detail-reply-avatar')
-                            .replace(/reply-sender/g, 'email-detail-reply-sender')
-                            .replace(/reply-date/g, 'email-detail-reply-date')
-                            .replace(/reply-text/g, 'email-detail-reply-text')
-                            .replace(/reply-attachment/g, 'email-detail-attachment');
-                        contentHTML += replyHTML;
-                    });
-                } else {
-                    contentHTML += '<div class="empty-replies">No replies yet.</div>';
-                }
-                
-                contentHTML += '</div>';
-            }
-            
-            // Add reply form
-            if (replyForm) {
-                let formHTML = replyForm.outerHTML;
-                formHTML = formHTML.replace(/reply-form-section/g, 'email-detail-reply-form')
-                    .replace(/id="reply-form"/g, 'id="email-detail-reply-form"')
-                    .replace(/reply-form(?![^<]*>)/g, 'email-detail-reply-form');
-                
-                // Add forward button next to the reply button
-                // Create a temporary DOM element to manipulate the form
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = formHTML;
-                const form = tempDiv.querySelector('form');
-                
-                if (form) {
-                    const submitButton = form.querySelector('button[type="submit"]');
-                    if (submitButton) {
-                        // Create actions container
-                        const actionsContainer = document.createElement('div');
-                        actionsContainer.className = 'email-detail-reply-form-actions';
+                    if (contentContainer) {
+                        const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container, .gmail-style-thread');
+                        const messageDetailContent = contentContainer.querySelector('.message-detail-content');
+                        const replyForm = contentContainer.querySelector('.reply-form-section');
                         
-                        // Create forward button
-                        const forwardBtn = document.createElement('a');
-                        forwardBtn.href = `/provider/messages/${messageId}/forward-message`;
-                        forwardBtn.className = 'email-detail-forward-btn';
-                        forwardBtn.style.textDecoration = 'none';
-                        forwardBtn.innerHTML = `
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Forward
-                        `;
+                        let contentHTML = '';
                         
-                        // Add forward button and submit button to actions container
-                        actionsContainer.appendChild(forwardBtn);
-                        const clonedSubmitBtn = submitButton.cloneNode(true);
-                        clonedSubmitBtn.style.marginLeft = 'auto';
-                        actionsContainer.appendChild(clonedSubmitBtn);
+                        // Extract header with forward button first (always show forward button)
+                        const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+                        if (backButtonHeader) {
+                            let headerHTML = backButtonHeader.outerHTML;
+                            // Remove any window.open calls from forward buttons
+                            headerHTML = headerHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                            headerHTML = headerHTML.replace(/onclick='[^']*window\.open[^']*'/gi, '');
+                            // Make back button close expanded section instead of navigating
+                            headerHTML = headerHTML.replace(/href="[^"]*app_provider_messages[^"]*"/gi, `href="javascript:void(0);" onclick="if(typeof window.toggleMessageExpansion === 'function') { window.toggleMessageExpansion('${messageId}'); } return false;"`);
+                            // Ensure forward button has proper onclick - add if not present
+                            if (!headerHTML.includes('onclick=') || !headerHTML.match(/class="forward-btn"[^>]*onclick=/)) {
+                                headerHTML = headerHTML.replace(/(<a[^>]*class="forward-btn"[^>]*)(>)/g, '$1 onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;"$2');
+                            }
+                            contentHTML += headerHTML;
+                        }
                         
-                        // Replace submit button with actions container
-                        submitButton.parentNode.replaceChild(actionsContainer, submitButton);
-                    }
-                    
-                    formHTML = tempDiv.innerHTML;
-                }
-                
-                contentHTML += formHTML;
-                
-                // Re-initialize reply form handler
-                setTimeout(() => {
-                    const replyFormElement = document.querySelector('#email-detail-content #email-detail-reply-form, #email-detail-content .email-detail-reply-form form');
-                    if (replyFormElement) {
-                        // Remove any existing listeners by cloning
-                        const newForm = replyFormElement.cloneNode(true);
-                        replyFormElement.parentNode.replaceChild(newForm, replyFormElement);
+                        // Extract thread messages or single message
+                        if (threadMessagesContainer) {
+                            const threadHeader = contentContainer.querySelector('.thread-header');
+                            if (threadHeader) {
+                                contentHTML += threadHeader.outerHTML;
+                            }
+                            contentHTML += threadMessagesContainer.outerHTML;
+                        } else if (messageDetailContent) {
+                            contentHTML += messageDetailContent.outerHTML;
+                        }
                         
-                        newForm.addEventListener('submit', async function(e) {
-                            e.preventDefault();
-                            const formData = new FormData(this);
-                            
-                            // Find the submit button - it might be in the actions container now
-                            const actionsContainer = this.querySelector('.email-detail-reply-form-actions');
-                            const button = actionsContainer ? actionsContainer.querySelector('button[type="submit"]') : this.querySelector('button[type="submit"]');
-                            
-                            if (!button) {
-                                console.error('Submit button not found');
-                                if (typeof showToast === 'function') {
-                                    showToast('error', 'Submit button not found. Please refresh the page.');
+                        // Add reply form
+                        if (replyForm) {
+                            contentHTML += replyForm.outerHTML;
+                        }
+                        
+                        contentHTML = contentHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                        contentHTML = contentHTML.replace(/window\.open\(([^,]+),\s*['"]_blank['"]\)/gi, 'window.location.href=$1');
+                        
+                        contentDiv.innerHTML = contentHTML;
+                        
+                        // Re-initialize collapsible messages
+                        setTimeout(() => {
+                            if (typeof window.toggleMessageCollapse === 'function') {
+                                // Find all gmail message headers within the expanded content
+                                const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                                if (expandedContentArea) {
+                                    expandedContentArea.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                                        // Remove any existing listeners by cloning
+                                        const newHeader = header.cloneNode(true);
+                                        header.parentNode.replaceChild(newHeader, header);
+                                        
+                                        // Add click handler to the header
+                                        newHeader.addEventListener('click', function(e) {
+                                            // Don't collapse if clicking on action buttons
+                                            if (e.target.closest('.gmail-action-btn')) return;
+                                            // Don't collapse if clicking on forward button
+                                            if (e.target.closest('button') && e.target.closest('button').classList.contains('gmail-action-btn')) return;
+                                            // Don't collapse if clicking on collapse icon (handled separately)
+                                            if (e.target.closest('.collapse-icon')) return;
+                                            
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            window.toggleMessageCollapse(this);
+                                        });
+                                        
+                                        // Also make the collapse icon clickable - only collapse individual message, not entire section
+                                        const collapseIcon = newHeader.querySelector('.collapse-icon');
+                                        if (collapseIcon) {
+                                            collapseIcon.style.cursor = 'pointer';
+                                            collapseIcon.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                // Just collapse/expand this individual message
+                                                window.toggleMessageCollapse(newHeader);
+                                            });
+                                        }
+                                    });
                                 }
-                                return;
                             }
                             
-                            const originalButtonText = button.innerHTML;
-                            
-                            button.disabled = true;
-                            button.innerHTML = '<span>Sending...</span>';
-                            
-                            try {
-                                const response = await fetch(`/provider/messages/${messageId}/reply`, {
-                                    method: 'POST',
-                                    body: formData
+                            // Fix forward buttons in expanded content
+                            const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                            if (expandedContentArea) {
+                                // Fix forward buttons in header (Forward all / Forward button)
+                                expandedContentArea.querySelectorAll('.forward-btn').forEach(function(btn) {
+                                    if (btn.href) {
+                                        // Remove existing onclick
+                                        btn.onclick = null;
+                                        btn.removeAttribute('onclick');
+                                        btn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            e.stopImmediatePropagation();
+                                            window.location.href = this.href;
+                                        }, true); // Use capture phase
+                                    }
                                 });
                                 
-                                if (!response.ok) {
-                                    throw new Error(`HTTP error! status: ${response.status}`);
-                                }
-                                
-                                const result = await response.json();
-                                
-                                if (result.success) {
-                                    this.reset();
-                                    if (typeof showToast === 'function') {
-                                        showToast('success', 'Reply sent successfully');
+                                // Fix forward buttons on individual messages (gmail-action-btn)
+                                expandedContentArea.querySelectorAll('.gmail-action-btn').forEach(function(btn) {
+                                    // Get the onclick attribute value (from Twig template)
+                                    const onclickAttr = btn.getAttribute('onclick');
+                                    if (onclickAttr && onclickAttr.includes('window.location.href')) {
+                                        // Extract the href from onclick attribute
+                                        const hrefMatch = onclickAttr.match(/window\.location\.href=['"]([^'"]+)['"]/);
+                                        if (hrefMatch && hrefMatch[1]) {
+                                            const forwardHref = hrefMatch[1];
+                                            // Remove existing onclick and add proper event listener with capture phase
+                                            btn.removeAttribute('onclick');
+                                            btn.onclick = null;
+                                            btn.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                e.stopImmediatePropagation();
+                                                window.location.href = forwardHref;
+                                            }, true); // Use capture phase to ensure it fires first
+                                        }
+                                    } else if (btn.href) {
+                                        btn.onclick = null;
+                                        btn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            e.stopImmediatePropagation();
+                                            window.location.href = this.href;
+                                        }, true);
                                     }
-                                    // Reload the message to show the new reply
-                                    loadMessageInPanel(messageId);
-                                } else {
-                                    if (typeof showToast === 'function') {
-                                        showToast('error', result.error || 'An error occurred.');
-                                    }
-                                }
-                            } catch (error) {
-                                console.error('Error sending reply:', error);
-                                if (typeof showToast === 'function') {
-                                    showToast('error', 'An error occurred while sending your reply.');
-                                }
-                            } finally {
-                                button.disabled = false;
-                                button.innerHTML = originalButtonText;
+                                });
                             }
-                        });
-                    }
-                }, 100);
-            }
-            
-            if (contentHTML.trim() === '') {
-                content.innerHTML = '<div class="email-detail-loading">Error: Could not extract message content. Please try again.</div>';
-            } else {
-                content.innerHTML = contentHTML;
-                
-                // Mark message as read
-                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageItem) {
-                    messageItem.classList.remove('unread');
-                    messageItem.classList.add('read');
-                    const newBadge = messageItem.querySelector('.btn-new-message');
-                    if (newBadge) {
-                        newBadge.remove();
+                        }, 100);
                     }
                 }
+            } catch (error) {
+                console.error('Error loading message:', error);
+                contentDiv.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
             }
-        } else {
-            content.innerHTML = '<div class="email-detail-loading">Error loading message (Status: ' + response.status + '). Please try again.</div>';
         }
-    } catch (error) {
-        content.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
     }
 };
+
+// Toggle message collapse (Gmail-style) - make globally accessible
+window.toggleMessageCollapse = function(headerElement) {
+    const messageItem = headerElement.closest('.gmail-message-item');
+    if (messageItem) {
+        messageItem.classList.toggle('collapsed');
+        const content = messageItem.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            if (messageItem.classList.contains('collapsed')) {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        }
+    }
+};
+
+// Ensure forward buttons always work - global handler
+document.addEventListener('click', function(e) {
+    // Handle forward buttons
+    const forwardBtn = e.target.closest('.message-forward-btn, .forward-btn, .gmail-action-btn, a[href*="forward"]');
+    if (forwardBtn) {
+        // Check if it's a button with onclick
+        if (forwardBtn.onclick || forwardBtn.getAttribute('onclick')) {
+            const onclickAttr = forwardBtn.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.includes('window.location.href')) {
+                const hrefMatch = onclickAttr.match(/window\.location\.href=['"]([^'"]+)['"]/);
+                if (hrefMatch && hrefMatch[1]) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    window.location.href = hrefMatch[1];
+                    return false;
+                }
+            }
+        } else if (forwardBtn.href && forwardBtn.href !== 'javascript:void(0);' && !forwardBtn.href.includes('#')) {
+            // Regular link with href
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            window.location.href = forwardBtn.href;
+            return false;
+        }
+    }
+}, true); // Use capture phase to catch early
 
 // Close email detail panel
 function closeEmailDetailPanel() {

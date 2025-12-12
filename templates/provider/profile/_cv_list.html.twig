@@ -1,60 +1,61 @@
 {% if cvDocuments is not empty %}
-<div class="mt-4">
-    <h6 class="fw-semibold mb-3" style="color: #252930; font-size: 0.95rem;">Uploaded CVs</h6>
-    <div class="d-flex flex-column gap-2">
-        {% for cv in cvDocuments %}
-        <div class="p-3 rounded-3 border d-flex align-items-center justify-content-between bg-white hover-shadow transition-all" style="border-color: #e5e7eb !important;">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background-color: #F4F9F1; color: #85BB65;">
-                    <i class="fa fa-file-pdf fa-lg"></i>
-                </div>
-                <div>
-                    <div class="fw-medium text-dark" style="font-size: 0.95rem;">{{ cv.name }}</div>
-                    <div class="text-muted small d-flex align-items-center gap-2">
-                        <span><i class="fa fa-clock me-1"></i>{{ cv.createdAt ? cv.createdAt|date('M d, Y h:i A') : '' }}</span>
-                    </div>
-                </div>
+<div class="d-flex flex-column gap-2" style="margin-top: 12px; overflow: hidden;">
+    {% for cv in cvDocuments %}
+    <div class="p-2 rounded-2 border d-flex align-items-center justify-content-between bg-white hover-shadow transition-all" style="border-color: #e5e7eb !important; min-width: 0; overflow: hidden;">
+        <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0; overflow: hidden;">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; background-color: #F4F9F1; color: #000000;">
+                <i class="fa fa-file-pdf" style="color: #000000; font-size: 14px;"></i>
             </div>
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" 
-                        class="btn btn-light btn-sm text-primary d-flex align-items-center gap-1 view-cv-btn" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#viewCvModal" 
-                        data-cv-url="{{ path('app_provider_document_view', {'id': cv.id}) }}"
-                        data-cv-name="{{ cv.name }}"
-                        title="View CV">
-                    <i class="fa fa-eye"></i>
-                    <span class="d-none d-md-inline">View</span>
-                </button>
-                
-                <a href="{{ asset('uploads/' ~ app.user.id ~ '/' ~ cv.fileName) }}" 
-                   download 
-                   class="btn btn-light btn-sm text-success d-flex align-items-center gap-1"
-                   title="Download CV">
-                    <i class="fa fa-download"></i>
-                    <span class="d-none d-md-inline">Download</span>
-                </a>
-                
-                <form action="{{ path('app_provider_profile_cv_delete', {id: cv.id}) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this CV?');" class="d-inline">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_cv_' ~ cv.id) }}">
-                    <button type="submit" class="btn btn-light btn-sm text-danger d-flex align-items-center gap-1" title="Delete CV">
-                        <i class="fa fa-trash"></i>
-                        <span class="d-none d-md-inline">Delete</span>
-                    </button>
-                </form>
+            <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
+                <div class="fw-medium" style="font-size: 0.875rem; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;">{{ cv.name }}</div>
             </div>
         </div>
-        {% endfor %}
+        <div class="d-flex align-items-center gap-2 flex-shrink-0" style="gap: 6px; flex-shrink: 0;">
+            <button type="button" 
+                    class="btn btn-light btn-sm d-flex align-items-center justify-content-center delete-cv-btn" 
+                    data-cv-id="{{ cv.id }}"
+                    data-cv-name="{{ cv.name }}"
+                    data-csrf-token="{{ csrf_token('delete_cv_' ~ cv.id) }}"
+                    title="Delete CV"
+                    style="width: 32px; height: 32px; padding: 0; border: 1px solid #dc3545; background: transparent; color: #dc3545; border-radius: 6px; flex-shrink: 0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+            <button type="button" 
+                    class="btn btn-light btn-sm d-flex align-items-center justify-content-center view-cv-btn" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#viewCvModal" 
+                    data-cv-url="{{ path('app_provider_document_view', {'id': cv.id}) }}"
+                    data-cv-name="{{ cv.name }}"
+                    title="View CV"
+                    style="width: 32px; height: 32px; padding: 0; border: 1px solid #85BB65; background: transparent; color: #000000; border-radius: 6px; flex-shrink: 0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </button>
+        </div>
     </div>
+    {% endfor %}
 </div>
 {% endif %}
 
 <style>
     .hover-shadow:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
         border-color: #85BB65 !important;
+        transform: translateY(-1px);
     }
     .transition-all {
         transition: all 0.2s ease-in-out;
+    }
+    .delete-cv-btn:hover,
+    .view-cv-btn:hover {
+        transform: scale(1.05);
     }
 </style>

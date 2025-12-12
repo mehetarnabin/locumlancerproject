@@ -5,6 +5,7 @@ namespace App\Controller\Provider;
 use App\Entity\Application;
 use App\Entity\Bookmark;
 use App\Entity\Job;
+use App\Entity\Interview;
 use App\Service\JobNoteService;
 use App\Entity\ToDo;
 use App\Entity\Review;
@@ -261,7 +262,8 @@ class JobController extends AbstractController
     public function applicationsNew(
         BookmarkRepository $bookmarkRepository,
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ToDoRepository $todoRepository
     ): Response {
         $user = $this->getUser();
         $provider = $user->getProvider();
@@ -304,6 +306,21 @@ class JobController extends AbstractController
         }
 
         $applications = $em->getRepository(Application::class)->getAll($offset, $perPage, $filters);
+
+        $assignedTodos = $todoRepository->findAllAssignedToProvider($provider);
+        $assignedJobIds = [];
+        foreach ($assignedTodos as $todo) {
+            $job = $todo->getJob();
+            if ($job && $job->getId()) {
+                $assignedJobIds[] = (string)$job->getId();
+                continue;
+            }
+            $dr = $todo->getDocumentRequest();
+            if ($dr && $dr->getApplication() && $dr->getApplication()->getJob()) {
+                $assignedJobIds[] = (string)$dr->getApplication()->getJob()->getId();
+            }
+        }
+        $assignedJobIds = array_values(array_unique($assignedJobIds));
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($this->getUser()->getProvider()->getId());
         $statusCounts[] = [
             'status' => 'saved',
@@ -314,11 +331,36 @@ class JobController extends AbstractController
             ->setParameter('provider', $this->getUser()->getProvider()->getId())
             ->getSingleScalarResult();
 
+        // Build pending document names per job for tooltip display
+        $pendingDocsByJob = [];
+        $docStatusesTextByJob = [];
+        foreach ($applications as $app) {
+            $job = $app->getJob();
+            if (!$job) { continue; }
+            $names = [];
+            $statusParts = [];
+            foreach ($app->getDocumentRequests() as $dr) {
+                if (!$dr->getProvidedAt()) {
+                    $names[] = $dr->getName();
+                }
+                $statusParts[] = $dr->getName() . ' (' . ($dr->getProvidedAt() ? 'Provided' : 'Pending') . ')';
+            }
+            if (!empty($names)) {
+                $pendingDocsByJob[(string)$job->getId()] = array_values(array_unique($names));
+            }
+            if (!empty($statusParts)) {
+                $docStatusesTextByJob[(string)$job->getId()] = implode(', ', $statusParts);
+            }
+        }
+
         // Handle AJAX request
         if ($request->isXmlHttpRequest()) {
             $html = $this->renderView('provider/job/_application_list.html.twig', [
                 'applications' => $applications,
                 'status' => $request->query->get('status', ''),
+                'assignedJobIds' => $assignedJobIds,
+                'pendingDocsByJob' => $pendingDocsByJob,
+                'docStatusesTextByJob' => $docStatusesTextByJob,
             ]);
             return $this->json(['html' => $html]);
         }
@@ -327,6 +369,9 @@ class JobController extends AbstractController
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
+            'assignedJobIds' => $assignedJobIds,
+            'pendingDocsByJob' => $pendingDocsByJob,
+            'docStatusesTextByJob' => $docStatusesTextByJob,
         ]);
     }
 
@@ -570,6 +615,10 @@ class JobController extends AbstractController
         ]);
 
         if ($existingReview) {
+            // If AJAX request, return JSON
+            if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                return $this->json(['error' => 'You already have written a review for this employer.'], 400);
+            }
             $this->addFlash('error', 'You already have write review for employer.');
             return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
         }
@@ -607,9 +656,18 @@ class JobController extends AbstractController
 
                 $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::EMPLOYER_REVIEWED);
 
+                // If AJAX request, return JSON
+                if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return $this->json(['success' => true, 'message' => 'Review added for employer successfully.']);
+                }
+
                 $this->addFlash('success', 'Review added for employer successfully.');
                 return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
             } else {
+                // If AJAX request, return JSON
+                if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return $this->json(['error' => 'Unable to create review. Please fill in all required fields.'], 400);
+                }
                 $this->addFlash('error', 'Unable to create review. Please fill in all required fields.');
                 return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
             }
@@ -619,6 +677,73 @@ class JobController extends AbstractController
         return $this->render('provider/job/review.html.twig', [
             'application' => $application,
         ]);
+    }
+
+    #[Route('/{id}/submit-review', name: 'app_provider_application_submit_review', methods: ['POST'])]
+    public function submitReview(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher,
+    ): JsonResponse {
+        $provider = $application->getProvider();
+        $employer = $application->getEmployer();
+
+        try {
+            $message = $request->get('message');
+            $point = (int)$request->get('point');
+
+            if (empty($message) || empty($point) || $point < 1 || $point > 5) {
+                return $this->json(['error' => 'Invalid message or rating. Rating must be between 1-5.'], 400);
+            }
+
+            $existingReview = $em->getRepository(Review::class)->findOneBy([
+                'application' => $application,
+                'employer' => $employer,
+                'provider' => $provider,
+                'reviewedBy' => 'PROVIDER'
+            ]);
+
+            if ($existingReview) {
+                return $this->json(['error' => 'You already have written a review for this employer.'], 400);
+            }
+
+            $review = new Review();
+            $review->setMessage($message);
+            $review->setPoint($point);
+            $review->setEmployer($employer);
+            $review->setProvider($provider);
+            $review->setApplication($application);
+            $review->setReviewedBy('PROVIDER');
+
+            $em->persist($review);
+            $em->flush();
+
+            // Calculate average of all review points for this employer
+            $qb = $em->createQueryBuilder();
+            $qb->select('AVG(r.point)')
+                ->from(Review::class, 'r')
+                ->where('r.employer = :employer')
+                ->setParameter('employer', $employer->getId(), UuidType::NAME)
+                ->andWhere('r.reviewedBy = :reviewedBy')
+                ->setParameter('reviewedBy', 'PROVIDER');
+
+            $average = $qb->getQuery()->getSingleScalarResult();
+            $employer->setAveragePoint(round((float)$average, 2));
+
+            $em->persist($employer);
+            $em->flush();
+
+            $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::EMPLOYER_REVIEWED);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Review added successfully!'
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Error submitting review: ' . $e->getMessage()], 500);
+        }
     }
 
     #[Route('/update-rank', name: 'app_update_rank', methods: ['POST'])]
@@ -781,6 +906,92 @@ class JobController extends AbstractController
             return new Response($errorMessage, 500);
         }
     }
+
+    #[Route('/jobs/application/{id}/detail-content', name: 'app_provider_jobs_application_detail_content')]
+    public function applicationDetailContent($id, EntityManagerInterface $em, Request $request): Response
+    {
+        try {
+            // Validate UUID
+            if (!Uuid::isValid($id)) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Invalid application ID format'], 400);
+                }
+                return new Response(
+                    '<div class="alert alert-danger">Invalid application ID format</div>',
+                    400
+                );
+            }
+
+            // Find the application
+            $application = $em->getRepository(Application::class)->find($id);
+
+            if (!$application) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Application not found'], 404);
+                }
+                return new Response(
+                    '<div class="alert alert-danger">Application not found</div>',
+                    404
+                );
+            }
+
+            // Verify the application belongs to the current provider
+            $provider = $this->getUser()->getProvider();
+            if ($application->getProvider() !== $provider) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Access denied'], 403);
+                }
+                return new Response(
+                    '<div class="alert alert-danger">Access denied</div>',
+                    403
+                );
+            }
+
+            // Get the job from the application
+            $job = $application->getJob();
+            if (!$job) {
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => 'Job not found for this application'], 404);
+                }
+                return new Response(
+                    '<div class="alert alert-danger">Job not found for this application</div>',
+                    404
+                );
+            }
+
+            // Get applied jobs IDs
+            $appliedJobsIds = $this->getAppliedJobsIds($em);
+
+            // Render the HTML content
+            $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
+                'job' => $job,
+                'appliedJobsIds' => $appliedJobsIds
+            ]);
+
+            // For AJAX requests, return JSON with HTML
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true,
+                    'html' => $htmlContent
+                ]);
+            }
+
+            // For direct requests, return the HTML directly
+            return new Response($htmlContent);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            error_log('Application detail content error: ' . $e->getMessage());
+
+            $errorMessage = '<div class="alert alert-danger">Error loading application details. Please try again.</div>';
+
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['error' => $errorMessage], 500);
+            }
+
+            return new Response($errorMessage, 500);
+        }
+    }
+
     private function getAppliedJobsIds(EntityManagerInterface $em): array
     {
         try {
@@ -1291,6 +1502,11 @@ class JobController extends AbstractController
         $user = $this->getUser();
         $data = json_decode($request->getContent(), true);
         $jobIds = $data['jobIds'] ?? [];
+        // Deduplicate incoming job IDs to prevent repeated result entries
+        if (!is_array($jobIds)) {
+            $jobIds = [];
+        }
+        $jobIds = array_values(array_unique(array_map('strval', $jobIds)));
 
         if (empty($jobIds)) {
             return new JsonResponse([
@@ -1359,6 +1575,18 @@ class JobController extends AbstractController
             }
 
             $em->flush();
+
+            // Deduplicate notApplied list by jobId to avoid duplicate display
+            if (!empty($results['notApplied'])) {
+                $seen = [];
+                $results['notApplied'] = array_values(array_filter($results['notApplied'], function($item) use (&$seen) {
+                    $id = $item['jobId'] ?? null;
+                    if (!$id) return false;
+                    if (isset($seen[$id])) return false;
+                    $seen[$id] = true;
+                    return true;
+                }));
+            }
 
             return new JsonResponse([
                 'success' => true,
@@ -2079,18 +2307,30 @@ class JobController extends AbstractController
 
             // Get interview information if application exists
             if ($application) {
+                // Try to get interview from application relationship
                 $interview = $application->getInterview();
+                
+                if (!$interview) {
+                    // If not, try to find interviews linked to this application
+                    $interviews = $em->getRepository(Interview::class)->findBy([
+                        'application' => $application
+                    ], ['date' => 'ASC']);
+                } else {
+                    $interviews = [$interview];
+                }
 
-                // Check for interview
-                if ($interview && $interview->getDate()) {
-                    $timelineData['interviews'][] = [
-                        'type' => 'Interview Scheduled',
-                        'date' => $interview->getDate()->format('M d, Y'),
-                        'time' => $interview->getDate()->format('h:i A'),
-                        'status' => 'scheduled',
-                        'platform' => $interview->getMeetingPlatform() ?? 'Not specified',
-                        'meetingUrl' => $interview->getMeetingUrl()
-                    ];
+                // Add interviews
+                foreach ($interviews as $iv) {
+                    if ($iv && $iv->getDate()) {
+                        $timelineData['interviews'][] = [
+                            'type' => 'Interview Scheduled',
+                            'date' => $iv->getDate()->format('M d, Y'),
+                            'time' => $iv->getDate()->format('h:i A'),
+                            'status' => 'scheduled',
+                            'platform' => $iv->getMeetingPlatform() ?? 'Not specified',
+                            'meetingUrl' => $iv->getMeetingUrl()
+                        ];
+                    }
                 }
 
                 // Add other important dates

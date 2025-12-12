@@ -233,9 +233,23 @@ function processNotifyHire(jobIds) {
  * @param {Object} results - Results object with successful, notApplied, and failed arrays
  */
 function showResultsModal(results) {
-    const successfulCount = results.successful ? results.successful.length : 0;
-    const notAppliedCount = results.notApplied ? results.notApplied.length : 0;
-    const failedCount = results.failed ? results.failed.length : 0;
+    // Deduplicate result categories by jobId for accurate counts and display
+    const dedupByJobId = arr => {
+        const seen = new Set();
+        return (arr || []).filter(item => {
+            const id = item && item.jobId;
+            if (!id || seen.has(id)) return false;
+            seen.add(id);
+            return true;
+        });
+    };
+    const successfulUnique = dedupByJobId(results.successful);
+    const notAppliedUnique = dedupByJobId(results.notApplied);
+    const failedUnique = dedupByJobId(results.failed);
+
+    const successfulCount = successfulUnique.length;
+    const notAppliedCount = notAppliedUnique.length;
+    const failedCount = failedUnique.length;
     
     let resultsHtml = `
         <div class="modal fade" id="resultsModal" tabindex="-1">
@@ -256,7 +270,7 @@ function showResultsModal(results) {
                 <small>The following jobs have been moved to "Accepted" and removed from saved:</small>
                 <ul class="mb-0 mt-2">
         `;
-        results.successful.forEach(job => {
+        successfulUnique.forEach(job => {
             resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId}</li>`;
         });
         resultsHtml += `</ul></div>`;
@@ -270,7 +284,7 @@ function showResultsModal(results) {
                 <small>These jobs need to be applied to first:</small>
                 <ul class="mb-0 mt-2">
         `;
-        results.notApplied.forEach(job => {
+        notAppliedUnique.forEach(job => {
             resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId}</li>`;
         });
         resultsHtml += `</ul></div>`;
@@ -284,7 +298,7 @@ function showResultsModal(results) {
                 <small>These jobs could not be processed:</small>
                 <ul class="mb-0 mt-2">
         `;
-        results.failed.forEach(job => {
+        failedUnique.forEach(job => {
             resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId} - ${job.reason || 'Unknown error'}</li>`;
         });
         resultsHtml += `</ul></div>`;
@@ -321,7 +335,7 @@ function showResultsModal(results) {
         document.getElementById('apply-remaining-btn').addEventListener('click', function() {
             modal.hide();
             // Apply to the not applied jobs
-            const notAppliedJobIds = results.notApplied.map(job => job.jobId);
+            const notAppliedJobIds = Array.from(new Set(notAppliedUnique.map(job => job.jobId)));
             applyToSelectedJobs(notAppliedJobIds);
         });
     }

@@ -131,6 +131,7 @@ div.container-xl,
     border: none;
     background: #fff;
     margin-bottom: 24px;
+    margin-top: -20px !important;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(16,24,40,0.06);
     padding: 0;
@@ -139,7 +140,8 @@ div.container-xl,
 }
 
 .card.app-card-settings .card-body {
-    padding: 24px;
+    padding: 8px 24px 24px 24px !important;
+    padding-top: 8px !important;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -149,7 +151,7 @@ div.container-xl,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 8px !important;
 }
 
 .card-title {
@@ -187,8 +189,6 @@ div.container-xl,
     padding: 10px 14px;
     font-size: 0.875rem;
     transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .form-control:focus, .form-select:focus {
@@ -212,25 +212,6 @@ div.container-xl,
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-/* Fix for inline dropzone in form */
-#uploadDropzone {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    min-height: 60px !important;
-    padding: 16px !important;
-}
-
-/* Edit Modal Styling - Responsive */
-@media (max-width: 768px) {
-    #editDocumentModal .modal-body > form > div:last-child > div {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-    }
 }
 
 .upload-dropzone:hover {
@@ -311,8 +292,22 @@ div.container-xl,
     box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3);
 }
 
+.btn-upload {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.btn-upload:hover {
+    background: #ffffff !important;
+    color: #85BB65 !important;
+    border-color: #85BB65 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 .btn-secondary {
-    background: #f3f4f6;
+    background: transparent;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 10px 20px;
@@ -322,8 +317,24 @@ div.container-xl,
 }
 
 .btn-secondary:hover {
-    background: #e5e7eb;
-    border-color: #d1d5db;
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+}
+
+.btn-outline-primary, .btn-outline-secondary {
+    background: transparent;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #000000;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover, .btn-outline-secondary:hover {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
 }
 
 /* Table styling */
@@ -393,13 +404,13 @@ div.container-xl,
     text-align: center;
     display: block;
     font-size: 0.875rem;
-    color: #6b7280;
+    color: #000000;
 }
 
 /* Ensure all text-muted elements in tables have consistent styling */
 .document-table .text-muted {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: #000000;
 }
 
 /* Ensure all strong tags in tables have consistent styling */
@@ -411,7 +422,7 @@ div.container-xl,
 
 .document-table .text-muted {
     font-size: 12px;
-    color: #6b7280;
+    color: #000000;
 }
 
 /* Document table styling matching saved.html */
@@ -419,10 +430,6 @@ div.container-xl,
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    border: 1px solid #e6eef6;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .document-table-wrapper::-webkit-scrollbar {
@@ -449,8 +456,7 @@ div.container-xl,
     align-items: center;
     min-width: 0;
     overflow: hidden;
-    padding: 0;
-    gap: 0;
+    padding: 0 8px 0 0;
 }
 
 .col-uploaded-at,
@@ -458,106 +464,120 @@ div.container-xl,
 .col-issue-date,
 .col-expiry-date,
 .col-actions {
+    flex: 1;
+    min-width: 120px;
+    padding: 0 8px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    padding: 0 16px;
-}
-
-.col-uploaded-at {
-    flex: 0 0 140px;
-    min-width: 140px;
-    max-width: 140px;
-    justify-content: center;
-    text-align: center;
 }
 
 .col-doc-name {
-    flex: 1 1 auto;
-    min-width: 200px;
+    flex: 2;
     justify-content: flex-start;
-    padding-right: 24px;
 }
 
-.col-issue-date {
-    flex: 0 0 130px;
-    min-width: 130px;
-    max-width: 130px;
-    justify-content: center;
-    text-align: center;
-}
-
+.col-uploaded-at,
+.col-issue-date,
 .col-expiry-date {
-    flex: 0 0 180px;
-    min-width: 180px;
-    max-width: 180px;
     justify-content: center;
     text-align: center;
 }
 
 .col-actions {
-    flex: 0 0 140px;
-    min-width: 140px;
-    max-width: 140px;
     justify-content: center;
+    min-width: 120px;
+    max-width: 120px;
     flex-shrink: 0;
 }
 
 .document-header {
-    font-size: 0.8125rem;
+    font-size: 13px;
     font-weight: 600;
-    color: #374151;
+    color: #000000;
     letter-spacing: 0.01em;
     line-height: 1.5;
     background: #F8FAF9;
-    border: none;
     border-bottom: 2px solid #e6eef6;
-    border-radius: 8px 8px 0 0;
-    height: 48px;
-    margin-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid #e6eef6;
+    border-bottom: 2px solid #e6eef6;
+    height: 40px;
+    margin-bottom: 2px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
 }
 
 .document-row {
-    font-size: 0.875rem;
+    font-size: 12px;
     font-weight: 400;
-    color: #1f2937;
+    color: #000000;
     line-height: 1.5;
     background: #fff;
-    border: none;
-    border-top: 1px solid #e6eef6;
-    border-radius: 0;
-    margin-bottom: 0;
-    min-height: 56px;
-    height: auto;
-    padding: 12px 0;
-    transition: background-color 0.15s ease;
-}
-
-.document-row:hover {
-    background: #f9fafb;
-}
-
-.document-row:last-child {
-    border-radius: 0 0 8px 8px;
-    border-bottom: none;
-}
-
-.document-header > div {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    min-width: 0;
-    overflow: hidden;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    min-height: 48px;
     height: 48px;
 }
 
+/* Bundle styles */
+.history-bundle-wrapper {
+    margin-bottom: 2px;
+}
+
+.history-bundle-tile {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.history-bundle-tile:hover {
+    background-color: #f0f4f0 !important;
+    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+}
+
+.history-bundle-content {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 2000px;
+    }
+}
+
+.bundle-entry {
+    border-top: none !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.bundle-entry:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    margin-bottom: 2px;
+}
+
+.bundle-arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.history-bundle-tile.expanded .bundle-arrow {
+    transform: rotate(180deg);
+}
+
+.document-header > div,
 .document-row > div {
     display: flex;
     align-items: center;
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
-    min-height: 32px;
+    height: 48px;
 }
 
 .table tbody tr:hover {
@@ -645,8 +665,6 @@ div.container-xl,
     padding: 12px;
     margin-bottom: 12px;
     position: relative;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .dea-form-section:not(:first-child) {
@@ -689,7 +707,7 @@ div.container-xl,
     padding: 8px 12px;
     margin-bottom: 8px;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: #000000;
 }
 
 /* Split View Styles */
@@ -698,7 +716,7 @@ div.container-xl,
     grid-template-columns: minmax(350px, 1fr) 1.5fr;
     gap: 20px;
     margin-top: 20px;
-    height: 70vh;
+    height: 85vh;
     position: relative;
     transition: none !important;
 }
@@ -833,7 +851,7 @@ div.container-xl,
 
 .split-document-card-company {
     font-size: 12px;
-    color: #6b7280;
+    color: #000000;
 }
 
 .split-document-summary {
@@ -850,7 +868,7 @@ div.container-xl,
 
 .split-document-meta-label {
     font-size: 11px;
-    color: #9ca3af;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -907,6 +925,45 @@ div.container-xl,
     color: #1F7A1F;
 }
 
+/* Link status badges */
+.link-status-badge {
+    display: inline-block;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.link-status-badge.status-opened {
+    background: #E3F2FD;
+    color: #1976D2;
+}
+
+.link-status-badge.status-submitted {
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.submit-link-btn {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 8px;
+}
+
+.submit-link-btn:hover {
+    background: #6FA050;
+}
+
 .request-status-badge.status-pending {
     background: #FFF4D9;
     color: #A45D00;
@@ -931,7 +988,7 @@ div.container-xl,
 .request-meta-item span {
     font-size: 0.7rem;
     font-weight: 600;
-    color: #94a3b8;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -970,7 +1027,7 @@ div.container-xl,
 
 .no-document-selected p {
     font-size: 14px;
-    color: #6b7280;
+    color: #000000;
 }
 
 #requests-document-content,
@@ -1035,21 +1092,39 @@ div.container-xl,
     display: block;
 }
 
+#documents-split-view-btn {
+    background: #ffffff !important;
+    border-color: #e6eef6 !important;
+    color: #000000 !important;
+}
+
+#documents-split-view-btn:hover {
+    background: #ffffff !important;
+    border-color: #e6eef6 !important;
+    color: #000000 !important;
+    transform: none !important;
+}
+
+#documents-split-view-btn:hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+
 #documents-split-view-btn.active {
-    background: #F4F9F1;
-    border-color: #85BB65;
-    color: #85BB65;
+    background: #ffffff !important;
+    border-color: #e6eef6 !important;
+    color: #000000 !important;
 }
 
 #documents-split-view-btn.active svg {
-    color: #85BB65;
-    stroke: #85BB65;
+    color: #000000 !important;
+    stroke: #000000 !important;
 }
 
 /* Grid View Styles */
 .documents-grid-view-container {
     display: none;
-    margin-top: 8px;
+    margin-top: 0px !important;
     background: #fff;
     border: 1px solid #e6eef6;
     border-radius: 12px;
@@ -1059,9 +1134,10 @@ div.container-xl,
 
 .grid-view-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 16px;
+    margin-top: -8px;
     padding-bottom: 12px;
     border-bottom: 1px solid #e6eef6;
     transition: none !important;
@@ -1089,7 +1165,7 @@ div.container-xl,
 }
 
 .company-document-group {
-    margin-bottom: 20px;
+    margin-bottom: 32px;
 }
 
 .company-document-group:last-child {
@@ -1100,11 +1176,10 @@ div.container-xl,
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     padding: 12px 16px;
     background: #F4F9F1;
     border-radius: 8px;
-    border-left: 4px solid #85BB65;
     transition: none !important;
     animation: none !important;
     transform: none !important;
@@ -1142,12 +1217,11 @@ div.container-xl,
 
 .request-count {
     font-size: 12px;
-    color: #6b7280;
+    color: #000000;
     background: #fff;
     padding: 4px 12px;
     border-radius: 12px;
     font-weight: 500;
-    white-space: nowrap;
 }
 
 .accordion-toggle-btn {
@@ -1244,6 +1318,10 @@ div.container-xl,
     position: relative;
 }
 
+.request-document-select {
+    position: relative;
+}
+
 .request-document-select .form-select {
     width: 100%;
     font-size: 13px;
@@ -1255,6 +1333,22 @@ div.container-xl,
     transition: none !important;
     animation: none !important;
     transform: none !important;
+    appearance: auto;
+}
+
+/* Ensure dropdown opens below */
+.request-document-select .form-select:focus {
+    position: relative;
+    z-index: 10;
+}
+
+/* Force select dropdown to open below */
+select.form-select {
+    position: relative;
+}
+
+select.form-select option {
+    position: relative;
 }
 
 .request-document-select .form-select:focus {
@@ -1357,7 +1451,7 @@ div.container-xl,
 
 .grid-document-meta-item .meta-label {
     font-size: 11px;
-    color: #9ca3af;
+    color: #000000;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1438,7 +1532,7 @@ div.container-xl,
 .empty-grid-state p {
     margin: 0;
     font-size: 14px;
-    color: #9ca3af;
+    color: #000000;
 }
 
 /* Document select styling */
@@ -1482,36 +1576,33 @@ div.container-xl,
 /* Tabs Styling */
 .documents-tabs {
     display: flex;
-    border-bottom: 2px solid #e5e7eb;
-    margin: 0 0 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 40px 0 24px 0;
     background: #fff;
-    padding: 0;
-    gap: 0;
+    border-radius: 12px 12px 0 0;
+    padding: 0 24px;
 }
 
 .documents-tab {
-    padding: 12px 24px;
+    padding: 16px 24px;
     border: none;
     background: none;
     font-weight: 500;
-    font-size: 0.9375rem;
     color: #6b7280;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
     position: relative;
-    margin-bottom: -2px;
 }
 
 .documents-tab:hover {
-    color: #85BB65;
-    background: #f9fafb;
+    color: #000000;
+    background: #ffffff;
 }
 
 .documents-tab.active {
     color: #85BB65;
     border-bottom-color: #85BB65;
-    font-weight: 600;
 }
 
 .documents-tab.active::after {
@@ -1591,7 +1682,7 @@ div.container-xl,
 }
 
 .history-pagination-wrapper .pagination .page-item.disabled .page-link {
-    color: #9ca3af;
+    color: #000000;
     pointer-events: none;
     background-color: #fff;
     border-color: #e6eef6;
@@ -1650,7 +1741,7 @@ div.container-xl,
 }
 
 .credential-description {
-    color: #6b7280;
+    color: #000000;
     font-size: 0.9rem;
     margin-bottom: 16px;
     line-height: 1.5;
@@ -1723,16 +1814,84 @@ div.container-xl,
         justify-content: center;
     }
 }
+
+/* Upload Document Form Specific Styles */
+#document_category {
+    margin-top: 4px !important;
+}
+
+#issue-date-wrapper .mb-2,
+#expiration-date-wrapper .mb-2 {
+    margin-top: 2px !important;
+}
+
+#document_issueDate,
+#document_expirationDate {
+    width: calc(100% + 2px) !important;
+    box-sizing: border-box !important;
+}
+
+#uploadDropzone {
+    height: auto !important;
+    min-height: 50px !important;
+    padding: 6px 8px !important;
+    max-height: 60px !important;
+}
+
+#uploadDropzone .dropzone-content {
+    flex-direction: column !important;
+    gap: 2px !important;
+    height: auto !important;
+}
+
+#uploadDropzone .upload-text {
+    font-size: 0.7rem !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+#uploadDropzone .upload-subtext {
+    font-size: 0.6rem !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Ensure date fields container matches upload section height */
+.col-lg-8 .row.g-3 {
+    align-items: stretch;
+}
+
+.col-lg-4 {
+    display: flex;
+    flex-direction: column;
+}
+
+.col-lg-4 .mb-2 {
+    margin-top: 2px !important;
+    display: flex;
+    flex-direction: column;
+}
 </style>
 
     <div class="container-xl">
-    <h1 class="app-page-title">Documents</h1>
-
    {# Document Requests Table - Only Pending Requests #}
 <div class="card app-card-settings">
     <div class="card-body">
         <div class="card-header-row">
             <h5 class="card-title">Pending Document Requests</h5>
+        </div>
+
+        {# Tabs for Document Requests #}
+        <div class="documents-tabs" style="margin-top: 0; margin-bottom: 20px;">
+            <button class="documents-tab active" data-tab="documents-requests">
+                Documents
+            </button>
+            <button class="documents-tab" data-tab="links-requests">
+                Links
+            </button>
+            <button class="documents-tab" data-tab="sign-document-requests">
+                Sign Document
+            </button>
         </div>
 
         <div class="table-responsive" id="requests-list-view" style="display: none;">
@@ -1807,7 +1966,7 @@ div.container-xl,
 
                         {% for link in credentialingLinks %}
                             {% set rowIndex = rowIndex + 1 %}
-                            <tr>
+                            <tr data-request-id="link-{{ link.id }}" data-link-url="{{ link.url }}">
                                 <td>{{ link.createdAt|date('m/d/Y') }}</td>
                                 <td>
                                     <div>
@@ -1828,11 +1987,14 @@ div.container-xl,
                                 <td>{{ link.createdAt|date('m/d/Y') }}</td>
                                 <td><span class="text-warning">Pending</span></td>
                                 <td>
-                                    <div class="action-buttons">
-                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn" title="Open Link">
+                                    <div class="action-buttons" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn open-link-btn" data-link-id="link-{{ link.id }}" title="Open Link">
                                             Open Link
                                         </a>
                                         <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL">Copy</button>
+                                        <span class="link-status-badge status-opened" id="opened-badge-link-{{ link.id }}" style="display: none;">Opened</span>
+                                        <span class="link-status-badge status-submitted" id="submitted-badge-link-{{ link.id }}" style="display: none;">Submitted</span>
+                                        <button type="button" class="submit-link-btn" id="submit-btn-link-{{ link.id }}" data-link-id="link-{{ link.id }}" style="display: none;">Submitted</button>
                                     </div>
                                 </td>
                             </tr>
@@ -1850,46 +2012,48 @@ div.container-xl,
             </table>
         </div>
         
-        </div>
-        
         {# Grid View for Document Requests - Grouped by Company #}
         <div class="documents-grid-view-container" id="requests-grid-view-container">
             <div class="grid-view-header">
-                <h5>Select Documents to Submit</h5>
                 <div class="grid-view-actions">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match All</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselect-all-requests-btn">Deselect All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="match-all-requests-btn">Match and Send All</button>
                     <button type="button" class="btn btn-sm btn-primary" id="submit-selected-requests-btn" disabled>Submit Selected</button>
                 </div>
             </div>
-            <div class="documents-grid-wrapper" id="requests-grid-wrapper">
-                {% set companyGroups = {} %}
-                {% for documentRequest in documentRequests %}
-                    {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
-                        {% set companyName = documentRequest.application.employer.companyName %}
-                        {% if companyGroups[companyName] is not defined %}
-                            {% set companyGroups = companyGroups|merge({(companyName): []}) %}
-                    {% endif %}
-                        {% set companyGroups = companyGroups|merge({(companyName): companyGroups[companyName]|merge([documentRequest])}) %}
-                    {% endif %}
-                {% endfor %}
-                
-                {% if companyGroups|length > 0 %}
-                    {% for companyName, requests in companyGroups %}
-                        <div class="company-document-group">
-                            <div class="company-group-header" data-accordion-toggle>
-                                <div class="company-name-wrapper">
-                                    <h6 class="company-name">{{ companyName }}</h6>
-                                    <span class="request-count">{{ requests|length }} request(s)</span>
+
+            {# Documents Tab Content #}
+            <div class="tab-content active" id="documents-requests-tab">
+                <div class="documents-grid-wrapper" id="requests-grid-wrapper-documents">
+                    {% set documentCompanyGroups = {} %}
+                    {% for documentRequest in documentRequests %}
+                        {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+                            {% set companyName = documentRequest.application.employer.companyName %}
+                            {% if documentCompanyGroups[companyName] is not defined %}
+                                {% set documentCompanyGroups = documentCompanyGroups|merge({(companyName): {'requests': []}}) %}
+                            {% endif %}
+                            {% set documentCompanyGroups = documentCompanyGroups|merge({(companyName): documentCompanyGroups[companyName]|merge({'requests': documentCompanyGroups[companyName].requests|merge([documentRequest])})}) %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if documentCompanyGroups|length > 0 %}
+                        {% for companyName, groupData in documentCompanyGroups %}
+                            {% if groupData.requests|length > 0 %}
+                            <div class="company-document-group">
+                                <div class="company-group-header" data-accordion-toggle>
+                                    <div class="company-name-wrapper">
+                                        <h6 class="company-name">{{ companyName }}</h6>
+                                        <span class="request-count">
+                                            {{ groupData.requests|length }} request(s)
+                                        </span>
+                                    </div>
+                                    <button class="accordion-toggle-btn" type="button" aria-expanded="false">
+                                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 9l6 6 6-6"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button class="accordion-toggle-btn" type="button" aria-expanded="false">
-                                    <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M6 9l6 6 6-6"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="requests-grid accordion-content collapsed" style="display: none;">
-                                {% for request in requests %}
+                                <div class="requests-grid accordion-content collapsed" style="display: none;">
+                                    {% for request in groupData.requests %}
                                     <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
                                         <div class="request-card-header">
                                             <div class="request-title">{{ request.name }}</div>
@@ -1911,29 +2075,161 @@ div.container-xl,
                                             </div>
                                         </div>
                                     </div>
-                                {% endfor %}
+                                    {% endfor %}
+                                </div>
                             </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-grid-state">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <h4>No pending document requests</h4>
+                            <p>There are no pending document requests from companies at this time.</p>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-grid-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                        <h4>No pending document requests</h4>
-                        <p>There are no pending document requests from companies at this time.</p>
+                    {% endif %}
                 </div>
-                {% endif %}
+            </div>
+
+            {# Links Tab Content #}
+            <div class="tab-content" id="links-requests-tab">
+                <div class="documents-grid-wrapper" id="requests-grid-wrapper-links">
+                    {% set linkCompanyGroups = {} %}
+                    {% for link in credentialingLinks %}
+                        {% set senderName = link.sender ?: 'External Source' %}
+                        {% if linkCompanyGroups[senderName] is not defined %}
+                            {% set linkCompanyGroups = linkCompanyGroups|merge({(senderName): {'links': []}}) %}
+                        {% endif %}
+                        {% set linkCompanyGroups = linkCompanyGroups|merge({(senderName): linkCompanyGroups[senderName]|merge({'links': linkCompanyGroups[senderName].links|merge([link])})}) %}
+                    {% endfor %}
+                    
+                    {% if linkCompanyGroups|length > 0 %}
+                        {% for companyName, groupData in linkCompanyGroups %}
+                            {% if groupData.links|length > 0 %}
+                            <div class="company-document-group">
+                                <div class="company-group-header" data-accordion-toggle>
+                                    <div class="company-name-wrapper">
+                                        <h6 class="company-name">{{ companyName }}</h6>
+                                        <span class="request-count">
+                                            {{ groupData.links|length }} link(s)
+                                        </span>
+                                    </div>
+                                    <button class="accordion-toggle-btn" type="button" aria-expanded="false">
+                                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 9l6 6 6-6"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="requests-grid accordion-content collapsed" style="display: none;">
+                                    {% for link in groupData.links %}
+                                        <div class="request-card" data-request-id="link-{{ link.id }}" data-link-url="{{ link.url }}" data-company="{{ companyName }}">
+                                            <div class="request-card-header">
+                                                <div class="request-title">
+                                                    {{ link.title }}
+                                                    <span class="link-status-badge status-opened" id="opened-badge-link-{{ link.id }}" style="display: none;">Opened</span>
+                                                    <span class="link-status-badge status-submitted" id="submitted-badge-link-{{ link.id }}" style="display: none;">Submitted</span>
+                                                </div>
+                                                <div class="request-document-select">
+                                                    <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center; margin-top: 8px; align-items: center; flex-wrap: wrap;">
+                                                        <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" class="action-btn open-link-btn" data-link-id="link-{{ link.id }}" title="Open Link" style="padding: 6px 12px; font-size: 0.75rem;">
+                                                            Open Link
+                                                        </a>
+                                                        <button type="button" class="action-btn copy-link-btn" data-url="{{ link.url }}" title="Copy URL" style="padding: 6px 12px; font-size: 0.75rem;">Copy</button>
+                                                        <button type="button" class="submit-link-btn" id="submit-btn-link-{{ link.id }}" data-link-id="link-{{ link.id }}" style="display: none;">Submitted</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-grid-state">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <h4>No pending link requests</h4>
+                            <p>There are no pending link requests at this time.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Sign Document Tab Content #}
+            <div class="tab-content" id="sign-document-requests-tab">
+                <div class="documents-grid-wrapper" id="requests-grid-wrapper-sign">
+                    {% set signDocumentCompanyGroups = {} %}
+                    {# Placeholder for sign document requests - can be populated with actual data when available #}
+                    {% for documentRequest in documentRequests %}
+                        {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
+                            {# Check if this is a sign document request - adjust condition based on your data structure #}
+                            {% set companyName = documentRequest.application.employer.companyName %}
+                            {% if signDocumentCompanyGroups[companyName] is not defined %}
+                                {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'requests': []}}) %}
+                            {% endif %}
+                            {# For now, we'll leave this empty or add a condition to filter sign document requests #}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if signDocumentCompanyGroups|length > 0 %}
+                        {% for companyName, groupData in signDocumentCompanyGroups %}
+                            {% if groupData.requests|length > 0 %}
+                            <div class="company-document-group">
+                                <div class="company-group-header" data-accordion-toggle>
+                                    <div class="company-name-wrapper">
+                                        <h6 class="company-name">{{ companyName }}</h6>
+                                        <span class="request-count">
+                                            {{ groupData.requests|length }} document(s) to sign
+                                        </span>
+                                    </div>
+                                    <button class="accordion-toggle-btn" type="button" aria-expanded="false">
+                                        <svg class="accordion-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 9l6 6 6-6"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="requests-grid accordion-content collapsed" style="display: none;">
+                                    {% for request in groupData.requests %}
+                                    <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
+                                        <div class="request-card-header">
+                                            <div class="request-title">{{ request.name }}</div>
+                                            <div class="request-document-select">
+                                                <button type="button" class="action-btn" style="padding: 6px 12px; font-size: 0.75rem; width: 100%;">
+                                                    Sign Document
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-grid-state">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <h4>No documents to sign</h4>
+                            <p>There are no documents requiring your signature at this time.</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
-        {# Document Upload Form - Clean and Compact #}
+        {# Document Upload Form - Compact Version #}
     <div class="card app-card-settings" style="margin-top: 12px;">
-            <div class="card-body" style="padding: 24px;">
-            <div class="card-header-row" style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e6eef6;">
-                <h5 class="card-title" style="font-size: 1.125rem; margin: 0; font-weight: 600; color: #1f2937;">{{ editMode is defined ? 'Edit Document' : 'Upload Document' }}</h5>
+            <div class="card-body" style="padding: 16px;">
+            <div class="card-header-row" style="margin-bottom: 12px;">
+                <h5 class="card-title" style="font-size: 1rem; margin: 0; color: #000000;">Upload Document</h5>
             </div>
             
             {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'document-upload-form'}}) }}
@@ -1943,44 +2239,68 @@ div.container-xl,
             
             {# Active DEA form sections container #}
             <div id="dea-forms-container">
-                <div class="dea-form-section" data-dea-index="0" style="background: transparent; border: none; padding: 0; margin: 0;">
+                <div class="dea-form-section" data-dea-index="0" style="background: transparent !important; border: none !important; padding: 0 !important; margin: 0 !important; border-radius: 0 !important;">
                     <div class="row g-3" style="margin: 0;">
                 {# Document Name Field (Category) #}
-                        <div class="col-12" style="margin-bottom: 16px;">
-                            {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category', 'placeholder': 'Select Document Name', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
+                        <div class="col-12" style="margin-top: 4px; margin-bottom: 8px;">
+                            <div class="mb-2" style="margin-left: 2px;">
+                                {{ form_widget(form.category, {'attr': {'class': 'form-select', 'id': 'document_category', 'style': 'padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px; width: 100%; box-sizing: border-box;'}}) }}
                         {{ form_errors(form.category) }}
+                    </div>
                 </div>
 
                 {# Document Name Field (Only for Miscellaneous) #}
-                        <div class="col-12" id="document-name-wrapper" style="display: none; margin-bottom: 16px;">
+                        <div class="col-12" id="document-name-wrapper" style="display: none;">
+                            <div class="mb-2">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Document Name <span class="text-danger">*</span></label>
                         <input type="text" 
                                class="form-control" 
                                id="document_name" 
                                name="document[name]" 
-                                   placeholder="Document Name"
-                                   style="padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;">
-                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 4px; display: block;">Enter a custom name for this miscellaneous document</small>
+                                       placeholder="Enter document name"
+                                       style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                <small class="text-muted" style="font-size: 0.75rem;">Enter a custom name for this miscellaneous document</small>
+                            </div>
                 </div>
 
-                {# Dates and File Upload Row #}
-                        <div class="col-12" style="margin-bottom: 0;">
-                            <div class="row g-3" style="margin: 0;">
+                        {# DEA Name Field (Only for DEA) #}
+                        <div class="col-12" id="dea-name-wrapper" style="display: none;">
+                            <div class="mb-2">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px; color: #000000;">DEA Name <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="dea_name" 
+                                       name="document[deaName]" 
+                                       placeholder="Enter DEA name (e.g., DEA-1234567)"
+                                       style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                <small class="text-muted" style="font-size: 0.75rem;">Enter the DEA registration number or name</small>
+                            </div>
+                        </div>
+
                         {# Issue Date #}
-                                <div class="col-12 col-md-4" id="issue-date-wrapper" style="margin-bottom: 0;">
-                                    {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate', 'placeholder': 'Issue date', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
+                        <div class="col-12 col-md-4" id="issue-date-wrapper">
+                            <div class="mb-2" style="margin-top: 2px;">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px; color: #000000;">Issue Date</label>
+                                {{ form_widget(form.issueDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_issueDate', 'style': 'padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px; width: 100%; box-sizing: border-box;'}}) }}
                                 {{ form_errors(form.issueDate) }}
+                            </div>
                         </div>
 
                         {# Expiration Date #}
-                                <div class="col-12 col-md-4" id="expiration-date-wrapper" style="margin-bottom: 0;">
-                                    {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate', 'placeholder': 'Expiration date', 'style': 'padding: 14px 16px; font-size: 1rem; border: 1px solid #d1d5db; border-radius: 6px; width: 100%;'}}) }}
-                                    <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem; margin-top: 4px;">Enter the expiration date as it appears on the document.</span>
-                                {{ form_errors(form.expirationDate) }}
-                        </div>
+                        <div class="col-12 col-md-4" id="expiration-date-wrapper">
+                            <div class="mb-2" style="margin-top: 2px;">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px; color: #000000;">Expiration Date</label>
+                                {{ form_widget(form.expirationDate, {'attr': {'class': 'form-control js-datepicker', 'id': 'document_expirationDate', 'style': 'padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px; width: 100%; box-sizing: border-box;'}}) }}
+                                <span id="expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem;"></span>
+                                    {{ form_errors(form.expirationDate) }}
+                    </div>
+                </div>
 
-                        {# File Upload Dropzone #}
-                                <div class="col-12 col-md-4" style="margin-bottom: 0;">
-                                    <div class="upload-dropzone position-relative" id="uploadDropzone" style="min-height: 60px; padding: 16px; border: 2px dashed #85BB65; border-radius: 6px; background: #F4F9F1; cursor: pointer; width: 100%; box-sizing: border-box;">
+                        {# File Upload Dropzone - Aligned with Expiration Date #}
+                        <div class="col-12 col-md-4" id="upload-wrapper">
+                            <div class="mb-2" style="display: flex; flex-direction: column; margin-top: 2px;">
+                                <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px; color: #000000;">Upload File</label>
+                                <div class="upload-dropzone position-relative" id="uploadDropzone" style="height: auto; min-height: 50px; padding: 8px 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
                                     {{ form_widget(form.fileName, {
                                         'attr': {
                                             'class': 'dropzone-input',
@@ -1995,34 +2315,24 @@ div.container-xl,
                                         <button type="button" class="file-remove-btn" onclick="clearFile()">×</button>
                                     </div>
 
-                                    <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; height: 100%; gap: 8px;">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                            <polyline points="14 2 14 8 20 8"/>
-                                        </svg>
-                                        <div style="text-align: left;">
-                                                <p class="upload-text mb-0" style="font-size: 0.9375rem; color: #374151; font-weight: 500;">Click to upload</p>
-                                                <p class="upload-subtext mb-0" style="font-size: 0.8125rem; color: #6b7280;">Max: 8MB</p>
-                                        </div>
+                                    <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+                                        <p class="upload-text mb-0" style="font-size: 0.7rem; margin: 0; text-align: center; color: #6b7280; line-height: 1.2;">Click to upload</p>
+                                        <p class="upload-subtext mb-0" style="font-size: 0.6rem; margin: 0; text-align: center; color: #9ca3af; line-height: 1.2;">Max: 8MB</p>
                                     </div>
                                 </div>
                                 {{ form_errors(form.fileName) }}
-                        </div>
                     </div>
                 </div>
                     </div>
                 </div>
                 </div>
 
-            <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top" id="form-actions-container" style="border-color: #e6eef6 !important; margin-top: 24px; padding-top: 16px;">
-                {% if editMode is defined %}
-                    <a href="{{ path('app_provider_documents') }}" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px;">Cancel</a>
-                {% endif %}
-                <button type="button" class="btn btn-outline-primary" id="add-more-dea-btn" style="display: none; padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px;">
+            <div class="d-flex justify-content-end gap-2 mt-2" id="form-actions-container" style="margin-bottom: 0;">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="add-more-dea-btn" style="display: none; font-size: 0.75rem; padding: 4px 12px;">
                     + Add More DEA
                 </button>
-                <button type="submit" class="btn btn-primary btn-upload" style="padding: 10px 24px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; background-color: #85BB65; border-color: #85BB65;">
-                    {{ editMode is defined ? 'Update Document' : 'Upload Document' }}
+                <button type="submit" class="btn btn-primary btn-upload btn-sm" style="font-size: 0.75rem; padding: 4px 12px; background: #ffffff; color: #000000; border: 1px solid #e5e7eb;">
+                    Upload Document
                 </button>
             </div>
             
@@ -2104,11 +2414,11 @@ div.container-xl,
                             </div>
                             <div class="col-12 col-md-6" id="modal_issue-date-wrapper">
                                 <label class="form-label">Issue Date</label>
-                                <input type="text" class="form-control js-datepicker" id="modal_document_issueDate" name="document[issueDate]">
+                                <input type="date" class="form-control js-datepicker" id="modal_document_issueDate" name="document[issueDate]">
                             </div>
                             <div class="col-12 col-md-6" id="modal_expiration-date-wrapper">
                                 <label class="form-label">Expiration Date</label>
-                                <input type="text" class="form-control js-datepicker" id="modal_document_expirationDate" name="document[expirationDate]">
+                                <input type="date" class="form-control js-datepicker" id="modal_document_expirationDate" name="document[expirationDate]">
                                 <span id="modal_expiration-date-help" class="text-muted small d-block mt-1" style="display: none;"></span>
                             </div>
                         </div>
@@ -2122,21 +2432,29 @@ div.container-xl,
         </div>
     </div>
 
-    {# Edit Document Modal #}
+    {# Edit Document Modal - Styled like Upload Document Section #}
     <div class="modal fade" id="editDocumentModal" tabindex="-1" aria-labelledby="editDocumentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
-                <div class="modal-header" style="border-bottom: 1px solid #e6eef6; padding: 20px 24px;">
-                    <h5 class="modal-title" id="editDocumentModalLabel" style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 0;">Edit Document</h5>
+                <div class="modal-header" style="border-bottom: 1px solid #e6eef6; padding: 16px;">
+                    <div class="card-header-row" style="margin-bottom: 0; width: 100%;">
+                        <h5 class="card-title" id="editDocumentModalLabel" style="font-size: 1rem; margin: 0; color: #000000;">Upload Document</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin: 0;"></button>
                 </div>
-                <div class="modal-body" style="padding: 24px;">
+                </div>
+                <div class="modal-body" style="padding: 16px;">
                     <form id="edit-document-modal-form" method="POST" enctype="multipart/form-data" action="">
                         <input type="hidden" name="document[_token]" value="{{ csrf_token('form') }}">
                         <input type="hidden" id="edit_document_id" name="document_id" value="">
                         
-                        <div style="margin-bottom: 20px;">
-                            <select class="form-control form-select" id="edit_modal_document_category" name="document[category]" required style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                        <div class="row g-3">
+                            {# Left Side: Text and Date Fields #}
+                            <div class="col-12 col-lg-8" style="display: flex; flex-direction: column;">
+                                <div class="row g-3" style="flex: 1;">
+                                    {# Document Name Field (Category) #}
+                                    <div class="col-12">
+                                        <div class="mb-2" style="margin-left: 2px;">
+                                            <select class="form-select" id="edit_modal_document_category" name="document[category]" required style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px; width: 100%; box-sizing: border-box;">
                                 <option value="">Select Document Name</option>
                                 <option value="CV Upload">CV Upload</option>
                                 <option value="Driver's license">Driver's license</option>
@@ -2163,43 +2481,60 @@ div.container-xl,
                                 <option value="All Hospital Affiliations and Training Programs">All Hospital Affiliations and Training Programs</option>
                                 <option value="Miscellaneous">Miscellaneous</option>
                             </select>
+                                        </div>
                         </div>
                         
-                        <div id="edit_modal_document-name-wrapper" style="display: none; margin-bottom: 20px;">
+                                    {# Document Name Field (Only for Miscellaneous) #}
+                                    <div class="col-12" id="edit_modal_document-name-wrapper" style="display: none;">
+                                        <div class="mb-2">
+                                            <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Document Name <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control" 
                                    id="edit_modal_document_name" 
                                    name="document[name]" 
-                                   placeholder="Document Name"
-                                   style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
-                            <small class="text-muted" style="font-size: 0.75rem; margin-top: 6px; display: block; color: #6b7280;">Enter a custom name for this miscellaneous document</small>
+                                                   placeholder="Enter document name"
+                                                   style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <small class="text-muted" style="font-size: 0.75rem;">Enter a custom name for this miscellaneous document</small>
+                                        </div>
                         </div>
                         
-                        <div style="margin-bottom: 0;">
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                                <div id="edit_modal_issue-date-wrapper">
-                                    <input type="date" class="form-control js-datepicker" id="edit_modal_document_issueDate" name="document[issueDate]" placeholder="Issue date" style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
+                                    {# Issue Date #}
+                                    <div class="col-12 col-md-6" id="edit_modal_issue-date-wrapper">
+                                        <div class="mb-2">
+                                            <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Issue Date</label>
+                                            <input type="text" class="form-control js-datepicker" id="edit_modal_document_issueDate" name="document[issueDate]" style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;">
                                 </div>
-                                <div id="edit_modal_expiration-date-wrapper">
-                                    <input type="date" class="form-control js-datepicker" id="edit_modal_document_expirationDate" name="document[expirationDate]" placeholder="Expiration date" style="padding: 12px 16px; font-size: 0.9375rem; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; box-sizing: border-box;">
-                                    <span id="edit_modal_expiration-date-help" class="text-muted small d-block mt-2" style="display: none; font-size: 0.75rem; color: #6b7280;">Enter the expiration date as it appears on the document.</span>
                                 </div>
-                                <div>
-                                    <div class="upload-dropzone position-relative" id="editModalUploadDropzone" style="min-height: 56px; padding: 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1; cursor: pointer; width: 100%; box-sizing: border-box;">
+
+                                    {# Expiration Date #}
+                                    <div class="col-12 col-md-6" id="edit_modal_expiration-date-wrapper">
+                                        <div class="mb-2">
+                                            <label class="form-label" style="font-size: 0.875rem; margin-bottom: 4px;">Expiration Date</label>
+                                            <input type="text" class="form-control js-datepicker" id="edit_modal_document_expirationDate" name="document[expirationDate]" style="padding: 6px 10px; font-size: 0.875rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                                            <span id="edit_modal_expiration-date-help" class="text-muted small d-block mt-1" style="display: none; font-size: 0.75rem;"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# Right Side: File Upload Dropzone (Small and Cute) #}
+                            <div class="col-12 col-lg-4" style="display: flex; flex-direction: column;">
+                                <div class="mb-2" style="flex: 1; display: flex; flex-direction: column;">
+                                    <div class="upload-dropzone position-relative" id="editModalUploadDropzone" style="flex: 1; min-height: 140px; padding: 12px; border: 2px dashed #85BB65; border-radius: 8px; background: #F4F9F1; display: flex; align-items: center; justify-content: center;">
                                         <input type="file" class="dropzone-input" id="edit_modal_fileInput" name="document[fileName]" accept=".pdf,.doc,.docx">
                                         <div id="edit_modal_fileBadge" class="file-badge" style="display:none;">
                                             <span id="edit_modal_fileNameText"></span>
                                             <button type="button" class="file-remove-btn" onclick="clearEditModalFile()">×</button>
                                         </div>
-                                        <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; height: 100%; gap: 8px;">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <div class="dropzone-content" style="padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px;">
                                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                                 <polyline points="14 2 14 8 20 8"/>
+                                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                                <line x1="16" y1="17" x2="8" y2="17"/>
                                             </svg>
-                                            <div style="text-align: left;">
-                                                <p class="upload-text mb-0" style="font-size: 0.875rem; color: #374151; font-weight: 500; line-height: 1.2;">Click to upload</p>
-                                                <p class="upload-subtext mb-0" style="font-size: 0.75rem; color: #6b7280; line-height: 1.2;">Max: 8MB</p>
-                                            </div>
+                                            <p class="upload-text mb-1" style="font-size: 0.75rem; margin-top: 0; text-align: center; color: #6b7280;">Click to upload</p>
+                                            <p class="upload-subtext mb-0" style="font-size: 0.65rem; text-align: center; color: #9ca3af;">Max: 8MB</p>
                                         </div>
                                     </div>
                                 </div>
@@ -2207,9 +2542,11 @@ div.container-xl,
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid #e6eef6; padding: 16px 24px; gap: 12px;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 10px 20px; font-size: 0.875rem; font-weight: 500; border-radius: 6px; min-width: 100px;">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submit-edit-modal-document" style="background-color: #85BB65; border-color: #85BB65; padding: 10px 24px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; min-width: 140px;">Update Document</button>
+                <div class="modal-footer" style="border-top: 1px solid #e6eef6; padding: 0; margin-top: 12px;">
+                    <div class="d-flex justify-content-end gap-2 mt-3" id="edit-form-actions-container" style="width: 100%; padding: 0 16px 16px 16px;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="font-size: 0.75rem; padding: 4px 12px;">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-upload btn-sm" id="submit-edit-modal-document" style="font-size: 0.75rem; padding: 4px 12px;">Update Document</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2220,7 +2557,7 @@ div.container-xl,
         <div class="card-body">
             <div class="card-header-row" style="margin-bottom: 0; padding-bottom: 0;">
                 <h5 class="card-title">Documents</h5>
-                <button id="documents-split-view-btn" class="action-btn" title="Split View" style="display: none;">
+                <button id="documents-split-view-btn" class="action-btn" title="Split View" style="display: flex;">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2243,95 +2580,92 @@ div.container-xl,
             
             {# Uploaded Documents Tab Content #}
             <div class="tab-content active" id="uploaded-documents-tab">
-                <div class="document-table-wrapper" id="documents-list-view">
-                    <div class="document-header">
-                        <div class="col-uploaded-at">Uploaded At</div>
-                        <div class="col-doc-name">Document Name</div>
-                        <div class="col-issue-date">Issue Date</div>
-                        <div class="col-expiry-date">Expiration Date</div>
-                        <div class="col-actions">Actions</div>
-                    </div>
-                    {% if documents|length > 0 %}
-                            {% for document in documents %}
-                            <div class="document-row">
-                                <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
-                                <div class="col-doc-name">
-                                        <strong>{{ document.category ?: document.name }}</strong>
-                                </div>
-                                <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
-                                <div class="col-expiry-date">
-                                        {% if document.expirationDate %}
-                                            {% set daysUntilExpiry = (document.expirationDate|date('U') - 'now'|date('U')) / 86400 %}
-                                            {% if daysUntilExpiry < 0 %}
-                                                <span class="text-danger">{{ document.expirationDate|date('m/d/Y') }} <small>(Expired)</small></span>
-                                            {% elseif daysUntilExpiry <= 30 %}
-                                                <span class="text-warning">{{ document.expirationDate|date('m/d/Y') }} <small>(Expiring Soon)</small></span>
-                                            {% else %}
-                                                {{ document.expirationDate|date('m/d/Y') }}
-                                            {% endif %}
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                </div>
-                                <div class="col-actions">
-                                    <div class="action-buttons" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                                            <a href="{{ path('app_provider_document_view', {'id': document.id}) }}"
-                                               class="action-btn" 
-                                               title="View Document"
-                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease;">
-                                                <img src="{{ asset('assets/icons/shared-folder.png') }}" alt="View" style="width: 18px; height: 18px;"/>
-                                            </a>
-                                            <button type="button"
-                                               class="action-btn edit-document-btn"
-                                               title="Edit Document"
-                                               data-document-id="{{ document.id }}"
-                                               data-document-category="{{ document.category ?: document.name }}"
-                                               data-document-issue-date="{{ document.issueDate ? document.issueDate|date('Y-m-d') : '' }}"
-                                               data-document-expiration-date="{{ document.expirationDate ? document.expirationDate|date('Y-m-d') : '' }}"
-                                               data-document-name="{{ document.name }}"
-                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease; border: none; background: none; cursor: pointer;">
-                                                <img src="{{ asset('assets/icons/compose.png') }}" alt="Edit" style="width: 18px; height: 18px;"/>
-                                            </button>
-                                            <a href="{{ path('app_provider_document_delete', {'id': document.id}) }}"
-                                               class="action-btn delete-document-btn"
-                                               title="Delete Document"
-                                               data-document-name="{{ document.category ?: document.name }}"
-                                               data-document-id="{{ document.id }}"
-                                               style="padding: 6px; border-radius: 4px; transition: all 0.2s ease;">
-                                                <img src="{{ asset('assets/icons/trash-bin.png') }}" alt="Delete" style="width: 18px; height: 18px;"/>
-                                            </a>
-                                        </div>
-                                </div>
+            <div class="document-table-wrapper" id="documents-list-view">
+                <div class="document-header">
+                    <div class="col-uploaded-at">Uploaded At</div>
+                    <div class="col-doc-name">Document Name</div>
+                    <div class="col-issue-date">Issue Date</div>
+                    <div class="col-expiry-date">Expiration Date</div>
+                    <div class="col-actions">Actions</div>
+                </div>
+                {% if documents|length > 0 %}
+                        {% for document in documents %}
+                        <div class="document-row">
+                            <div class="col-uploaded-at">{{ document.createdAt|date('m/d/Y') }}</div>
+                            <div class="col-doc-name">
+                                    <strong>{{ document.category ?: document.name }}</strong>
                             </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="document-row" style="justify-content: center; padding: 40px;">
-                            <div style="text-align: center;">
-                                <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📄</div>
-                                <p class="mb-0" style="font-size: 14px; color: #6b7280;">No documents uploaded yet.</p>
-                                <p class="text-muted small mt-2" style="font-size: 12px;">Upload your first document using the form above.</p>
+                            <div class="col-issue-date">{{ document.issueDate ? document.issueDate|date('m/d/Y') : '-' }}</div>
+                            <div class="col-expiry-date">
+                                    {% if document.expirationDate %}
+                                        {% set daysUntilExpiry = (document.expirationDate|date('U') - 'now'|date('U')) / 86400 %}
+                                        {% if daysUntilExpiry < 0 %}
+                                            <span class="text-danger">{{ document.expirationDate|date('m/d/Y') }} <small>(Expired)</small></span>
+                                        {% elseif daysUntilExpiry <= 30 %}
+                                            <span class="text-warning">{{ document.expirationDate|date('m/d/Y') }} <small>(Expiring Soon)</small></span>
+                                        {% else %}
+                                            {{ document.expirationDate|date('m/d/Y') }}
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                            </div>
+                            <div class="col-actions">
+                                <div class="action-buttons" style="display: flex; gap: 8px; justify-content: center;">
+                                        <a href="{{ path('app_provider_document_view', {'id': document.id}) }}"
+                                           class="action-btn" 
+                                           title="View Document">
+                                            <img src="{{ asset('assets/icons/shared-folder.png') }}" alt="View"/>
+                                        </a>
+                                        <button type="button"
+                                           class="action-btn edit-document-btn"
+                                           title="Edit Document"
+                                           data-document-id="{{ document.id }}"
+                                           data-document-category="{{ document.category ?: document.name }}"
+                                           data-document-issue-date="{{ document.issueDate ? document.issueDate|date('Y-m-d') : '' }}"
+                                           data-document-expiration-date="{{ document.expirationDate ? document.expirationDate|date('Y-m-d') : '' }}"
+                                           data-document-name="{{ document.name }}">
+                                            <img src="{{ asset('assets/icons/compose.png') }}" alt="Edit"/>
+                                        </button>
+                                        <a href="{{ path('app_provider_document_delete', {'id': document.id}) }}"
+                                           class="action-btn delete-document-btn"
+                                           title="Delete Document"
+                                           data-document-name="{{ document.category ?: document.name }}"
+                                           data-document-id="{{ document.id }}">
+                                            <img src="{{ asset('assets/icons/trash-bin.png') }}" alt="Delete"/>
+                                        </a>
+                                    </div>
                             </div>
                         </div>
-                    {% endif %}
-                </div>
-                
-                {# Split View for Uploaded Documents #}
-                <div class="split-view-container" id="documents-split-view-container" style="display: none;">
-                    <button class="list-toggle-btn" id="documents-list-toggle-btn" style="display: none;" title="Toggle document list">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                    <!-- Left Side: Document List -->
-                    <div class="split-document-list" id="documents-split-list">
-                        {% for document in documents %}
-                            <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.category ?: document.name }}">
-                                <div class="split-document-card-header">
-                                    <div class="flex-grow-1">
-                                        <div class="split-document-card-title">{{ document.category ?: document.name }}</div>
-                                        <div class="split-document-card-company">{{ document.issueDate ? document.issueDate|date('m/d/Y') : 'No Issue Date' }}</div>
-                                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="document-row" style="justify-content: center; padding: 40px;">
+                        <div style="text-align: center;">
+                            <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📄</div>
+                            <p class="mb-0" style="font-size: 14px; color: #6b7280;">No documents uploaded yet.</p>
+                            <p class="text-muted small mt-2" style="font-size: 12px;">Upload your first document using the form above.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {# Split View for Uploaded Documents #}
+            <div class="split-view-container" id="documents-split-view-container" style="display: none;">
+                <button class="list-toggle-btn" id="documents-list-toggle-btn" style="display: none;" title="Toggle document list">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <!-- Left Side: Document List -->
+                <div class="split-document-list" id="documents-split-list">
+                    {% for document in documents %}
+                        <div class="split-document-card" data-document-id="{{ document.id }}" data-document-url="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.fileName) }}" data-document-name="{{ document.category ?: document.name }}">
+                            <div class="split-document-card-header">
+                                <div class="flex-grow-1">
+                                    <div class="split-document-card-title">{{ document.category ?: document.name }}</div>
+                                    <div class="split-document-card-company">{{ document.issueDate ? document.issueDate|date('m/d/Y') : 'No Issue Date' }}</div>
                                 </div>
+                            </div>
                                 <div class="split-document-summary">
                                     <div class="split-document-summary-item">
                                         <span class="split-document-meta-label">Issue:</span>
@@ -2348,23 +2682,23 @@ div.container-xl,
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    
-                    <!-- Right Side: Document Preview -->
-                    <div class="split-document-details" id="documents-split-details">
-                        <div class="no-document-selected">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                            <h4>Select a document to view</h4>
-                            <p>Click on any document from the list to see its preview here.</p>
                         </div>
-                        <div id="documents-document-content" style="display: none;"></div>
-                    </div>
+                    {% endfor %}
                 </div>
-            </div>
+                
+                <!-- Right Side: Document Preview -->
+                <div class="split-document-details" id="documents-split-details">
+                    <div class="no-document-selected">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h4>Select a document to view</h4>
+                        <p>Click on any document from the list to see its preview here.</p>
+                    </div>
+                    <div id="documents-document-content" style="display: none;"></div>
+                </div>
+        </div>
+    </div>
 
             {# Document History Tab Content #}
             <div class="tab-content" id="document-history-tab">
@@ -2377,7 +2711,8 @@ div.container-xl,
                                     'name': document.category ?: document.name,
                                     'action': 'uploaded',
                                     'date': document.createdAt,
-                                    'details': 'Document uploaded to your library'
+                                    'details': 'Document uploaded to your library',
+                                    'employer': null
                                 }]) %}
                                 
                                 {% if document.updatedAt and document.updatedAt != document.createdAt %}
@@ -2385,7 +2720,8 @@ div.container-xl,
                                         'name': document.category ?: document.name,
                                         'action': 'updated',
                                         'date': document.updatedAt,
-                                        'details': 'Document information updated'
+                                        'details': 'Document information updated',
+                                        'employer': null
                                     }]) %}
                                 {% endif %}
                             {% endfor %}
@@ -2393,21 +2729,77 @@ div.container-xl,
                             {# Add document assignment history #}
                             {% for documentRequest in documentRequests %}
                                 {% if documentRequest.providedAt %}
+                                    {% set employerName = documentRequest.application.employer.companyName ?? 'employer' %}
                                     {% set historyEntries = historyEntries|merge([{
                                         'name': documentRequest.name,
                                         'action': 'assigned',
                                         'date': documentRequest.providedAt,
-                                        'details': 'Document assigned to ' ~ (documentRequest.application.employer.companyName ?? 'employer')
+                                        'details': 'Document assigned to ' ~ employerName,
+                                        'employer': employerName
                                     }]) %}
                                 {% endif %}
                             {% endfor %}
                             
                             {# Sort history by date (newest first) #}
                             {% set historyEntries = historyEntries|sort((a, b) => b.date <=> a.date) %}
-                            {% set totalHistoryEntries = historyEntries|length %}
-                            {% set historyEntriesPerPage = 10 %}
-                            {% set totalPages = (totalHistoryEntries / historyEntriesPerPage)|round(0, 'ceil') %}
-                            {% set paginatedHistoryEntries = historyEntries|slice(0, historyEntriesPerPage) %}
+                            
+                            {# Group entries into bundles based on employer and time window (1 hour) #}
+                            {% set bundles = [] %}
+                            {% set processedIndices = [] %}
+                            
+                            {% for i, entry in historyEntries %}
+                                {% if i not in processedIndices and entry.employer %}
+                                    {# Find all entries for the same employer within the time window (1 hour) #}
+                                    {% set bundleEntries = [entry] %}
+                                    {% set processedIndices = processedIndices|merge([i]) %}
+                                    {% set bundleStartDate = entry.date %}
+                                    
+                                    {% for j, otherEntry in historyEntries %}
+                                        {% if j not in processedIndices and otherEntry.employer == entry.employer %}
+                                            {# Check if within 1 hour window - compare timestamps #}
+                                            {% set startTimestamp = bundleStartDate.timestamp %}
+                                            {% set otherTimestamp = otherEntry.date.timestamp %}
+                                            {% set timeDiff = (otherTimestamp - startTimestamp)|abs %}
+                                            {% if timeDiff <= 3600 %}
+                                                {% set bundleEntries = bundleEntries|merge([otherEntry]) %}
+                                                {% set processedIndices = processedIndices|merge([j]) %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {# Create bundle if 2+ entries, otherwise keep as individual #}
+                                    {% if bundleEntries|length >= 2 %}
+                                        {% set sortedBundleEntries = bundleEntries|sort((a, b) => b.date <=> a.date) %}
+                                        {% set bundles = bundles|merge([{
+                                            'type': 'bundle',
+                                            'entries': sortedBundleEntries,
+                                            'employer': entry.employer,
+                                            'date': sortedBundleEntries|first.date,
+                                            'count': bundleEntries|length
+                                        }]) %}
+                                    {% else %}
+                                        {# Add individual entries that don't form bundles #}
+                                        {% for bundleEntry in bundleEntries %}
+                                            {% set bundles = bundles|merge([{
+                                                'type': 'individual',
+                                                'entry': bundleEntry
+                                            }]) %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% elseif i not in processedIndices %}
+                                    {# Entry without employer (uploaded/updated) - keep as individual #}
+                                    {% set bundles = bundles|merge([{
+                                        'type': 'individual',
+                                        'entry': entry
+                                    }]) %}
+                                    {% set processedIndices = processedIndices|merge([i]) %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {# Sort bundles by date (newest first) - using date comparison #}
+                            {% set bundles = bundles|sort((a, b) => 
+                                (a.type == 'bundle' ? a.date : a.entry.date) > (b.type == 'bundle' ? b.date : b.entry.date) ? -1 : 1
+                            ) %}
                     
                     <div class="document-header">
                         <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">S. No</div>
@@ -2418,10 +2810,35 @@ div.container-xl,
                     </div>
                             
                             <div id="history-entries-container">
-                            {% if paginatedHistoryEntries|length > 0 %}
-                                {% for entry in paginatedHistoryEntries %}
-                            <div class="document-row history-entry" data-entry-index="{{ loop.index0 }}">
-                                <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">{{ loop.index }}</div>
+                            {% if bundles|length > 0 %}
+                                {% set historyEntriesPerPage = 10 %}
+                                {% set currentIndex = 0 %}
+                                {% for bundle in bundles %}
+                                    {% if bundle.type == 'bundle' %}
+                                        {# Bundle tile #}
+                                        {% set currentIndex = currentIndex + 1 %}
+                                        <div class="history-bundle-wrapper" data-bundle-index="{{ loop.index0 }}" {% if currentIndex > historyEntriesPerPage %}style="display: none;"{% endif %}>
+                                            <div class="document-row history-bundle-tile" data-bundle-id="bundle-{{ loop.index0 }}" style="cursor: pointer; background-color: #f8f9fa; border-left: 4px solid #85BB65;">
+                                                <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">{{ currentIndex }}</div>
+                                                <div class="col-history-name" style="flex: 2; justify-content: flex-start;">
+                                                    <strong>
+                                                        {{ bundle.count }} documents submitted to {{ bundle.employer }}
+                                                    </strong>
+                                                </div>
+                                                <div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">
+                                                    <span class="action-badge assigned">Bundle</span>
+                                                </div>
+                                                <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">{% if bundle.date %}{{ bundle.date|date('m/d/Y g:i A') }}{% else %}—{% endif %}</div>
+                                                <div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000; display: flex; align-items: center; gap: 8px;">
+                                                    <span>Click to expand</span>
+                                                    <span class="bundle-arrow" style="transition: transform 0.3s ease;">▼</span>
+                                                </div>
+                                            </div>
+                                            {# Bundle content (hidden by default) #}
+                                            <div class="history-bundle-content" id="bundle-content-{{ loop.index0 }}" style="display: none;">
+                                                {% for entry in bundle.entries %}
+                                                    <div class="document-row history-entry bundle-entry" style="padding-left: 40px; background-color: #ffffff; border-left: 2px solid #e6eef6;">
+                                                        <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">—</div>
                                 <div class="col-history-name" style="flex: 2; justify-content: flex-start;">
                                             <strong>{{ entry.name }}</strong>
                                 </div>
@@ -2434,27 +2851,56 @@ div.container-xl,
                                                 <span class="action-badge assigned">Assigned</span>
                                             {% endif %}
                                 </div>
-                                <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">{{ entry.date|date('m/d/Y g:i A') }}</div>
-                                <div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #6b7280;">{{ entry.details }}</div>
+                                <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">{% if entry.date %}{{ entry.date|date('m/d/Y g:i A') }}{% else %}—{% endif %}</div>
+                                <div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000;">{{ entry.details }}</div>
                             </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {# Individual entry #}
+                                        {% set currentIndex = currentIndex + 1 %}
+                                        <div class="document-row history-entry" data-entry-index="{{ loop.index0 }}" {% if currentIndex > historyEntriesPerPage %}style="display: none;"{% endif %}>
+                                            <div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">{{ currentIndex }}</div>
+                                            <div class="col-history-name" style="flex: 2; justify-content: flex-start;">
+                                                <strong>{{ bundle.entry.name }}</strong>
+                                            </div>
+                                            <div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">
+                                                {% if bundle.entry.action == 'uploaded' %}
+                                                    <span class="action-badge uploaded">Uploaded</span>
+                                                {% elseif bundle.entry.action == 'updated' %}
+                                                    <span class="action-badge updated">Updated</span>
+                                                {% elseif bundle.entry.action == 'assigned' %}
+                                                    <span class="action-badge assigned">Assigned</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">{% if bundle.entry.date %}{{ bundle.entry.date|date('m/d/Y g:i A') }}{% else %}—{% endif %}</div>
+                                            <div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000;">{{ bundle.entry.details }}</div>
+                                        </div>
+                                    {% endif %}
                                 {% endfor %}
                             {% else %}
-                        <div class="document-row" style="justify-content: center; padding: 40px;">
-                            <div style="text-align: center;">
-                                <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">📊</div>
-                                <p class="mb-0" style="font-size: 14px; color: #6b7280;">No history available</p>
-                                <p class="text-muted small mt-2" style="font-size: 12px;">Your document activities will appear here</p>
+                        <div class="document-row" style="justify-content: center; align-items: center; padding: 40px; display: flex;">
+                            <div style="text-align: center; width: 100%;">
+                                <div class="empty-state-icon" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5; display: flex; justify-content: center;">📊</div>
+                                <p class="mb-0" style="font-size: 14px; color: #000000 !important; text-align: center;">No history available</p>
                             </div>
                         </div>
                             {% endif %}
                             </div>
                             
+                            {# Store bundles data for JavaScript pagination #}
+                            <script type="application/json" id="history-bundles-data">{{ bundles|json_encode|raw }}</script>
+                            
                             {# Pagination Controls #}
-                            {% if totalHistoryEntries > historyEntriesPerPage %}
-                            <div class="history-pagination-wrapper" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e6eef6;">
+                            {% set totalBundles = bundles|length %}
+                            {% set historyEntriesPerPage = 10 %}
+                            {% set totalPages = (totalBundles / historyEntriesPerPage)|round(0, 'ceil') %}
+                            {% if totalBundles > historyEntriesPerPage %}
+                            <div class="history-pagination-wrapper" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e6eef6;" id="history-pagination-wrapper">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                                     <div class="pagination-info" style="font-size: 14px; color: #6b7280;">
-                                        Showing <span id="history-start-index">1</span> - <span id="history-end-index">{{ paginatedHistoryEntries|length }}</span> of <span id="history-total-count">{{ totalHistoryEntries }}</span> entries
+                                        Showing <span id="history-start-index">1</span> - <span id="history-end-index">{{ totalBundles > historyEntriesPerPage ? historyEntriesPerPage : totalBundles }}</span> of <span id="history-total-count">{{ totalBundles }}</span> entries
                                     </div>
                                     <nav aria-label="History pagination">
                                         <ul class="pagination mb-0" id="history-pagination">
@@ -2478,108 +2924,11 @@ div.container-xl,
                                 </div>
                             </div>
                             {% endif %}
-                            
-                            {# Store all history entries in data attribute for JavaScript pagination #}
-                            <script type="application/json" id="history-entries-data">{{ historyEntries|json_encode|raw }}</script>
                 </div>
             </div>
         </div>
     </div>
 
-    {# Credentials Tab - Updated with Credentialing Links #}
-    <div class="tab-content" id="credentials-tab">
-        <div class="card app-card-settings">
-            <div class="card-body">
-                <div class="card-header-row">
-                    <h5 class="card-title">External Links</h5>
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-primary">{{ credentialingLinks|length }} Links</span>
-                    </div>
-                </div>
-
-                {% if credentialingLinks|length > 0 %}
-                    <div class="credentials-grid">
-                        {% for link in credentialingLinks %}
-                            <div class="credential-card">
-                                <div class="credential-header">
-                                    <div class="credential-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="credential-title">{{ link.title }}</h6>
-                                        <div class="d-flex align-items-center gap-2 mt-1">
-                                            {% if link.sender %}
-                                                <small class="text-muted">From: {{ link.sender }}</small>
-                                            {% endif %}
-                                            <small class="text-muted">•</small>
-                                            <small class="text-muted">{{ link.createdAt|date('M d, Y') }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {% if link.description %}
-                                    <p class="credential-description">{{ link.description }}</p>
-                                {% endif %}
-                                
-                                <div class="credential-meta mb-3">
-                                    <div class="d-flex align-items-center gap-2 text-sm text-muted">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                                        </svg>
-                                        <span class="url-preview">{{ link.url|replace({'https://': '', 'http://': ''})|slice(0, 50) }}{{ link.url|length > 50 ? '...' : '' }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="credential-actions">
-                                    <a href="{{ link.url }}" 
-                                       target="_blank" 
-                                       rel="noopener noreferrer"
-                                       class="action-btn btn-primary"
-                                       title="Open this external link in a new tab">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                                            <polyline points="15 3 21 3 21 9"/>
-                                            <line x1="10" y1="14" x2="21" y2="3"/>
-                                        </svg>
-                                        Open Link
-                                    </a>
-                                    
-                                    <button type="button" 
-                                            class="action-btn btn-secondary copy-link-btn"
-                                            data-url="{{ link.url }}"
-                                            title="Copy link to clipboard">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                        </svg>
-                                        Copy URL
-                                    </button>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-state-compact">
-                        <div class="empty-state-icon">🔗</div>
-                        <h4>No External Links</h4>
-                        <p class="text-muted">You don't have any external links shared with you yet.</p>
-                        <div class="mt-3">
-                            <p class="small text-info">
-                                <strong>About External Links:</strong><br>
-                                • Employers or systems may share links with you here<br>
-                                • Links can open forms, upload pages, or any external service<br>
-                                • All links open in new browser tabs for security<br>
-                                • You can copy links to access them later
-                            </p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -2673,25 +3022,31 @@ div.container-xl,
             // Function to switch to a specific tab
             function switchToTab(tabName) {
                 // Remove active class from all tabs and contents
-                document.querySelectorAll('.documents-tab').forEach(function(t) {
-                    t.classList.remove('active');
-                });
-                document.querySelectorAll('.tab-content').forEach(function(c) {
-                    c.classList.remove('active');
-                });
+                document.querySelectorAll('.documents-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
                 // Find and activate the target tab
-                const targetTab = document.querySelector('.documents-tab[data-tab="' + tabName + '"]');
+                const targetTab = document.querySelector(`.documents-tab[data-tab="${tabName}"]`);
                 if (targetTab) {
                     targetTab.classList.add('active');
                 }
                 
+                // Show/hide split view button based on active tab
+                const splitViewBtn = document.getElementById('documents-split-view-btn');
+                if (splitViewBtn) {
+                    if (tabName === 'document-history' || tabName === 'credentials') {
+                        splitViewBtn.style.display = 'none';
+                    } else {
+                        splitViewBtn.style.display = 'flex';
+                    }
+                }
+                
                 // Show corresponding content
-                const content = document.getElementById(tabName + '-tab');
+                const content = document.getElementById(`${tabName}-tab`);
                 if (content) {
                     content.classList.add('active');
                     // Scroll to the tab section
-                    setTimeout(function() {
+                    setTimeout(() => {
                         content.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 100);
                 }
@@ -2700,7 +3055,7 @@ div.container-xl,
             // Handle hash navigation (for dropdown links)
             if (window.location.hash) {
                 const hash = window.location.hash.substring(1); // Remove #
-                if (hash === 'my-documents-tab' || hash === 'history-tab') {
+                if (hash === 'uploaded-documents-tab' || hash === 'document-history-tab') {
                     const tabName = hash.replace('-tab', '');
                     switchToTab(tabName);
                 }
@@ -2709,19 +3064,105 @@ div.container-xl,
             // Listen for hash changes
             window.addEventListener('hashchange', function() {
                 const hash = window.location.hash.substring(1);
-                if (hash === 'my-documents-tab' || hash === 'history-tab') {
+                if (hash === 'uploaded-documents-tab' || hash === 'document-history-tab') {
                     const tabName = hash.replace('-tab', '');
                     switchToTab(tabName);
                 }
             });
             
-            // Tab switching
-            document.querySelectorAll('.documents-tab').forEach(function(tab) {
+            // Tab switching - only for Documents section tabs, not Document Requests
+            document.querySelectorAll('.documents-tab').forEach(tab => {
+                const parentCard = tab.closest('.card.app-card-settings');
+                const cardTitle = parentCard ? parentCard.querySelector('.card-title') : null;
+                // Skip tabs in Document Requests section
+                if (cardTitle && cardTitle.textContent.includes('Pending Document Requests')) {
+                    return;
+                }
                 tab.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
                     switchToTab(tabId);
                 });
             });
+            
+            // Initialize split view button visibility based on active tab
+            const activeTab = document.querySelector('.documents-tab.active');
+            if (activeTab) {
+                const activeTabName = activeTab.getAttribute('data-tab');
+                const splitViewBtn = document.getElementById('documents-split-view-btn');
+                if (splitViewBtn) {
+                    if (activeTabName === 'document-history' || activeTabName === 'credentials') {
+                    splitViewBtn.style.display = 'none';
+                    } else {
+                        splitViewBtn.style.display = 'flex';
+                    }
+                }
+            }
+
+            // Tab functionality for Document Requests section
+            const documentRequestsCard = document.querySelector('.card.app-card-settings .card-title');
+            if (documentRequestsCard && documentRequestsCard.textContent.includes('Pending Document Requests')) {
+                const requestsCard = documentRequestsCard.closest('.card.app-card-settings');
+                const matchAllBtn = document.getElementById('match-all-requests-btn');
+                
+                function switchDocumentRequestTab(tabName) {
+                    // Remove active class from all tabs in this card only
+                    requestsCard.querySelectorAll('.documents-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Remove active class from all tab contents in requests grid container
+                    const requestsContainer = document.getElementById('requests-grid-view-container');
+                    if (requestsContainer) {
+                        requestsContainer.querySelectorAll('.tab-content').forEach(c => {
+                            c.classList.remove('active');
+                        });
+                    }
+                    
+                    // Find and activate the target tab
+                    const targetTab = requestsCard.querySelector(`.documents-tab[data-tab="${tabName}"]`);
+                    if (targetTab) {
+                        targetTab.classList.add('active');
+                    }
+                    
+                    // Show corresponding content
+                    const content = document.getElementById(`${tabName}-tab`);
+                    if (content) {
+                        content.classList.add('active');
+                    }
+                    
+                    // Update button text based on active tab
+                    if (matchAllBtn) {
+                        if (tabName === 'documents-requests') {
+                            matchAllBtn.textContent = 'Match and Send All';
+                        } else if (tabName === 'links-requests' || tabName === 'sign-document-requests') {
+                            matchAllBtn.textContent = 'Send All';
+                        }
+                    }
+                }
+                
+                // Tab switching for document requests - stop propagation to prevent conflicts
+                requestsCard.querySelectorAll('.documents-tab').forEach(tab => {
+                    tab.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const tabId = this.getAttribute('data-tab');
+                        // Only handle document request tabs
+                        if (tabId === 'documents-requests' || tabId === 'links-requests' || tabId === 'sign-document-requests') {
+                            switchDocumentRequestTab(tabId);
+                        }
+                    });
+                });
+                
+                // Initialize button text based on default active tab
+                const activeTab = requestsCard.querySelector('.documents-tab.active');
+                if (activeTab && matchAllBtn) {
+                    const activeTabName = activeTab.getAttribute('data-tab');
+                    if (activeTabName === 'documents-requests') {
+                        matchAllBtn.textContent = 'Match and Send All';
+                    } else if (activeTabName === 'links-requests' || activeTabName === 'sign-document-requests') {
+                        matchAllBtn.textContent = 'Send All';
+                    }
+                }
+            }
 
             // Initialize flatpickr
             if (typeof flatpickr !== 'undefined') {
@@ -2776,240 +3217,6 @@ div.container-xl,
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Form validation - highlight invalid fields
-            const documentForm = document.getElementById('document-upload-form');
-            if (documentForm) {
-                documentForm.addEventListener('submit', function(e) {
-                    console.log('Form submit triggered');
-                    console.log('Form is valid:', documentForm.checkValidity());
-                    
-                    // Remove previous validation states
-                    documentForm.querySelectorAll('.is-invalid').forEach(el => {
-                        el.classList.remove('is-invalid');
-                    });
-                    documentForm.querySelectorAll('.invalid-feedback').forEach(el => {
-                        el.remove();
-                    });
-
-                    // Check HTML5 validity
-                    if (!documentForm.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        console.log('Form validation failed');
-
-                        // Find and highlight all invalid fields
-                        const invalidFields = documentForm.querySelectorAll(':invalid');
-                        console.log('Invalid fields:', invalidFields);
-                        let firstInvalidField = null;
-
-                        invalidFields.forEach(field => {
-                            // Skip the form itself
-                            if (field === documentForm) return;
-                            
-                            console.log('Invalid field:', field.name, field);
-
-                            // Add invalid class
-                            field.classList.add('is-invalid');
-
-                            // Add red border
-                            field.style.borderColor = '#dc3545';
-                            field.style.borderWidth = '2px';
-
-                            // Create error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'invalid-feedback d-block';
-                            errorDiv.style.color = '#dc3545';
-                            errorDiv.style.fontSize = '0.875rem';
-                            errorDiv.style.marginTop = '0.25rem';
-
-                            // Get field name for error message
-                            const fieldLabel = field.closest('.mb-2, .mb-3')?.querySelector('label')?.textContent?.trim() || 'This field';
-                            errorDiv.textContent = `${fieldLabel} is required.`;
-
-                            // Insert error message after field
-                            field.parentNode.insertBefore(errorDiv, field.nextSibling);
-
-                            // Store first invalid field for scrolling
-                            if (!firstInvalidField) {
-                                firstInvalidField = field;
-                            }
-                        });
-
-                        // Scroll to first invalid field
-                        if (firstInvalidField) {
-                            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            firstInvalidField.focus();
-                        }
-
-                        return false;
-                    }
-
-                    console.log('Form validation passed, submitting...');
-                    
-                    // Use AJAX submission for all modes
-                    e.preventDefault();
-                    
-                    const formData = new FormData(documentForm);
-                    const submitBtn = documentForm.querySelector('button[type="submit"]');
-                    const originalBtnText = submitBtn.innerHTML;
-                    const isEditMode = documentForm.action.includes('/edit/');
-                    
-                    // Show loading state
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (isEditMode ? 'Updating...' : 'Uploading...');
-                    
-                    fetch(documentForm.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        console.log('Response Content-Type:', response.headers.get('Content-Type'));
-                        
-                        // Check if response is JSON
-                        const contentType = response.headers.get('Content-Type');
-                        if (contentType && contentType.includes('application/json')) {
-                            return response.json();
-                        }
-                        
-                        // Not JSON, return as text
-                        return response.text().then(html => ({ html, status: response.status }));
-                    })
-                    .then(data => {
-                        // Check if we got a JSON success response
-                        if (data && data.success) {
-                            console.log('Success! Document saved.');
-                            
-                            const successMessage = data.message || (isEditMode ? 'Document updated successfully.' : 'Document uploaded successfully.');
-                            
-                            if (typeof showSuccessAlert !== 'undefined') {
-                                showSuccessAlert('Success!', successMessage);
-                            } else {
-                                alert(successMessage);
-                            }
-                            
-                            // Reload the page to show updated documents list
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                            
-                            return;
-                        }
-                        
-                        // Check if we got a JSON error response
-                        if (data && data.success === false && data.errors) {
-                            console.log('Validation errors:', data.errors);
-                            
-                            let errorMessage = 'Please fix the following errors:\n';
-                            data.errors.forEach(err => {
-                                errorMessage += '- ' + err + '\n';
-                            });
-                            
-                            if (typeof showErrorAlert !== 'undefined') {
-                                showErrorAlert('Validation Error', errorMessage);
-                            } else {
-                                alert(errorMessage);
-                            }
-                            
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalBtnText;
-                            return;
-                        }
-                        
-                        // HTML response - parse for errors
-                        if (data && data.html) {
-                            console.log('Got HTML response, checking for errors...');
-                            
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(data.html, 'text/html');
-                            
-                            const flashErrors = doc.querySelectorAll('.alert-danger');
-                            const formErrors = doc.querySelectorAll('.invalid-feedback');
-                            
-                            console.log('Flash errors found:', flashErrors.length);
-                            console.log('Form errors found:', formErrors.length);
-                            
-                            if (flashErrors.length > 0 || formErrors.length > 0) {
-                                let errorMessage = 'Please fix the following errors:\n';
-                                
-                                flashErrors.forEach(err => {
-                                    const text = err.textContent.trim();
-                                    if (text) {
-                                        errorMessage += '- ' + text + '\n';
-                                    }
-                                });
-                                
-                                formErrors.forEach(err => {
-                                    const text = err.textContent.trim();
-                                    if (text) {
-                                        errorMessage += '- ' + text + '\n';
-                                    }
-                                });
-                                
-                                if (typeof showErrorAlert !== 'undefined') {
-                                    showErrorAlert('Validation Error', errorMessage);
-                                } else {
-                                    alert(errorMessage);
-                                }
-                            } else {
-                                console.error('Form returned HTML but no errors found.');
-                                if (typeof showErrorAlert !== 'undefined') {
-                                    showErrorAlert('Error', 'Unable to save document. Please check all required fields.');
-                                } else {
-                                    alert('Unable to save document. Please check all required fields.');
-                                }
-                            }
-                            
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalBtnText;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        if (typeof showErrorAlert !== 'undefined') {
-                            showErrorAlert('Error', 'An error occurred. Please try again.');
-                        } else {
-                            alert('An error occurred. Please try again.');
-                        }
-                        
-                        // Reset button
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                    });
-                    
-                    return false;
-                });
-
-                // Remove invalid state when user starts typing/selecting
-                documentForm.addEventListener('input', function(e) {
-                    if (e.target.classList.contains('is-invalid')) {
-                        e.target.classList.remove('is-invalid');
-                        e.target.style.borderColor = '';
-                        e.target.style.borderWidth = '';
-                        const errorMsg = e.target.nextElementSibling;
-                        if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
-                            errorMsg.remove();
-                        }
-                    }
-                });
-
-                documentForm.addEventListener('change', function(e) {
-                    if (e.target.classList.contains('is-invalid')) {
-                        e.target.classList.remove('is-invalid');
-                        e.target.style.borderColor = '';
-                        e.target.style.borderWidth = '';
-                        const errorMsg = e.target.nextElementSibling;
-                        if (errorMsg && errorMsg.classList.contains('invalid-feedback')) {
-                            errorMsg.remove();
-                        }
-                    }
-                });
-            }
-
             initializeDocumentCategoryLogic();
         });
 
@@ -3072,6 +3279,20 @@ div.container-xl,
                         nameWrapper.style.display = 'none';
                         nameInput.required = false;
                         nameInput.value = '';
+                    }
+                }
+
+                // Handle DEA name field
+                const deaNameWrapper = document.getElementById('dea-name-wrapper');
+                const deaNameInput = document.getElementById('dea_name');
+                if (deaNameWrapper && deaNameInput) {
+                    if (isDEA) {
+                        deaNameWrapper.style.display = 'block';
+                        deaNameInput.required = true;
+                    } else {
+                        deaNameWrapper.style.display = 'none';
+                        deaNameInput.required = false;
+                        deaNameInput.value = '';
                     }
                 }
 
@@ -3176,6 +3397,7 @@ div.container-xl,
                 if (!currentSection) return;
 
                 const categoryInput = currentSection.querySelector('#document_category');
+                const deaNameInput = currentSection.querySelector('#dea_name');
                 const issueInput = currentSection.querySelector('#document_issueDate');
                 const expiryInput = currentSection.querySelector('#document_expirationDate');
                 const fileInput = currentSection.querySelector('#fileInput');
@@ -3184,7 +3406,8 @@ div.container-xl,
                 // Check if current form has data
                 const hasData = (fileInput && fileInput.files && fileInput.files.length > 0) ||
                                (issueInput && issueInput.value) ||
-                               (expiryInput && expiryInput.value);
+                               (expiryInput && expiryInput.value) ||
+                               (deaNameInput && deaNameInput.value);
 
                 if (hasData) {
                     // Store the current DEA data
@@ -3192,12 +3415,14 @@ div.container-xl,
                     storedItem.className = 'stored-dea-item';
                     storedItem.dataset.deaIndex = deaFormIndex;
                     var deaIndexPlusOne = deaFormIndex + 1;
-                    var fileNameHtml = (fileNameText && fileNameText.textContent) ? '<span style="margin-left: 8px; color: #6b7280;">' + fileNameText.textContent + '</span>' : '';
-                    var issueHtml = (issueInput && issueInput.value) ? '<span style="margin-left: 8px; color: #6b7280;">Issue: ' + issueInput.value + '</span>' : '';
-                    var expiryHtml = (expiryInput && expiryInput.value) ? '<span style="margin-left: 8px; color: #6b7280;">Expiry: ' + expiryInput.value + '</span>' : '';
+                    var deaNameHtml = (deaNameInput && deaNameInput.value) ? '<span style="margin-left: 8px; color: #000000;">' + deaNameInput.value + '</span>' : '';
+                    var fileNameHtml = (fileNameText && fileNameText.textContent) ? '<span style="margin-left: 8px; color: #000000;">' + fileNameText.textContent + '</span>' : '';
+                    var issueHtml = (issueInput && issueInput.value) ? '<span style="margin-left: 8px; color: #000000;">Issue: ' + issueInput.value + '</span>' : '';
+                    var expiryHtml = (expiryInput && expiryInput.value) ? '<span style="margin-left: 8px; color: #000000;">Expiry: ' + expiryInput.value + '</span>' : '';
                     storedItem.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center;">' +
                         '<div>' +
                         '<strong>DEA ' + deaIndexPlusOne + '</strong>' +
+                        deaNameHtml +
                         fileNameHtml +
                         issueHtml +
                         expiryHtml +
@@ -3222,15 +3447,36 @@ div.container-xl,
                 const allInputs = newSection.querySelectorAll('input, select, textarea, label');
                 allInputs.forEach(input => {
                     if (input.id) {
+                        // Handle DEA name field separately
+                        if (input.id === 'dea_name') {
+                            input.id = 'dea_name_' + deaFormIndex;
+                            if (input.name) {
+                                input.name = 'dea_documents[' + deaFormIndex + '][deaName]';
+                            }
+                        } else {
                         input.id = input.id.replace('document_', 'document_' + deaFormIndex + '_');
                         if (input.name && input.name.startsWith('document[')) {
                             input.name = input.name.replace('document[', 'dea_documents[' + deaFormIndex + '][');
+                            }
                         }
                     }
                     if (input.getAttribute('for')) {
-                        input.setAttribute('for', input.getAttribute('for').replace('document_', 'document_' + deaFormIndex + '_'));
+                        const forAttr = input.getAttribute('for');
+                        if (forAttr === 'dea_name') {
+                            input.setAttribute('for', 'dea_name_' + deaFormIndex);
+                        } else {
+                            input.setAttribute('for', forAttr.replace('document_', 'document_' + deaFormIndex + '_'));
+                        }
                     }
                 });
+
+                // Update DEA name wrapper ID
+                const deaNameWrapper = newSection.querySelector('#dea-name-wrapper');
+                if (deaNameWrapper) {
+                    deaNameWrapper.id = 'dea-name-wrapper_' + deaFormIndex;
+                    // Show it since it's a DEA form
+                    deaNameWrapper.style.display = 'block';
+                }
 
                 // Update file input handler
                 const newFileInput = newSection.querySelector('input[type="file"]');
@@ -3265,8 +3511,10 @@ div.container-xl,
                 // Add remove button
                 const sectionHeader = document.createElement('div');
                 sectionHeader.className = 'dea-form-section-header';
-                sectionHeader.innerHTML = '<span class="dea-form-section-title">DEA ' + (deaFormIndex + 1) + '</span>' +
-                    '<button type="button" class="dea-form-section-remove" onclick="removeDEAForm(' + deaFormIndex + ')">Remove</button>';
+                sectionHeader.innerHTML = `
+                    <span class="dea-form-section-title">DEA ${deaFormIndex + 1}</span>
+                    <button type="button" class="dea-form-section-remove" onclick="removeDEAForm(${deaFormIndex})">Remove</button>
+                `;
                 newSection.insertBefore(sectionHeader, newSection.firstChild);
 
                 // Insert before the form actions
@@ -3274,19 +3522,6 @@ div.container-xl,
 
                 // Scroll to new section
                 newSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                // Initialize datepickers on cloned inputs
-                try {
-                    if (typeof flatpickr !== 'undefined') {
-                        newSection.querySelectorAll('.js-datepicker').forEach(function(input){
-                            if (!input._flatpickr) {
-                                flatpickr(input, { dateFormat: 'Y-m-d' });
-                            }
-                        });
-                    } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
-                        $(newSection).find('.js-datepicker').flatpickr();
-                    }
-                } catch(_) {}
             }
 
             window.removeDEAForm = function(index) {
@@ -3363,7 +3598,7 @@ div.container-xl,
 
                     showConfirmAlert(
                         'Delete Document',
-                        'Are you sure you want to delete "' + documentName + '"? This action cannot be undone.',
+                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
                         'Yes, Delete',
                         'Cancel',
                         function(confirmed) {
@@ -3376,7 +3611,7 @@ div.container-xl,
             });
             
             // Also attach directly to existing buttons
-            document.querySelectorAll('.delete-document-btn').forEach(function(btn) {
+            document.querySelectorAll('.delete-document-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3385,7 +3620,7 @@ div.container-xl,
 
                     showConfirmAlert(
                         'Delete Document',
-                        'Are you sure you want to delete "' + documentName + '"? This action cannot be undone.',
+                        `Are you sure you want to delete "${documentName}"? This action cannot be undone.`,
                         'Yes, Delete',
                         'Cancel',
                         function(confirmed) {
@@ -3417,7 +3652,7 @@ div.container-xl,
                     selectElement.disabled = true;
 
                     // FIX: Add /provider prefix to match the controller route
-                    fetch('/provider/document-request/' + requestId + '/assign-document', {
+                    fetch(`/provider/document-request/${requestId}/assign-document`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -3426,24 +3661,24 @@ div.container-xl,
                         },
                         body: JSON.stringify({ documentId: documentId })
                     })
-                    .then(function(response) {
+                    .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
                         return response.json();
                     })
-                    .then(function(data) {
+                    .then(data => {
                         selectElement.disabled = false;
                         if (data.success) {
                             // Success handling
                             const row = selectElement.closest('tr');
                             row.style.opacity = '0.5';
-                            setTimeout(function() {
+                            setTimeout(() => {
                                 row.remove();
                                 updateEmptyState();
                                 
                                 // Also remove from split view if it exists
-                                const splitCard = document.querySelector('.split-document-card[data-request-id="' + requestId + '"]');
+                                const splitCard = document.querySelector(`.split-document-card[data-request-id="${requestId}"]`);
                                 if (splitCard) {
                                     splitCard.remove();
                                     updateSplitViewEmptyState();
@@ -3483,6 +3718,19 @@ div.container-xl,
                         }
                     }
                     
+                    // Check for DEA name field
+                    const deaNameInput = document.getElementById('dea_name');
+                    if (categoryInput && categoryInput.value === 'All DEAs') {
+                        if (!deaNameInput || !deaNameInput.value.trim()) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.classList.add('was-validated');
+                            showWarningAlert('Validation Error', 'Please enter a DEA name for DEA documents.');
+                            if (deaNameInput) deaNameInput.focus();
+                            return false;
+                        }
+                    }
+                    
                     // Validate form before submission
                     if (!this.checkValidity()) {
                         e.preventDefault();
@@ -3512,13 +3760,13 @@ div.container-xl,
             {% for label, messages in app.flashes %}
                 {% for message in messages %}
                     {% if label == 'success' %}
-                        showSuccessAlert('Success!', {{ message|json_encode|raw }});
+                        showSuccessAlert('Success!', '{{ message|e('js') }}');
                     {% elseif label == 'error' %}
-                        showErrorAlert('Error!', {{ message|json_encode|raw }});
+                        showErrorAlert('Error!', '{{ message|e('js') }}');
                     {% elseif label == 'warning' %}
-                        showWarningAlert('Warning!', {{ message|json_encode|raw }});
+                        showWarningAlert('Warning!', '{{ message|e('js') }}');
                     {% else %}
-                        showInfoAlert('Information', {{ message|json_encode|raw }});
+                        showInfoAlert('Information', '{{ message|e('js') }}');
                     {% endif %}
                 {% endfor %}
             {% endfor %}
@@ -3614,7 +3862,7 @@ div.container-xl,
                 const year = expirationDate.getFullYear();
                 const month = String(expirationDate.getMonth() + 1).padStart(2, '0');
                 const day = String(expirationDate.getDate()).padStart(2, '0');
-                expirationDateInput.value = year + '-' + month + '-' + day;
+                expirationDateInput.value = `${year}-${month}-${day}`;
             }
 
             // Listen for category changes
@@ -3640,13 +3888,15 @@ div.container-xl,
                 
                 if (remainingRows.length === 0 || 
                     (remainingRows.length === 1 && remainingRows[0].querySelector('.empty-state'))) {
-                    tbody.innerHTML = '<tr>' +
-                        '<td colspan="7" class="empty-state">' +
-                        '<div class="empty-state-icon">📋</div>' +
-                        '<p class="mb-0">No pending document requests found.</p>' +
-                        '<p class="text-muted small mt-2">All document requests have been provided.</p>' +
-                        '</td>' +
-                        '</tr>';
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <div class="empty-state-icon">📋</div>
+                                <p class="mb-0">No pending document requests found.</p>
+                                <p class="text-muted small mt-2">All document requests have been provided.</p>
+                            </td>
+                        </tr>
+                    `;
                 }
             };
 
@@ -3661,35 +3911,163 @@ div.container-xl,
             };
 
             // Copy link functionality for credentialing links
-            document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+            document.querySelectorAll('.copy-link-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const url = this.getAttribute('data-url');
-                    navigator.clipboard.writeText(url).then(function() {
+                    navigator.clipboard.writeText(url).then(() => {
                         // Show temporary success feedback
                         const originalHtml = this.innerHTML;
-                        this.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">' +
-                            '<path d="M20 6L9 17l-5-5"/>' +
-                            '</svg>' +
-                            'Copied!';
+                        this.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                            Copied!
+                        `;
                         this.classList.add('btn-success');
                         
-                        setTimeout(function() {
+                        setTimeout(() => {
                             this.innerHTML = originalHtml;
                             this.classList.remove('btn-success');
-                        }.bind(this), 2000);
-                    }).catch(function(err) {
+                        }, 2000);
+                    }).catch(err => {
                         console.error('Failed to copy: ', err);
                         alert('Failed to copy link to clipboard');
                     });
                 });
             });
 
-            // Optional: Track link opens (if needed)
-            document.querySelectorAll('a[target="_blank"]').forEach(link => {
-                link.addEventListener('click', function() {
-                    // You can add analytics here if needed
-                    console.log('External link opened:', this.href);
+            // Track link opens and manage badges
+            function getLinkStorageKey(linkId) {
+                return `link_${linkId}_status`;
+            }
+
+            function updateLinkStatus(linkId, status) {
+                const storageKey = getLinkStorageKey(linkId);
+                const currentStatus = localStorage.getItem(storageKey);
+                const statusData = currentStatus ? JSON.parse(currentStatus) : {};
+                
+                if (status === 'opened') {
+                    statusData.opened = true;
+                } else if (status === 'submitted') {
+                    statusData.submitted = true;
+                }
+                
+                localStorage.setItem(storageKey, JSON.stringify(statusData));
+                updateLinkUI(linkId);
+            }
+
+            function updateLinkUI(linkId) {
+                const storageKey = getLinkStorageKey(linkId);
+                const statusData = localStorage.getItem(storageKey);
+                
+                if (!statusData) return;
+                
+                const status = JSON.parse(statusData);
+                const openedBadge = document.getElementById(`opened-badge-${linkId}`);
+                const submittedBadge = document.getElementById(`submitted-badge-${linkId}`);
+                const submitBtn = document.getElementById(`submit-btn-${linkId}`);
+                
+                if (status.opened && openedBadge) {
+                    openedBadge.style.display = 'inline-block';
+                }
+                
+                if (status.opened && submitBtn && !status.submitted) {
+                    submitBtn.style.display = 'inline-block';
+                }
+                
+                if (status.submitted && submittedBadge) {
+                    submittedBadge.style.display = 'inline-block';
+                    if (submitBtn) {
+                        submitBtn.style.display = 'none';
+                    }
+                }
+            }
+
+            // Initialize all link statuses
+            function initializeAllLinkStatuses() {
+                // Find all link cards (both in grid and table views)
+                const linkCards = document.querySelectorAll('[data-request-id^="link-"]');
+                linkCards.forEach(card => {
+                    const linkId = card.getAttribute('data-request-id');
+                    if (linkId) {
+                        updateLinkUI(linkId);
+                    }
                 });
+                
+                // Also check for links in table rows
+                document.querySelectorAll('tr[data-request-id^="link-"]').forEach(row => {
+                    const linkId = row.getAttribute('data-request-id');
+                    if (linkId) {
+                        updateLinkUI(linkId);
+                    }
+                });
+            }
+
+            // Initialize link statuses on page load (with delay to ensure DOM is ready)
+            setTimeout(function() {
+                initializeAllLinkStatuses();
+            }, 100);
+            
+            // Also initialize when window loads
+            window.addEventListener('load', function() {
+                initializeAllLinkStatuses();
+            });
+
+            // Re-initialize when accordions are opened (using event delegation)
+            document.addEventListener('click', function(e) {
+                // Check if accordion was opened
+                if (e.target.closest('.company-group-header[data-accordion-toggle]') || 
+                    e.target.closest('.accordion-toggle-btn')) {
+                    setTimeout(initializeAllLinkStatuses, 200);
+                }
+            });
+
+            // Also watch for when accordion content becomes visible
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const target = mutation.target;
+                        if (target.classList.contains('requests-grid') || target.classList.contains('accordion-content')) {
+                            const isVisible = target.style.display !== 'none' && 
+                                            !target.classList.contains('collapsed');
+                            if (isVisible) {
+                                setTimeout(initializeAllLinkStatuses, 100);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Observe all accordion content elements
+            document.querySelectorAll('.accordion-content, .requests-grid').forEach(function(element) {
+                observer.observe(element, {
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+            });
+
+            // Use event delegation for link opens (works even for dynamically shown content)
+            document.addEventListener('click', function(e) {
+                const openLinkBtn = e.target.closest('.open-link-btn');
+                if (openLinkBtn) {
+                    const linkId = openLinkBtn.getAttribute('data-link-id');
+                    if (linkId) {
+                        updateLinkStatus(linkId, 'opened');
+                    }
+                }
+            });
+
+            // Use event delegation for Submitted button clicks
+            document.addEventListener('click', function(e) {
+                const submitBtn = e.target.closest('.submit-link-btn');
+                if (submitBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const linkId = submitBtn.getAttribute('data-link-id');
+                    if (linkId) {
+                        updateLinkStatus(linkId, 'submitted');
+                    }
+                }
             });
         });
 
@@ -3719,7 +4097,7 @@ div.container-xl,
 
             // Auto-match documents by name (case-insensitive)
             function autoMatchDocuments() {
-                document.querySelectorAll('.document-select[data-request-name]').forEach(function(select) {
+                document.querySelectorAll('.document-select[data-request-name]').forEach(select => {
                     const requestName = select.dataset.requestName;
                     if (!requestName || select.value) return; // Skip if already has a value
 
@@ -3727,7 +4105,7 @@ div.container-xl,
                     const options = select.querySelectorAll('option[data-doc-name]');
                     let matched = false;
                     
-                    options.forEach(function(option) {
+                    options.forEach(option => {
                         const docName = option.dataset.docName;
                         if (docName && docName === requestName && !matched) {
                             select.value = option.value;
@@ -3740,7 +4118,7 @@ div.container-xl,
                                 if (typeof window.updateRequestsSubmitButton === 'function') {
                                     window.updateRequestsSubmitButton();
                                 }
-                            } else {
+                    } else {
                                 // Auto-submit for list view
                                 select.dispatchEvent(new Event('change'));
                             }
@@ -3752,50 +4130,89 @@ div.container-xl,
             // Run auto-match on page load
             autoMatchDocuments();
 
-            // Accordion functionality for company groups - Collapsible
+            // Accordion functionality for company groups - Hover to open, Click to stay
             document.querySelectorAll('.company-group-header[data-accordion-toggle]').forEach(function(header) {
                 const toggleBtn = header.querySelector('.accordion-toggle-btn');
                 const content = header.nextElementSibling;
                 
                 if (!toggleBtn || !content) return;
                 
-                // Toggle function
-                function toggleAccordion(e) {
-                    if (e) {
-                        e.stopPropagation();
-                    }
-                    const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-                    
-                    if (isExpanded) {
-                        // Collapse
-                        toggleBtn.setAttribute('aria-expanded', 'false');
-                        content.classList.add('collapsed');
-                        content.style.display = 'none';
+                let isLocked = false; // Track if accordion is locked open by click
+                let hoverTimeout = null;
+                
+                // Expand function
+                function expandAccordion() {
+                    toggleBtn.setAttribute('aria-expanded', 'true');
+                    content.classList.remove('collapsed');
+                    if (content.classList.contains('requests-grid')) {
+                        content.style.display = 'grid';
                     } else {
-                        // Expand - show the grid view
-                        toggleBtn.setAttribute('aria-expanded', 'true');
-                        content.classList.remove('collapsed');
-                        // Use grid display to show the document request cards in grid layout
-                        if (content.classList.contains('requests-grid')) {
-                            content.style.display = 'grid';
-                        } else {
-                            content.style.display = 'block';
-                        }
+                        content.style.display = 'block';
                     }
                 }
                 
-                // Make header clickable
-                header.addEventListener('click', toggleAccordion);
+                // Collapse function
+                function collapseAccordion() {
+                    if (!isLocked) {
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                        content.classList.add('collapsed');
+                        content.style.display = 'none';
+                    }
+                }
                 
-                // Also make button clickable (but prevent double toggle)
-                toggleBtn.addEventListener('click', function(e) {
+                // Click handler - lock/unlock the accordion
+                function handleClick(e) {
                     e.stopPropagation();
-                    toggleAccordion(e);
+                    isLocked = !isLocked;
+                    if (isLocked) {
+                        expandAccordion();
+                    } else {
+                        collapseAccordion();
+                    }
+                }
+                
+                // Hover handler - expand on hover (if not locked)
+                header.addEventListener('mouseenter', function() {
+                    if (!isLocked) {
+                    clearTimeout(hoverTimeout);
+                    expandAccordion();
+                    }
                 });
+                
+                // Mouse leave handler - collapse after delay (if not locked)
+                header.addEventListener('mouseleave', function() {
+                    if (!isLocked) {
+                        clearTimeout(hoverTimeout);
+                    hoverTimeout = setTimeout(function() {
+                        collapseAccordion();
+                        }, 200); // Small delay to allow moving to content
+                    }
+                });
+                
+                // Also handle mouse events on content to keep it open when hovering over it
+                content.addEventListener('mouseenter', function() {
+                    if (!isLocked) {
+                        clearTimeout(hoverTimeout);
+                        expandAccordion();
+                    }
+                });
+                
+                content.addEventListener('mouseleave', function() {
+                    if (!isLocked) {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = setTimeout(function() {
+                        collapseAccordion();
+                        }, 200);
+                    }
+                });
+                
+                // Click handlers
+                header.addEventListener('click', handleClick);
+                toggleBtn.addEventListener('click', handleClick);
             });
 
             // Handle "Add Document" option in dropdown
-            document.querySelectorAll('.document-select').forEach(function(select) {
+            document.querySelectorAll('.document-select').forEach(select => {
                 select.addEventListener('change', function() {
                     if (this.value === '__add_document__') {
                         // Reset to empty
@@ -4004,6 +4421,19 @@ div.container-xl,
                     if (editModal) {
                         const modal = new bootstrap.Modal(editModal);
                         modal.show();
+                        
+                        // Initialize datepickers for edit modal
+                        setTimeout(function() {
+                            if (typeof flatpickr !== 'undefined') {
+                                editModal.querySelectorAll('.js-datepicker').forEach(function(input) {
+                                    if (!input._flatpickr) {
+                                        flatpickr(input, { dateFormat: 'Y-m-d' });
+                                    }
+                                });
+                            } else if (typeof $ !== 'undefined' && $.fn.flatpickr) {
+                                $(editModal).find('.js-datepicker').flatpickr();
+                            }
+                        }, 100);
                     }
                 }
             });
@@ -4014,7 +4444,6 @@ div.container-xl,
                 submitEditModalBtn.addEventListener('click', function() {
                     const form = document.getElementById('edit-document-modal-form');
                     const documentId = document.getElementById('edit_document_id').value;
-
                     // Check for Miscellaneous name field
                     const editCategory = document.getElementById('edit_modal_document_category');
                     const editNameInput = document.getElementById('edit_modal_document_name');
@@ -4025,18 +4454,15 @@ div.container-xl,
                             return;
                         }
                     }
-
                     // Validate form
                     if (!form.checkValidity()) {
                         form.reportValidity();
                         return;
                     }
-
                     // Show loading
                     this.disabled = true;
                     const originalText = this.innerHTML;
                     this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
-
                     // Submit form
                     form.submit();
                 });
@@ -4125,25 +4551,29 @@ div.container-xl,
                         documentsSplitViewContainer.style.display = 'none';
                         documentsListView.style.display = 'block';
                         documentsSplitViewBtn.classList.remove('active');
-                        documentsSplitViewBtn.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                            '<path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-                            '<path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-                            '<path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-                            '<path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-                            '</svg>' +
-                            'Split View';
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Split View
+                        `;
                         if (documentsToggleBtn) documentsToggleBtn.style.display = 'none';
                     } else {
                         // Switch to split view
                         documentsSplitViewContainer.style.display = 'grid';
                         documentsListView.style.display = 'none';
                         documentsSplitViewBtn.classList.add('active');
-                        documentsSplitViewBtn.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                            '<path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
-                            '<path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
-                            '<path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
-                            '</svg>' +
-                            'List View';
+                        documentsSplitViewBtn.innerHTML = `
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            List View
+                        `;
                         if (documentsToggleBtn) {
                             documentsToggleBtn.style.display = 'flex';
                             updateToggleButtonPosition('documents');
@@ -4165,7 +4595,6 @@ div.container-xl,
             // Grid View Functionality for Document Requests - Initialize after DOM is ready
             // Note: requestsGridViewContainer is already declared above, reusing it
             const matchAllRequestsBtn = document.getElementById('match-all-requests-btn');
-            const deselectAllRequestsBtn = document.getElementById('deselect-all-requests-btn');
             const submitSelectedRequestsBtn = document.getElementById('submit-selected-requests-btn');
             
             // Helper functions for grid view (defined in outer scope for accessibility)
@@ -4238,43 +4667,17 @@ div.container-xl,
                     let matchedCount = 0;
                     const matchPromises = [];
                     
-                    console.log('Match All: Starting matching process...');
-                    console.log('Found', documentSelects.length, 'request selects');
-                    
                         documentSelects.forEach(select => {
                         const requestName = select.dataset.requestName;
-                        if (!requestName || select.value) {
-                            console.log('Skipping request:', requestName, '(already has value or no name)');
-                            return; // Skip if already has a value
-                        }
-                        
-                        console.log('Processing request:', requestName);
+                        if (!requestName || select.value) return; // Skip if already has a value
                         
                         // Find matching document
                         const options = select.querySelectorAll('option[data-doc-name]');
                         let matched = false;
                         
-                        console.log('  Available documents:', Array.from(options).map(o => o.dataset.docName));
-                        
                         options.forEach(option => {
                             const docName = option.dataset.docName;
-                            if (!docName || matched) return;
-                            
-                            // Improved fuzzy matching logic
-                            const normalizedDocName = docName.toLowerCase().trim();
-                            const normalizedRequestName = requestName.toLowerCase().trim();
-                            
-                            // Try multiple matching strategies
-                            const exactMatch = normalizedDocName === normalizedRequestName;
-                            const containsMatch = normalizedDocName.includes(normalizedRequestName) || normalizedRequestName.includes(normalizedDocName);
-                            
-                            // Remove common words and try matching
-                            const cleanDocName = normalizedDocName.replace(/\b(upload|document|copy|of|the|a|an)\b/g, '').trim();
-                            const cleanRequestName = normalizedRequestName.replace(/\b(upload|document|copy|of|the|a|an)\b/g, '').trim();
-                            const cleanMatch = cleanDocName === cleanRequestName || cleanDocName.includes(cleanRequestName) || cleanRequestName.includes(cleanDocName);
-                            
-                            if (exactMatch || containsMatch || cleanMatch) {
-                                console.log('  ✓ MATCHED:', docName, 'with request:', requestName);
+                            if (docName && docName === requestName && !matched) {
                                 select.value = option.value;
                                 matched = true;
                                 matchedCount++;
@@ -4284,31 +4687,27 @@ div.container-xl,
                                 const documentId = option.value;
                                 
                                 if (requestId && documentId) {
-                                    const matchPromise = fetch('/provider/document-request/' + requestId + '/assign-document', {
+                                    const matchPromise = fetch(`/provider/document-request/${requestId}/assign-document`, {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
-                                            'X-Requested-With': 'XMLHttpRequest'
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'X-CSRF-TOKEN': '{{ csrf_token("assign_document") }}'
                                         },
                                         body: JSON.stringify({ documentId: documentId })
                                     })
-                                    .then(function(response) {
-                                        return response.json();
-                                    })
-                                    .then(function(data) {
+                                    .then(response => response.json())
+                                    .then(data => {
                                         if (data.success) {
                                             // Remove the request card after successful match
-                                            const requestCard = container.querySelector('[data-request-id="' + requestId + '"]');
+                                            const requestCard = container.querySelector(`[data-request-id="${requestId}"]`);
                                             if (requestCard) {
-                                                const closestCard = requestCard.closest('.request-card');
-                                                if (closestCard) {
-                                                    closestCard.remove();
-                                                }
+                                                requestCard.closest('.request-card')?.remove();
                                             }
                                         }
                                         return data;
                                     })
-                                    .catch(function(error) {
+                                    .catch(error => {
                                         console.error('Error matching document:', error);
                                         return { success: false };
                                     });
@@ -4317,10 +4716,6 @@ div.container-xl,
                                 }
                             }
                         });
-                        
-                        if (!matched) {
-                            console.log('  ✗ No match found for:', requestName);
-                        }
                     });
                     
                     // Wait for all matches to complete
@@ -4334,13 +4729,13 @@ div.container-xl,
                         // Show success message
                         if (successCount > 0) {
                             if (typeof showSuccessAlert !== 'undefined') {
-                                showSuccessAlert('Success!', 'Successfully matched and submitted ' + successCount + ' document(s).');
+                                showSuccessAlert('Success!', `Successfully matched and submitted ${successCount} document(s).`);
                             } else {
-                                alert('Successfully matched and submitted ' + successCount + ' document(s).');
+                                alert(`Successfully matched and submitted ${successCount} document(s).`);
                             }
                             
                             // Reload page after a short delay to show updated state
-                            setTimeout(function() {
+                            setTimeout(() => {
                                 window.location.reload();
                             }, 1500);
                         } else if (matchedCount > 0) {
@@ -4363,20 +4758,6 @@ div.container-xl,
                 });
             }
 
-            // Deselect All functionality for requests - clears all selections
-            if (deselectAllRequestsBtn) {
-                deselectAllRequestsBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const container = document.getElementById('requests-grid-view-container');
-                    if (!container) return;
-                    const documentSelects = container.querySelectorAll('.document-select');
-                    documentSelects.forEach(select => {
-                        select.value = '';
-                    });
-                    window.updateRequestsSubmitButton();
-                });
-            }
 
             // Submit Selected Documents for requests
             if (submitSelectedRequestsBtn) {
@@ -4395,8 +4776,8 @@ div.container-xl,
                     if (typeof Swal !== 'undefined') {
                         const container = document.getElementById('requests-grid-view-container');
                         const uniqueCompanies = new Set();
-                        selectedPairs.forEach(function(p) {
-                            const requestCard = container ? container.querySelector('[data-request-id="' + p.requestId + '"]') : null;
+                        selectedPairs.forEach(p => {
+                            const requestCard = container ? container.querySelector(`[data-request-id="${p.requestId}"]`) : null;
                             if (requestCard) {
                                 uniqueCompanies.add(requestCard.dataset.company || '');
                             }
@@ -4404,7 +4785,7 @@ div.container-xl,
                         
                         Swal.fire({
                             title: 'Submit Documents?',
-                            text: 'You are about to submit ' + selectedPairs.length + ' document(s) to ' + uniqueCompanies.size + ' company/companies. Continue?',
+                            text: `You are about to submit ${selectedPairs.length} document(s) to ${uniqueCompanies.size} company/companies. Continue?`,
                             icon: 'question',
                             showCancelButton: true,
                             confirmButtonColor: '#85BB65',
@@ -4447,12 +4828,10 @@ div.container-xl,
                         documentIds: documentIds
                     })
                 })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(data) {
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
-                        showSuccessAlert('Success!', 'Successfully submitted ' + data.assignedRequestIds.length + ' document(s).');
+                        showSuccessAlert('Success!', `Successfully submitted ${data.assignedRequestIds.length} document(s).`);
                         
                         // Reload page after a short delay
                         setTimeout(() => {
@@ -4582,7 +4961,7 @@ div.container-xl,
                                             <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                             <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        <p style="color: #6b7280; margin-bottom: 16px;">Preview not available for this file type</p>
+                                        <p style="color: #000000; margin-bottom: 16px;">Preview not available for this file type</p>
                                         <div style="display: flex; gap: 8px; justify-content: center;">
                                             <a href="/provider/documents/view/${documentId}" class="action-btn" style="display: inline-flex; padding: 8px 16px;">
                                                 View Full Page
@@ -4696,31 +5075,55 @@ div.container-xl,
                 }
             }
 
-            // Document History Pagination
+            // Document History Pagination with Bundle Support
             (function() {
-                const historyEntriesData = document.getElementById('history-entries-data');
-                if (!historyEntriesData) return;
+                const historyBundlesData = document.getElementById('history-bundles-data');
+                if (!historyBundlesData) return;
                 
                 try {
-                    const jsonText = historyEntriesData.textContent || historyEntriesData.innerText || '';
+                    const jsonText = historyBundlesData.textContent || historyBundlesData.innerText || '';
                     if (!jsonText) return;
-                    const allHistoryEntries = JSON.parse(jsonText);
+                    const allBundles = JSON.parse(jsonText);
                     const entriesPerPage = 10;
                     let currentPage = 1;
-                    const totalPages = Math.ceil(allHistoryEntries.length / entriesPerPage);
-                    
-                    if (totalPages <= 1) return; // No pagination needed
+                    const totalPages = Math.ceil(allBundles.length / entriesPerPage);
                     
                     const historyContainer = document.getElementById('history-entries-container');
+                    const paginationWrapper = document.getElementById('history-pagination-wrapper');
                     const pagination = document.getElementById('history-pagination');
-                    const prevBtn = document.getElementById('history-prev-page');
-                    const nextBtn = document.getElementById('history-next-page');
+                    let prevBtn = document.getElementById('history-prev-page');
+                    let nextBtn = document.getElementById('history-next-page');
                     const startIndexEl = document.getElementById('history-start-index');
                     const endIndexEl = document.getElementById('history-end-index');
                     
-                    if (!historyContainer || !pagination) return;
+                    if (!historyContainer) return;
                     
-                    // Helper functions defined first
+                    // If no pagination needed, show all entries and hide pagination controls
+                    if (totalPages <= 1) {
+                        if (paginationWrapper) paginationWrapper.style.display = 'none';
+                        // Still need to initialize bundle click handlers
+                        initializeBundleHandlers();
+                        return;
+                    }
+                    
+                    // Show pagination wrapper
+                    if (paginationWrapper) paginationWrapper.style.display = 'block';
+                    
+                    // Generate page number buttons
+                    if (pagination) {
+                        let pageButtonsHtml = '<li class="page-item" id="history-prev-page"><a class="page-link" href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+                        for (let i = 1; i <= totalPages; i++) {
+                            pageButtonsHtml += '<li class="page-item history-page-item' + (i === 1 ? ' active' : '') + '" data-page="' + i + '"><a class="page-link" href="#">' + i + '</a></li>';
+                        }
+                        pageButtonsHtml += '<li class="page-item" id="history-next-page"><a class="page-link" href="#" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+                        pagination.innerHTML = pageButtonsHtml;
+                        
+                        // Update button references after regenerating HTML
+                        prevBtn = document.getElementById('history-prev-page');
+                        nextBtn = document.getElementById('history-next-page');
+                    }
+                    
+                    // Helper functions
                     function escapeHtml(text) {
                         const div = document.createElement('div');
                         div.textContent = text;
@@ -4728,7 +5131,9 @@ div.container-xl,
                     }
                     
                     function formatDate(dateString) {
+                        if (!dateString) return '—';
                         const date = new Date(dateString);
+                        if (isNaN(date.getTime())) return '—';
                         const month = String(date.getMonth() + 1).padStart(2, '0');
                         const day = String(date.getDate()).padStart(2, '0');
                         const year = date.getFullYear();
@@ -4749,30 +5154,74 @@ div.container-xl,
                         return badges[action] || '';
                     }
                     
+                    function renderBundle(bundle, bundleIndex, displayIndex) {
+                        if (bundle.type === 'bundle') {
+                            let bundleHTML = '<div class="history-bundle-wrapper" data-bundle-index="' + bundleIndex + '">';
+                            bundleHTML += '<div class="document-row history-bundle-tile" data-bundle-id="bundle-' + bundleIndex + '" style="cursor: pointer; background-color: #f8f9fa; border-left: 4px solid #85BB65;">';
+                            bundleHTML += '<div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">' + displayIndex + '</div>';
+                            bundleHTML += '<div class="col-history-name" style="flex: 2; justify-content: flex-start;">';
+                            bundleHTML += '<strong>' + bundle.count + ' documents submitted to ' + escapeHtml(bundle.employer) + '</strong>';
+                            bundleHTML += '</div>';
+                            bundleHTML += '<div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">';
+                            bundleHTML += '<span class="action-badge assigned">Bundle</span>';
+                            bundleHTML += '</div>';
+                            bundleHTML += '<div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">' + formatDate(bundle.date) + '</div>';
+                            bundleHTML += '<div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000; display: flex; align-items: center; gap: 8px;">';
+                            bundleHTML += '<span>Click to expand</span>';
+                            bundleHTML += '<span class="bundle-arrow" style="transition: transform 0.3s ease;">▼</span>';
+                            bundleHTML += '</div></div>';
+                            
+                            // Bundle content (hidden by default)
+                            bundleHTML += '<div class="history-bundle-content" id="bundle-content-' + bundleIndex + '" style="display: none;">';
+                            bundle.entries.forEach(function(entry) {
+                                bundleHTML += '<div class="document-row history-entry bundle-entry" style="padding-left: 40px; background-color: #ffffff; border-left: 2px solid #e6eef6;">';
+                                bundleHTML += '<div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">—</div>';
+                                bundleHTML += '<div class="col-history-name" style="flex: 2; justify-content: flex-start;">';
+                                bundleHTML += '<strong>' + escapeHtml(entry.name) + '</strong>';
+                                bundleHTML += '</div>';
+                                bundleHTML += '<div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">';
+                                bundleHTML += getActionBadge(entry.action);
+                                bundleHTML += '</div>';
+                                bundleHTML += '<div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">' + formatDate(entry.date) + '</div>';
+                                bundleHTML += '<div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000;">' + escapeHtml(entry.details) + '</div>';
+                                bundleHTML += '</div>';
+                            });
+                            bundleHTML += '</div></div>';
+                            return bundleHTML;
+                        } else {
+                            // Individual entry
+                            let entryHTML = '<div class="document-row history-entry" data-entry-index="' + bundleIndex + '">';
+                            entryHTML += '<div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">' + displayIndex + '</div>';
+                            entryHTML += '<div class="col-history-name" style="flex: 2; justify-content: flex-start;">';
+                            entryHTML += '<strong>' + escapeHtml(bundle.entry.name) + '</strong>';
+                            entryHTML += '</div>';
+                            entryHTML += '<div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">';
+                            entryHTML += getActionBadge(bundle.entry.action);
+                            entryHTML += '</div>';
+                            entryHTML += '<div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">' + formatDate(bundle.entry.date) + '</div>';
+                            entryHTML += '<div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #000000;">' + escapeHtml(bundle.entry.details) + '</div>';
+                            entryHTML += '</div>';
+                            return entryHTML;
+                        }
+                    }
+                    
                     function renderHistoryPage(page) {
                         const startIndex = (page - 1) * entriesPerPage;
-                        const endIndex = Math.min(startIndex + entriesPerPage, allHistoryEntries.length);
-                        const pageEntries = allHistoryEntries.slice(startIndex, endIndex);
+                        const endIndex = Math.min(startIndex + entriesPerPage, allBundles.length);
+                        const pageBundles = allBundles.slice(startIndex, endIndex);
                         
                         // Clear container
                         historyContainer.innerHTML = '';
                         
-                        // Render entries
-                        pageEntries.forEach(function(entry, index) {
-                            const entryIndex = startIndex + index;
-                            const entryHTML = '<div class="document-row history-entry" data-entry-index="' + entryIndex + '">' +
-                                '<div class="col-history-sno" style="width: 60px; flex-shrink: 0; justify-content: center;">' + (entryIndex + 1) + '</div>' +
-                                '<div class="col-history-name" style="flex: 2; justify-content: flex-start;">' +
-                                '<strong>' + escapeHtml(entry.name) + '</strong>' +
-                                '</div>' +
-                                '<div class="col-history-action" style="width: 120px; flex-shrink: 0; justify-content: center;">' +
-                                getActionBadge(entry.action) +
-                                '</div>' +
-                                '<div class="col-history-date" style="width: 180px; flex-shrink: 0; justify-content: center;">' + formatDate(entry.date) + '</div>' +
-                                '<div class="col-history-details" style="flex: 2; justify-content: flex-start; font-size: 12px; color: #6b7280;">' + escapeHtml(entry.details) + '</div>' +
-                                '</div>';
-                            historyContainer.innerHTML += entryHTML;
+                        // Render bundles and entries
+                        pageBundles.forEach(function(bundle, index) {
+                            const bundleIndex = startIndex + index;
+                            const displayIndex = bundleIndex + 1;
+                            historyContainer.innerHTML += renderBundle(bundle, bundleIndex, displayIndex);
                         });
+                        
+                        // Initialize bundle click handlers after rendering
+                        initializeBundleHandlers();
                         
                         // Update pagination info
                         if (startIndexEl) startIndexEl.textContent = startIndex + 1;
@@ -4790,52 +5239,96 @@ div.container-xl,
                         if (prevBtn) {
                             if (page === 1) {
                                 prevBtn.classList.add('disabled');
-                                prevBtn.querySelector('a').style.pointerEvents = 'none';
+                                const prevLink = prevBtn.querySelector('a');
+                                if (prevLink) prevLink.style.pointerEvents = 'none';
                             } else {
                                 prevBtn.classList.remove('disabled');
-                                prevBtn.querySelector('a').style.pointerEvents = 'auto';
+                                const prevLink = prevBtn.querySelector('a');
+                                if (prevLink) prevLink.style.pointerEvents = 'auto';
                             }
                         }
                         if (nextBtn) {
                             if (page === totalPages) {
                                 nextBtn.classList.add('disabled');
-                                nextBtn.querySelector('a').style.pointerEvents = 'none';
+                                const nextLink = nextBtn.querySelector('a');
+                                if (nextLink) nextLink.style.pointerEvents = 'none';
                             } else {
                                 nextBtn.classList.remove('disabled');
-                                nextBtn.querySelector('a').style.pointerEvents = 'auto';
+                                const nextLink = nextBtn.querySelector('a');
+                                if (nextLink) nextLink.style.pointerEvents = 'auto';
                             }
                         }
                     }
                     
-                    // Page click handlers
-                    document.querySelectorAll('.history-page-item').forEach(function(item) {
-                        item.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            const page = parseInt(this.dataset.page);
-                            if (page !== currentPage) {
-                                currentPage = page;
-                                renderHistoryPage(currentPage);
-                            }
-                        });
-                    });
-                    
-                    // Prev/Next handlers
-                    if (prevBtn) {
-                        prevBtn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            if (currentPage > 1) {
-                                currentPage--;
-                                renderHistoryPage(currentPage);
-                            }
+                    // Initialize bundle expand/collapse handlers
+                    function initializeBundleHandlers() {
+                        document.querySelectorAll('.history-bundle-tile').forEach(function(tile) {
+                            tile.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                const bundleId = this.getAttribute('data-bundle-id');
+                                const content = document.getElementById('bundle-content-' + bundleId.replace('bundle-', ''));
+                                const arrow = this.querySelector('.bundle-arrow');
+                                
+                                if (content) {
+                                    if (content.style.display === 'none') {
+                                        content.style.display = 'block';
+                                        if (arrow) {
+                                            arrow.style.transform = 'rotate(180deg)';
+                                        }
+                                    } else {
+                                        content.style.display = 'none';
+                                        if (arrow) {
+                                            arrow.style.transform = 'rotate(0deg)';
+                                        }
+                                    }
+                                }
+                            });
                         });
                     }
                     
-                    if (nextBtn) {
-                        nextBtn.addEventListener('click', function(e) {
+                    // Initial render
+                    renderHistoryPage(1);
+                    
+                    // Page click handlers (using event delegation for dynamically created buttons)
+                    if (pagination) {
+                        pagination.addEventListener('click', function(e) {
                             e.preventDefault();
-                            if (currentPage < totalPages) {
-                                currentPage++;
-                                renderHistoryPage(currentPage);
+                            
+                            // Handle page number clicks
+                            const pageItem = e.target.closest('.history-page-item');
+                            if (pageItem && !pageItem.classList.contains('disabled')) {
+                                const page = parseInt(pageItem.dataset.page);
+                                if (page !== currentPage && !isNaN(page)) {
+                                    currentPage = page;
+                                    renderHistoryPage(currentPage);
+                                }
+                                return;
+                            }
+                            
+                            // Handle prev button
+                            const prevBtnClicked = e.target.closest('#history-prev-page') || 
+                                                   (e.target.tagName === 'A' && e.target.closest('li#history-prev-page')) ||
+                                                   (e.target.tagName === 'SPAN' && e.target.closest('li#history-prev-page'));
+                            if (prevBtnClicked && !prevBtnClicked.classList.contains('disabled')) {
+                                if (currentPage > 1) {
+                                    currentPage--;
+                                    renderHistoryPage(currentPage);
+                                }
+                                return;
+                            }
+                            
+                            // Handle next button
+                            const nextBtnClicked = e.target.closest('#history-next-page') || 
+                                                   (e.target.tagName === 'A' && e.target.closest('li#history-next-page')) ||
+                                                   (e.target.tagName === 'SPAN' && e.target.closest('li#history-next-page'));
+                            if (nextBtnClicked && !nextBtnClicked.classList.contains('disabled')) {
+                                if (currentPage < totalPages) {
+                                    currentPage++;
+                                    renderHistoryPage(currentPage);
+                                }
+                                return;
                             }
                         });
                     }
@@ -4856,12 +5349,12 @@ div.container-xl,
                             requestsGridViewContainer.style.display = 'block';
                         }
                         // Scroll to the request in grid view
-                        setTimeout(function() {
-                            const requestItem = document.querySelector('[data-request-id="' + openRequestId + '"]');
+                        setTimeout(() => {
+                            const requestItem = document.querySelector(`[data-request-id="${openRequestId}"]`);
                             if (requestItem) {
                                 requestItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 requestItem.style.background = '#fff3cd';
-                                setTimeout(function() {
+                                setTimeout(() => {
                                     requestItem.style.background = '';
                                 }, 2000);
                             }

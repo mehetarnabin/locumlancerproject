@@ -1,11 +1,11 @@
 <?php
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Symfony\Component\Dotenv\Dotenv;
 
 $dotenv = new Dotenv();
-$dotenv->load(__DIR__.'/.env');
+$dotenv->load(__DIR__ . '/.env');
 
 $kernel = new App\Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 $kernel->boot();
@@ -59,4 +59,3 @@ try {
     echo "Error: " . $e->getMessage() . "\n";
     exit(1);
 }
-

@@ -183,8 +183,20 @@ div.container-xl,
 .todo-icon svg {
     width: 16px;
     height: 16px;
-    stroke: #85BB65;
+    stroke: #000000;
     fill: none;
+}
+
+.todo-icons-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.todo-icon {
+    margin: 0 2px;
 }
 
 .todo-popup {
@@ -251,6 +263,7 @@ div.container-xl,
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .rank-display {
@@ -305,9 +318,32 @@ div.container-xl,
 }
 
 .sticky-header-container {
-    position: relative !important;
+    position: sticky !important;
+    top: 0 !important;
     background-color: #fff !important;
+    z-index: 100 !important;
     overflow: visible !important;
+    width: 100% !important;
+}
+
+/* Ensure application div is properly positioned within sticky container */
+.sticky-header-container .application {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+}
+
+/* Disable sticky in split view - more comprehensive selectors */
+.split-view-container ~ .sticky-header-container,
+.split-view-container .sticky-header-container,
+.split-view-container ~ * .sticky-header-container,
+.job-section:has(.split-view-container) .sticky-header-container,
+.split-view-container[style*="grid"] ~ .sticky-header-container,
+.split-view-container[style*="grid"] .sticky-header-container {
+    position: relative !important;
+    top: auto !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
 /* Force remove any fixed/sticky positioning from status bar and buttons */
@@ -331,6 +367,7 @@ div.container-xl,
     position: relative !important;
     padding-left: 14px !important;
     padding-right: 14px !important;
+    z-index: 100 !important;
 }
 
 /* Exception: Allow filter panel and dropdowns to use absolute positioning - must come after the general rules */
@@ -434,9 +471,27 @@ div.container-xl,
     overflow: hidden;
 }
 
-/* Remove top margin from first job-row to align with header */
-.job-list-container .table-responsive-wrapper .job-lists:first-child .job-row {
-    margin-top: 0 !important;
+/* Job Header and First Job Row Spacing - Match spacing between job rows (4px) */
+/* Override any rules that remove spacing */
+.job-header {
+    margin-bottom: 2px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* First job row margin-top: 4px to shift it down and match spacing between job rows */
+.job-list-container .table-responsive-wrapper .job-lists:first-child .job-row,
+.job-list-container .job-lists:first-child .job-row,
+.job-list-container > .job-lists:first-of-type .job-row,
+.table-responsive-wrapper .job-lists:first-child .job-row,
+.job-lists:first-child .job-row,
+.job-lists:first-of-type .job-row,
+.job-list-container .job-row:first-child,
+.table-responsive-wrapper .job-row:first-child,
+.job-list-container .job-lists .job-row:first-child {
+    margin-top: 4px !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 .truncate-text {
     display: inline-block;
@@ -491,6 +546,62 @@ div.container-xl,
 
 #note-btn[style*="flex"] {
     display: flex !important;
+}
+
+/* Split view detail buttons container - ensure proper alignment */
+#detail-action-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+}
+
+#detail-action-buttons[style*="display: none"] {
+    display: none !important;
+}
+
+#detail-action-buttons[style*="display: flex"] {
+    display: flex !important;
+}
+
+/* Split view detail buttons styling - ensure pitch black text */
+#detail-timeline-btn,
+#detail-view-details-btn,
+#detail-note-btn {
+    color: #000000 !important;
+}
+
+#detail-timeline-btn span,
+#detail-view-details-btn span,
+#detail-note-btn span {
+    color: #000000 !important;
+}
+
+#detail-timeline-btn:hover,
+#detail-view-details-btn:hover,
+#detail-note-btn:hover {
+    background: #f8f9fa !important;
+    border-color: #85BB65 !important;
+}
+
+#detail-timeline-btn:hover span,
+#detail-view-details-btn:hover span,
+#detail-note-btn:hover span {
+    color: #000000 !important;
+}
+
+#detail-timeline-btn:active,
+#detail-view-details-btn:active,
+#detail-note-btn:active {
+    background: #e8f5e9 !important;
+    transform: scale(0.98);
+}
+
+#detail-timeline-btn:active span,
+#detail-view-details-btn:active span,
+#detail-note-btn:active span {
+    color: #000000 !important;
 }
 
 .custom-dropdown {
@@ -647,19 +758,35 @@ div.container-xl,
 }
 
 .col-check input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
-    border: 1px solid #cfd9e3;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cfd9e3;
     border-radius: 4px;
-    background-color: #fff;
+    background: #fff;
     cursor: pointer;
     position: relative;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    margin: 0;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 .col-check input[type="checkbox"]:hover {
     border-color: #85BB65;
+    background-color: #f7fef4;
+}
+
+.col-check input[type="checkbox"]:focus {
+    outline: none;
 }
 
 .col-check input[type="checkbox"]:checked {
@@ -670,58 +797,84 @@ div.container-xl,
 .col-check input[type="checkbox"]:checked::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 5px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
     border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+    box-sizing: border-box;
 }
 
 /* Consistent rounded rectangle style for all checkboxes on applications table */
-.job-list-container input[type="checkbox"] {
+.job-list-container input[type="checkbox"].job-checkbox,
+.split-job-list input[type="checkbox"].job-checkbox {
     -webkit-appearance: none;
+    -moz-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 1px solid #cfd9e3;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cfd9e3;
     border-radius: 4px;
     background: #fff;
     cursor: pointer;
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     vertical-align: middle;
     margin: 0;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    line-height: 1;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 /* Hover state - green border */
-.job-list-container input[type="checkbox"]:hover {
+.job-list-container input[type="checkbox"].job-check:hover,
+.job-list-container input[type="checkbox"].job-checkbox:hover,
+.split-job-list input[type="checkbox"].job-checkbox:hover {
   border-color: #85BB65;
+  background-color: #f7fef4;
+}
+
+/* Focus state */
+.job-list-container input[type="checkbox"].job-check:focus,
+.job-list-container input[type="checkbox"].job-checkbox:focus,
+.split-job-list input[type="checkbox"].job-checkbox:focus {
+  outline: none;
 }
 
 /* Checked state - green filled with white checkmark */
-.job-list-container input[type="checkbox"]:checked {
+.job-list-container input[type="checkbox"].job-check:checked,
+.job-list-container input[type="checkbox"].job-checkbox:checked,
+.split-job-list input[type="checkbox"].job-checkbox:checked {
   background-color: #85BB65;
   border-color: #85BB65;
 }
 
-.job-list-container input[type="checkbox"]:checked::after {
+.job-list-container input[type="checkbox"].job-check:checked::after,
+.job-list-container input[type="checkbox"].job-checkbox:checked::after,
+.split-job-list input[type="checkbox"].job-checkbox:checked::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 6px;
-    width: 4px;
-    height: 8px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%) rotate(45deg);
+    width: 5px;
+    height: 10px;
     border: solid #fff;
     border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+    box-sizing: border-box;
 }
 
 .job-title {
     color: #121C0C;
-    font-size: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
 .action-btn {
@@ -1037,7 +1190,7 @@ div.container-xl,
   overflow-y: visible !important;
   overflow-x: visible;
   position: relative;
-  z-index: 1;
+  z-index: 100 !important;
   flex-wrap: nowrap;
   pointer-events: auto !important;
 }
@@ -1075,7 +1228,7 @@ div.container-xl,
 }
 
 .job-row {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     color: #1a1a1a;
     line-height: 1.5;
@@ -1126,7 +1279,17 @@ div.container-xl,
     justify-content: flex-start !important;
     text-align: left !important;
     box-sizing: border-box !important;
+}
+
+/* Job column specific styling */
+.col-job {
     font-weight: 500;
+}
+
+/* Consistent cell content styling */
+.job-row > div {
+    font-size: 12px;
+    color: #1a1a1a;
 }
 
 /* Center aligned columns */
@@ -1142,8 +1305,14 @@ div.container-xl,
 
 /* Ensure consistent vertical alignment */
 .job-header {
+    min-height: 40px;
     height: 40px;
-    margin-bottom: 1px !important;
+}
+
+.job-header > div,
+.job-row > div {
+    min-height: 40px;
+    height: 40px;
 }
 
 /* ENFORCE EQUAL SPACING on both sides - Must match job-row padding - HIGHEST PRIORITY */
@@ -1165,7 +1334,7 @@ div.job-header,
 
 /* Improve text truncation */
 .job-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: #121C0C;
     line-height: 1.4;
@@ -1442,13 +1611,13 @@ div.job-header,
 
 .split-view-container .split-job-list {
     width: 100%;
-    height: 100%;
-    max-height: 100%;
     opacity: 1;
     transition: all 0.3s ease;
     position: relative;
-    display: flex;
-    flex-direction: column;
+    display: block;
+}
+
+.split-job-list {
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     border-radius: 10px;
@@ -1456,9 +1625,11 @@ div.job-header,
     overflow-y: auto; /* Enable vertical scrolling */
     overflow-x: hidden; /* Disable horizontal scrolling */
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-    min-height: 0; /* Important for flex children to allow shrinking */
+    position: relative; /* for collapse arrow positioning */
+    /* Show scrollbar */
     scrollbar-width: thin; /* Firefox */
     -ms-overflow-style: auto; /* IE and Edge */
+    max-height: 100%;
 }
 
 /* Show scrollbar for Chrome, Safari and Opera */
@@ -1486,17 +1657,36 @@ div.job-header,
     border: 1px solid #e6eef6;
     border-radius: 10px;
     padding: 20px;
-    overflow-y: hidden; /* Disable vertical scrolling */
-    overflow-x: visible; /* Allow panels to overflow */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Disable horizontal scrolling */
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     position: relative;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    height: 100%; /* Take full height of container */
+    max-height: 100%; /* Don't exceed container height */
+    /* Show vertical scrollbar */
+    scrollbar-width: thin; /* Firefox - thin scrollbar */
+    scrollbar-color: #cbd5e0 #f7fafc; /* Firefox - thumb and track colors */
+    -ms-overflow-style: auto; /* IE and Edge - show scrollbar */
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Custom vertical scrollbar for Chrome, Safari and Opera */
 .split-job-details::-webkit-scrollbar {
-    display: none;
+    width: 8px; /* Width of the vertical scrollbar */
+    display: block; /* Show scrollbar */
+}
+
+.split-job-details::-webkit-scrollbar-track {
+    background: #f7fafc; /* Track color */
+    border-radius: 4px;
+}
+
+.split-job-details::-webkit-scrollbar-thumb {
+    background: #cbd5e0; /* Thumb color */
+    border-radius: 4px;
+}
+
+.split-job-details::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0; /* Thumb color on hover */
 }
 
 /* Ensure panels are positioned at the absolute right edge */
@@ -1647,7 +1837,7 @@ div.job-header,
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 12px;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s ease;
 }
 
@@ -1682,6 +1872,7 @@ div.job-header,
     color: #121C0C;
     font-size: 16px;
     margin-bottom: 2px;
+    cursor: pointer;
 }
 
 .split-job-card-company {
@@ -2295,7 +2486,6 @@ window.addEventListener('resize', function() {
                     </div>
                 </div>
             </div>
-        </div>
 
         {% if applications|length > 0 %}
         <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
@@ -2318,6 +2508,7 @@ window.addEventListener('resize', function() {
             </div>
         </div>
         {% endif %}
+        </div>
         {% if applications|length > 0 %}
         <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem; padding-right: 1rem !important; margin-top: 0;">
         <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
@@ -2356,8 +2547,8 @@ window.addEventListener('resize', function() {
                         {{ job.workType|default('—')|replace({'_': ' '})|title }}
                     {% endif %}
                   </div>
-                  <div class="col-start col-center col-todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;" data-todo-text="{{ (todoTask|default('—'))|e('html_attr') }}">
-                      {% set todoTask = null %}
+                  <div class="col-start col-center col-todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+                      {% set todoTasks = [] %}
                       {% set pendingDocs = false %}
                       {% set pendingDocNames = [] %}
                       {% for dr in application.documentRequests %}
@@ -2367,35 +2558,164 @@ window.addEventListener('resize', function() {
                           {% endif %}
                       {% endfor %}
 
+                      {# Check for pending documents - always show if there are pending docs #}
                       {% set hasNewRequests = application.documentRequests|length > 0 %}
                       {% if hasNewRequests and pendingDocs %}
-                          {# Keep action generic for JS handler, but make display specific #}
-                          {% set todoTask = 'Provide requested documents' %}
-                          {% set displayTask = 'Provide: ' ~ pendingDocNames|join(', ') %}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'Provide requested documents',
+                              'display': 'Provide: ' ~ pendingDocNames|join(', '),
+                              'type': 'documents',
+                              'icon': 'documents'
+                          }]) %}
                       {% elseif not hasNewRequests and application.documentRequestedAt and not application.documentProvidedAt %}
-                          {% set todoTask = 'Provide requested documents' %}
-                          {% set displayTask = todoTask %}
-                      {% elseif application.contractSentAt and not application.contractSignedAt %}
-                          {% set todoTask = 'Sign and return contract' %}
-                          {% set displayTask = todoTask %}
-                      {# {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
-                          {% set todoTask = 'Provide OneFile documents' %} #}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'Provide requested documents',
+                              'display': 'Provide requested documents',
+                              'type': 'documents',
+                              'icon': 'documents'
+                          }]) %}
+                      {% endif %}
+
+                      {# Status-based TODOs #}
+                      {% if application.status == 'applied' %}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'Revisit Alert',
+                              'display': 'Revisit Alert',
+                              'type': 'status',
+                              'icon': 'alert'
+                          }]) %}
+                      {% elseif application.status == 'in_review' or application.status == 'shortlisted' %}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'Open Response',
+                              'display': 'Open Response',
+                              'type': 'status',
+                              'icon': 'response'
+                          }]) %}
                       {% elseif application.status == 'interview' %}
-                          {% set todoTask = 'Prepare for interview' %}
-                          {% set displayTask = todoTask %}
+                          {% if application.interview %}
+                              {% set todoTasks = todoTasks|merge([{
+                                  'action': 'Confirm interview from the list of interview dates',
+                                  'display': 'Confirm interview from the list of interview dates',
+                                  'type': 'status',
+                                  'icon': 'interview'
+                              }]) %}
+                          {% else %}
+                              {% set todoTasks = todoTasks|merge([{
+                                  'action': 'Confirm interview from the list of interview dates',
+                                  'display': 'Confirm interview from the list of interview dates',
+                                  'type': 'status',
+                                  'icon': 'interview'
+                              }]) %}
+                          {% endif %}
                       {% elseif application.status == 'negotiating' %}
-                          {% set todoTask = 'Review and respond to offer' %}
-                          {% set displayTask = todoTask %}
+                          {% if application.contractSentAt and not application.contractSignedAt %}
+                              {% set todoTasks = todoTasks|merge([{
+                                  'action': 'Sign offer',
+                                  'display': 'Sign offer',
+                                  'type': 'status',
+                                  'icon': 'contract'
+                              }]) %}
+                          {% else %}
+                              {% set todoTasks = todoTasks|merge([{
+                                  'action': 'Sign offer',
+                                  'display': 'Sign offer',
+                                  'type': 'status',
+                                  'icon': 'contract'
+                              }]) %}
+                          {% endif %}
+                      {% elseif application.status == 'accepted' or application.status == 'hired' %}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'Open Credentialing Docs',
+                              'display': 'Open Credentialing Docs',
+                              'type': 'status',
+                              'icon': 'credentialing'
+                          }]) %}
+                      {% elseif application.status == 'completed' %}
+                          {% set todoTasks = todoTasks|merge([{
+                              'action': 'See your review',
+                              'display': 'See your review',
+                              'type': 'status',
+                              'icon': 'review'
+                          }]) %}
                       {% endif %}
                       
-                      {% if todoTask %}
-                          <div class="todo-icon-wrapper" data-bs-toggle="tooltip" title="{{ displayTask }}">
-                              <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
+                      {# Legacy contract check (if not already added) #}
+                      {% if application.contractSentAt and not application.contractSignedAt %}
+                          {% set hasContractTodo = false %}
+                          {% for task in todoTasks %}
+                              {% if task.action == 'Sign offer' %}
+                                  {% set hasContractTodo = true %}
+                              {% endif %}
+                          {% endfor %}
+                          {% if not hasContractTodo %}
+                              {% set todoTasks = todoTasks|merge([{
+                                  'action': 'Sign and return contract',
+                                  'display': 'Sign and return contract',
+                                  'type': 'contract',
+                                  'icon': 'contract'
+                              }]) %}
+                          {% endif %}
+                      {% endif %}
+                      
+                      {% if todoTasks|length > 0 %}
+                          <div class="todo-icons-container">
+                              {% for task in todoTasks %}
+                                  <div class="todo-icon-wrapper" data-bs-toggle="tooltip" title="{{ task.display }}" data-application-id="{{ application.id }}" {% if application.job %}data-job-id="{{ application.job.id }}"{% endif %} data-doc-pending="{{ pendingDocNames|join(', ') }}">
+                                      <div class="todo-icon" 
+                                           data-todo-action="{{ task.action }}" 
+                                           data-todo-type="application" 
+                                           data-todo-icon-type="{{ task.icon }}"
+                                           data-application-id="{{ application.id }}" 
+                                           {% if application.job %}data-job-id="{{ application.job.id }}"{% endif %}
+                                           data-status="{{ application.status }}">
+                                          {% if task.icon == 'alert' %}
+                                              {# Bell icon for Revisit Alert #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                              </svg>
+                                          {% elseif task.icon == 'response' %}
+                                              {# Envelope icon for Open Response #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                              </svg>
+                                          {% elseif task.icon == 'interview' %}
+                                              {# Calendar icon for Confirm interview #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                              </svg>
+                                          {% elseif task.icon == 'contract' %}
+                                              {# Document/File icon for Review contract #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                  <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                              </svg>
+                                          {% elseif task.icon == 'credentialing' %}
+                                              {# Shield/Check icon for Credentialing Docs #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                  <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                              </svg>
+                                          {% elseif task.icon == 'review' %}
+                                              {# Star icon for See your review #}
+                                              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                              </svg>
+                                          {% else %}
+                                              {# Default document icon #}
                                   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                       <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                       <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                   </svg>
+                                          {% endif %}
                               </div>
+                                  </div>
+                              {% endfor %}
                           </div>
                       {% else %}
                           —
@@ -2472,21 +2792,31 @@ window.addEventListener('resize', function() {
             
             <!-- Right Side: Job Details -->
             <div class="split-job-details" id="split-job-details">
-                <a id="detail-timeline-btn" href="{{ path('app_provider_interview_calendar') }}" class="action-btn" title="Timeline" style="position: absolute; top: 10px; right: 120px; display: none; cursor: pointer; text-decoration: none; align-items: center; gap: 6px; display: none; flex-direction: row;">
-                  <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div style="position: absolute; top: 10px; right: 10px; display: none; flex-direction: row; gap: 10px; align-items: center; justify-content: flex-end;" id="detail-action-buttons" class="detail-action-buttons">
+                <button id="detail-timeline-btn" class="action-btn" title="Timeline" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
+                  <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                   </svg>
-                  Timeline
-                </a>
-                <button id="detail-note-btn" class="action-btn" title="Add Note" style="position: absolute; top: 10px; right: 10px; display: none; cursor: pointer;">
+                  <span style="color: #000000 !important;">Timeline</span>
+                </button>
+                <button id="detail-view-details-btn" class="action-btn" title="View Details" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
+                  <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 3H6C4.89543 3 4 3.89543 4 5V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V8L15 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 3V8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span style="color: #000000 !important;">View Details</span>
+                </button>
+                <button id="detail-note-btn" class="action-btn" title="Add Note" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
                   <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  Note
+                  <span style="color: #000000 !important;">Note</span>
                 </button>
+                </div>
                 <div class="no-job-selected">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -2781,6 +3111,213 @@ window.addEventListener('resize', function() {
                         <button type="submit" class="btn btn-primary">Send</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Upload Modal -->
+    <style>
+        #documentUploadModal .modal-dialog {
+            max-width: 95vw !important;
+            width: 95vw !important;
+            margin: auto !important;
+        }
+        #documentUploadModal .modal-content {
+            min-height: 70vh !important;
+        }
+        #documentUploadModal .modal-header {
+            padding: 2rem !important;
+        }
+        #documentUploadModal .modal-title {
+            font-size: 2rem !important;
+            font-weight: 600 !important;
+        }
+        #documentUploadModal .modal-body {
+            max-height: 60vh !important;
+            overflow-y: auto !important;
+            font-size: 1.1rem !important;
+            padding: 2rem !important;
+        }
+        #documentUploadModal .form-group label {
+            font-size: 1.1rem !important;
+            font-weight: 500 !important;
+            margin-bottom: 0.8rem !important;
+        }
+        #documentUploadModal input[type="file"],
+        #documentUploadModal textarea {
+            font-size: 1rem !important;
+            padding: 0.8rem !important;
+        }
+        #documentUploadModal .modal-footer {
+            padding: 1.5rem !important;
+        }
+        #documentUploadModal .btn {
+            font-size: 1.05rem !important;
+            padding: 0.6rem 1.5rem !important;
+        }
+    </style>
+    <div class="modal fade" id="documentUploadModal" tabindex="-1" role="dialog" aria-labelledby="documentUploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentUploadModalLabel">Upload Document</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="documentUploadForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="documentFile">Select Document</label>
+                            <input type="file" class="form-control-file" id="documentFile" name="documentFile" required />
+                            <small class="form-text text-muted">Maximum file size: 10MB. Accepted formats: PDF, DOC, DOCX, XLS, XLSX</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="documentDescription">Description (Optional)</label>
+                            <textarea class="form-control" id="documentDescription" name="documentDescription" rows="3" placeholder="Add any notes about this document..."></textarea>
+                        </div>
+                        <input type="hidden" id="applicationId" name="applicationId" />
+                        <input type="hidden" id="taskType" name="taskType" />
+                        <input type="hidden" id="documentRequestId" name="documentRequestId" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">Upload Document</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="credentialingLinksModal" tabindex="-1" role="dialog" aria-labelledby="credentialingLinksModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="credentialingLinksModalLabel">Credentialing Links</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="credentialingLinksBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write Review Modal - OVERLAY -->
+    <style>
+        #writeReviewOverlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            display: none !important;
+            z-index: 99999 !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transform: none !important;
+        }
+        #writeReviewOverlay.show {
+            display: flex !important;
+        }
+        #writeReviewContent {
+            background: white !important;
+            border-radius: 8px !important;
+            padding: 0 !important;
+            width: 90% !important;
+            max-width: 400px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            position: relative !important;
+            z-index: 100000 !important;
+        }
+        #writeReviewContent .review-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #writeReviewContent .review-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        #writeReviewContent .review-body {
+            padding: 20px;
+        }
+        #writeReviewContent .review-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        #writeReviewContent .review-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #writeReviewContent .review-footer .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        #writeReviewContent .review-footer .btn-primary {
+            background: #85BB65;
+            color: white;
+        }
+        #writeReviewContent .review-footer button:hover {
+            opacity: 0.9;
+        }
+        .close-review-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .close-review-modal:hover {
+            color: #333;
+        }
+    </style>
+    
+    <div id="writeReviewOverlay">
+        <div id="writeReviewContent">
+            <div class="review-header">
+                <h5 class="review-title">Write a Review</h5>
+                <button class="close-review-modal" type="button">×</button>
+            </div>
+            <div class="review-body">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 10px;">Rating</label>
+                    <div id="reviewStars" style="font-size: 32px; letter-spacing: 8px;">
+                        <span class="review-star" data-value="1" style="cursor: pointer; color: #ddd;">★</span>
+                        <span class="review-star" data-value="2" style="cursor: pointer; color: #ddd;">★</span>
+                        <span class="review-star" data-value="3" style="cursor: pointer; color: #ddd;">★</span>
+                        <span class="review-star" data-value="4" style="cursor: pointer; color: #ddd;">★</span>
+                        <span class="review-star" data-value="5" style="cursor: pointer; color: #ddd;">★</span>
+                    </div>
+                    <input type="hidden" id="reviewRating" value="0">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 10px;">Your Review</label>
+                    <textarea id="reviewMessage" class="form-control" rows="4" placeholder="Share your experience..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"></textarea>
+                </div>
+            </div>
+            <div class="review-footer">
+                <button type="button" class="btn-secondary" id="cancelReviewBtn">Cancel</button>
+                <button type="button" class="btn-primary" id="submitReviewBtn">Submit Review</button>
             </div>
         </div>
     </div>
@@ -3102,8 +3639,15 @@ window.addEventListener('resize', function() {
         }
       });
 
-      // Write Review button - redirect to review page instead of email template
+      // Move overlay to body root so it's not affected by parent transforms
+      const overlay = document.getElementById('writeReviewOverlay');
+      if (overlay && overlay.parentElement !== document.body) {
+        document.body.appendChild(overlay);
+      }
+
+      // Write Review button - open modal instead of redirect
       const writeReviewBtn = document.getElementById('write-review-btn');
+      let reviewApplicationId = null;
       if (writeReviewBtn) {
         writeReviewBtn.addEventListener('click', function (event) {
           event.preventDefault();
@@ -3112,11 +3656,13 @@ window.addEventListener('resize', function() {
           // Get the selected application ID
           const checkedCheckbox = Array.from(document.querySelectorAll('.job-checkbox:checked'))[0];
           if (checkedCheckbox && checkedCheckbox.dataset.applicationId) {
-            const applicationId = checkedCheckbox.dataset.applicationId;
-            // Build the review URL - the route pattern is /provider/applications/{id}/review-employer
-            const reviewUrl = '{{ path("app_provider_application_review_employer", {"id": "00000000-0000-0000-0000-000000000000"}) }}'.replace('00000000-0000-0000-0000-000000000000', applicationId);
-            // Redirect to review page
-            window.location.href = reviewUrl;
+            reviewApplicationId = checkedCheckbox.dataset.applicationId;
+            // Reset form
+            document.getElementById('reviewRating').value = '0';
+            document.getElementById('reviewMessage').value = '';
+            document.querySelectorAll('.review-star').forEach(s => s.style.color = '#ddd');
+            // Show overlay
+            document.getElementById('writeReviewOverlay').classList.add('show');
           } else {
             if (typeof showToast === 'function') {
               showToast('Please select an application to review', 'warning');
@@ -3126,6 +3672,128 @@ window.addEventListener('resize', function() {
           }
         });
       }
+
+      // Star rating functionality
+      const reviewStars = document.querySelectorAll('.review-star');
+      const ratingInput = document.getElementById('reviewRating');
+      
+      reviewStars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = parseInt(this.getAttribute('data-value'));
+          ratingInput.value = value;
+          reviewStars.forEach((s, index) => {
+            s.style.color = (index + 1) <= value ? '#ffc107' : '#ddd';
+          });
+        });
+        
+        star.addEventListener('mouseover', function() {
+          const value = parseInt(this.getAttribute('data-value'));
+          reviewStars.forEach((s, index) => {
+            s.style.color = (index + 1) <= value ? '#ffc107' : '#ddd';
+          });
+        });
+      });
+      
+      document.getElementById('reviewStars').addEventListener('mouseout', function() {
+        const currentValue = parseInt(ratingInput.value) || 0;
+        reviewStars.forEach((s, index) => {
+          s.style.color = (index + 1) <= currentValue ? '#ffc107' : '#ddd';
+        });
+      });
+
+      // Close review overlay
+      function closeReviewOverlay() {
+        document.getElementById('writeReviewOverlay').classList.remove('show');
+      }
+      
+      document.querySelector('.close-review-modal').addEventListener('click', closeReviewOverlay);
+      document.getElementById('cancelReviewBtn').addEventListener('click', closeReviewOverlay);
+      
+      document.getElementById('writeReviewOverlay').addEventListener('click', function(e) {
+        if (e.target.id === 'writeReviewOverlay') {
+          closeReviewOverlay();
+        }
+      });
+
+      // Review form submission
+      document.getElementById('submitReviewBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const point = document.getElementById('reviewRating').value;
+        const message = document.getElementById('reviewMessage').value;
+        
+        if (!point || point === '0') {
+          if (typeof showToast === 'function') {
+            showToast('Please select a rating', 'warning');
+          } else {
+            alert('Please select a rating');
+          }
+          return;
+        }
+        
+        if (!message.trim()) {
+          if (typeof showToast === 'function') {
+            showToast('Please write a review', 'warning');
+          } else {
+            alert('Please write a review');
+          }
+          return;
+        }
+        
+        // Submit the review via dedicated API endpoint
+        const reviewUrl = '{{ path("app_provider_application_submit_review", {"id": "00000000-0000-0000-0000-000000000000"}) }}'.replace('00000000-0000-0000-0000-000000000000', reviewApplicationId);
+        
+        fetch(reviewUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: 'point=' + encodeURIComponent(point) + '&message=' + encodeURIComponent(message)
+        })
+        .then(response => {
+          console.log('[Review] Response status:', response.status);
+          console.log('[Review] Response headers:', response.headers.get('content-type'));
+          
+          if (!response.ok && response.status !== 400) {
+            throw new Error('HTTP error ' + response.status);
+          }
+          
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            return response.json();
+          } else {
+            throw new Error('Response is not JSON, received: ' + contentType);
+          }
+        })
+        .then(data => {
+          console.log('[Review] Response data:', data);
+          
+          if (data.success) {
+            if (typeof showToast === 'function') {
+              showToast(data.message || 'Review submitted successfully', 'success');
+            } else {
+              alert(data.message || 'Review submitted successfully');
+            }
+            document.getElementById('writeReviewOverlay').classList.remove('show');
+            setTimeout(function() { location.reload(); }, 500);
+          } else {
+            if (typeof showToast === 'function') {
+              showToast(data.error || 'Failed to submit review', 'error');
+            } else {
+              alert(data.error || 'Failed to submit review');
+            }
+          }
+        })
+        .catch(err => {
+          console.error('[Review] Error:', err);
+          if (typeof showToast === 'function') {
+            showToast('Error submitting review: ' + err.message, 'error');
+          } else {
+            alert('Error submitting review: ' + err.message);
+          }
+        });
+      });
 
       // Copy handlers - use data-copy-subject and data-copy-message
       document.querySelectorAll('[data-copy-subject]').forEach(btn => {
@@ -3281,6 +3949,96 @@ window.addEventListener('resize', function() {
             }
         }
         
+        // Update conditional buttons based on selection and status
+        function updateButtonStates() {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+            const hasSelection = selectedCheckboxes.length === 1;
+            
+            // Get Note and Timeline buttons
+            const noteBtn = document.getElementById('note-btn');
+            const timelineBtn = document.getElementById('timeline-btn');
+            
+            // Show/hide Note and Timeline buttons based on selection
+            if (hasSelection) {
+                if (noteBtn) {
+                    noteBtn.style.display = 'flex';
+                    noteBtn.classList.remove('hidden-btn');
+                }
+                if (timelineBtn) {
+                    timelineBtn.style.display = 'flex';
+                    timelineBtn.classList.remove('hidden-btn');
+                }
+            } else {
+                if (noteBtn) {
+                    noteBtn.style.display = 'none';
+                    noteBtn.classList.add('hidden-btn');
+                }
+                if (timelineBtn) {
+                    timelineBtn.style.display = 'none';
+                    timelineBtn.classList.add('hidden-btn');
+                }
+            }
+            
+            if (!hasSelection) {
+                // Hide all conditional buttons when no selection or multiple selections
+                const conditionalButtons = document.querySelectorAll('.conditional-btn');
+                conditionalButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                    btn.disabled = true;
+                });
+                return;
+            }
+            
+            // Get the selected application status
+            const selectedCheckbox = selectedCheckboxes[0];
+            const status = selectedCheckbox.dataset.status ? selectedCheckbox.dataset.status.toLowerCase().replace(/\s+/g, '_') : '';
+            
+            // Show/hide buttons based on status
+            const requestResponseBtn = document.getElementById('request-response-btn');
+            const sayThankYouBtn = document.getElementById('say-thank-you-btn');
+            const followUpBtn = document.getElementById('follow-up-btn');
+            const askDetailsBtn = document.getElementById('ask-details-btn');
+            const writeReviewBtn = document.getElementById('write-review-btn');
+            
+            // Hide all buttons first, then show the appropriate one
+            [requestResponseBtn, sayThankYouBtn, followUpBtn, askDetailsBtn, writeReviewBtn].forEach(btn => {
+                if (btn) {
+                    btn.style.display = 'none';
+                    btn.disabled = true;
+                }
+            });
+            
+            // Request Response - show for 'applied' or 'in_review' status
+            if (requestResponseBtn && (status === 'applied' || status === 'in_review')) {
+                    requestResponseBtn.style.display = 'flex';
+                    requestResponseBtn.disabled = false;
+            }
+            
+            // Say Thank You - show for 'interview' status
+            if (sayThankYouBtn && status === 'interview') {
+                    sayThankYouBtn.style.display = 'flex';
+                    sayThankYouBtn.disabled = false;
+            }
+            
+            // Follow Up - show for 'negotiating' status
+            if (followUpBtn && status === 'negotiating') {
+                    followUpBtn.style.display = 'flex';
+                    followUpBtn.disabled = false;
+            }
+            
+            // Ask for Details - show for 'accepted' or 'hired' status
+            if (askDetailsBtn && (status === 'accepted' || status === 'hired')) {
+                    askDetailsBtn.style.display = 'flex';
+                    askDetailsBtn.disabled = false;
+            }
+            
+            // Write Review - show for 'completed' status
+            if (writeReviewBtn && status === 'completed') {
+                    writeReviewBtn.style.display = 'flex';
+                    writeReviewBtn.disabled = false;
+            }
+        }
+        
         // Update buttons when checkboxes change - implement single selection with auto-uncheck
         document.addEventListener('change', function(e) {
             if (e.target.classList.contains('job-checkbox')) {
@@ -3308,11 +4066,13 @@ window.addEventListener('resize', function() {
                     }
                 }
                 updateActionButtons();
+                updateButtonStates();
             }
         });
         
         // Initial update
         updateActionButtons();
+        updateButtonStates();
     });
 
     function handleNotifyHireFromApplications() {
@@ -3668,10 +4428,7 @@ window.addEventListener('resize', function() {
 {% endblock %}
 
 {% block footer_scripts %}
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/provider_applications_todo.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -4205,6 +4962,32 @@ window.addEventListener('resize', function() {
       const askDetailsBtn = document.getElementById('ask-details-btn');
       const writeReviewBtn = document.getElementById('write-review-btn');
       
+      // Get Note and Timeline buttons
+      const noteBtn = document.getElementById('note-btn');
+      const timelineBtn = document.getElementById('timeline-btn');
+      
+      // Show Note and Timeline buttons when exactly one job is selected
+      if (checked.length === 1) {
+        if (noteBtn) {
+          noteBtn.style.display = 'flex';
+          noteBtn.classList.remove('hidden-btn');
+        }
+        if (timelineBtn) {
+          timelineBtn.style.display = 'flex';
+          timelineBtn.classList.remove('hidden-btn');
+        }
+      } else {
+        // Hide Note and Timeline buttons when no selection or multiple selections
+        if (noteBtn) {
+          noteBtn.style.display = 'none';
+          noteBtn.classList.add('hidden-btn');
+        }
+        if (timelineBtn) {
+          timelineBtn.style.display = 'none';
+          timelineBtn.classList.add('hidden-btn');
+        }
+      }
+      
       // If exactly one job is selected, enable the appropriate button based on status
       if (checked.length === 1) {
         const checkedCheckbox = checked[0];
@@ -4292,10 +5075,93 @@ window.addEventListener('resize', function() {
         // Open notes panel if it exists, otherwise just log
         if (typeof openNotesPanel === 'function') {
           openNotesPanel(jobId);
+        } else if (typeof window.openNotesPanel === 'function') {
+          window.openNotesPanel(jobId);
         } else {
           console.log('Opening notes for job:', jobId);
         }
+      } else {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('No Job Selected', 'Please select a job first');
+        } else {
+          alert('Please select a job first');
+        }
       }
+    }
+    
+    // Handle Timeline button click
+    function handleTimelineClick() {
+      let jobId = null;
+      
+      // First check if job details are open (split view or detail page)
+      if (window.selectedJobId) {
+        jobId = window.selectedJobId;
+      } else {
+        // Check for active card in split view
+        const activeCard = document.querySelector('.split-job-card.active');
+        if (activeCard) {
+          jobId = activeCard.dataset.jobId;
+        }
+      }
+      
+      // Fallback to checked checkbox
+      if (!jobId) {
+        const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+        if (single.length === 1) {
+          jobId = single[0].dataset.jobId;
+        }
+      }
+      
+      if (jobId) {
+        // Open timeline panel if it exists
+        if (typeof openTimelinePanel === 'function') {
+          openTimelinePanel(jobId);
+        } else if (typeof window.openTimelinePanel === 'function') {
+          window.openTimelinePanel(jobId);
+        } else {
+          console.log('Opening timeline for job:', jobId);
+        }
+      } else {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('No Job Selected', 'Please select a job first');
+        } else {
+          alert('Please select a job first');
+        }
+      }
+    }
+    
+    // Add event listeners for Note, Timeline, and New Window buttons
+    const noteBtn = document.getElementById('note-btn');
+    if (noteBtn) {
+      noteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNoteClick();
+      });
+    }
+    
+    const timelineBtn = document.getElementById('timeline-btn');
+    if (timelineBtn) {
+      timelineBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleTimelineClick();
+      });
+    }
+    
+    const floatViewBtn = document.getElementById('float-view-btn');
+    if (floatViewBtn) {
+      floatViewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = window.location.href;
+        // Open in a new window with size and features
+        window.open(
+          url,
+          '_blank',
+          'width=1200,height=800,top=100,left=100,resizable=yes,scrollbars=yes'
+        );
+      });
     }
     
     // Note button handler is handled in the main click handler below to avoid conflicts
@@ -4440,6 +5306,8 @@ window.addEventListener('resize', function() {
                                 
                                 // Uncheck all checkboxes and update button states
                                 document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                                // Clear selected job ID
+                                window.selectedJobId = null;
                                 if (typeof toggleActionsVisibility === 'function') {
                                     toggleActionsVisibility();
                                 }
@@ -4725,20 +5593,24 @@ function initializeRankEditing() {
             window.todoPopup.className = 'todo-popup';
             window.todoPopup.innerHTML = `
                 <div class="todo-popup-header">
-                    <div class="todo-popup-title">Document Requests</div>
+                    <div class="todo-popup-title">To Do</div>
                     <button class="todo-popup-close" type="button">&times;</button>
                 </div>
                 <div class="todo-popup-content">
                     <div class="todo-popup-loading" style="text-align: center; padding: 10px;">Loading...</div>
+                    <div class="todo-popup-todos" style="display: none;"></div>
                     <div class="todo-popup-documents" style="display: none;"></div>
                                     <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #666;">No document requests</div>
                     <div class="todo-popup-action" style="display: none;"></div>
+                    <div class="todo-popup-footer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <button class="todo-popup-complete-btn" style="width: 100%; padding: 8px 16px; background-color: #85BB65; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px;">Mark as Completed</button>
+                    </div>
                 </div>
             `;
             if (document.body) {
                 document.body.appendChild(window.todoPopup);
             } else {
-                document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
                     document.body.appendChild(window.todoPopup);
                 });
             }
@@ -4754,88 +5626,195 @@ function initializeRankEditing() {
         }
     }
     
-    // Initialize popup click handler using event delegation
+    // Initialize popup hover handler using event delegation
     function initTodoPopupHandler() {
         if (window.todoPopupHandlerInitialized) {
             return;
         }
         
-        // Use event delegation on document to catch all clicks
-        document.addEventListener('click', function(e) {
-            // Check if click is on todo icon or its children
-            const todoIcon = e.target.closest('.todo-icon');
-            if (todoIcon) {
-                e.stopPropagation();
-                e.preventDefault();
+        let hoverTimeout = null;
+        let currentHoveredIcon = null;
+        
+        // Set up popup hover handlers after popup is created
+        function setupPopupHoverHandlers() {
+            if (window.todoPopup && !window.todoPopup.dataset.handlersSetup) {
+                window.todoPopup.dataset.handlersSetup = 'true';
+                
+                // Keep popup visible when hovering over it
+                window.todoPopup.addEventListener('mouseenter', function() {
+                    if (hoverTimeout) {
+                        clearTimeout(hoverTimeout);
+                        hoverTimeout = null;
+                    }
+                });
+                
+                window.todoPopup.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        if (!document.querySelector('.todo-icon:hover') && 
+                            !document.querySelector('.todo-icon-wrapper:hover') &&
+                            !window.todoPopup.matches(':hover')) {
+                            if (window.todoPopup) {
+                                window.todoPopup.classList.remove('show');
+                            }
+                            currentHoveredIcon = null;
+                        }
+                    }, 200);
+                });
+            }
+        }
+        
+        // Function to show popup for a todo icon
+        function showTodoPopup(todoIcon, e) {
+            if (!todoIcon) return;
+            
+            // Clear any existing timeout
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = null;
+            }
                 
                 // Ensure popup exists
                 if (!window.todoPopup) {
                     createTodoPopup();
+                    setupPopupHoverHandlers();
+                } else if (!window.todoPopup.dataset.handlersSetup) {
+                    setupPopupHoverHandlers();
                 }
                 
                 const action = todoIcon.dataset.todoAction;
                 const status = todoIcon.dataset.status;
                 const applicationId = todoIcon.dataset.applicationId;
                 const todoType = todoIcon.dataset.todoType;
+            const iconType = todoIcon.dataset.todoIconType;
+                
+                // Collect all TODOs from the same application row
+                let allTodos = [];
+                if (applicationId) {
+                    const todoContainer = todoIcon.closest('.todo-icons-container');
+                    if (todoContainer) {
+                        const allIcons = todoContainer.querySelectorAll('.todo-icon');
+                        allTodos = Array.from(allIcons).map(icon => ({
+                            action: icon.dataset.todoAction,
+                            iconType: icon.dataset.todoIconType,
+                            type: icon.dataset.todoType
+                        }));
+                    } else {
+                        // Fallback to single icon
+                        allTodos = [{
+                            action: action,
+                            iconType: iconType,
+                            type: todoType
+                        }];
+                    }
+                }
                 
                 if (window.todoPopup) {
                     const loadingEl = window.todoPopup.querySelector('.todo-popup-loading');
+                    const todosEl = window.todoPopup.querySelector('.todo-popup-todos');
                     const documentsEl = window.todoPopup.querySelector('.todo-popup-documents');
                     const noDocumentsEl = window.todoPopup.querySelector('.todo-popup-no-documents');
                     const actionEl = window.todoPopup.querySelector('.todo-popup-action');
+                    const footerEl = window.todoPopup.querySelector('.todo-popup-footer');
                     const titleEl = window.todoPopup.querySelector('.todo-popup-title');
+                    const completeBtn = window.todoPopup.querySelector('.todo-popup-complete-btn');
                     
                     // Hide all content sections
                     if (loadingEl) loadingEl.style.display = 'none';
+                    if (todosEl) todosEl.style.display = 'none';
                     if (documentsEl) documentsEl.style.display = 'none';
                     if (noDocumentsEl) noDocumentsEl.style.display = 'none';
                     if (actionEl) actionEl.style.display = 'none';
+                    if (footerEl) footerEl.style.display = 'none';
+                    
+                    // Store application ID and status for completed button
+                    if (window.todoPopup) {
+                        window.todoPopup.dataset.applicationId = applicationId || '';
+                        window.todoPopup.dataset.status = status || '';
+                    }
                     
                     // Check if we should show document requests (not saved status)
                     if (applicationId && status && status !== 'saved' && todoType === 'application') {
                         // Show loading
                         if (loadingEl) loadingEl.style.display = 'block';
-                        if (titleEl) titleEl.textContent = 'Document Requests';
+                        if (titleEl) titleEl.textContent = 'To Do';
                         
-                        // Fetch document requests
+                        // Fetch document requests and credentialing links
                         fetch('{{ path("app_provider_application_document_requests", {"id": "APPLICATION_ID"}) }}'.replace('APPLICATION_ID', applicationId))
                             .then(response => response.json())
                             .then(data => {
                                 if (loadingEl) loadingEl.style.display = 'none';
                                 
+                                let html = '';
+                                
+                                // Show all TODOs
+                                if (allTodos.length > 0) {
+                                    html += '<div style="margin-bottom: 12px;"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Pending Actions:</div>';
+                                    allTodos.forEach((todo, index) => {
+                                        html += `
+                                            <div style="padding: 6px 0; ${index < allTodos.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
+                                                <div style="font-size: 12px; color: black;">• ${todo.action}</div>
+                                            </div>
+                                        `;
+                                    });
+                                    html += '</div>';
+                                }
+                                
+                                // Show document requests if any
                                 if (data.documentRequests && data.documentRequests.length > 0) {
-                                    // Show document requests
-                                    let html = '<div style="max-height: 300px; overflow-y: auto;">';
+                                    html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Document Requests:</div>';
+                                    html += '<div style="max-height: 200px; overflow-y: auto;">';
                                     data.documentRequests.forEach((req, index) => {
                                         const statusText = req.providedAt ? 
                                             '<span style="color: #85BB65;">✓ Provided</span>' : 
                                             '<span style="color: #ffc107;">Pending</span>';
                                         html += `
-                                            <div style="padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                                                <div style="font-weight: 600; margin-bottom: 4px; color: black;">${req.name}</div>
+                                            <div style="padding: 6px 0; ${index < data.documentRequests.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
+                                                <div style="font-weight: 500; margin-bottom: 2px; color: black; font-size: 12px;">${req.name}</div>
                                                 <div style="font-size: 11px; color: #666;">
                                                     Requested: ${new Date(req.createdAt).toLocaleDateString()}
                                                     ${req.providedAt ? ' | Provided: ' + new Date(req.providedAt).toLocaleDateString() : ''}
                                                 </div>
-                                                <div style="font-size: 11px; margin-top: 4px; color: black;">${statusText}</div>
+                                                <div style="font-size: 11px; margin-top: 2px; color: black;">${statusText}</div>
+                                            </div>
+                                        `;
+                                    });
+                                    html += '</div></div>';
+                                }
+                                
+                                // Show credentialing links if any
+                                if (data.credentialLinks && data.credentialLinks.length > 0) {
+                                    html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Credentialing Links:</div>';
+                                    data.credentialLinks.forEach((link, index) => {
+                                        html += `
+                                            <div style="padding: 6px 0; ${index < data.credentialLinks.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
+                                                <div style="font-weight: 500; margin-bottom: 2px; color: black; font-size: 12px;">${link.title || 'Credentialing Link'}</div>
+                                                ${link.description ? '<div style="font-size: 11px; color: #666; margin-bottom: 4px;">' + link.description + '</div>' : ''}
+                                                <a href="${link.url}" target="_blank" style="font-size: 11px; color: #0066cc; text-decoration: underline;">Open Link</a>
                                             </div>
                                         `;
                                     });
                                     html += '</div>';
-                                    if (documentsEl) {
-                                        documentsEl.innerHTML = html;
-                                        documentsEl.style.display = 'block';
+                                }
+                                
+                                if (html) {
+                                    if (todosEl) {
+                                        todosEl.innerHTML = html;
+                                        todosEl.style.display = 'block';
                                     }
+                                    // Show completed button
+                                    if (footerEl) footerEl.style.display = 'block';
                                 } else {
-                                    // Show no documents message
-                                    if (noDocumentsEl) noDocumentsEl.style.display = 'block';
+                                    if (noDocumentsEl) {
+                                        noDocumentsEl.textContent = 'No pending actions';
+                                        noDocumentsEl.style.display = 'block';
+                                    }
                                 }
                             })
                             .catch(error => {
-                                console.error('Error fetching document requests:', error);
+                                console.error('Error fetching data:', error);
                                 if (loadingEl) loadingEl.style.display = 'none';
                                 if (noDocumentsEl) {
-                                    noDocumentsEl.textContent = 'Error loading document requests';
+                                    noDocumentsEl.textContent = 'Error loading data';
                                     noDocumentsEl.style.display = 'block';
                                 }
                             });
@@ -4846,9 +5825,53 @@ function initializeRankEditing() {
                             actionEl.textContent = action || 'No action required';
                             actionEl.style.display = 'block';
                         }
+                        // Show completed button for non-document TODOs
+                        if (footerEl && applicationId) footerEl.style.display = 'block';
                     }
                     
-                    // Position popup to the left of the cursor and aligned at top
+                    // Handle completed button click
+                    if (completeBtn && !completeBtn.dataset.listenerAdded) {
+                        completeBtn.dataset.listenerAdded = 'true';
+                        completeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const appId = window.todoPopup.dataset.applicationId;
+                            const appStatus = window.todoPopup.dataset.status;
+                            
+                            if (appId) {
+                                // For now, just close the popup
+                                // In the future, this could mark the TODO as completed in the database
+                                window.todoPopup.classList.remove('show');
+                                
+                                // Show a success message
+                                const msg = document.createElement('div');
+                                msg.style.position = 'fixed';
+                                msg.style.top = '20px';
+                                msg.style.right = '20px';
+                                msg.style.backgroundColor = '#85BB65';
+                                msg.style.color = 'white';
+                                msg.style.padding = '10px 15px';
+                                msg.style.borderRadius = '5px';
+                                msg.style.zIndex = '99999';
+                                msg.textContent = 'Marked as completed!';
+                                document.body.appendChild(msg);
+                                setTimeout(() => {
+                                    msg.style.display = 'none';
+                                    document.body.removeChild(msg);
+                                }, 2000);
+                            }
+                        });
+                    }
+                    
+                    // Position popup relative to icon
+                    const iconWrapper = todoIcon.closest('.todo-icon-wrapper');
+                    const iconContainer = iconWrapper || todoIcon;
+                    const containerRect = iconContainer.getBoundingClientRect();
+                    
+                    // Show popup first (positioned initially, will be adjusted in requestAnimationFrame)
+                    window.todoPopup.style.left = (containerRect.right + 10) + 'px';
+                    window.todoPopup.style.top = containerRect.top + 'px';
+                    window.todoPopup.classList.add('show');
+                    
                     // Use requestAnimationFrame to ensure popup is rendered before getting dimensions
                     requestAnimationFrame(() => {
                         // Get actual popup dimensions after it's rendered
@@ -4856,18 +5879,17 @@ function initializeRankEditing() {
                         const popupWidth = popupRect.width || 300;
                         const popupHeight = popupRect.height || 200;
                         
-                        // Position to the left of the cursor
-                        let left = e.clientX - popupWidth - 10;
-                        // Align top with cursor
-                        let top = e.clientY;
+                        // Position to the right of the icon
+                        let left = containerRect.right + 10;
+                        let top = containerRect.top;
                     
                     // Adjust if popup goes off screen
-                    if (left < 10) {
-                        // If not enough space on left, show to the right
-                            left = e.clientX + 10;
-                    }
                     if (left + popupWidth > window.innerWidth - 10) {
-                        left = window.innerWidth - popupWidth - 10;
+                            // If not enough space on right, show to the left
+                            left = containerRect.left - popupWidth - 10;
+                        }
+                        if (left < 10) {
+                            left = 10;
                     }
                     if (top < 10) {
                         top = 10;
@@ -4879,20 +5901,15 @@ function initializeRankEditing() {
                     window.todoPopup.style.left = left + 'px';
                     window.todoPopup.style.top = top + 'px';
                     });
-                    
-                    // Show popup first (positioned initially at cursor, will be adjusted in requestAnimationFrame)
-                    window.todoPopup.style.left = (e.clientX - 300) + 'px';
-                    window.todoPopup.style.top = e.clientY + 'px';
-                    window.todoPopup.classList.add('show');
                 }
-                return;
             }
             
-            // Close popup if clicking outside
+            // Close popup if clicking outside (for click-based closing)
             if (window.todoPopup && window.todoPopup.classList.contains('show') && 
                 !window.todoPopup.contains(e.target) && 
-                !e.target.closest('.todo-icon')) {
-                window.todoPopup.classList.remove('show');
+                !findTodoIcon(e.target)) {
+                // Only close on click, not on hover
+                // window.todoPopup.classList.remove('show');
             }
         });
         
@@ -5062,6 +6079,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 // Uncheck all checkboxes and update button states
                 document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+                // Clear selected job ID
+                window.selectedJobId = null;
                 if (typeof toggleActionsVisibility === 'function') {
                     toggleActionsVisibility();
                 }
@@ -5252,19 +6271,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // Position the filter panel correctly to prevent clipping
       const filterBtnRect = filterBtn.getBoundingClientRect();
       const splitViewContainer = document.getElementById('split-view-container');
-      if (splitViewContainer && splitViewContainer.style.display === 'grid') {
-        // In split view, use fixed positioning
-        filterPanel.style.position = 'fixed';
-        filterPanel.style.left = filterBtnRect.left + 'px';
-        filterPanel.style.top = (filterBtnRect.bottom + 8) + 'px';
-        filterPanel.style.zIndex = '99999';
-      } else {
-        // In list view, use absolute positioning
-        filterPanel.style.position = 'absolute';
-        filterPanel.style.left = '0';
-        filterPanel.style.top = '100%';
-        filterPanel.style.zIndex = '9999';
-      }
+      // Always use fixed positioning to prevent clipping issues
+      filterPanel.style.position = 'fixed';
+      filterPanel.style.left = filterBtnRect.left + 'px';
+      filterPanel.style.top = (filterBtnRect.bottom + 8) + 'px';
+      filterPanel.style.zIndex = '99999';
     } else {
       filterPanel.classList.add('hidden');
       filterPanel.style.display = 'none';
@@ -5285,8 +6296,26 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       e.stopPropagation();
       try {
-    applyFilters();
-        if (filterPanel) filterPanel.classList.add('hidden');
+        // Hide filter panel immediately
+        if (filterPanel) {
+          filterPanel.classList.add('hidden');
+          filterPanel.style.display = 'none';
+        }
+        // If currently in split view, switch to list view first
+        const splitViewContainer = document.getElementById('split-view-container');
+        const listViewContainer = document.querySelector('.job-list-container');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        if (splitViewContainer && splitViewContainer.style.display === 'grid') {
+          // Switch to list view before applying filters
+          splitViewContainer.style.display = 'none';
+          if (listViewContainer) {
+            listViewContainer.style.display = 'block';
+          }
+          if (gridViewBtn) {
+            gridViewBtn.classList.remove('active');
+          }
+        }
+        applyFilters();
       } catch (error) {
         console.error('Error applying filters:', error);
         // Show all rows if there's an error
@@ -5344,12 +6373,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const salaryMinInput = document.getElementById('filter-salary-min');
     const salaryMaxInput = document.getElementById('filter-salary-max');
     const dateAppliedInput = document.getElementById('filter-date-applied');
-    const container = document.querySelector('.job-list-container')?.parentElement || document.querySelector('.table-responsive-wrapper')?.parentElement || document.querySelector('.job-section');
-    
-    if (!container) {
-      console.error('Container not found');
-      return;
-    }
     
     if (!locationInput || !salaryMinInput || !salaryMaxInput) {
       console.warn('Filter inputs not found');
@@ -5368,27 +6391,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const status = urlParams.get('status');
     if (status) params.append('status', status);
     
-    // Show loading spinner
-    const listContainer = document.querySelector('.job-list-container');
-    if (listContainer) {
-      listContainer.innerHTML = `
-        <div class="text-center p-4">
-          <div class="spinner-border text-success mb-3" role="status"></div>
-          <p>Filtering applications...</p>
-        </div>
-      `;
-    }
-    
-    // Use Symfony route dynamically
+    // Get the base URL
     const applicationsUrl = "{{ path('app_provider_jobs_applications') }}";
     
-    // Make AJAX request
+    // First check if there are results using AJAX
     fetch(`${applicationsUrl}?${params.toString()}`, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
       .then(res => res.json())
       .then(data => {
-        // Check if no applications found - check for various "no results" messages
+        // Check if no applications found
         if (data.html && (
           data.html.includes('No applications found') || 
           data.html.includes('Applications not found') || 
@@ -5396,91 +6408,35 @@ document.addEventListener('DOMContentLoaded', function() {
           data.html.includes('No applications match') ||
           data.html.includes('match the selected filters')
         )) {
-          // Clear loading spinner first
-          if (listContainer) {
-            listContainer.innerHTML = '';
-          }
-          // Show custom popup for 3 seconds, then redirect
+          // Show custom popup for 3 seconds, then redirect to original page (without filters)
           showNoResultsPopup('No applications found', function() {
-            // Redirect to the current page (reload without filters)
             const currentUrl = window.location.pathname;
-            const urlParams = new URLSearchParams(window.location.search);
+            const newParams = new URLSearchParams();
             // Keep only the status parameter if it exists, remove filter parameters
-            const status = urlParams.get('status');
             if (status) {
-              window.location.href = currentUrl + '?status=' + status;
-            } else {
-              window.location.href = currentUrl;
+              newParams.append('status', status);
             }
+            const redirectUrl = newParams.toString() ? `${currentUrl}?${newParams.toString()}` : currentUrl;
+            window.location.href = redirectUrl;
           });
           // Close the filter panel
-          filterPanel.classList.add('hidden');
+          if (filterPanel) {
+            filterPanel.classList.add('hidden');
+            filterPanel.style.display = 'none';
+          }
           return;
         }
         
-        if (listContainer) {
-          listContainer.outerHTML = data.html;
-        } else if (container) {
-          // Find where to insert the new content
-          const oldContainer = container.querySelector('.job-list-container');
-          if (oldContainer) {
-            oldContainer.outerHTML = data.html;
-          } else {
-            // Insert before actions-container or at end
-            const actionsContainer = container.querySelector('.actions-container');
-            if (actionsContainer) {
-              actionsContainer.insertAdjacentHTML('beforebegin', data.html);
-            } else {
-              container.insertAdjacentHTML('beforeend', data.html);
-            }
-          }
-        }
-        filterPanel.classList.add('hidden');
-        
-        // Use setTimeout to ensure DOM is fully updated
-        setTimeout(function() {
-          // Re-initialize rank editing after AJAX update
-          if (typeof initializeRankEditing === 'function') {
-            initializeRankEditing();
-          }
-          
-          // Ensure todo popup is initialized after AJAX update
-          // Since we use event delegation, we just need to ensure the popup element exists
-          if (!window.todoPopup) {
-            window.todoPopup = document.getElementById('todo-popup');
-          }
-          if (!window.todoPopup) {
-            window.todoPopup = document.createElement('div');
-            window.todoPopup.id = 'todo-popup';
-            window.todoPopup.className = 'todo-popup';
-            window.todoPopup.innerHTML = `
-                <div class="todo-popup-header">
-                    <div class="todo-popup-title">To Do Action</div>
-                    <button class="todo-popup-close" type="button">&times;</button>
-                </div>
-                <div class="todo-popup-content"></div>
-            `;
-            document.body.appendChild(window.todoPopup);
-            
-            const closeBtn = window.todoPopup.querySelector('.todo-popup-close');
-            if (closeBtn) {
-              closeBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                window.todoPopup.classList.remove('show');
-              });
-            }
-          }
-          
-          // Event delegation handler should already be set up from main initialization
-          // No need to re-initialize as it's attached to document and works for all elements
-        }, 50);
+        // If results exist, reload the page with filter parameters - this will reset everything cleanly
+        const newUrl = params.toString() ? `${applicationsUrl}?${params.toString()}` : applicationsUrl;
+        window.location.href = newUrl;
       })
       .catch(err => {
-        console.error('Filter error:', err);
-        if (listContainer) {
-          listContainer.innerHTML = `<p class="text-danger p-4">Failed to load filtered applications.</p>`;
-      }
-    });
+        console.error('Filter check error:', err);
+        // On error, just reload with filters anyway
+        const newUrl = params.toString() ? `${applicationsUrl}?${params.toString()}` : applicationsUrl;
+        window.location.href = newUrl;
+      });
   }
 });
 
@@ -5496,6 +6452,43 @@ document.addEventListener('DOMContentLoaded', function () {
   const detailNoteBtn = document.getElementById('detail-note-btn');
   
   let selectedJobId = null;
+  
+  // Ensure split view is hidden and list view is shown by default
+  if (splitViewContainer) {
+    splitViewContainer.style.display = 'none';
+  }
+  if (listViewContainer) {
+    listViewContainer.style.display = 'block';
+  }
+  if (gridViewBtn) {
+    gridViewBtn.classList.remove('active');
+  }
+  
+  // Clear filter flag if no filters are in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('days');
+  if (!hasFilters) {
+    sessionStorage.removeItem('filtersActive');
+  }
+  
+  // Handle selectJob parameter from URL (when coming from filtered split view)
+  const selectJobId = urlParams.get('selectJob');
+  if (selectJobId) {
+      // Remove selectJob from URL
+      urlParams.delete('selectJob');
+      const newUrl = urlParams.toString() ? `${window.location.pathname}?${urlParams.toString()}` : window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Open split view and select the job
+      setTimeout(() => {
+          if (typeof window.openSplitViewAndSelectJob === 'function') {
+              window.openSplitViewAndSelectJob(selectJobId);
+          }
+      }, 100);
+  }
+  
+  // Intercept clicks on job links and job rows in list view to open split view instead
+  // Attach handler after function is defined to ensure it works
   
   if (gridViewBtn && listViewContainer && splitViewContainer) {
     gridViewBtn.addEventListener('click', function () {
@@ -5519,25 +6512,88 @@ document.addEventListener('DOMContentLoaded', function () {
             if (actionsContainer) {
                 actionsContainer.classList.remove('scrollable');
             }
-            // Show table header in list view
-            const tableHeaderWrapper = document.querySelector('.sticky-header-container .table-responsive-wrapper');
-            if (tableHeaderWrapper) {
-                tableHeaderWrapper.style.display = 'block';
+            // Re-enable sticky in list view
+            const stickyContainer = document.querySelector('.sticky-header-container');
+            if (stickyContainer) {
+                stickyContainer.style.position = 'sticky';
+                stickyContainer.style.top = '0';
             }
+            // Show table header in list view
+            // Target both the one inside sticky-header-container and the one outside
+            const tableHeaderWrappers = document.querySelectorAll('.table-responsive-wrapper');
+            tableHeaderWrappers.forEach(wrapper => {
+                // Check if this wrapper contains a job-header (the column header row)
+                const hasJobHeader = wrapper.querySelector('.job-header');
+                if (hasJobHeader) {
+                    wrapper.style.display = 'block';
+                    wrapper.style.visibility = 'visible';
+                }
+            });
+            // Also show all job-header elements directly
+            const allJobHeaders = document.querySelectorAll('.job-header');
+            allJobHeaders.forEach(header => {
+                header.style.display = 'flex';
+                header.style.visibility = 'visible';
+            });
             window.selectedJobId = null;
+            // Hide detail action buttons container
+            const detailActionButtons = document.getElementById('detail-action-buttons');
+            if (detailActionButtons) {
+                detailActionButtons.style.display = 'none';
+            }
+            
             if (detailNoteBtn) { detailNoteBtn.style.display = 'none'; }
             const detailTimelineBtn = document.getElementById('detail-timeline-btn');
             if (detailTimelineBtn) { detailTimelineBtn.style.display = 'none'; }
+            const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
+            if (detailViewDetailsBtn) { detailViewDetailsBtn.style.display = 'none'; }
         } else {
-            // Switch to split view
+            // Check if filters are active - if so, reload page without filters to show unfiltered split view
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('days');
+            const filtersActive = sessionStorage.getItem('filtersActive') === 'true' || hasFilters;
+            
+            if (filtersActive) {
+                // Reload page without filter parameters to show unfiltered split view
+                const currentUrl = window.location.pathname;
+                const newParams = new URLSearchParams();
+                // Keep only status parameter if it exists
+                const status = urlParams.get('status');
+                if (status) {
+                    newParams.append('status', status);
+                }
+                const newUrl = newParams.toString() ? `${currentUrl}?${newParams.toString()}` : currentUrl;
+                window.location.href = newUrl;
+                return;
+            }
+            
+            // Switch to split view (no filters active)
             splitViewContainer.style.display = 'grid';
             listViewContainer.style.display = 'none';
             gridViewBtn.classList.add('active');
-            // Hide table header in split view
-            const tableHeaderWrapper = document.querySelector('.sticky-header-container .table-responsive-wrapper');
-            if (tableHeaderWrapper) {
-                tableHeaderWrapper.style.display = 'none';
+            // Disable sticky in split view
+            const stickyContainer = document.querySelector('.sticky-header-container');
+            if (stickyContainer) {
+                stickyContainer.style.position = 'relative';
+                stickyContainer.style.top = 'auto';
             }
+            // Hide only the table header (column names) in split view, keep status cards and action buttons visible
+            // Target both the one inside sticky-header-container and the one outside
+            const tableHeaderWrappers = document.querySelectorAll('.table-responsive-wrapper');
+            tableHeaderWrappers.forEach(wrapper => {
+                // Check if this wrapper contains a job-header (the column header row)
+                const hasJobHeader = wrapper.querySelector('.job-header');
+                if (hasJobHeader) {
+                    wrapper.style.display = 'none';
+                    wrapper.style.visibility = 'hidden';
+                }
+            });
+            // Also hide all job-header elements directly
+            const allJobHeaders = document.querySelectorAll('.job-header');
+            allJobHeaders.forEach(header => {
+                header.style.display = 'none';
+                header.style.visibility = 'hidden';
+            });
             gridViewBtn.innerHTML = `
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -5579,6 +6635,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Job card selection
   if (splitJobList) {
       splitJobList.addEventListener('click', function (e) {
+          // Only trigger if clicking on the job title specifically
+          const jobTitle = e.target.closest('.split-job-card-title');
+          if (!jobTitle) {
+              return; // Not clicking on title, ignore
+          }
+          
           const jobCard = e.target.closest('.split-job-card');
           if (jobCard && !e.target.classList.contains('job-checkbox')) {
               if (typeof window.selectJobCard === 'function') {
@@ -5588,7 +6650,294 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
   
+  // Function to open split view and select a job
+  window.openSplitViewAndSelectJob = function(jobId, applicationId = null) {
+      const splitViewContainer = document.getElementById('split-view-container');
+      const listViewContainer = document.querySelector('.job-list-container');
+      const gridViewBtn = document.getElementById('grid-view-btn');
+      const splitJobList = document.getElementById('split-job-list');
+      
+      if (!splitViewContainer || !listViewContainer) {
+          console.error('Split view or list view container not found', { splitViewContainer, listViewContainer });
+          return;
+      }
+      
+      const isSplitViewOpen = splitViewContainer.style.display === 'grid';
+      
+      // If split view is already open, just select the job
+      if (isSplitViewOpen && splitJobList) {
+          // Try to find the card with retry logic
+          const findAndSelectCard = (retries = 3) => {
+          let cardToSelect = null;
+          if (applicationId) {
+              cardToSelect = splitJobList.querySelector(`.split-job-card[data-application-id="${applicationId}"]`);
+          }
+          if (!cardToSelect) {
+              cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+          }
+              
+              // If not found, try finding by string comparison (in case of UUID formatting issues)
+              if (!cardToSelect) {
+                  const allCards = splitJobList.querySelectorAll('.split-job-card');
+                  for (let card of allCards) {
+                      const cardJobId = card.getAttribute('data-job-id');
+                      const cardApplicationId = card.getAttribute('data-application-id');
+                      if (applicationId && cardApplicationId && (cardApplicationId === applicationId || cardApplicationId.toString() === applicationId.toString())) {
+                          cardToSelect = card;
+                          break;
+                      }
+                      if (cardJobId && (cardJobId === jobId || cardJobId.toString() === jobId.toString())) {
+                          cardToSelect = card;
+                          break;
+                      }
+                  }
+              }
+              
+          if (cardToSelect && typeof window.selectJobCard === 'function') {
+                  // Scroll card into view
+                  cardToSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              window.selectJobCard(cardToSelect);
+                  return true;
+              } else if (retries > 0) {
+                  // Retry after a short delay
+                  setTimeout(() => findAndSelectCard(retries - 1), 100);
+                  return false;
+          }
+              return false;
+          };
+          
+          findAndSelectCard();
+          return;
+      }
+      
+      // Check if filters are active - if so, reload page without filters to show unfiltered split view
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('days');
+      const filtersActive = sessionStorage.getItem('filtersActive') === 'true' || hasFilters;
+      
+      if (filtersActive) {
+          // Reload page without filter parameters to show unfiltered split view
+          const currentUrl = window.location.pathname;
+          const newParams = new URLSearchParams();
+          const status = urlParams.get('status');
+          if (status) {
+              newParams.append('status', status);
+          }
+          const newUrl = newParams.toString() ? `${currentUrl}?${newParams.toString()}` : currentUrl;
+          // Add jobId to URL so we can select it after reload
+          const finalUrl = newUrl + (newUrl.includes('?') ? '&' : '?') + 'selectJob=' + jobId;
+          window.location.href = finalUrl;
+          return;
+      }
+      
+      // Switch to split view
+      splitViewContainer.style.display = 'grid';
+      listViewContainer.style.display = 'none';
+      
+      if (gridViewBtn) {
+          gridViewBtn.classList.add('active');
+          gridViewBtn.innerHTML = `
+              <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              List View
+          `;
+      }
+      
+      // Disable sticky in split view
+      const stickyContainer = document.querySelector('.sticky-header-container');
+      if (stickyContainer) {
+          stickyContainer.style.position = 'relative';
+          stickyContainer.style.top = 'auto';
+      }
+      
+      // Hide table header in split view
+      const tableHeaderWrappers = document.querySelectorAll('.table-responsive-wrapper');
+      tableHeaderWrappers.forEach(wrapper => {
+          const hasJobHeader = wrapper.querySelector('.job-header');
+          if (hasJobHeader) {
+              wrapper.style.display = 'none';
+          }
+      });
+      const allJobHeaders = document.querySelectorAll('.job-header');
+      allJobHeaders.forEach(header => {
+          header.style.display = 'none';
+      });
+      
+      const actionsContainer = document.querySelector('.actions-container');
+      if (actionsContainer) {
+          actionsContainer.classList.add('scrollable');
+      }
+      
+      // Select the job with retry logic to ensure DOM is ready
+      const findAndSelectCard = (retries = 5) => {
+          if (!splitJobList) {
+              if (retries > 0) {
+                  setTimeout(() => findAndSelectCard(retries - 1), 100);
+              }
+              return;
+          }
+          
+          let cardToSelect = null;
+          if (applicationId) {
+              cardToSelect = splitJobList.querySelector(`.split-job-card[data-application-id="${applicationId}"]`);
+          }
+          if (!cardToSelect) {
+              cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+          }
+          
+          // If not found, try finding by string comparison (in case of UUID formatting issues)
+          if (!cardToSelect) {
+              const allCards = splitJobList.querySelectorAll('.split-job-card');
+              for (let card of allCards) {
+                  const cardJobId = card.getAttribute('data-job-id');
+                  const cardApplicationId = card.getAttribute('data-application-id');
+                  if (applicationId && cardApplicationId && (cardApplicationId === applicationId || cardApplicationId.toString() === applicationId.toString())) {
+                      cardToSelect = card;
+                      break;
+                  }
+                  if (cardJobId && (cardJobId === jobId || cardJobId.toString() === jobId.toString())) {
+                      cardToSelect = card;
+                      break;
+                  }
+              }
+          }
+          
+          if (cardToSelect && typeof window.selectJobCard === 'function') {
+              // Scroll card into view
+              setTimeout(() => {
+                  cardToSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 50);
+              window.selectJobCard(cardToSelect);
+          } else if (retries > 0) {
+              // Retry after a short delay
+              setTimeout(() => findAndSelectCard(retries - 1), 150);
+          }
+      };
+      
+      // Start trying to find and select the card
+      setTimeout(() => findAndSelectCard(), 100);
+  };
+  
+  // Intercept clicks on job links and job rows in list view to open split view instead
+  // Attach handler after function is defined to ensure it works
+  // Use capture phase and attach to document for maximum coverage - this runs BEFORE other handlers
+  document.addEventListener('click', function(e) {
+      // Only intercept if we're not clicking inside split view
+      const splitViewContainer = document.getElementById('split-view-container');
+      const isSplitViewOpen = splitViewContainer && splitViewContainer.style.display === 'grid';
+      const isClickInSplitView = splitViewContainer && splitViewContainer.contains(e.target);
+      
+      // Check if click is on a job title link
+      const jobLink = e.target.closest('a.job-title');
+      if (jobLink && jobLink.href && (jobLink.href.includes('/detail') || jobLink.href.includes('/application/') || jobLink.href.includes('/applications/'))) {
+          // Only intercept if not clicking inside split view (split view has its own handlers)
+          if (isClickInSplitView) {
+              return; // Let split view handle its own clicks
+          }
+          
+          // Prevent default navigation immediately
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          // Get job ID and application ID from the checkbox in the same row
+          const jobRow = jobLink.closest('.job-row');
+          let jobId = null;
+          let applicationId = null;
+          
+          if (jobRow) {
+              const checkbox = jobRow.querySelector('.job-checkbox');
+              if (checkbox) {
+                  jobId = checkbox.getAttribute('data-job-id');
+                  applicationId = checkbox.getAttribute('data-application-id');
+              }
+          }
+          
+          // Fallback: try to extract from href (support both numeric IDs and UUIDs)
+          if (!jobId || !applicationId) {
+              const href = jobLink.href;
+              
+              // Try to extract application ID from href first (for /applications/{id} pattern)
+              const applicationsMatch = href.match(/\/applications\/([a-f0-9-]{36})/i);
+              if (applicationsMatch && applicationsMatch[1]) {
+                  applicationId = applicationsMatch[1];
+              } else {
+                  // Try /application/{id} pattern
+                  const applicationMatch = href.match(/\/application\/([a-f0-9-]{36}|\d+)/i);
+                  if (applicationMatch && applicationMatch[1]) {
+                      applicationId = applicationMatch[1];
+                  }
+              }
+              
+              // Match UUID pattern: /jobs/{uuid}/detail
+              const uuidMatch = href.match(/\/jobs\/([a-f0-9-]{36})\/detail/i);
+              if (uuidMatch && uuidMatch[1]) {
+                  jobId = uuidMatch[1];
+              } else {
+                  // Match numeric ID pattern: /jobs/{number}/detail
+                  const detailMatch = href.match(/\/jobs\/(\d+)\/detail/);
+                  if (detailMatch && detailMatch[1]) {
+                      jobId = detailMatch[1];
+                  }
+              }
+          }
+          
+          // Handle if we have either jobId or applicationId
+          if (jobId || applicationId) {
+              console.log('Job title clicked, jobId:', jobId, 'applicationId:', applicationId);
+              
+              // If we only have applicationId, try to get jobId from the checkbox
+              if (!jobId && applicationId && jobRow) {
+          const checkbox = jobRow.querySelector('.job-checkbox');
+          if (checkbox) {
+              jobId = checkbox.getAttribute('data-job-id');
+                  }
+              }
+              
+              if (!isSplitViewOpen) {
+                  // If split view is not open, open it and select the job
+                  console.log('Opening split view for job:', jobId, 'application:', applicationId);
+                  if (typeof window.openSplitViewAndSelectJob === 'function') {
+                      window.openSplitViewAndSelectJob(jobId, applicationId);
+                  } else {
+                      console.error('openSplitViewAndSelectJob function not found!');
+                  }
+              } else {
+                  // If split view is already open, select the job in the split view
+                  const splitJobList = document.getElementById('split-job-list');
+                  let jobCard = null;
+                  if (applicationId && splitJobList) {
+                      jobCard = splitJobList.querySelector(`.split-job-card[data-application-id="${applicationId}"]`);
+                  }
+                  if (!jobCard && jobId && splitJobList) {
+                      jobCard = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+                  }
+                  
+                  if (jobCard && typeof window.selectJobCard === 'function') {
+                      window.selectJobCard(jobCard);
+                  } else if (typeof window.openSplitViewAndSelectJob === 'function') {
+                      // Fallback: if card not found in split view, just load details
+                      window.openSplitViewAndSelectJob(jobId, applicationId);
+                  }
+              }
+          }
+          return false;
+      }
+  }, true); // Use capture phase to run before other handlers
+  
   window.selectJobCard = function(jobCard) {
+      const jobId = jobCard.dataset.jobId;
+      const applicationId = jobCard.dataset.applicationId;
+      
+      // Check if this job is already selected - if so, just keep it selected (no redirect)
+      if (jobCard.classList.contains('active') && window.selectedJobId === jobId) {
+          // Job is already selected - do nothing, keep it in split view
+          return;
+      }
+      
       // Remove active class from all cards
       document.querySelectorAll('.split-job-card').forEach(card => {
           card.classList.remove('active');
@@ -5606,29 +6955,43 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       
       // Get job ID and load details
-      selectedJobId = jobCard.dataset.jobId;
+      selectedJobId = jobId;
       window.selectedJobId = selectedJobId;
+      if (applicationId) {
+          window.selectedApplicationId = applicationId;
+      }
       if (typeof window.renderJobDetails === 'function') {
-          window.renderJobDetails(selectedJobId);
+          window.renderJobDetails(selectedJobId, applicationId);
       } else if (typeof loadJobDetails === 'function') {
           loadJobDetails(selectedJobId);
       }
   }
 
-  window.renderJobDetails = function(jobId) {
-    console.log('Loading job details for ID:', jobId);
+  window.renderJobDetails = function(jobId, applicationId = null) {
+    console.log('Loading job details for ID:', jobId, 'Application ID:', applicationId);
     
     // Use the jobDetailContent and noJobSelected from outer scope
     
-    // Show timeline and note buttons in split view
+    // Show detail action buttons container
+    const detailActionButtons = document.getElementById('detail-action-buttons');
+    if (detailActionButtons) {
+        detailActionButtons.style.display = 'flex';
+    }
+    
+    // Show timeline, view details, and note buttons in split view
     const detailTimelineBtn = document.getElementById('detail-timeline-btn');
     if (detailTimelineBtn) {
         detailTimelineBtn.style.display = 'flex';
-        const baseUrl = '{{ path('app_provider_interview_calendar') }}';
-        detailTimelineBtn.href = baseUrl;
+        detailTimelineBtn.style.alignItems = 'center';
+    }
+    const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
+    if (detailViewDetailsBtn) {
+        detailViewDetailsBtn.style.display = 'flex';
+        detailViewDetailsBtn.style.alignItems = 'center';
     }
     if (detailNoteBtn) {
         detailNoteBtn.style.display = 'flex';
+        detailNoteBtn.style.alignItems = 'center';
     }
     
     // Show loading state
@@ -5641,7 +7004,10 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     `;
     
-    const url = `/provider/jobs/${jobId}/detail-content`;
+    // For applications, use the application detail content endpoint
+    const url = applicationId 
+        ? `/provider/jobs/application/${applicationId}/detail-content`
+        : `/provider/jobs/${jobId}/detail-content`;
     
     fetch(url)
         .then(response => response.text().then(text => {
@@ -5658,9 +7024,26 @@ document.addEventListener('DOMContentLoaded', function () {
             jobDetailContent.style.display = 'block';
             if (noJobSelected) noJobSelected.style.display = 'none';
             if (noJobSelected) noJobSelected.style.display = 'none';
-            if (detailNoteBtn) { detailNoteBtn.style.display = 'flex'; }
+            if (detailNoteBtn) { 
+                detailNoteBtn.style.display = 'flex';
+                detailNoteBtn.style.alignItems = 'center';
+            }
+            // Show detail action buttons container
+            const detailActionButtons = document.getElementById('detail-action-buttons');
+            if (detailActionButtons) {
+                detailActionButtons.style.display = 'flex';
+            }
+            
             const detailTimelineBtn = document.getElementById('detail-timeline-btn');
-            if (detailTimelineBtn) { detailTimelineBtn.style.display = 'flex'; }
+            if (detailTimelineBtn) { 
+                detailTimelineBtn.style.display = 'flex';
+                detailTimelineBtn.style.alignItems = 'center';
+            }
+            const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
+            if (detailViewDetailsBtn) { 
+                detailViewDetailsBtn.style.display = 'flex';
+                detailViewDetailsBtn.style.alignItems = 'center';
+            }
             // Update toggle button position after content loads
             setTimeout(() => {
                 if (typeof updateToggleButtonPosition === 'function') {
@@ -5707,6 +7090,11 @@ document.addEventListener('DOMContentLoaded', function () {
           }
       }
       
+      // Collapse the left list first (default behavior for timeline panel)
+      if (typeof window.collapseList === 'function') {
+          window.collapseList();
+      }
+      
       // Show loading state
       timelineContent.innerHTML = `
           <div class="text-center py-4">
@@ -5717,14 +7105,38 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
       `;
       
-      // Open the panel
-      timelinePanel.classList.add('open');
-      timelinePanel.setAttribute('aria-hidden', 'false');
-      
-      // Add timeline-open class to job details to shrink it
-      if (jobDetails) {
-          jobDetails.classList.add('timeline-open');
-      }
+      // Wait a bit for collapse animation, then open panel
+      setTimeout(() => {
+          // Open the panel
+          timelinePanel.classList.add('open');
+          timelinePanel.setAttribute('aria-hidden', 'false');
+          
+          // Add timeline-open class to job details to shrink it
+          if (jobDetails) {
+              jobDetails.classList.add('timeline-open');
+              // Prevent any scrolling - panel is positioned absolutely so no scroll needed
+              jobDetails.scrollLeft = 0;
+              jobDetails.scrollTop = 0;
+              
+              // Force hide scrollbars
+              jobDetails.style.overflowY = 'hidden';
+              jobDetails.style.overflowX = 'visible';
+              
+              // Hide scrollbars on job list as well
+              const jobList = document.getElementById('split-job-list');
+              if (jobList) {
+                  jobList.style.overflowY = 'hidden';
+                  jobList.style.overflowX = 'hidden';
+              }
+              
+              // Ensure panel is visible by checking container overflow
+              const container = jobDetails.closest('.split-view-container');
+              if (container) {
+                  container.style.overflowX = 'visible';
+                  container.style.overflowY = 'hidden';
+              }
+          }
+      }, 100);
       
       // Fetch job timeline data from API
       fetch(`/provider/jobs/${jobId}/timeline-data`)
@@ -5733,28 +7145,35 @@ document.addEventListener('DOMContentLoaded', function () {
               // Build interview section HTML
               let interviewsHTML = '';
               if (data.interviews && data.interviews.length > 0) {
-                  interviewsHTML = data.interviews.map(interview => `
-                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
-                          <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
-                      </div>
-                      ${interview.platform ? `
-                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
-                          <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
-                      </div>
-                      ` : ''}
-                      ${interview.meetingUrl ? `
-                      <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                          <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
-                          <span class="timeline-detail-value" style="color: #121C0C;">
-                              <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
-                          </span>
-                      </div>
-                      ` : ''}
+                  interviewsHTML = data.interviews.map((interview, idx) => `
+                      <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                          <div class="timeline-detail-item">
+                              <span class="timeline-detail-label">Round ${idx + 1}:</span>
+                              <span class="timeline-detail-value" style="font-weight: 700; color: #85BB65;">${interview.type || 'Interview'}</span>
+                          </div>
+                          ${interview.date ? `
+                          <div class="timeline-detail-item">
+                              <span class="timeline-detail-label">📅 Date:</span>
+                              <span class="timeline-detail-value">${interview.date}${interview.time ? ' at ' + interview.time : ''}</span>
+                          </div>
+                          ` : '<div class="timeline-detail-item text-muted">📅 Date: TBD</div>'}
+                          ${interview.platform ? `
+                          <div class="timeline-detail-item">
+                              <span class="timeline-detail-label">💻 Platform:</span>
+                              <span class="timeline-detail-value">${interview.platform}</span>
+                          </div>
+                          ` : ''}
+                          ${interview.meetingUrl ? `
+                          <div class="timeline-detail-item">
+                              <span class="timeline-detail-label">🔗 Link:</span>
+                              <span class="timeline-detail-value">
+                                  <a href="${interview.meetingUrl}" target="_blank" class="btn btn-sm btn-primary" style="padding: 4px 12px; font-size: 12px;">Join Meeting</a>
+                              </span>
+                          </div>
+                          ` : ''}
                   `).join('');
               } else {
-                  interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
+                  interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
               }
               
               // Build timeline content with real data
@@ -5762,17 +7181,17 @@ document.addEventListener('DOMContentLoaded', function () {
                   <div class="timeline-events">
                       <!-- Application Overview -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <div class="timeline-event-icon" style="background: #e8f5e9;">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                   <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Application Overview</h6>
-                              <div class="timeline-detail-item">
+                              <div class="timeline-detail-item" style="display: flex; gap: 8px; align-items: center;">
                                   <span class="timeline-detail-label">Status:</span>
-                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}">${data.applicationStatus}</span>
+                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="background: #85BB65; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;">${data.applicationStatus}</span>
                               </div>
                               ${data.applicationDate ? `
                               <div class="timeline-detail-item">
@@ -5807,25 +7226,17 @@ document.addEventListener('DOMContentLoaded', function () {
                       
                       <div class="timeline-event-divider"></div>
                       
-                      <!-- Interview Information -->
+                      <!-- Interview Schedule -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
-                                  <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
-                                  <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
+                          <div class="timeline-event-icon" style="background: #f8f9fa;">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="#6c757d" stroke-width="2"/>
+                                  <path d="M16 2V6M8 2V6M3 10H21" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
                               </svg>
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Interview Schedule</h6>
                               ${interviewsHTML}
-                              <a href="{{ path('app_provider_interview_calendar') }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
-                                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                                      <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                  </svg>
-                                  View Full Calendar
-                              </a>
                           </div>
                       </div>
                       
@@ -5833,57 +7244,38 @@ document.addEventListener('DOMContentLoaded', function () {
                       
                       <!-- Quick Actions -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <div class="timeline-event-icon" style="background: #e8f5e9;">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
                                   <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
                               </svg>
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Quick Actions</h6>
-                              <div class="timeline-actions">
-                                  <a href="/provider/jobs/${data.jobId}/detail" class="btn btn-sm btn-outline-secondary">
-                                      View Full Details
-                                  </a>
-                              </div>
+                              <a href="/provider/jobs/${data.jobId}/detail" style="display: inline-block; background: #85BB65; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; margin-top: 4px;">View Full Details</a>
                           </div>
                       </div>
                   </div>
                   
                   <style>
                       .timeline-events {
-                          padding: 0;
-                      }
-                      .timeline-info-box {
-                          background: #f8f9fa;
-                          border-left: none !important;
-                          padding: 12px 15px;
-                          border-radius: 6px;
-                          margin-bottom: 10px;
-                      }
-                      .timeline-info-label {
-                          font-size: 11px;
-                          text-transform: uppercase;
-                          color: #6c757d;
-                          font-weight: 600;
-                          margin-bottom: 4px;
-                          letter-spacing: 0.5px;
-                      }
-                      .timeline-info-value {
-                          font-size: 13px;
-                          color: #121C0C;
-                          font-weight: 500;
-                          font-family: monospace;
+                          padding: 20px;
+                          background: #ffffff;
+                          border-radius: 8px;
                       }
                       .timeline-event {
                           display: flex;
-                          gap: 12px;
-                          padding: 12px 0;
+                          gap: 20px;
+                          padding: 20px 0;
+                          border-bottom: 1px solid #e0e0e0;
+                      }
+                      .timeline-event:last-child {
+                          border-bottom: none;
                       }
                       .timeline-event-icon {
                           flex-shrink: 0;
-                          width: 32px;
-                          height: 32px;
+                          width: 50px;
+                          height: 50px;
                           display: flex;
                           align-items: center;
                           justify-content: center;
@@ -5895,36 +7287,35 @@ document.addEventListener('DOMContentLoaded', function () {
                       }
                       .timeline-event-content {
                           flex: 1;
-                          border: none !important;
-                          border-left: none !important;
-                          background: transparent !important;
-                          box-shadow: none !important;
-                          padding: 0 !important;
                       }
                       .timeline-event-title {
-                          font-size: 14px;
-                          font-weight: 600;
-                          margin-bottom: 8px;
-                          color: #333;
+                          font-size: 18px;
+                          font-weight: 700;
+                          margin-bottom: 12px;
+                          color: #121C0C;
                       }
                       .timeline-detail-item {
                           display: flex;
-                          gap: 8px;
-                          margin-bottom: 6px;
-                          font-size: 12px;
+                          gap: 12px;
+                          margin-bottom: 10px;
+                          font-size: 15px;
+                          align-items: center;
+                          padding: 4px 0;
                       }
                       .timeline-detail-label {
                           color: #6c757d;
-                          font-weight: 500;
+                          font-weight: 600;
+                          min-width: 100px;
                       }
                       .timeline-detail-value {
                           color: #121C0C;
+                          font-weight: 500;
                       }
                       .timeline-detail-value.status-interview,
                       .timeline-detail-value.status-offered,
                       .timeline-detail-value.status-accepted,
                       .timeline-detail-value.status-hired {
-                          color: #85BB65;
+                          color: #000000;
                           font-weight: 600;
                       }
                       .timeline-detail-value.status-rejected {
@@ -5936,14 +7327,14 @@ document.addEventListener('DOMContentLoaded', function () {
                           margin-bottom: 6px;
                       }
                       .timeline-event-description {
-                          font-size: 12px;
+                          font-size: 13px;
                           color: #6c757d;
                           margin-bottom: 0;
                       }
                       .timeline-event-divider {
                           height: 1px;
                           background: #e6eef6;
-                          margin: 8px 0;
+                          margin: 10px 0;
                       }
                       .timeline-actions {
                           display: flex;
@@ -5987,8 +7378,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Timeline button click handler
   document.addEventListener('click', function(e) {
-      const timelineBtn = e.target.closest('#detail-timeline-btn');
-      if (timelineBtn) {
+      if (e.target.closest('#detail-timeline-btn')) {
           e.preventDefault();
           e.stopPropagation();
           
@@ -6012,34 +7402,55 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           
           if (jobId) {
-              // Collapse the left list when timeline is clicked (for design consistency)
-              if (typeof window.collapseList === 'function') {
-                  window.collapseList();
-              }
-              
-              // Close notes panel if open
-              const notesPanel = document.getElementById('notes-panel');
-              if (notesPanel && notesPanel.classList.contains('open')) {
-                  notesPanel.classList.remove('open');
-                  notesPanel.setAttribute('aria-hidden', 'true');
-                  const jobDetails = document.getElementById('split-job-details');
-                  if (jobDetails) {
-                      jobDetails.classList.remove('notes-open');
-                  }
-              }
-              
-              // Wait a bit for the collapse animation, then open timeline panel
-              setTimeout(() => {
-                  if (typeof window.openTimelinePanel === 'function') {
-                      window.openTimelinePanel(jobId);
-                  }
-              }, 100);
+              // Open timeline panel (it will handle collapsing the list)
+              openTimelinePanel(jobId);
           } else {
               if (typeof showToast === 'function') {
                   showToast('Please select a job first', 'warning');
               }
           }
       }
+      
+      // View Details button click handler
+      if (e.target.closest('#detail-view-details-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Get the selected job ID and application ID
+          let jobId = window.selectedJobId || null;
+          let applicationId = window.selectedApplicationId || null;
+          
+          // If not found, try to find from active split job card
+          if (!jobId || !applicationId) {
+              const activeCard = document.querySelector('.split-job-card.active');
+              if (activeCard) {
+                  if (!jobId) jobId = activeCard.getAttribute('data-job-id');
+                  if (!applicationId) applicationId = activeCard.getAttribute('data-application-id');
+              }
+          }
+          
+          // If still not found, try to find from checked checkbox
+          if (!jobId || !applicationId) {
+              const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+              if (checkedCheckbox) {
+                  if (!jobId) jobId = checkedCheckbox.getAttribute('data-job-id');
+                  if (!applicationId) applicationId = checkedCheckbox.getAttribute('data-application-id');
+              }
+          }
+          
+          if (applicationId) {
+              // For applications page, use application detail URL
+              window.location.href = `/provider/applications/${applicationId}`;
+          } else if (jobId) {
+              // For other pages, use job detail URL
+              window.location.href = `/provider/jobs/${jobId}/detail`;
+          } else {
+              if (typeof showToast === 'function') {
+                  showToast('Please select a job first', 'warning');
+              }
+          }
+      }
+      
   });
   
   // Note Panel Functions
@@ -6419,5 +7830,416 @@ document.addEventListener('DOMContentLoaded', function() {
         setupListCollapse();
     }, 100);
 });
+
+// Handle document upload modal for to-do icons
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for to-do icon wrappers
+    document.addEventListener('click', function(e) {
+        const todoIconWrapper = e.target.closest('.todo-icon-wrapper');
+        if (todoIconWrapper) {
+            const applicationId = todoIconWrapper.getAttribute('data-application-id');
+            const todoIcon = todoIconWrapper.querySelector('.todo-icon');
+            const iconType = todoIcon ? todoIcon.getAttribute('data-todo-icon-type') : null;
+            const todoAction = (todoIcon ? todoIcon.getAttribute('data-todo-action') : (todoIconWrapper.getAttribute('data-todo-action') || ''));
+            const actionLower = String(todoAction || '').toLowerCase();
+            
+            console.log('To-do icon clicked:', {
+                applicationId: applicationId,
+                iconType: iconType,
+                wrapper: todoIconWrapper
+            });
+            
+            if (iconType === 'interview') {
+                const jobId = todoIconWrapper.getAttribute('data-job-id');
+                let modalEl = document.getElementById('interviewModalProvider');
+                if (!modalEl) {
+                    modalEl = document.createElement('div');
+                    modalEl.className = 'modal fade';
+                    modalEl.id = 'interviewModalProvider';
+                    modalEl.tabIndex = -1;
+                    modalEl.setAttribute('role', 'dialog');
+                    modalEl.setAttribute('aria-labelledby', 'interviewModalLabel');
+                    modalEl.setAttribute('aria-hidden', 'true');
+                    modalEl.innerHTML = '<div class="modal-dialog modal-lg" role="document">\n          <div class="modal-content">\n            <div class="modal-header">\n              <h5 class="modal-title" id="interviewModalLabel">Interview Details</h5>\n              <button type="button" class="btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"></button>\n            </div>\n            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">\n              <div id="interviewContent" class="list-group"><div class="list-group-item text-muted" style="font-size:12px;">Loading interview…</div></div>\n            </div>\n            <div class="modal-footer">\n              <a id="viewCalendarBtn" class="btn btn-outline-primary" target="_blank">View Calendar</a>\n              <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button>\n            </div>\n          </div>\n        </div>';
+                    document.body.appendChild(modalEl);
+                }
+                const contentEl = modalEl.querySelector('#interviewContent');
+                const calendarBtn = modalEl.querySelector('#viewCalendarBtn');
+                if (calendarBtn) {
+                    if (jobId) {
+                        calendarBtn.href = window.location.origin + '/provider/interviews/calendar?jobId=' + encodeURIComponent(jobId) + '&status=interview';
+                    } else if (applicationId) {
+                        calendarBtn.href = window.location.origin + '/provider/interviews/calendar?applicationId=' + encodeURIComponent(applicationId) + '&status=interview';
+                    } else {
+                        calendarBtn.href = window.location.origin + '/provider/interviews/calendar?status=interview';
+                    }
+                }
+                const q = jobId ? ('jobId=' + encodeURIComponent(jobId)) : (applicationId ? ('applicationId=' + encodeURIComponent(applicationId)) : '');
+                const url = window.location.origin + '/provider/interviews/calendar-data' + (q ? ('?' + q) : '');
+                fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                  .then(events => {
+                    const items = Array.isArray(events) ? events : [];
+                    const list = document.createDocumentFragment();
+                    if (!items.length) {
+                        const msg = document.createElement('div');
+                        msg.className = 'list-group-item text-muted';
+                        msg.style.fontSize = '14px';
+                        msg.style.padding = '20px';
+                        msg.textContent = jobId ? 'No interview scheduled for this job.' : 'No interview scheduled.';
+                        list.appendChild(msg);
+                    } else {
+                        items.forEach(ev => {
+                            const row = document.createElement('div');
+                            row.className = 'list-group-item';
+                            row.style.padding = '15px';
+                            const when = ev.start ? new Date(ev.start) : null;
+                            const dateStr = when ? when.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+                            const timeStr = when ? when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                            const title = document.createElement('div');
+                            title.textContent = (ev.title || 'Interview');
+                            title.style.fontSize = '16px';
+                            title.style.fontWeight = '600';
+                            title.style.marginBottom = '8px';
+                            const meta = document.createElement('div');
+                            meta.className = 'd-flex align-items-center';
+                            const badge = document.createElement('span');
+                            badge.className = 'badge bg-info';
+                            badge.style.fontSize = '13px';
+                            badge.textContent = (ev.platform || 'Platform') + (dateStr ? (' • ' + dateStr) : '') + (timeStr ? (' • ' + timeStr) : '');
+                            meta.appendChild(badge);
+                            row.appendChild(title);
+                            row.appendChild(meta);
+                            if (ev.url) {
+                                const open = document.createElement('a');
+                                open.className = 'btn btn-sm btn-primary mt-2';
+                                open.href = ev.url; open.target = '_blank';
+                                open.textContent = 'Open Meeting Link';
+                                row.appendChild(open);
+                            }
+                            list.appendChild(row);
+                        });
+                    }
+                    if (contentEl) { contentEl.innerHTML = ''; contentEl.appendChild(list); }
+                  }).catch(() => {
+                    if (contentEl) { contentEl.innerHTML = '<div class="list-group-item text-danger" style="font-size:12px;">Failed to load interview</div>'; }
+                  });
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                } else if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(modalEl).modal('show');
+                } else {
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    modalEl.setAttribute('aria-hidden', 'false');
+                }
+                return;
+            }
+
+            if (actionLower.indexOf('credential') !== -1) {
+                const modalEl = document.getElementById('credentialingLinksModal');
+                const bodyEl = document.getElementById('credentialingLinksBody');
+                if (bodyEl) { bodyEl.innerHTML = '<div class="text-muted">Loading links…</div>'; }
+                fetch('/provider/credentialing-links.json', { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+                    .then(r => r.json())
+                    .then(j => {
+                        const items = (j && j.success && Array.isArray(j.data)) ? j.data : [];
+                        const frag = document.createDocumentFragment();
+                        if (!items.length) {
+                            const msg = document.createElement('div');
+                            msg.className = 'text-muted';
+                            msg.textContent = 'No credentialing links found.';
+                            frag.appendChild(msg);
+                        } else {
+                            items.forEach(it => {
+                                const row = document.createElement('div');
+                                row.className = 'list-group-item';
+                                row.setAttribute('data-link-id', it.id);
+                                const title = document.createElement('div');
+                                title.textContent = it.title || 'Credentialing';
+                                title.style.fontWeight = '600';
+                                const desc = document.createElement('div');
+                                desc.className = 'text-muted';
+                                desc.textContent = it.description || '';
+                                const status = document.createElement('span');
+                                status.className = (it.lastOpenedAt ? 'badge badge-success bg-success' : 'badge badge-secondary bg-secondary');
+                                status.style.marginLeft = '8px';
+                                status.textContent = it.lastOpenedAt ? ('Opened') : 'Not opened';
+                                const open = document.createElement('a');
+                                open.className = 'btn btn-sm btn-primary mt-2';
+                                open.href = it.url; open.target = '_blank';
+                                open.textContent = 'Open Link';
+                                row.appendChild(title);
+                                if (desc.textContent) row.appendChild(desc);
+                                row.appendChild(status);
+                                row.appendChild(open);
+                                frag.appendChild(row);
+
+                                open.addEventListener('click', function(ev){
+                                    ev.preventDefault();
+                                    try { window.open(it.url, '_blank'); } catch(_) {}
+                                    fetch('/provider/credentialing-links/' + it.id + '/opened', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+                                        .then(r => r.json())
+                                        .then(j => {
+                                            if (j && j.success) {
+                                                status.textContent = 'Opened';
+                                                status.className = 'badge badge-success bg-success';
+                                            }
+                                        }).catch(() => {
+                                            // no-op
+                                        });
+                                });
+                            });
+                        }
+                        if (bodyEl) { bodyEl.innerHTML = ''; bodyEl.appendChild(frag); }
+                    }).catch(() => { if (bodyEl) bodyEl.innerHTML = '<div class="text-danger">Failed to load links</div>'; });
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                } else if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(modalEl).modal('show');
+                } else {
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    modalEl.setAttribute('aria-hidden', 'false');
+                }
+                return;
+            }
+
+            if (actionLower.indexOf('review') !== -1 && applicationId) {
+                let modalEl = document.getElementById('reviewModalProvider');
+                if (!modalEl) {
+                    modalEl = document.createElement('div');
+                    modalEl.className = 'modal fade';
+                    modalEl.id = 'reviewModalProvider';
+                    modalEl.tabIndex = -1;
+                    modalEl.setAttribute('role', 'dialog');
+                    modalEl.setAttribute('aria-labelledby', 'reviewModalLabel');
+                    modalEl.setAttribute('aria-hidden', 'true');
+                    modalEl.innerHTML = '<div class="modal-dialog modal-lg" role="document">\n          <div class="modal-content">\n            <div class="modal-header">\n              <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>\n              <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close"></button>\n            </div>\n            <div class="modal-body">\n              <style>\n                .star-rating{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px}.star-rating input[type=radio]{display:none}.star-rating label{font-size:28px;color:#e6eef6;cursor:pointer;transition:color .2s;margin:0;padding:0}.star-rating label:hover,.star-rating label:hover~label{color:#ffc107}.star-rating input[type=radio]:checked~label{color:#ffc107}.form-control{width:100%;padding:12px 16px;border:1px solid #e6eef6;border-radius:8px;font-size:15px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}\n              </style>\n              <form id="reviewFormProvider" method="post">\n                <div class="mb-3">\n                  <label for="message" class="form-label">Your Review</label>\n                  <textarea id="message" name="message" class="form-control" placeholder="Tell us about your experience..." required></textarea>\n                </div>\n                <div class="mb-2">\n                  <label class="form-label">Rating</label>\n                  <div class="star-rating">\n                    <input type="radio" name="point" id="point-5" value="5" required><label for="point-5">★</label>\n                    <input type="radio" name="point" id="point-4" value="4" required><label for="point-4">★</label>\n                    <input type="radio" name="point" id="point-3" value="3" required><label for="point-3">★</label>\n                    <input type="radio" name="point" id="point-2" value="2" required><label for="point-2">★</label>\n                    <input type="radio" name="point" id="point-1" value="1" required><label for="point-1">★</label>\n                  </div>\n                </div>\n                <div class="form-actions">\n                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">Cancel</button>\n                  <button type="submit" class="btn btn-primary">Submit Review</button>\n                </div>\n              </form>\n            </div>\n          </div>\n        </div>';
+                    document.body.appendChild(modalEl);
+                }
+                const formEl = modalEl.querySelector('#reviewFormProvider');
+                if (formEl) {
+                    const actionUrl = '{{ path("app_provider_application_review_employer", {"id": "00000000-0000-0000-0000-000000000000"}) }}'.replace('00000000-0000-0000-0000-000000000000', applicationId);
+                    formEl.setAttribute('action', actionUrl);
+                    formEl.setAttribute('method', 'post');
+                }
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                } else if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(modalEl).modal('show');
+                } else {
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    modalEl.setAttribute('aria-hidden', 'false');
+                }
+                return;
+            }
+
+            if (applicationId && (iconType === 'document' || todoIconWrapper.classList.contains('todo-icon-wrapper'))) {
+                // Check if this is a document request by looking for pending document names
+                const pendingDocs = todoIconWrapper.getAttribute('data-doc-pending');
+                
+                if (pendingDocs || iconType === 'document') {
+                    // Open the modal
+                    const modalEl = document.getElementById('documentUploadModal');
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        const modal = new bootstrap.Modal(modalEl);
+                        modal.show();
+                    } else if (window.$ || window.jQuery) {
+                        (window.$ || window.jQuery)(modalEl).modal('show');
+                    } else {
+                        modalEl.classList.add('show');
+                        modalEl.style.display = 'block';
+                        modalEl.setAttribute('aria-hidden', 'false');
+                    }
+                    
+                    // Populate hidden fields with application data
+                    document.getElementById('applicationId').value = applicationId;
+                    document.getElementById('taskType').value = 'document';
+                    
+                    // Try to get document request ID if available (stored in the wrapper or row)
+                    const row = todoIconWrapper.closest('tr');
+                    let docRequestId = null;
+                    
+                    if (row) {
+                        // Look for data attribute in row
+                        const docReqAttr = row.getAttribute('data-doc-request-id');
+                        if (docReqAttr) {
+                            docRequestId = docReqAttr;
+                        }
+                    }
+                    
+                    if (docRequestId) {
+                        document.getElementById('documentRequestId').value = docRequestId;
+                    }
+                    
+                    // Update modal title with task details
+                    const taskDisplay = todoIconWrapper.getAttribute('title') || 'Upload Document';
+                    document.getElementById('documentUploadModalLabel').textContent = taskDisplay;
+                    
+                    console.log('Modal opened with appId:', applicationId);
+                    console.log('Document pending:', pendingDocs);
+                }
+            }
+        }
+    });
+
+    document.addEventListener('click', function(e){
+        const btn = e.target.closest('#credentialingLinksModal [data-bs-dismiss="modal"], #credentialingLinksModal [data-dismiss="modal"], #credentialingLinksModal .btn-close, #credentialingLinksModal .close');
+        if (!btn) return;
+        const modalEl = document.getElementById('credentialingLinksModal');
+        if (!modalEl) return;
+        if (window.bootstrap && window.bootstrap.Modal) {
+            window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        } else if (window.$ || window.jQuery) {
+            (window.$ || window.jQuery)(modalEl).modal('hide');
+        } else {
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.setAttribute('aria-hidden', 'true');
+        }
+    }, true);
+    
+    // Handle document upload form submission
+    const documentUploadForm = document.getElementById('documentUploadForm');
+    if (documentUploadForm) {
+        documentUploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const applicationId = document.getElementById('applicationId').value;
+            const documentRequestId = document.getElementById('documentRequestId').value;
+            
+            if (!applicationId) {
+                if (typeof showToast === 'function') {
+                    showToast('Application ID not found', 'error');
+                }
+                console.error('Missing application ID');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.getElementById('uploadSubmitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+            
+            // Make AJAX request to upload document
+            fetch(`/provider/applications/${applicationId}/upload-document`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Upload response:', data);
+                
+                if (data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast('Document uploaded successfully', 'success');
+                    }
+                    
+                    // If we have a document request ID, also assign it
+                    if (documentRequestId) {
+                        return assignDocument(documentRequestId, data.documentId, applicationId);
+                    }
+                    
+                    return { assigned: false };
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Error uploading document', 'error');
+                    }
+                    throw new Error(data.message || 'Upload failed');
+                }
+            })
+            .then(result => {
+                if (result && result.assigned) {
+                    if (typeof showToast === 'function') {
+                        showToast('Document assigned successfully', 'success');
+                    }
+                    
+                    // Update badge status in the table
+                    updateDocumentBadgeStatus(applicationId, 'Provided');
+                }
+                
+                // Close modal
+                const modalEl = document.getElementById('documentUploadModal');
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.hide();
+                } else if (window.$ || window.jQuery) {
+                    (window.$ || window.jQuery)(modalEl).modal('hide');
+                } else {
+                    modalEl.classList.remove('show');
+                    modalEl.style.display = 'none';
+                    modalEl.setAttribute('aria-hidden', 'true');
+                }
+                documentUploadForm.reset();
+                
+                // Refresh the page after a short delay
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            })
+            .catch(error => {
+                console.error('Error uploading document:', error);
+                if (typeof showToast === 'function') {
+                    showToast('Error uploading document: ' + error.message, 'error');
+                }
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        });
+    }
+});
+
+// Helper function to assign document to document request
+function assignDocument(docRequestId, documentId, applicationId) {
+    return fetch(`/provider/document-request/${docRequestId}/assign-document`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            documentId: documentId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Assign response:', data);
+        if (data.success) {
+            return { assigned: true };
+        } else {
+            console.warn('Document assigned but:', data.message);
+            return { assigned: false };
+        }
+    })
+    .catch(error => {
+        console.warn('Error assigning document:', error);
+        return { assigned: false };
+    });
+}
+
+// Helper function to update badge status
+function updateDocumentBadgeStatus(applicationId, status) {
+    const row = document.querySelector(`tr[data-application-id="${applicationId}"]`);
+    if (row) {
+        const badge = row.querySelector('.badge');
+        if (badge) {
+            badge.textContent = status;
+            badge.classList.remove('badge-warning', 'badge-info', 'badge-secondary');
+            if (status === 'Provided') {
+                badge.classList.add('badge-success');
+            }
+        }
+    }
+}
 </script>
 {% endblock %}

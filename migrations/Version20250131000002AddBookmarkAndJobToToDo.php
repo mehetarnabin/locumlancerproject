@@ -20,7 +20,7 @@ final class Version20250131000002AddBookmarkAndJobToToDo extends AbstractMigrati
     public function up(Schema $schema): void
     {
         $connection = $this->connection;
-        
+
         // Check if bookmark_id column exists
         $bookmarkColumnExists = (int) $connection->executeQuery(
             "SELECT COUNT(*) FROM information_schema.COLUMNS 

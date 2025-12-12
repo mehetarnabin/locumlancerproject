@@ -5,6 +5,38 @@
 {% block employer_body %}
 
 <style>
+/* Override parent container padding */
+.app-content {
+    padding: 32px 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Override any container padding */
+.container-xl,
+.container-fluid,
+.container,
+.app-wrapper {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 1199.98px) {
+    .app-content {
+        padding: 24px 0 !important;
+    }
+    
+    .container-xl,
+    .container-fluid,
+    .container,
+    .app-wrapper {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
 .job-header, .job-row {
     display: flex;
     align-items: center;
@@ -198,7 +230,6 @@
 }
 
 .action-btn {
-    background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
@@ -206,8 +237,85 @@
     display: flex;
     gap: 6px;
     align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: #fff;
+    color: #121C0C;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
-.action-btn, ..dropdown-cstm {
+
+.action-btn:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover svg {
+    color: #85BB65;
+}
+
+.dropdown-cstm {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    color: #121C0C;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+    transition: all 0.2s ease;
+}
+
+#delete-btn:hover {
+    color: #BA1824;
+    border: 1px solid #BA1824;
+    transition: all 0.2s ease;
+}
+
+#delete-btn:hover svg {
+    color: #BA1824;
+}
+
+.menu-dropdown {
+    position: relative;
+    z-index: 30;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+    background-color: #f3f4f6;
+    border-radius: 6px;
+}
+
+.menu-item svg {
+    flex-shrink: 0;
+}
+    color: #121C0C;
+    cursor: pointer;
+}
+.action-btn, .dropdown-cstm {
     transition: all 0.2s ease;
 }
 .action-btn:hover, .dropdown-cstm:hover {
@@ -234,44 +342,92 @@
     max-width: 50px;
 }
 .application .card {
-  clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1 0 auto;
-  margin-left: -15px;
-  cursor: pointer;
+    clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: -15px;
+    margin-bottom: 0 !important;
+    cursor: pointer;
+    height: 100%;
+    width: 100%;
+    flex: 1;
 }
 
 /* First card: no left cutout */
+.application .col:first-child {
+    max-width: 80px;
+    display: flex;
+}
+
+.application .col:first-child > a {
+    display: flex;
+    width: 100%;
+    flex: 1;
+}
+
 .application .col:first-child .card {
     clip-path:none;
     margin-left: 0;
-    height: 65px;
+    margin-bottom: 0 !important;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    width: 100%;
+    flex: 1;
 }
-.application .col:first-child {
-    max-width: 80px;
+.application .row .col {
+    display: flex;
 }
-.application .col:first-child .card-body {
+
+.application .row .col > a {
+    display: flex;
+    width: 100%;
+    flex: 1;
+}
+
+.application .col .card-body {
     justify-content: center;
     flex-direction: column-reverse;
     text-align: center;
     align-items: center;
+    display: flex;
+    height: 100%;
+    min-height: 100%;
+    padding: 0.5rem 1rem;
 }
-.application .col:first-child .card-body .card-title {
+.application .col .card-body .card-title {
     font-size: 16px;
+    color: #000000;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 .is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-rejected:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-rejected.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
-    color: rgb(33, 37, 41);
+    color: #000000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 .application .col .card-body p {
-    font-size: 18px;
-    color: #121C0C;
+    font-size: 16px;
+    color: #000000;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 .application .col:first-child .card .card-body {
     align-items: center;
+}
+.application .col:nth-child(2) .card {
+    clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,0% 0%);
+    margin-left: 0;
+}
+.application .col:last-child .card {
+    clip-path: polygon(0% 0%,100% 0%,100% 100%,0% 100%,15px 50%,0% 0%);
+}
+.application .col:first-child .card-body p {
+    display: none;
+}
+.application .col:first-child .card-body .card-title {
+    font-size: 16px;
 }
 .application .col:nth-child(2) .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,0% 0%);
@@ -284,56 +440,136 @@
     display: none;
 }
 .application .col:first-child .card-body .card-title {
-    font-size: 18px;
+    font-size: 16px;
 }
 .col:nth-child(1) .is-card {
   background-color: #D2E6C6;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(1) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(2) .is-card {
   background-color: #C7E0B8;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(2) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(3) .is-card {
   background-color: #BBDAAA;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(3) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(4) .is-card {
   background-color: #AFD39C;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(4) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(5) .is-card {
   background-color: #A4CC8E;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(5) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(6) .is-card {
   background-color: #99C680;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(6) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(7) .is-card {
   background-color: #8DC072;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(7) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .col:nth-child(8) .is-card {
   background-color: #82B964;
+  transition: background-color 0.2s ease;
+}
+.col:nth-child(8) .is-card * {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .col:nth-child(1) .is-card:hover {
   background-color: #B9F2FF;
 }
+.col:nth-child(1) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(2) .is-card:hover {
   background-color: #ADF0FF;
+}
+.col:nth-child(2) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(3) .is-card:hover {
   background-color: #99ECFF;
 }
+.col:nth-child(3) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(4) .is-card:hover {
   background-color: #85E9FF;
+}
+.col:nth-child(4) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(5) .is-card:hover {
   background-color: #70E5FF;
 }
+.col:nth-child(5) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(6) .is-card:hover {
   background-color: #5CE1FF;
+}
+.col:nth-child(6) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col:nth-child(7) .is-card:hover {
   background-color: #47DDFF;
 }
+.col:nth-child(7) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
+}
 .col:nth-child(8) .is-card:hover {
   background-color: #33DAFF;
+}
+.col:nth-child(8) .is-card:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #000000 !important;
 }
 .col .is-card.is-applied.active {
     background-color: #99ECFF;
@@ -437,6 +673,63 @@
 .send-link-btn:hover .fas {
     color: #1976D2;
 }
+
+/* Actions container styles */
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+    padding-left: 15px;
+    padding-right: 15px;
+    white-space: nowrap;
+    overflow-y: visible !important;
+    overflow-x: visible;
+    position: relative;
+    z-index: 100 !important;
+    flex-wrap: nowrap;
+    pointer-events: auto !important;
+}
+
+.job-actions-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.job-actions-middle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001 !important;
+    pointer-events: auto !important;
+}
+
+.job-actions-middle button,
+.job-actions-middle .action-btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1001 !important;
+}
+
+.col-dropdowns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    justify-content: flex-end;
+}
 </style>
 
     {% set statusColors = {
@@ -489,471 +782,407 @@
                 </div>
             </div>
 
-            <div class="actions-container d-flex justify-content-between align-items-center ml-15-px mr-15-px">
-                <div class="job-actions" style="display: flex; gap: 8px; align-items: center;">
-                  {% if app.request.get('status') not in ['in_review', 'interview', 'offered', 'rejected', 'hired', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> View Application
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Shortlist
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Reject
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Download CV
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'interview', 'offered', 'rejected', 'hired', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Schedule Interview
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Message
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Reject
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Add Note
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'in_review', 'offered', 'rejected', 'hired', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Offer
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Message
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Reject
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Add Feedback
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'in_review', 'interview', 'offered', 'hired', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> View Reason
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Reconsider
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Message
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'in_review', 'interview', 'rejected', 'hired', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Offer Letter
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Accepted
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Rejected
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Message
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'in_review', 'interview', 'offered', 'rejected', 'completed'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Completed
-                  </button>
-                  <!-- ENABLED: Document Request Button for Applied Status -->
-                  <button type="button" class="action-btn" 
+            <div class="actions-container">
+                <!-- Left Group: Filter + Status-based Action Buttons -->
+                <div class="job-actions-left">
+                    <div class="position-relative" style="flex-shrink: 0;">
+                        <button id="filter-btn" class="action-btn" title="Filter">
+                            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Filter
+                        </button>
+                        <div id="filter-panel" class="filter-panel custom-dropdown hidden"
+                            style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 280px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 16px;">
+                            <!-- Filter content will go here -->
+                            <div>Filter options coming soon</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Applied Status Actions -->
+                    <button id="action-request-file-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#askDocumentModal"
+                            title="Request One File">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Request One File
+                    </button>
+
+                    <!-- Shortlisted/In Review Status Actions -->
+                    <button id="action-schedule-interview-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#scheduleInterviewModal"
+                            title="Schedule Interview">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Schedule Interview
+                    </button>
+
+                    <!-- Interviewing Status Actions -->
+                    <button id="action-request-documents-btn" class="action-btn conditional-btn" style="display: none;" 
                           data-bs-toggle="modal" 
                           data-bs-target="#askDocumentModal" 
                           title="Request Documents">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <polyline points="10 9 9 9 8 9"/>
-                    </svg> Request Documents
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Send Message
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> View Contract
-                  </button>
-                  {% endif %}
-                  {% if app.request.get('status') not in ['applied', 'in_review', 'interview', 'offered', 'rejected', 'hired'] %}
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> View History
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Add Feedback
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> Archive
-                  </button>
-                  <button id="apply-btn" class="action-btn" disabled title="Apply">
-                    <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g data-name="Layer 2">
-                    <g data-name="checkmark-circle">
-                    <rect width="24" height="24" opacity="0"/>
-                    <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-                    <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-                    </g>
-                    </g>
-                    <use xlink:href="#icon-apply"/>
-                    </svg> View Message
-                  </button>
-                  {% endif %}
-                  <div class="hidden-buttons d-flex" style="gap:8px; align-items:cneter; visibility: hidden;">
-                    
-                  </div>
-                </div>
-                <div class="col-dropdowns d-flex gap-2">
-                  <!-- Columns Dropdown -->
-                  <div class="columns-dropdown position-relative">
-                    <button type="button" class="columns-dropdown-btn dropdown-cstm"><span>Columns</span></button>
-                    <div class="dropdown-panel columns-panel custom-dropdown hidden">
-                      <label><input type="checkbox" value="salary"> Salary</label>
-                      <label><input type="checkbox" value="location"> Location</label>
-                      <label><input type="checkbox" value="date-posted"> Date Posted</label>
-                      <label><input type="checkbox" value="deadline"> Deadline</label>
-                      <label><input type="checkbox" value="date-applied"> Date Applied</label>
-                      <label><input type="checkbox" value="excitement"> Rank</label>
-                    </div>
-                  </div>
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Request Documents
+                    </button>
 
-                  <!-- Menu Dropdown -->
-                  <div class="menu-dropdown position-relative">
-                    <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
-                    <div class="dropdown-panel menu-panel custom-dropdown hidden">
-                      <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g id="Warning / Info">
-                        <path id="Vector" d="M12 11V16M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12.0498 8V8.1L11.9502 8.1002V8H12.0498Z" stroke="#121C0C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </g>
-                        </svg> Quick Tour</div>
-                      <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
-                        <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
-                        <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg> Archived Jobs</div>
-                      <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg> Export Report</div>
-                      <div class="menu-item"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg> Download Data</div>
+                    <!-- Negotiating/Offered Status Actions -->
+                    <button id="action-send-offer-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#sendOfferModal"
+                            data-document-type="offer"
+                            title="Send Offer Letter">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Send Offer Letter
+                    </button>
+                    <button id="action-send-contract-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#sendOfferModal"
+                            data-document-type="contract"
+                            title="Send Contract Letter">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Send Contract Letter
+                    </button>
+
+                    <!-- Accepted/Hired Status Actions -->
+                    <button id="action-send-credential-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#sendCredentialLinkModal"
+                            title="Send Credential Link">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Send Credential Link
+                    </button>
+
+                    <!-- Completed Status Actions -->
+                    <button id="action-write-review-btn" class="action-btn conditional-btn" style="display: none;" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#writeReviewModal"
+                            title="Write Review">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Write Review
+                    </button>
+                </div>
+                
+                <!-- Middle Group: Archive, Delete -->
+                <div class="job-actions-middle">
+                    <button id="archive-btn" class="action-btn archive-btn" title="Archive" type="button" style="pointer-events: auto; cursor: pointer; position: relative; z-index: 1000;">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
+                        </svg>
+                        Archive
+                    </button>
+                    <button id="delete-btn" class="action-btn" title="Delete" type="button" style="pointer-events: auto; cursor: pointer; position: relative; z-index: 1000;">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+                
+                <!-- Right Group: Split View, Menu -->
+                <div class="col-dropdowns">
+                    <button id="grid-view-btn" class="action-btn" title="Split View">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Split View
+                    </button>
+                    <!-- Menu Dropdown -->
+                    <div class="menu-dropdown position-relative">
+                        <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
+                        <div class="dropdown-panel menu-panel custom-dropdown hidden">
+                            <!-- Print/Share Button -->
+                            <button id="print-share-job-btn" class="menu-item">
+                                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9V2H18V9" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 14H18V22H6V14Z" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Print/Share</span>
+                            </button>
+                            <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                            <!-- Regular Menu Items -->
+                            <a href="#" id="export-report-btn" class="menu-item" style="text-decoration: none; color: inherit; cursor: pointer;">
+                                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15.35 5.85L12 2.5L8.65002 5.85" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Export Report
+                            </a>
+                        </div>
                     </div>
-                  </div>
                 </div>
             </div>
 
             {% if applications|length > 0 %}
-            <div class="job-list-container bg-light p-3 rounded-3">
+            <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
                 <div class="d-flex align-items-center job-lists">
-                    <div class="d-flex align-items-center flex-grow-1">
-                        <div class="job-header d-flex align-items-center gap-2 fw-semibold py-2 flex-grow-1">
-                            <div class="col-job flex-grow-2">Job</div>
-                            <div class="col-start col-center flex-grow-1">Provider</div>
-                            <div class="col-start col-center flex-grow-1">Location</div>
-                            <div class="col-expiry col-center flex-grow-1">Schedule</div>
-                            <div class="col-start col-center flex-grow-1">Applied At</div>           
-                            <div class="col-start col-center flex-grow-1">Status</div>
-                            <div class="col-action flex-grow-1 text-center">Actions</div>
+                    <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
+                        <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
+                            <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
                         </div>
+                            <div class="col-job sortable" data-sort="job" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; cursor: pointer; gap: 4px;">Job Title<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-location sortable" data-sort="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-salary sortable" data-sort="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Salary<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-employer sortable" data-sort="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Employer<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-applied sortable" data-sort="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Date Applied<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-category sortable" data-sort="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Category<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-todo sortable" data-sort="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">To Do<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-rank sortable" data-sort="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 0 8px; box-sizing: border-box; cursor: pointer; overflow: visible; position: relative;">Score<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+                            <div class="col-start col-center col-status sortable" data-sort="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; cursor: pointer;">Status<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                     </div>
                 </div>
-
+                </div>
+            </div>
+            <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem; padding-right: 1rem !important; margin-top: 0;">
+                <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
                 {% for application in applications %}
                     {% set job = application.job %}
                     <div class="d-flex align-items-center job-lists">
-                        <div class="job-row d-flex align-items-center flex-grow-1 gap-2">
-                            <div class="col-check" style="width: 25px;">
-                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-application-status="{{ application.status }}" />
+                        <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; min-width: 0; width: 100%; box-sizing: border-box !important;">
+                            <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
+                                <input type="checkbox" class="job-check job-checkbox" data-job-id="{{ job.id }}" data-application-id="{{ application.id }}" data-application-status="{{ application.status }}" data-provider-id="{{ application.provider.id }}" />
                             </div>
-                            <div class="col-job d-flex align-items-center gap-2 flex-grow-2">
+                            <div class="col-job d-flex align-items-center gap-2" data-column="job" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; min-width: 0; overflow: hidden;">
                                 <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
                                      alt="Logo"
-                                     style="width: 40px; height: 40px; border-radius: 8px;" />
-                                <div class="flex-grow-2">
+                                    style="width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; object-fit: cover;"
+                                    onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
+                                <div style="min-width: 0; overflow: hidden;">
                                     <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
-                                       href="{{ path('app_employer_job_applications', {'id': job.id, 'applicationId': application.id}) }}">
+                                      href="{{ path('app_employer_job_applications', {'id': job.id, 'applicationId': application.id}) }}"
+                                      style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                                         {{ job.title }}
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-start col-center flex-grow-1">{{ application.provider }}</div>
-                            <div class="col-start col-center flex-grow-1">{{ job.state }}</div>
-                            <div class="col-start col-center flex-grow-1">{{ job.schedule }}</div>
-                            <div class="col-start col-center flex-grow-1">{{ application.createdAt|date('m/d/Y') }}</div>
-                            <div class="col-start col-center flex-grow-1">
-                                <span class="badge badge-pill is-{{ statusColors[application.status] }}">
-                                        {{ application.status | replace({'_': ' '}) | title }}
-                                </span>
+                            <div class="col-start col-center col-location" data-column="location" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.state }}</div>
+                            <div class="col-start col-center col-salary" data-column="salary" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.formattedHourlyRate|default(job.hourlyRate ? '$' ~ job.hourlyRate ~ '/hour' : '—') }}</div>
+                            <div class="col-start col-center col-employer" data-column="employer" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ application.provider }}</div>
+                            <div class="col-start col-center col-applied" data-column="applied" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ application.createdAt|date('m/d/Y') }}</div>
+                            <div class="col-start col-center col-category" data-column="category" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #121C0C;">
+                                {% if job.workType == 'locums' %}
+                                    Locums
+                                {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
+                                    Part Time
+                                {% elseif job.workType == 'fulltime' or job.workType == 'full-time' %}
+                                    Full Time
+                                {% else %}
+                                    {{ job.workType|default('—')|replace({'_': ' '})|title }}
+                                {% endif %}
                             </div>
-                            <!-- Add Actions Column -->
-                            <div class="col-action flex-grow-1 text-center">
-                                {% if application.status not in ['rejected', 'completed'] %}
-                                <button type="button" class="btn btn-sm btn-outline-primary mr-1" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#askDocumentModal" 
-                                        data-application_id="{{ application.id }}"
-                                        title="Request Document">
-                                    <i class="fas fa-file-import"></i> Doc
-                                </button>
-                                
-                                <!-- ADDED: Send Link Button - Placed below Document Request -->
-                                {% set linkAllowedStatuses = ['applied', 'in_review', 'interview', 'offered', 'hired'] %}
-                                {% if application.status in linkAllowedStatuses %}
-                                    <button type="button" class="btn btn-sm send-link-btn mr-1" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#sendLinkModal" 
-                                            data-application-id="{{ application.id }}"
-                                            data-provider-id="{{ application.provider.id }}"
-                                            data-sender_name="{{ application.job and application.job.employer ? application.job.employer.companyName : (app.user.employer ? app.user.employer.companyName : 'Employer') }}"
-                                            data-provider-uuid="{{ application.provider.id }}"
-                                            title="Send External Link">
-                                        <i class="fas fa-link"></i> Link
-                                    </button>
-                                {% endif %}
-                                {% endif %}
+                            <div class="col-start col-center col-todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+                                —
+                            </div>
+                            <div class="col-start col-center col-rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
+                                <span style="font-size: 12px;">—</span>
+                            </div>
+                            <div class="col-start col-center col-status" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; color: #000; font-size: 12px;">
+                                        {{ application.status | replace({'_': ' '}) | title }}
                             </div>
                         </div>
                     </div>
                 {% endfor %}
+                </div>
             </div>
             {% else %}
-                <p>Applications not found.</p>
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;">
+                    <p style="font-size: 18px; color: #666; text-align: center;">Applications not found.</p>
+                </div>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Schedule Interview Modal with Multiple Dates -->
+    <div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleInterviewLabel">Schedule Interview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST" id="scheduleInterviewForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Interview Dates and Times *</label>
+                            <div id="interviewDatesContainer">
+                                <div class="interview-date-entry mb-2 d-flex gap-2 align-items-end">
+                                    <div class="flex-grow-1">
+                                        <label class="form-label small">Date</label>
+                                        <input type="datetime-local" class="form-control interview-date" name="interview_dates[]" required>
+                                    </div>
+                                    <button type="button" class="btn btn-danger btn-sm remove-date-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addInterviewDateBtn">
+                                <i class="fas fa-plus"></i> Add Another Date
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <label for="meeting_platform" class="form-label">Meeting Platform</label>
+                            <select class="form-control" id="meeting_platform" name="meeting_platform" required>
+                                <option value="">Choose Platform</option>
+                                <option value="Zoom">Zoom</option>
+                                <option value="Microsoft Teams">Microsoft Teams</option>
+                                <option value="Google Meet">Google Meet</option>
+                                <option value="In-Person">In-Person</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="meeting_url" class="form-label">Meeting URL / Location</label>
+                            <input type="text" class="form-control" id="meeting_url" name="meeting_url" placeholder="Enter meeting link or location">
+                        </div>
+                        <input type="hidden" id="scheduleInterviewApplicationId" name="application_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send Interview Schedule</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Offer/Contract Modal -->
+    <div class="modal fade" id="sendOfferModal" tabindex="-1" aria-labelledby="sendOfferLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendOfferLabel">Send Offer/Contract Letter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST" enctype="multipart/form-data" id="sendOfferForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Document Type *</label>
+                            <select class="form-control" name="document_type" required>
+                                <option value="offer">Offer Letter</option>
+                                <option value="contract">Contract Letter</option>
+                                <option value="both">Both Offer and Contract</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Document *</label>
+                            <input type="file" class="form-control" name="document_file" accept=".pdf,.doc,.docx" required>
+                        </div>
+                        <input type="hidden" id="sendOfferApplicationId" name="application_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Credential Link Modal -->
+    <div class="modal fade" id="sendCredentialLinkModal" tabindex="-1" aria-labelledby="sendCredentialLinkLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendCredentialLinkLabel">Send Credential Link & Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="sendCredentialLinkForm">
+                    <input type="hidden" id="credentialLinkApplicationId" name="application_id">
+                    <input type="hidden" id="credentialLinkProviderId" name="provider_id">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Credential Link *</label>
+                            <input type="url" class="form-control" name="credential_link" placeholder="https://example.com/credentials" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Orientation Details</label>
+                            <textarea class="form-control" name="orientation_details" rows="3" placeholder="Enter orientation information..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Airbnb/Hotels Preference List</label>
+                            <textarea class="form-control" name="accommodation_preferences" rows="3" placeholder="Enter preferred accommodations..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write Review Modal -->
+    <div class="modal fade" id="writeReviewModal" tabindex="-1" aria-labelledby="writeReviewLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="writeReviewLabel">Write Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST" id="writeReviewForm">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Rating *</label>
+                            <select class="form-control" name="rating" required>
+                                <option value="">Select Rating</option>
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Review *</label>
+                            <textarea class="form-control" name="review_text" rows="5" required placeholder="Write your review..."></textarea>
+                        </div>
+                        <input type="hidden" id="writeReviewApplicationId" name="application_id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -963,6 +1192,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="contractModalLabel">Send Contract</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post" action="" enctype="multipart/form-data">
                     <div class="modal-body">
@@ -971,7 +1201,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        {#                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>#}
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Send</button>
                     </div>
                 </form>
@@ -1013,45 +1243,22 @@
                     <h5 class="modal-title" id="sendLinkLabel">Send External Link</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
-                <form id="sendExternalLinkForm">
-                    <input type="hidden" id="linkProviderId" value="">
-                    <input type="hidden" id="linkApplicationId" value="">
-                    
+                <form id="sendLinkForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Link Title *</label>
-                            <input type="text" id="linkTitle" class="form-control" 
-                                   placeholder="e.g., Background Check Form, Credentialing Portal" required>
+                            <label for="linkUrl" class="form-label">Link URL *</label>
+                            <input type="url" class="form-control" id="linkUrl" name="link_url" required placeholder="https://example.com">
                         </div>
-                        
                         <div class="mb-3">
-                            <label class="form-label">URL *</label>
-                            <input type="url" id="linkUrl" class="form-control" 
-                                   placeholder="https://example.com/form" required>
-                            <div class="form-text">Must include https:// or http://</div>
+                            <label for="linkDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="linkDescription" name="link_description" rows="3" placeholder="Optional description..."></textarea>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Description (Optional)</label>
-                            <textarea id="linkDescription" class="form-control" rows="3" 
-                                      placeholder="Instructions for the provider..."></textarea>
+                        <input type="hidden" id="sendLinkApplicationId" name="application_id">
+                        <input type="hidden" id="sendLinkProviderId" name="provider_id">
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Sender Name</label>
-                            <input type="text" id="linkSender" class="form-control" 
-                                   value="{{ app.user.employer ? app.user.employer.companyName : (app.user.companyName ?? app.user.getCompanyName() ?? 'Employer') }}" 
-                                   placeholder="Your organization name">
-                        </div>
-                    </div>
-                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" id="sendLinkBtn" class="btn btn-primary">
-                            <span id="sendLinkText">Send Link</span>
-                            <span id="sendLinkSpinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
-                        </button>
+                        <button type="submit" class="btn btn-primary">Send Link</button>
                     </div>
                 </form>
             </div>
@@ -1059,37 +1266,37 @@
     </div>
 
     <!-- Interview Modal -->
-    <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal fade" id="interviewModal" tabindex="-1" aria-labelledby="interviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-
                 <div class="modal-header">
-                    <h5 class="modal-title" id="interviewLabel">Schedule Interview</h5>
+                    <h5 class="modal-title" id="interviewModalLabel">Schedule Interview</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <form action="" method="POST">
+                <form id="interviewForm">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="meeting_date" class="form-label">Meeting Date</label>
-                            <input type="text" class="form-control js-datepicker" id="meeting_date" name="meeting_date" required>
+                            <label for="interviewDate" class="form-label">Interview Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="interviewDate" name="interview_date" required>
                         </div>
                         <div class="mb-3">
-                            <label for="meeting_platform" class="form-label">Meeting Platform</label>
-                            <select class="form-control" id="meeting_platform" name="meeting_platform" required>
-                                <option value="">Choose Platform</option>
+                            <label for="interviewPlatform" class="form-label">Platform</label>
+                            <select class="form-control" id="interviewPlatform" name="platform">
+                                <option value="">Select Platform</option>
                                 <option value="Zoom">Zoom</option>
-                                <option value="Microsoft Teams">Microsoft Teams</option>
-                                <option value="Google Meet">Google Meet</option>
+                                <option value="Teams">Microsoft Teams</option>
+                                <option value="Meet">Google Meet</option>
+                                <option value="In-Person">In-Person</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="meeting_url" class="form-label">Meeting URL</label>
-                            <input type="url" class="form-control" id="meeting_url" name="meeting_url" required>
+                            <label for="interviewLink" class="form-label">Meeting Link / Location</label>
+                            <input type="text" class="form-control" id="interviewLink" name="link" placeholder="Enter meeting link or location">
                         </div>
+                        <input type="hidden" id="interviewApplicationId" name="application_id">
                     </div>
-
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Send Schedule</button>
                     </div>
                 </form>
@@ -1118,279 +1325,286 @@
                     time_24hr: true
                 });
             }
-        });
-    </script>
 
-<script>
-    // Fix for modal functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // Contract Modal
-        const contractModal = document.getElementById('contractModal');
-        if (contractModal) {
-            contractModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var applicationId = button.getAttribute('data-application_id');
-                var form = this.querySelector('form');
-                var actionUrl = "{{ path('app_employer_application_sendcontract', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-                form.setAttribute('action', actionUrl);
-            });
-        }
+            // Multiple Interview Dates Functionality
+            const addInterviewDateBtn = document.getElementById('addInterviewDateBtn');
+            const interviewDatesContainer = document.getElementById('interviewDatesContainer');
+            
+            if (addInterviewDateBtn && interviewDatesContainer) {
+                // Add new date entry
+                addInterviewDateBtn.addEventListener('click', function() {
+                    const newEntry = document.createElement('div');
+                    newEntry.className = 'interview-date-entry mb-2 d-flex gap-2 align-items-end';
+                    newEntry.innerHTML = `
+                        <div class="flex-grow-1">
+                            <label class="form-label small">Date</label>
+                            <input type="datetime-local" class="form-control interview-date" name="interview_dates[]" required>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm remove-date-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    interviewDatesContainer.appendChild(newEntry);
+                    updateRemoveButtons();
+                });
 
-        // Document Modal
-        const askDocumentModal = document.getElementById('askDocumentModal');
-        if (askDocumentModal) {
-            askDocumentModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var applicationId = button.getAttribute('data-application_id');
-                var form = this.querySelector('form');
-                var actionUrl = "{{ path('app_employer_application_askfordocument', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-                form.setAttribute('action', actionUrl);
-                
-                // Set the application ID in the hidden field
-                document.getElementById('selectedApplicationId').value = applicationId;
-            });
-        }
-
-        // Interview Modal
-        const interviewModal = document.getElementById('interviewModal');
-        if (interviewModal) {
-            interviewModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var applicationId = button.getAttribute('data-application_id');
-                var form = this.querySelector('form');
-                var actionUrl = "{{ path('app_employer_application_scheduleinterview', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
-                form.setAttribute('action', actionUrl);
-            });
-        }
-    });
-
-    // Send External Link functionality - Fixed version
-    document.addEventListener('DOMContentLoaded', function() {
-        const sendLinkModal = document.getElementById('sendLinkModal');
-        const sendExternalLinkForm = document.getElementById('sendExternalLinkForm');
-        
-        if (sendLinkModal && sendExternalLinkForm) {
-            // Modal show event
-            sendLinkModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var applicationId = button.getAttribute('data-application-id');
-                var providerId = button.getAttribute('data-provider-id');
-                var senderName = button.getAttribute('data-sender_name');
-                
-                // Set the values in the form
-                document.getElementById('linkApplicationId').value = applicationId || '';
-                document.getElementById('linkProviderId').value = providerId || '';
-                
-                if (senderName) {
-                    document.getElementById('linkSender').value = senderName;
-                }
-                
-                // Clear form fields when modal opens
-                document.getElementById('linkTitle').value = '';
-                document.getElementById('linkUrl').value = '';
-                document.getElementById('linkDescription').value = '';
-            });
-
-            // Form submission
-            sendExternalLinkForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                var applicationId = document.getElementById('linkApplicationId').value;
-                var providerId = document.getElementById('linkProviderId').value;
-                var title = document.getElementById('linkTitle').value;
-                var url = document.getElementById('linkUrl').value;
-                var description = document.getElementById('linkDescription').value;
-                var sender = document.getElementById('linkSender').value;
-
-                // Validate required fields
-                if (!title.trim()) {
-                    alert('Please enter a link title');
-                    return;
-                }
-
-                if (!url.trim()) {
-                    alert('Please enter a URL');
-                    return;
-                }
-
-                // Validate URL
-                if (!isValidUrl(url)) {
-                    alert('Please enter a valid URL starting with http:// or https://');
-                    return;
-                }
-
-                // Show loading state
-                var sendLinkText = document.getElementById('sendLinkText');
-                var sendLinkSpinner = document.getElementById('sendLinkSpinner');
-                var sendLinkBtn = document.getElementById('sendLinkBtn');
-                
-                if (sendLinkText) sendLinkText.textContent = 'Sending...';
-                if (sendLinkSpinner) sendLinkSpinner.style.display = 'inline-block';
-                if (sendLinkBtn) sendLinkBtn.disabled = true;
-
-                // Send AJAX request using fetch API instead of jQuery
-                fetch('{{ path("create_credentialing_link") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        providerId: providerId,
-                        title: title,
-                        url: url,
-                        description: description,
-                        sender: sender
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        alert('Link sent successfully!');
-                        
-                        // Close modal using Bootstrap
-                        var modal = bootstrap.Modal.getInstance(sendLinkModal);
-                        if (modal) {
-                            modal.hide();
-                        }
-                    } else {
-                        alert('Error: ' + (data.message || 'Unknown error occurred'));
+                // Remove date entry
+                interviewDatesContainer.addEventListener('click', function(e) {
+                    if (e.target.closest('.remove-date-btn')) {
+                        e.target.closest('.interview-date-entry').remove();
+                        updateRemoveButtons();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error sending link. Please try again.');
-                })
-                .finally(() => {
-                    // Reset loading state
-                    if (sendLinkText) sendLinkText.textContent = 'Send Link';
-                    if (sendLinkSpinner) sendLinkSpinner.style.display = 'none';
-                    if (sendLinkBtn) sendLinkBtn.disabled = false;
+                });
+
+                function updateRemoveButtons() {
+                    const entries = interviewDatesContainer.querySelectorAll('.interview-date-entry');
+                    entries.forEach((entry, index) => {
+                        const removeBtn = entry.querySelector('.remove-date-btn');
+                        if (removeBtn) {
+                            removeBtn.style.display = entries.length > 1 ? 'block' : 'none';
+                        }
+                    });
+                }
+                updateRemoveButtons();
+            }
+
+            // Schedule Interview Modal Handler
+            const scheduleInterviewModal = document.getElementById('scheduleInterviewModal');
+            if (scheduleInterviewModal) {
+                scheduleInterviewModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const applicationId = button.getAttribute('data-application_id');
+                    const form = this.querySelector('#scheduleInterviewForm');
+                    const actionUrl = "{{ path('app_employer_application_scheduleinterview', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                form.setAttribute('action', actionUrl);
+                    document.getElementById('scheduleInterviewApplicationId').value = applicationId;
+                });
+            }
+
+            // Send Offer Modal Handler
+            const sendOfferModal = document.getElementById('sendOfferModal');
+            if (sendOfferModal) {
+                sendOfferModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const applicationId = button.getAttribute('data-application_id');
+                    document.getElementById('sendOfferApplicationId').value = applicationId;
+                    // Set form action URL here if needed
+                });
+            }
+
+            // Send Credential Link Modal Handler
+            const sendCredentialLinkModal = document.getElementById('sendCredentialLinkModal');
+            if (sendCredentialLinkModal) {
+                sendCredentialLinkModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const applicationId = button.getAttribute('data-application_id');
+                    const providerId = button.getAttribute('data-provider-id');
+                    document.getElementById('credentialLinkApplicationId').value = applicationId;
+                    document.getElementById('credentialLinkProviderId').value = providerId;
+                });
+            }
+
+            // Write Review Modal Handler
+            const writeReviewModal = document.getElementById('writeReviewModal');
+            if (writeReviewModal) {
+                writeReviewModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const applicationId = button.getAttribute('data-application_id');
+                    document.getElementById('writeReviewApplicationId').value = applicationId;
+                    // Set form action URL here if needed
+                });
+            }
+
+            // Handle application selection and show/hide action buttons based on status
+            let selectedApplicationId = null;
+            let selectedApplicationStatus = null;
+            let selectedProviderId = null;
+
+            function updateActionButtons() {
+                // Hide all action buttons first
+                document.querySelectorAll('[id^="action-"]').forEach(function(btn) {
+                    btn.style.display = 'none';
+                });
+
+                if (!selectedApplicationId || !selectedApplicationStatus) {
+                    return;
+                }
+
+                // Show buttons based on status
+                const status = selectedApplicationStatus.toLowerCase();
+                
+                if (status === 'applied') {
+                    document.getElementById('action-request-file-btn').style.display = 'flex';
+                } else if (status === 'in_review' || status === 'shortlisted') {
+                    document.getElementById('action-schedule-interview-btn').style.display = 'flex';
+                } else if (status === 'interview' || status === 'interviewing') {
+                    document.getElementById('action-request-documents-btn').style.display = 'flex';
+                } else if (status === 'offered' || status === 'negotiating') {
+                    document.getElementById('action-send-offer-btn').style.display = 'flex';
+                    document.getElementById('action-send-contract-btn').style.display = 'flex';
+                } else if (status === 'accepted' || status === 'hired') {
+                    document.getElementById('action-send-credential-btn').style.display = 'flex';
+                } else if (status === 'completed') {
+                    document.getElementById('action-write-review-btn').style.display = 'flex';
+                }
+            }
+
+            // Handle checkbox selection
+            document.querySelectorAll('.job-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    // Uncheck all other checkboxes
+                    document.querySelectorAll('.job-checkbox').forEach(function(cb) {
+                        if (cb !== this) {
+                            cb.checked = false;
+                        }
+                    }.bind(this));
+
+                    if (this.checked) {
+                        selectedApplicationId = this.getAttribute('data-application-id');
+                        selectedApplicationStatus = this.getAttribute('data-application-status');
+                        selectedProviderId = this.getAttribute('data-provider-id');
+                        updateActionButtons();
+                    } else {
+                        selectedApplicationId = null;
+                        selectedApplicationStatus = null;
+                        selectedProviderId = null;
+                        updateActionButtons();
+                    }
                 });
             });
 
-            function isValidUrl(string) {
-                try {
-                    new URL(string);
-                    return true;
-                } catch (_) {
-                    return false;
-                }
-            }
-        }
-    });
-
-    // Dropdown and checkbox functionality - Fixed version
-    document.addEventListener('DOMContentLoaded', function () {
-        const checkboxes = document.querySelectorAll('.job-checkbox');
-        const applyBtn = document.getElementById('apply-btn');
-        const saveBtn = document.getElementById('save-btn');
-        const deleteBtn = document.getElementById('delete-btn');
-        const actionsDivs = document.querySelectorAll('.hidden-buttons');
-        const columnsBtn = document.querySelector('.columns-dropdown-btn');
-        const menuBtn = document.querySelector('.menu-dropdown-btn');
-        const columnsPanel = document.querySelector('.columns-panel');
-        const menuPanel = document.querySelector('.menu-panel');
-        const requestDocBtn = document.getElementById('request-doc-btn');
-
-        // Only proceed if elements exist
-        if (!columnsBtn || !menuBtn || !columnsPanel || !menuPanel) {
-            return;
-        }
-
-        function toggleDropdown(panel, btn) {
-            const isOpen = !panel.classList.contains('hidden');
-            closeAllDropdowns();
-            if (!isOpen) {
-                panel.classList.remove('hidden');
-            }
-        }
-
-        function closeAllDropdowns() {
-            if (columnsPanel) columnsPanel.classList.add('hidden');
-            if (menuPanel) menuPanel.classList.add('hidden');
-        }
-
-        if (columnsBtn) {
-            columnsBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                toggleDropdown(columnsPanel, columnsBtn);
-            });
-        }
-
-        if (menuBtn) {
-            menuBtn.addEventListener('click', e => {
-                e.stopPropagation();
-                toggleDropdown(menuPanel, menuBtn);
-            });
-        }
-
-        document.addEventListener('click', e => {
-            // Only close if click is outside both dropdowns and buttons
-            if (columnsPanel && menuPanel && columnsBtn && menuBtn) {
-                if (
-                    !columnsPanel.contains(e.target) &&
-                    !columnsBtn.contains(e.target) &&
-                    !menuPanel.contains(e.target) &&
-                    !menuBtn.contains(e.target)
-                ) {
-                    closeAllDropdowns();
-                }
-            }
-        });
-
-        function toggleActionsVisibility() {
-            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
-            actionsDivs.forEach(div => {
-                if (div) {
-                    div.style.visibility = anyChecked ? 'visible' : 'hidden';
+            // Handle action button clicks - set application ID for modals
+            document.getElementById('action-request-file-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
                 }
             });
-        }
 
-        function updateBulkActions() {
-            const checked = Array.from(checkboxes).filter(cb => cb.checked);
-            
-            // Enable bulk document request if any applications are selected and not in excluded statuses
-            const eligibleApplications = checked.filter(cb => {
-                const status = cb.dataset.applicationStatus;
-                return !['rejected', 'completed'].includes(status);
-            });
-            
-            if (requestDocBtn) {
-                requestDocBtn.disabled = eligibleApplications.length === 0;
-            }
-            
-            // Set selected application IDs for bulk modal
-            if (eligibleApplications.length > 0) {
-                const selectedIds = eligibleApplications.map(cb => cb.dataset.applicationId);
-                const selectedApplications = document.getElementById('selectedApplications');
-                if (selectedApplications) {
-                    selectedApplications.value = selectedIds.join(',');
+            document.getElementById('action-request-documents-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
                 }
+            });
+
+            document.getElementById('action-schedule-interview-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#scheduleInterviewApplicationId');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
+                }
+            });
+
+            document.getElementById('action-send-offer-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#sendOfferApplicationId');
+                const select = document.querySelector('#sendOfferModal select[name="document_type"]');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
+                }
+                if (select) {
+                    select.value = 'offer';
+                }
+            });
+
+            document.getElementById('action-send-contract-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#sendOfferApplicationId');
+                const select = document.querySelector('#sendOfferModal select[name="document_type"]');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
+                }
+                if (select) {
+                    select.value = 'contract';
+                }
+            });
+
+            document.getElementById('action-send-credential-btn')?.addEventListener('click', function() {
+                const appIdInput = document.querySelector('#credentialLinkApplicationId');
+                const providerIdInput = document.querySelector('#credentialLinkProviderId');
+                if (appIdInput && selectedApplicationId) {
+                    appIdInput.value = selectedApplicationId;
+                }
+                if (providerIdInput && selectedProviderId) {
+                    providerIdInput.value = selectedProviderId;
+                }
+            });
+
+            document.getElementById('action-write-review-btn')?.addEventListener('click', function() {
+                const hiddenInput = document.querySelector('#writeReviewApplicationId');
+                if (hiddenInput && selectedApplicationId) {
+                    hiddenInput.value = selectedApplicationId;
+                }
+            });
+
+            // Filter button toggle
+            const filterBtn = document.getElementById('filter-btn');
+            const filterPanel = document.getElementById('filter-panel');
+            if (filterBtn && filterPanel) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isHidden = filterPanel.classList.contains('hidden');
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.custom-dropdown').forEach(function(panel) {
+                        if (panel !== filterPanel) {
+                            panel.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Toggle filter panel
+                    if (isHidden) {
+                        filterPanel.classList.remove('hidden');
+                    } else {
+                        filterPanel.classList.add('hidden');
+                    }
+                });
             }
-        }
 
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', toggleActionsVisibility);
-            cb.addEventListener('change', updateBulkActions);
-        });
+            // Menu dropdown toggle
+            const menuDropdownBtn = document.querySelector('.menu-dropdown-btn');
+            const menuPanel = document.querySelector('.menu-panel');
+            if (menuDropdownBtn && menuPanel) {
+                menuDropdownBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isHidden = menuPanel.classList.contains('hidden');
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.custom-dropdown').forEach(function(panel) {
+                        if (panel !== menuPanel) {
+                            panel.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Toggle menu panel
+                    if (isHidden) {
+                        menuPanel.classList.remove('hidden');
+                    } else {
+                        menuPanel.classList.add('hidden');
+                    }
+                });
+            }
 
-        // Initial check in case some boxes are pre-checked
-        toggleActionsVisibility();
-        updateBulkActions();
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.position-relative') && !e.target.closest('.custom-dropdown')) {
+                    document.querySelectorAll('.custom-dropdown').forEach(function(panel) {
+                        panel.classList.add('hidden');
+                    });
+                }
+            });
 
-        // Individual document request button handlers
-        document.querySelectorAll('[data-bs-target="#askDocumentModal"]').forEach(button => {
-            button.addEventListener('click', function() {
-                const applicationId = this.getAttribute('data-application_id');
+            // Ask Document Modal Handler
+            const askDocumentModal = document.getElementById('askDocumentModal');
+            if (askDocumentModal) {
+                askDocumentModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const applicationId = button ? button.getAttribute('data-application_id') : 
+                                          document.querySelector('#askDocumentModal input[name="application_id"]').value;
                 const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
                 if (applicationId && hiddenInput) {
                     hiddenInput.value = applicationId;
                 }
             });
-        });
+            }
     });
 </script>
 {% endblock %}

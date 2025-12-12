@@ -70,7 +70,7 @@ div.container-xl,
     position: relative !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    padding-left: 0 !important;
+    padding-left: 15px !important;
     padding-right: 30px !important;
     max-width: 100% !important;
     width: 100% !important;
@@ -187,16 +187,32 @@ div.container-xl,
     flex: 2;
 }
 .sticky-header-container {
-    position: relative !important;
+    position: sticky !important;
+    top: 0 !important;
     background-color: #fff !important;
+    z-index: 100 !important;
     overflow: visible !important;
+    width: 100% !important;
 }
 
-/* Disable sticky in split view */
-.split-view-container ~ .sticky-header-container,
-.split-view-container .sticky-header-container {
+/* Ensure application div is properly positioned within sticky container */
+.sticky-header-container .application {
     position: relative !important;
     top: auto !important;
+    bottom: auto !important;
+}
+
+/* Disable sticky in split view - more comprehensive selectors */
+.split-view-container ~ .sticky-header-container,
+.split-view-container .sticky-header-container,
+.split-view-container ~ * .sticky-header-container,
+.job-section:has(.split-view-container) .sticky-header-container,
+.split-view-container[style*="grid"] ~ .sticky-header-container,
+.split-view-container[style*="grid"] .sticky-header-container {
+    position: relative !important;
+    top: auto !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
 .job-header {
@@ -229,6 +245,9 @@ div.container-xl,
 /* Remove all spacing between job header and first job row */
 .table-responsive-wrapper {
     margin-bottom: 0 !important;
+    margin-top: 16px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 .job-list-container {
     margin-top: 0 !important;
@@ -404,12 +423,19 @@ div.container-xl,
   overflow-y: visible !important;
 }
 
-/* Ensure all parent containers up the chain allow overflow */
+/* Ensure all parent containers up the chain allow overflow and sticky positioning */
 .job-section,
 .container-xl,
 .app-content,
 .app-wrapper {
   overflow: visible !important;
+  position: relative !important;
+}
+
+/* Ensure sticky container parent allows sticky positioning */
+.job-section .sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
 }
 
 /* When menu panel is open in split view, use fixed positioning */
@@ -462,7 +488,17 @@ div.container-xl,
   box-shadow: 0 2px 6px rgba(11,22,40,0.03) !important;
   border-radius: 10px !important;
   padding: 0 !important;
-  min-width: 280px !important;
+  width: 240px !important;
+  max-width: 240px !important;
+}
+
+/* Ensure filter panel in split view uses fixed positioning to prevent clipping */
+#split-view-container[style*="grid"] ~ * #filter-panel.filter-panel.custom-dropdown:not(.hidden),
+.split-view-container[style*="grid"] ~ * #filter-panel.filter-panel.custom-dropdown:not(.hidden),
+#split-view-container[style*="grid"] #filter-panel.filter-panel.custom-dropdown:not(.hidden),
+.split-view-container[style*="grid"] #filter-panel.filter-panel.custom-dropdown:not(.hidden) {
+  position: fixed !important;
+  z-index: 99999 !important;
 }
 
 /* Ensure filter panel content has proper spacing */
@@ -510,6 +546,22 @@ div.container-xl,
   padding: 6px 0;
   cursor: pointer;
   color: #121C0C;
+}
+
+/* Split view detail buttons styling */
+#detail-timeline-btn:hover,
+#detail-view-details-btn:hover,
+#detail-note-btn:hover {
+    background: #f8f9fa !important;
+    border-color: #85BB65 !important;
+    color: #85BB65 !important;
+}
+
+#detail-timeline-btn:active,
+#detail-view-details-btn:active,
+#detail-note-btn:active {
+    background: #e8f5e9 !important;
+    transform: scale(0.98);
 }
 
 .menu-panel svg {
@@ -934,6 +986,14 @@ div.container-xl,
     transform: none !important;
     /* Allow dropdowns to overflow */
     overflow: visible !important;
+    border: none !important;
+}
+
+/* Remove borders from all cards in application */
+.application .card,
+.application .is-card {
+    border: none !important;
+    box-shadow: none !important;
 }
 .application .card {
   clip-path: polygon(0% 0%,calc(100% - 15px) 0%,100% 50%,calc(100% - 15px) 100%,0% 100%,15px 50%,0% 0%);
@@ -1182,21 +1242,30 @@ div.container-xl,
   padding-right: 15px;
   white-space: nowrap;
   overflow-y: visible !important;
-  overflow-x: visible;
+  overflow-x: visible !important;
+  overflow: visible !important;
   position: relative;
-  z-index: 1;
+  z-index: 100 !important;
   flex-wrap: nowrap;
   pointer-events: auto !important;
+  isolation: isolate;
 }
+
 
 .actions-container button,
 .actions-container .action-btn,
 .actions-container #delete-btn,
-.actions-container #archive-btn {
+.actions-container #archive-btn,
+.job-actions-middle #delete-btn,
+.job-actions-middle #archive-btn {
   pointer-events: auto !important;
   cursor: pointer !important;
   position: relative !important;
   z-index: 1001 !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
 }
 
 /* Scrollable only in split view */
@@ -1247,16 +1316,50 @@ div.container-xl,
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 10000 !important;
   pointer-events: auto !important;
+  isolation: isolate;
 }
 
 .job-actions-middle button,
-.job-actions-middle .action-btn {
+.job-actions-middle .action-btn,
+.job-actions-middle #archive-btn,
+.job-actions-middle #delete-btn {
   pointer-events: auto !important;
   cursor: pointer !important;
   position: relative !important;
-  z-index: 1001 !important;
+  z-index: 10001 !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Ensure buttons work on full screen - override any conflicting styles */
+@media (min-width: 1200px) {
+  .job-actions-middle {
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+  }
+  
+  .job-actions-middle button,
+  .job-actions-middle .action-btn,
+  .job-actions-middle #archive-btn,
+  .job-actions-middle #delete-btn {
+    z-index: 10001 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+  }
+  
+  .actions-container {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    pointer-events: auto !important;
+  }
 }
 
 .job-actions-left,
@@ -1560,6 +1663,131 @@ window.addEventListener('resize', function() {
 });
 </script>
 
+<script>
+// Global error handler for script loading errors
+window.addEventListener('error', function(e) {
+    // Check if error is from a script file
+    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+        console.error('Script/Link loading error:', e.target.src || e.target.href, e.message);
+        // If it's a script returning HTML, log it
+        if (e.message && e.message.includes('Unexpected token')) {
+            console.error('Possible HTML response instead of JavaScript from:', e.target.src || e.target.href);
+        }
+    }
+}, true);
+
+// Global functions for delete and archive buttons - must be defined early for inline onclick handlers
+function handleSavedDeleteClick(e) {
+  console.log('=== DELETE BUTTON CLICKED ===');
+  console.log('Event:', e);
+  console.log('Window width:', window.innerWidth);
+  
+  if (!e) e = window.event;
+  if (e) {
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+  }
+  
+  // Check if function exists
+  console.log('window.deleteSelectedBookmarks type:', typeof window.deleteSelectedBookmarks);
+  console.log('deleteSelectedBookmarks type:', typeof deleteSelectedBookmarks);
+  
+  // Try to call the function - check both window and local scope
+  if (typeof window.deleteSelectedBookmarks === 'function') {
+    console.log('✓ Calling window.deleteSelectedBookmarks');
+    try {
+      window.deleteSelectedBookmarks();
+    } catch (error) {
+      console.error('Error calling deleteSelectedBookmarks:', error);
+      alert('Error: ' + error.message);
+    }
+  } else if (typeof deleteSelectedBookmarks === 'function') {
+    console.log('✓ Calling deleteSelectedBookmarks');
+    try {
+      deleteSelectedBookmarks();
+    } catch (error) {
+      console.error('Error calling deleteSelectedBookmarks:', error);
+      alert('Error: ' + error.message);
+    }
+  } else {
+    console.error('✗ deleteSelectedBookmarks function not found!');
+    // Fallback: check for selected jobs
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    console.log('Selected checkboxes found:', selectedCheckboxes.length);
+    if (selectedCheckboxes.length === 0) {
+      alert('Please select at least one job to delete.');
+      return false;
+    }
+    // Wait a bit and try again (function might still be initializing)
+    setTimeout(function() {
+      if (typeof window.deleteSelectedBookmarks === 'function') {
+        console.log('✓ Function now available, calling it');
+        window.deleteSelectedBookmarks();
+      } else {
+        console.error('✗ Function still not available after timeout');
+        alert('Delete functionality is not available. Please refresh the page and try again.');
+      }
+    }, 200);
+  }
+  return false;
+}
+
+function handleSavedArchiveClick(e) {
+  console.log('=== ARCHIVE BUTTON CLICKED ===');
+  console.log('Event:', e);
+  console.log('Window width:', window.innerWidth);
+  
+  if (!e) e = window.event;
+  if (e) {
+    if (e.preventDefault) e.preventDefault();
+    if (e.stopPropagation) e.stopPropagation();
+  }
+  
+  // Check if function exists
+  console.log('window.archiveSelectedBookmarks type:', typeof window.archiveSelectedBookmarks);
+  console.log('archiveSelectedBookmarks type:', typeof archiveSelectedBookmarks);
+  
+  // Try to call the function - check both window and local scope
+  if (typeof window.archiveSelectedBookmarks === 'function') {
+    console.log('✓ Calling window.archiveSelectedBookmarks');
+    try {
+      window.archiveSelectedBookmarks();
+    } catch (error) {
+      console.error('Error calling archiveSelectedBookmarks:', error);
+      alert('Error: ' + error.message);
+    }
+  } else if (typeof archiveSelectedBookmarks === 'function') {
+    console.log('✓ Calling archiveSelectedBookmarks');
+    try {
+      archiveSelectedBookmarks();
+    } catch (error) {
+      console.error('Error calling archiveSelectedBookmarks:', error);
+      alert('Error: ' + error.message);
+    }
+  } else {
+    console.error('✗ archiveSelectedBookmarks function not found!');
+    // Fallback: check for selected jobs
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    console.log('Selected checkboxes found:', selectedCheckboxes.length);
+    if (selectedCheckboxes.length === 0) {
+      alert('Please select at least one job to archive.');
+      return false;
+    }
+    // Wait a bit and try again (function might still be initializing)
+    setTimeout(function() {
+      if (typeof window.archiveSelectedBookmarks === 'function') {
+        console.log('✓ Function now available, calling it');
+        window.archiveSelectedBookmarks();
+      } else {
+        console.error('✗ Function still not available after timeout');
+        alert('Archive functionality is not available. Please refresh the page and try again.');
+      }
+    }, 200);
+  }
+  return false;
+}
+</script>
+
 <!-- Hidden form for apply action -->
 <form id="apply-jobs-form" method="POST" action="{{ path('app_provider_saved_jobs_apply') }}" style="display: none;">
     <input type="hidden" name="_token" value="{{ csrf_token('apply_jobs') }}">
@@ -1675,7 +1903,7 @@ window.addEventListener('resize', function() {
         </div>
 
         <div class="actions-container ml-15-px mr-15-px">
-            <!-- Left Group: Filter, Notify of hire, Email, Apply -->
+            <!-- Left Group: Filter, Email, Apply -->
             <div class="job-actions-left" style="display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; white-space: nowrap;">
               <div class="position-relative" style="flex-shrink: 0;">
                 <button id="filter-btn" class="action-btn" title="Filter">
@@ -1685,7 +1913,7 @@ window.addEventListener('resize', function() {
                   Filter
                 </button>
                 <div id="filter-panel" class="filter-panel custom-dropdown hidden"
-                    style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 280px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 0;">
+                    style="position: absolute; top: 100%; left: 0; margin-top: 8px; width: 240px; max-width: 240px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 0;">
                   <div style="padding: 16px;">
                     <h6 style="margin-bottom: 12px; font-weight: 600; color: #121C0C;">Filter Jobs</h6>
                     <!-- Location Filter -->
@@ -1733,21 +1961,13 @@ window.addEventListener('resize', function() {
                     <!-- Action Buttons -->
                     <div style="display: flex; gap: 8px; margin-top: 16px;">
                       <button id="apply-filter-btn" class="action-btn"
-                              style="flex: 1; padding: 8px 12px; font-size: 13px;">Apply</button>
+                              style="flex: 1; padding: 8px 12px; font-size: 13px; text-align: center; display: flex; justify-content: center; align-items: center;">Apply</button>
                       <button id="clear-filter-btn" class="action-btn"
-                              style="flex: 1; padding: 8px 12px; font-size: 13px; background: #f3f4f6; color: #6b7280;">Clear</button>
+                              style="flex: 1; padding: 8px 12px; font-size: 13px; background: #f3f4f6; color: #6b7280; text-align: center; display: flex; justify-content: center; align-items: center;">Clear</button>
                     </div>
                   </div>
                   </div>
                 </div>
-              <button id="save-btn" class="action-btn" title="Notify of hire">
-                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
-                <path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg> Notify of hire
-              </button>
               <button id="email-btn" class="action-btn" title="Email">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="style=stroke">
@@ -1776,7 +1996,7 @@ window.addEventListener('resize', function() {
             
             <!-- Middle Group: Archive, Delete - Centered -->
             <div class="job-actions-middle">
-              <button id="archive-btn" class="action-btn" title="Archive" type="button">
+              <button id="archive-btn" class="action-btn" title="Archive" type="button" onclick="handleSavedArchiveClick(event)">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -1784,7 +2004,7 @@ window.addEventListener('resize', function() {
                 <use xlink:href="#icon-archive"/>
                 </svg> Archive
               </button>
-              <button id="delete-btn" class="action-btn" title="Delete" type="button">
+              <button id="delete-btn" class="action-btn" title="Delete" type="button" onclick="handleSavedDeleteClick(event)">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
@@ -1851,7 +2071,7 @@ window.addEventListener('resize', function() {
                     </svg> 
                     <span>Archived Jobs</span>
                   </a>
-                  <a href="{{ path('app_provider_download_data', {'type': 'saved'}) }}" class="menu-item" id="export-report-btn">
+                  <a href="{{ path('app_provider_download_data', {'type': 'saved'}) }}" class="menu-item" id="export-report-btn" target="_blank">
                     <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M16.44 8.8999C20.04 9.2099 21.51 11.0599 21.51 15.1099V15.2399C21.51 19.7099 19.72 21.4999 15.25 21.4999H8.73998C4.26998 21.4999 2.47998 19.7099 2.47998 15.2399V15.1099C2.47998 11.0899 3.92998 9.2399 7.46998 8.9099" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M12 15.0001V3.62012" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1987,17 +2207,11 @@ window.addEventListener('resize', function() {
           </div>
         </div>
         {% else %}
-            <p class="mb-0">Saved jobs not found.</p>
+            <div class="job-list-container bg-light rounded-3" style="padding: 40px; text-align: center;">
+                <p class="mb-0">Saved jobs not found.</p>
+            </div>
         {% endif %}
         <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
-          <button id="save-btn" class="action-btn" title="Save">
-                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/>
-                <path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                <path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-          </button>
               <button id="apply-btn" class="action-btn hidden-btn" disabled title="Apply">
                 <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g data-name="Layer 2">
@@ -2021,13 +2235,22 @@ window.addEventListener('resize', function() {
                 <use xlink:href="#icon-email"/>
                 </svg>
               </button>
-              <button id="archive-btn" class="action-btn" title="Archive">
+              <button id="archive-btn" class="action-btn" title="Archive" onclick="handleSavedArchiveClick(event)">
                 <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                 <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
                 <use xlink:href="#icon-archive"/>
                 </svg> Archive
+              </button>
+              <button id="delete-btn" class="action-btn" title="Delete" onclick="handleSavedDeleteClick(event)">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg> Delete
               </button>
         </div>
 
@@ -2073,21 +2296,31 @@ window.addEventListener('resize', function() {
             
             <!-- Right Side: Job Details -->
             <div class="split-job-details" id="split-job-details">
-                <button id="detail-timeline-btn" class="action-btn" title="Timeline" style="position: absolute; top: 10px; right: 120px; display: none; cursor: pointer;">
-                  <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div style="position: absolute; top: 10px; right: 10px; display: none; flex-direction: row; gap: 10px; align-items: center; justify-content: flex-end;" id="detail-action-buttons" class="detail-action-buttons">
+                <button id="detail-timeline-btn" class="action-btn" title="Timeline" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
+                  <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                   </svg>
-                  Timeline
+                  <span style="color: #000000 !important;">Timeline</span>
                 </button>
-                <button id="detail-note-btn" class="action-btn" title="Add Note" style="position: absolute; top: 10px; right: 10px; display: none; cursor: pointer;">
+                <button id="detail-view-details-btn" class="action-btn" title="View Details" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
+                  <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 3H6C4.89543 3 4 3.89543 4 5V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V8L15 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 3V8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span style="color: #000000 !important;">View Details</span>
+                </button>
+                <button id="detail-note-btn" class="action-btn" title="Add Note" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
                   <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  Note
+                  <span style="color: #000000 !important;">Note</span>
                 </button>
+                </div>
                 <div class="no-job-selected">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M8 12H16M8 16H16M8 8H12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -2326,18 +2559,36 @@ window.addEventListener('resize', function() {
       border: 1px solid #e6eef6;
       border-radius: 10px;
       padding: 20px;
-      overflow-y: hidden; /* Disable vertical scrolling */
-      overflow-x: visible; /* Allow panels to overflow */
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: hidden; /* Disable horizontal scrolling */
       box-shadow: 0 2px 6px rgba(11,22,40,0.03);
       position: relative; /* anchor absolute buttons inside the details box */
-      /* Hide scrollbar */
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
+      height: 100%; /* Take full height of container */
+      max-height: 100%; /* Don't exceed container height */
+      /* Show vertical scrollbar */
+      scrollbar-width: thin; /* Firefox - thin scrollbar */
+      scrollbar-color: #cbd5e0 #f7fafc; /* Firefox - thumb and track colors */
+      -ms-overflow-style: auto; /* IE and Edge - show scrollbar */
   }
   
-  /* Hide scrollbar for Chrome, Safari and Opera */
+  /* Custom vertical scrollbar for Chrome, Safari and Opera */
   .split-job-details::-webkit-scrollbar {
-      display: none;
+      width: 8px; /* Width of the vertical scrollbar */
+      display: block; /* Show scrollbar */
+  }
+  
+  .split-job-details::-webkit-scrollbar-track {
+      background: #f7fafc; /* Track color */
+      border-radius: 4px;
+  }
+  
+  .split-job-details::-webkit-scrollbar-thumb {
+      background: #cbd5e0; /* Thumb color */
+      border-radius: 4px;
+  }
+  
+  .split-job-details::-webkit-scrollbar-thumb:hover {
+      background: #a0aec0; /* Thumb color on hover */
   }
   
   /* Ensure panels are positioned at the absolute right edge */
@@ -2407,7 +2658,7 @@ window.addEventListener('resize', function() {
       border-radius: 8px;
       padding: 12px;
       margin-bottom: 12px;
-      cursor: pointer;
+      cursor: default;
       transition: all 0.2s ease;
   }
 
@@ -2442,6 +2693,7 @@ window.addEventListener('resize', function() {
       color: #121C0C;
       font-size: 16px;
       margin-bottom: 2px;
+      cursor: pointer;
   }
 
   .split-job-card-company {
@@ -3041,6 +3293,9 @@ function openNotesPanel(jobId) {
       timelinePanel.setAttribute('aria-hidden', 'true');
       if (jobDetails) {
           jobDetails.classList.remove('timeline-open');
+          // Restore vertical scrolling when panel is closed
+          jobDetails.style.overflowY = 'auto';
+          jobDetails.style.overflowX = 'hidden';
       }
   }
   
@@ -3099,9 +3354,12 @@ function closeNotesPanel() {
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
   
-  // Remove class from job details container
+  // Remove class from job details container and restore vertical scrolling
   if (jobDetails) {
       jobDetails.classList.remove('notes-open');
+      // Restore vertical scrolling when panel is closed
+      jobDetails.style.overflowY = 'auto';
+      jobDetails.style.overflowX = 'hidden';
   }
 }
 
@@ -3168,7 +3426,8 @@ function applyToJob(jobId, element = null) {
 // Batch apply function for multiple jobs
 function applyToSelectedJobs() {
     const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-    const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId).filter(id => id);
+    // Get unique job IDs (avoid duplicates from list view and split view)
+    const selectedIds = Array.from(new Set(selectedCheckboxes.map(cb => cb.dataset.jobId).filter(id => id)));
     
     if (selectedIds.length === 0) {
         showToast('Please select at least one job to apply to.', 'warning');
@@ -3353,11 +3612,12 @@ document.addEventListener('DOMContentLoaded', function() {
   
   console.log('Note system and apply button functionality initialized');
 });
+</script>
 
+<script>
 // Rest of your existing JavaScript code...
 document.addEventListener('DOMContentLoaded', function () {
   const checkboxes = document.querySelectorAll('.job-checkbox');
-  const saveBtn = document.getElementById('save-btn');
   const emailBtn = document.getElementById('email-btn');
   const actionsDivs = document.querySelectorAll('.hidden-buttons');
   const columnsBtn = document.querySelector('.columns-dropdown-btn');
@@ -3365,316 +3625,295 @@ document.addEventListener('DOMContentLoaded', function () {
   const columnsPanel = document.querySelector('.columns-panel');
   const menuPanel = document.querySelector('.menu-panel');
 
-  // Delete and Archive button handlers - Using event delegation for reliability
-  document.addEventListener('click', function(e) {
-    // Handle delete button clicks
-    const deleteBtn = e.target.closest('#delete-btn');
-    if (deleteBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        // Collect selected bookmark IDs from both list and split view
-        const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-        const uniqueIds = new Set();
-        selectedCheckboxes.forEach(cb => {
-          const id = cb.dataset.bookmarkId || cb.dataset.jobId;
-          if (id) uniqueIds.add(id);
-        });
-        const selectedIds = Array.from(uniqueIds);
-        
-        if (selectedIds.length === 0) {
-          if (typeof showWarningAlert === 'function') {
-            showWarningAlert('No Selection', 'Please select at least one job to delete.');
-          } else {
-            alert('Please select at least one job to delete.');
-          }
-          return;
-        }
-        
-        const confirmMessage = `Are you sure you want to delete ${selectedIds.length} selected job(s)? This action cannot be undone.`;
-        
-        if (typeof showConfirmAlert === 'function') {
-          showConfirmAlert(
-            'Confirm Deletion',
-            confirmMessage,
-            'Delete',
-            'Cancel',
-            async function(confirmed) {
-              if (!confirmed) return;
-              
-              try {
-                const response = await fetch('{{ path("app_provider_bookmarks_delete") }}', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest'
-                  },
-                  body: new URLSearchParams({
-                    '_token': '{{ csrf_token("delete_bookmarks") }}',
-                    'bookmark_ids': JSON.stringify(selectedIds)
-                  })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                  if (typeof showSuccessAlert === 'function') {
-                    showSuccessAlert('Success!', `Successfully deleted ${selectedIds.length} job(s)!`);
-                  } else if (typeof showToast === 'function') {
-                    showToast('success', `Successfully deleted ${selectedIds.length} job(s)!`);
-                  } else {
-                    alert('Successfully deleted ' + selectedIds.length + ' job(s)!');
-                  }
-                  
-                  // Remove deleted jobs from UI immediately
-                  selectedIds.forEach(id => {
-                    let checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
-                    if (!checkbox) {
-                      checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
-                    }
-                    if (!checkbox) {
-                      checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
-                    }
-                    
-                    if (checkbox) {
-                      const jobList = checkbox.closest('.job-lists');
-                      if (jobList) {
-                        jobList.remove();
-                      } else {
-                        const jobRow = checkbox.closest('.job-row');
-                        if (jobRow) {
-                          const parentList = jobRow.closest('.job-lists');
-                          if (parentList) {
-                            parentList.remove();
-                          } else {
-                            jobRow.remove();
-                          }
-                        }
-                      }
-                    }
-                  });
-                  
-                  // Check if there are any remaining jobs
-                  const container = document.querySelector('.job-list-container');
-                  const remainingJobs = document.querySelectorAll('.job-lists:not(:first-child)');
-                  
-                  if (remainingJobs.length === 0 && container) {
-                    const tableWrapper = container.querySelector('.table-responsive-wrapper');
-                    if (tableWrapper) {
-                      tableWrapper.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
-                    } else {
-                      container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
-                    }
-                  }
-                  
-                  // Uncheck all checkboxes and update button states
-                  document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                  if (typeof toggleActionsVisibility === 'function') {
-                    toggleActionsVisibility();
-                  }
-                  if (typeof updateButtonStates === 'function') {
-                    updateButtonStates();
-                  }
-                } else {
-                  if (typeof showErrorAlert === 'function') {
-                    showErrorAlert('Error!', data.message || 'Failed to delete jobs');
-                  } else if (typeof showToast === 'function') {
-                    showToast('error', data.message || 'Failed to delete jobs');
-                  } else {
-                    alert('Error: ' + (data.message || 'Failed to delete jobs'));
-                  }
-                }
-              } catch (error) {
-                console.error('Error:', error);
-                if (typeof showErrorAlert === 'function') {
-                  showErrorAlert('Error!', 'Network error. Please try again.');
-                } else if (typeof showToast === 'function') {
-                  showToast('error', 'Network error. Please try again.');
-                } else {
-                  alert('Network error. Please try again.');
-                }
-              }
-            }
-          );
-        } else {
-          if (confirm(confirmMessage)) {
-            fetch('{{ path("app_provider_bookmarks_delete") }}', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-              },
-              body: new URLSearchParams({
-                '_token': '{{ csrf_token("delete_bookmarks") }}',
-                'bookmark_ids': JSON.stringify(selectedIds)
-              })
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                alert('Successfully deleted ' + selectedIds.length + ' job(s)!');
-                location.reload();
-              } else {
-                alert('Error: ' + (data.message || 'Failed to delete jobs'));
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Network error. Please try again.');
-            });
-          }
-        }
-      return;
-    }
+  // Make functions globally available
+  window.deleteSelectedBookmarks = deleteSelectedBookmarks = function() {
+    console.log('deleteSelectedBookmarks called');
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    console.log('Selected checkboxes:', selectedCheckboxes.length);
     
-    // Handle archive button clicks
-    const archiveBtn = e.target.closest('#archive-btn');
-    if (archiveBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      
-      // Collect selected bookmark IDs from both list and split view
-      const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-      const uniqueIds = new Set();
-      selectedCheckboxes.forEach(cb => {
-        const id = cb.dataset.bookmarkId || cb.dataset.jobId;
-        if (id) uniqueIds.add(id);
-      });
-      const selectedIds = Array.from(uniqueIds);
-      
-      if (selectedIds.length === 0) {
-        if (typeof showWarningAlert === 'function') {
-          showWarningAlert('No Selection', 'Please select at least one job to archive.');
-        } else {
-          alert('Please select at least one job to archive.');
-        }
-        return;
-      }
-      
-      if (typeof showConfirmAlert === 'function') {
-        showConfirmAlert(
-          'Archive Jobs',
-          `Are you sure you want to archive ${selectedIds.length} job(s)?`,
-          'Archive',
-          'Cancel',
-          async function(confirmed) {
-            if (!confirmed) return;
-            
-            try {
-              const response = await fetch('{{ path("app_provider_bookmarks_archive") }}', {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-Requested-With": "XMLHttpRequest"
-                },
-                body: JSON.stringify({ bookmark_ids: selectedIds })
-              });
-
-              const result = await response.json();
-
-              if (result.success) {
-                if (typeof showSuccessAlert === 'function') {
-                  showSuccessAlert('Success', result.message);
-                } else if (typeof showToast === 'function') {
-                  showToast('success', result.message);
-                } else {
-                  alert(result.message);
-                }
-
-                // Remove archived rows from DOM
-                selectedIds.forEach(id => {
-                  let checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
-                  if (!checkbox) {
-                    checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
-                  }
-                  if (!checkbox) {
-                    checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`);
-                  }
-                  if (!checkbox) {
-                    checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
-                  }
-                  
-                  if (checkbox) {
-                    const jobList = checkbox.closest(".job-lists");
-                    if (jobList) {
-                      jobList.remove();
-                    } else {
-                      const row = checkbox.closest(".job-row");
-                      if (row) row.remove();
-                      const card = checkbox.closest(".split-job-card");
-                      if (card) card.remove();
-                    }
-                  }
-                });
-                
-                // Update UI after removal
-                const remainingRows = document.querySelectorAll('.job-lists');
-                if (remainingRows.length === 0) {
-                  const container = document.querySelector('.job-list-container');
-                  if (container) {
-                    container.innerHTML = '<p class="mb-0">Saved jobs not found.</p>';
-                  }
-                }
-                
-                // Uncheck all checkboxes and update button states
-                document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
-                if (typeof toggleActionsVisibility === 'function') {
-                  toggleActionsVisibility();
-                }
-                if (typeof updateButtonStates === 'function') {
-                  updateButtonStates();
-                }
-              } else {
-                if (typeof showErrorAlert === 'function') {
-                  showErrorAlert('Error', result.message || "Something went wrong.");
-                } else if (typeof showToast === 'function') {
-                  showToast('error', result.message || "Something went wrong.");
-                } else {
-                  alert('Error: ' + (result.message || "Something went wrong."));
-                }
-              }
-            } catch (error) {
-              console.error("Error archiving jobs:", error);
-              if (typeof showErrorAlert === 'function') {
-                showErrorAlert('Error', 'An error occurred while archiving jobs.');
-              } else if (typeof showToast === 'function') {
-                showToast('error', 'An error occurred while archiving jobs.');
-              } else {
-                alert('An error occurred while archiving jobs.');
-              }
-            }
-          }
-        );
+    // Try both bookmarkId and jobId attributes
+    const selectedIds = selectedCheckboxes.map(cb => {
+      const bookmarkId = cb.dataset.bookmarkId || cb.getAttribute('data-bookmark-id');
+      const jobId = cb.dataset.jobId || cb.getAttribute('data-job-id');
+      return bookmarkId || jobId;
+    }).filter(id => !!id);
+    
+    console.log('Selected IDs:', selectedIds);
+    const uniqueIds = Array.from(new Set(selectedIds));
+    console.log('Unique IDs:', uniqueIds);
+    if (uniqueIds.length === 0) {
+      if (typeof showWarningAlert === 'function') {
+        showWarningAlert('No Selection', 'Please select at least one job to delete.');
       } else {
-        if (confirm(`Are you sure you want to archive ${selectedIds.length} job(s)?`)) {
-          fetch('{{ path("app_provider_bookmarks_archive") }}', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Requested-With": "XMLHttpRequest"
-            },
-            body: JSON.stringify({ bookmark_ids: selectedIds })
-          })
-          .then(response => response.json())
-          .then(result => {
-            if (result.success) {
-              alert(result.message);
-              location.reload();
-            } else {
-              alert('Error: ' + (result.message || "Something went wrong."));
-            }
-          })
-          .catch(error => {
-            console.error("Error archiving jobs:", error);
-            alert('An error occurred while archiving jobs.');
-          });
-        }
+        alert('Please select at least one job to delete.');
       }
       return;
     }
+    const confirmMessage = `Are you sure you want to delete ${uniqueIds.length} selected job(s)? This action cannot be undone.`;
+    if (typeof showConfirmAlert === 'function') {
+      showConfirmAlert('Confirm Deletion', confirmMessage, 'Delete', 'Cancel', async function(confirmed) {
+        if (!confirmed) return;
+        try {
+          const response = await fetch('{{ path("app_provider_bookmarks_delete") }}', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ '_token': '{{ csrf_token("delete_bookmarks") }}', 'bookmark_ids': uniqueIds })
+          });
+          const data = await response.json();
+          if (data.success) {
+            if (typeof showSuccessAlert === 'function') {
+              showSuccessAlert('Success!', `Successfully deleted ${uniqueIds.length} job(s)!`);
+            } else if (typeof showToast === 'function') {
+              showToast('success', `Successfully deleted ${uniqueIds.length} job(s)!`);
+            } else {
+              alert('Successfully deleted ' + uniqueIds.length + ' job(s)!');
+            }
+            uniqueIds.forEach(id => {
+              let checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`);
+              if (!checkbox) {
+                checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
+              }
+              if (!checkbox) {
+                checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`);
+              }
+              if (checkbox) {
+                const jobList = checkbox.closest('.job-lists');
+                if (jobList) {
+                  jobList.remove();
+                } else {
+                  const jobRow = checkbox.closest('.job-row');
+                  if (jobRow) {
+                    const parentList = jobRow.closest('.job-lists');
+                    if (parentList) {
+                      parentList.remove();
+                    } else {
+                      jobRow.remove();
+                    }
+                  }
+                }
+              }
+            });
+            const container = document.querySelector('.job-list-container');
+            const remainingJobs = document.querySelectorAll('.job-lists:not(:first-child)');
+            if (remainingJobs.length === 0 && container) {
+              const tableWrapper = container.querySelector('.table-responsive-wrapper');
+              if (tableWrapper) {
+                tableWrapper.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
+              } else {
+                container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;"><p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No saved jobs found.</p></div>';
+              }
+            }
+            document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+            if (typeof toggleActionsVisibility === 'function') toggleActionsVisibility();
+            if (typeof updateButtonStates === 'function') updateButtonStates();
+          } else {
+            if (typeof showErrorAlert === 'function') {
+              showErrorAlert('Error!', data.message || 'Failed to delete jobs');
+            } else if (typeof showToast === 'function') {
+              showToast('error', data.message || 'Failed to delete jobs');
+            } else {
+              alert('Error: ' + (data.message || 'Failed to delete jobs'));
+            }
+          }
+        } catch (error) {
+          if (typeof showErrorAlert === 'function') {
+            showErrorAlert('Error!', 'Network error. Please try again.');
+          } else if (typeof showToast === 'function') {
+            showToast('error', 'Network error. Please try again.');
+          } else {
+            alert('Network error. Please try again.');
+          }
+        }
+      });
+    } else {
+      if (confirm(confirmMessage)) {
+        fetch('{{ path("app_provider_bookmarks_delete") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin',
+          body: new URLSearchParams({ '_token': '{{ csrf_token("delete_bookmarks") }}', 'bookmark_ids': JSON.stringify(uniqueIds) })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) { alert('Successfully deleted ' + uniqueIds.length + ' job(s)!'); location.reload(); }
+          else { alert('Error: ' + (data.message || 'Failed to delete jobs')); }
+        })
+        .catch(error => { alert('Network error. Please try again.'); });
+      }
+    }
+  }
+
+  window.archiveSelectedBookmarks = archiveSelectedBookmarks = function() {
+    console.log('archiveSelectedBookmarks called');
+    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
+    console.log('Selected checkboxes:', selectedCheckboxes.length);
+    
+    // Try both bookmarkId and jobId attributes
+    const selectedIds = selectedCheckboxes.map(cb => {
+      const bookmarkId = cb.dataset.bookmarkId || cb.getAttribute('data-bookmark-id');
+      const jobId = cb.dataset.jobId || cb.getAttribute('data-job-id');
+      return bookmarkId || jobId;
+    }).filter(id => !!id);
+    
+    console.log('Selected IDs:', selectedIds);
+    const uniqueIds = Array.from(new Set(selectedIds));
+    console.log('Unique IDs:', uniqueIds);
+    if (uniqueIds.length === 0) {
+      if (typeof showWarningAlert === 'function') {
+        showWarningAlert('No Selection', 'Please select at least one job to archive.');
+      } else {
+        alert('Please select at least one job to archive.');
+      }
+      return;
+    }
+    if (typeof showConfirmAlert === 'function') {
+      showConfirmAlert('Archive Jobs', `Are you sure you want to archive ${uniqueIds.length} job(s)?`, 'Archive', 'Cancel', async function(confirmed) {
+        if (!confirmed) return;
+        try {
+          const response = await fetch('{{ path("app_provider_bookmarks_archive") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ bookmark_ids: uniqueIds })
+          });
+          const result = await response.json();
+          if (result.success) {
+            if (typeof showSuccessAlert === 'function') { showSuccessAlert('Success', result.message); }
+            else if (typeof showToast === 'function') { showToast('success', result.message); }
+            else { alert(result.message); }
+            uniqueIds.forEach(id => {
+              let checkbox = document.querySelector(`.job-check.job-checkbox[data-bookmark-id="${id}"]`);
+              if (!checkbox) { checkbox = document.querySelector(`.job-checkbox[data-bookmark-id="${id}"]`); }
+              if (!checkbox) { checkbox = document.querySelector(`.job-check.job-checkbox[data-job-id="${id}"]`); }
+              if (!checkbox) { checkbox = document.querySelector(`.job-checkbox[data-job-id="${id}"]`); }
+              if (checkbox) {
+                const jobList = checkbox.closest('.job-lists');
+                if (jobList) { jobList.remove(); }
+                else {
+                  const row = checkbox.closest('.job-row');
+                  if (row) row.remove();
+                  const card = checkbox.closest('.split-job-card');
+                  if (card) card.remove();
+                }
+              }
+            });
+            const remainingRows = document.querySelectorAll('.job-lists');
+            if (remainingRows.length === 0) {
+              const container = document.querySelector('.job-list-container');
+              if (container) { container.innerHTML = '<p class="mb-0">Saved jobs not found.</p>'; }
+            }
+            document.querySelectorAll('.job-checkbox').forEach(cb => cb.checked = false);
+            if (typeof toggleActionsVisibility === 'function') toggleActionsVisibility();
+            if (typeof updateButtonStates === 'function') updateButtonStates();
+          } else {
+            if (typeof showErrorAlert === 'function') { showErrorAlert('Error', result.message || 'Something went wrong.'); }
+            else if (typeof showToast === 'function') { showToast('error', result.message || 'Something went wrong.'); }
+            else { alert('Error: ' + (result.message || 'Something went wrong.')); }
+          }
+        } catch (error) {
+          if (typeof showErrorAlert === 'function') { showErrorAlert('Error', 'An error occurred while archiving jobs.'); }
+          else if (typeof showToast === 'function') { showToast('error', 'An error occurred while archiving jobs.'); }
+          else { alert('An error occurred while archiving jobs.'); }
+        }
+      });
+    } else {
+      if (confirm(`Are you sure you want to archive ${uniqueIds.length} job(s)?`)) {
+        fetch('{{ path("app_provider_bookmarks_archive") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ bookmark_ids: uniqueIds })
+        })
+        .then(response => response.json())
+        .then(result => { if (result.success) { alert(result.message); location.reload(); } else { alert('Error: ' + (result.message || 'Something went wrong.')); } })
+        .catch(error => { alert('An error occurred while archiving jobs.'); });
+      }
+    }
+  }
+
+  // Simplified button handler attachment - just ensure styles are correct
+  function attachButtonHandlers() {
+    console.log('Attaching button handlers, window width:', window.innerWidth);
+    
+    // Get all archive and delete buttons
+    const archiveBtns = document.querySelectorAll('#archive-btn');
+    const deleteBtns = document.querySelectorAll('#delete-btn');
+    
+    console.log('Found archive buttons:', archiveBtns.length);
+    console.log('Found delete buttons:', deleteBtns.length);
+    
+    // Just ensure styles are correct - let inline onclick handlers do the work
+    archiveBtns.forEach((btn) => {
+      btn.style.pointerEvents = 'auto';
+      btn.style.cursor = 'pointer';
+      btn.style.zIndex = '10001';
+      btn.style.position = 'relative';
+      // Ensure onclick is set
+      if (!btn.getAttribute('onclick')) {
+        btn.setAttribute('onclick', 'handleSavedArchiveClick(event); return false;');
+      }
+    });
+    
+    deleteBtns.forEach((btn) => {
+      btn.style.pointerEvents = 'auto';
+      btn.style.cursor = 'pointer';
+      btn.style.zIndex = '10001';
+      btn.style.position = 'relative';
+      // Ensure onclick is set
+      if (!btn.getAttribute('onclick')) {
+        btn.setAttribute('onclick', 'handleSavedDeleteClick(event); return false;');
+      }
+    });
+  }
+  
+  // Attach handlers initially
+  attachButtonHandlers();
+  
+  // Re-attach handlers after a short delay to catch any dynamically added buttons
+  setTimeout(attachButtonHandlers, 500);
+  setTimeout(attachButtonHandlers, 1000);
+  
+  // Re-attach handlers on window resize
+  let resizeTimeout;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+      console.log('Window resized, reattaching button handlers');
+      attachButtonHandlers();
+    }, 300);
   });
+
+  // Event delegation as backup - only if inline onclick doesn't work
+  // This is a fallback mechanism, inline onclick handlers should handle it first
+  document.addEventListener('click', function(e) {
+    const target = e.target;
+    let button = null;
+    
+    // Check for delete button
+    if (target.id === 'delete-btn' || (target.closest && target.closest('#delete-btn'))) {
+      button = target.id === 'delete-btn' ? target : target.closest('#delete-btn');
+      // Only handle if inline onclick didn't work (check if event was already handled)
+      if (button && !e.defaultPrevented) {
+        console.log('Event delegation: Delete button clicked (fallback)');
+        // Let inline onclick handle it first, this is just a backup
+        // The inline onclick will call handleSavedDeleteClick which will call the function
+      }
+    }
+    // Check for archive button
+    else if (target.id === 'archive-btn' || (target.closest && target.closest('#archive-btn'))) {
+      button = target.id === 'archive-btn' ? target : target.closest('#archive-btn');
+      // Only handle if inline onclick didn't work
+      if (button && !e.defaultPrevented) {
+        console.log('Event delegation: Archive button clicked (fallback)');
+        // Let inline onclick handle it first, this is just a backup
+        // The inline onclick will call handleSavedArchiveClick which will call the function
+      }
+    }
+  }, true); // Use capture phase to detect early, but don't interfere
 
   function toggleDropdown(panel, btn) {
       const isOpen = !panel.classList.contains('hidden');
@@ -3714,6 +3953,46 @@ document.addEventListener('DOMContentLoaded', function () {
     emailBtn.addEventListener('click', () => openEmailModal(1));
   }
 
+  // Handle Print/Share button click
+  const printShareBtn = document.getElementById('print-share-job-btn');
+  if (printShareBtn) {
+    printShareBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Get the selected job ID from multiple sources
+      let selectedJobId = window.selectedJobId || null;
+      
+      // If not found, try to find from active split job card
+      if (!selectedJobId) {
+        const activeCard = document.querySelector('.split-job-card.active');
+        if (activeCard) {
+          selectedJobId = activeCard.getAttribute('data-job-id');
+        }
+      }
+      
+      // If still not found, try to find from checked checkbox
+      if (!selectedJobId) {
+        const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+        if (checkedCheckbox) {
+          selectedJobId = checkedCheckbox.getAttribute('data-job-id');
+        }
+      }
+      
+      if (selectedJobId) {
+        // Generate PDF and open print window (already opens in new window)
+        generateJobPDF(selectedJobId);
+      } else {
+        if (typeof showWarningAlert === 'function') {
+          showWarningAlert('No Job Selected', 'Please select a job first');
+        } else {
+          alert('Please select a job first');
+        }
+      }
+      closeAllDropdowns();
+    });
+  }
+
     // Initial check in case some boxes are pre-checked
     toggleActionsVisibility();
 
@@ -3723,7 +4002,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const noteButtons = document.querySelectorAll('#note-btn');
       const splitViewContainer = document.getElementById('split-view-container');
       const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
-      const showApply = (checked.length === 1);
+      const showApply = (checked.length > 0); // Show apply button when any job is selected
       const showNote = (checked.length === 1);
       applyButtons.forEach(btn => { 
           btn.disabled = !showApply;
@@ -3732,11 +4011,13 @@ document.addEventListener('DOMContentLoaded', function () {
               btn.style.visibility = 'visible';
               btn.style.opacity = '1';
               btn.style.pointerEvents = 'auto';
+              btn.style.display = 'flex';
           } else {
               btn.classList.add('hidden-btn');
               btn.style.visibility = 'hidden';
               btn.style.opacity = '0';
               btn.style.pointerEvents = 'none';
+              btn.style.display = 'none';
           }
       });
       noteButtons.forEach(btn => { 
@@ -3862,7 +4143,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.stopImmediatePropagation();
                 
                 const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-                const selectedIds = selectedCheckboxes.map(cb => cb.dataset.jobId || cb.dataset.bookmarkId).filter(id => id);
+                // Get unique job IDs (avoid duplicates from list view and split view)
+                const selectedIds = Array.from(new Set(selectedCheckboxes.map(cb => cb.dataset.jobId || cb.dataset.bookmarkId).filter(id => id)));
                 
                 if (selectedIds.length === 0) {
                     if (typeof showWarningAlert === 'function') {
@@ -3883,7 +4165,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 // Multiple jobs: use batch apply
                 // Hide all action buttons when confirm is shown
-                const allActionButtons = document.querySelectorAll('.action-btn, .conditional-btn, #apply-btn, #note-btn, #email-btn, #archive-btn, #save-btn');
+                const allActionButtons = document.querySelectorAll('.action-btn, .conditional-btn, #apply-btn, #note-btn, #email-btn, #archive-btn');
                 allActionButtons.forEach(btn => {
                     if (btn) {
                         const wasVisible = btn.style.display !== 'none' && !btn.classList.contains('hidden-btn');
@@ -3969,7 +4251,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Note: save-btn click is now handled by notify hire functionality below
     // Archive and Delete buttons are now handled via event delegation above
 
   // Re-initialize apply button when switching to split view
@@ -4062,8 +4343,8 @@ function closeAllEmailModals() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Force hide all scrollbars in split view sections
-  function hideAllScrollbars() {
+  // Set proper scrollbar behavior in split view sections
+  function setScrollbarBehavior() {
       const jobList = document.getElementById('split-job-list');
       const jobDetails = document.getElementById('split-job-details');
       const container = document.getElementById('split-view-container');
@@ -4073,23 +4354,24 @@ document.addEventListener('DOMContentLoaded', function () {
           jobList.style.overflowX = 'hidden';
       }
       if (jobDetails) {
-          jobDetails.style.overflowY = 'hidden';
-          jobDetails.style.overflowX = 'visible';
+          // Enable vertical scrolling, disable horizontal scrolling
+          jobDetails.style.overflowY = 'auto';
+          jobDetails.style.overflowX = 'hidden';
       }
       if (container) {
-          container.style.overflowX = 'visible';
+          container.style.overflowX = 'hidden';
           container.style.overflowY = 'hidden';
       }
   }
   
-  // Hide scrollbars on load
-  hideAllScrollbars();
+  // Set scrollbar behavior on load
+  setScrollbarBehavior();
   
-  // Hide scrollbars whenever split view is shown
+  // Set scrollbar behavior whenever split view is shown
   const gridViewBtn = document.getElementById('grid-view-btn');
   if (gridViewBtn) {
       gridViewBtn.addEventListener('click', function() {
-          setTimeout(hideAllScrollbars, 100);
+          setTimeout(setScrollbarBehavior, 100);
       });
   }
   
@@ -4252,6 +4534,86 @@ function showToast(message, type = 'info') {
   
   let selectedJobId = null;
   
+  // Ensure split view is hidden and list view is shown by default
+  if (splitViewContainer) {
+    splitViewContainer.style.display = 'none';
+  }
+  if (listViewContainer) {
+    listViewContainer.style.display = 'block';
+  }
+  if (gridViewBtn) {
+    gridViewBtn.classList.remove('active');
+  }
+  
+  // Clear filter flag if no filters are in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('category') || urlParams.has('days');
+  if (!hasFilters) {
+    sessionStorage.removeItem('filtersActive');
+  }
+  
+  // Handle selectJob parameter from URL (when coming from filtered split view)
+  const selectJobId = urlParams.get('selectJob');
+  if (selectJobId) {
+      // Remove selectJob from URL
+      urlParams.delete('selectJob');
+      const newUrl = urlParams.toString() ? `${window.location.pathname}?${urlParams.toString()}` : window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      // Open split view and select the job
+      setTimeout(() => {
+          if (typeof window.openSplitViewAndSelectJob === 'function') {
+              window.openSplitViewAndSelectJob(selectJobId);
+          }
+      }, 100);
+  }
+  
+  // Intercept clicks on job title links only (not entire job row) to open split view instead
+  // Use capture phase to ensure this runs before other handlers
+  document.addEventListener('click', function(e) {
+      // Only intercept if we're not clicking inside split view
+      const splitViewContainer = document.getElementById('split-view-container');
+      const isSplitViewOpen = splitViewContainer && splitViewContainer.style.display === 'grid';
+      const isClickInSplitView = splitViewContainer && splitViewContainer.contains(e.target);
+      
+      // Check if click is on a job title link only
+      const jobLink = e.target.closest('a.job-title');
+      if (jobLink && jobLink.href && jobLink.href.includes('/detail')) {
+          // Only intercept if not clicking inside split view (split view has its own handlers)
+          if (isClickInSplitView) {
+              return; // Let split view handle its own clicks
+          }
+          
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          // Extract job ID from href (support both numeric IDs and UUIDs)
+          const href = jobLink.href;
+          let jobId = null;
+          
+          // Match UUID pattern: /jobs/{uuid}/detail
+          const uuidMatch = href.match(/\/jobs\/([a-f0-9-]{36})\/detail/i);
+          if (uuidMatch && uuidMatch[1]) {
+              jobId = uuidMatch[1];
+          } else {
+              // Match numeric ID pattern: /jobs/{number}/detail
+              const jobIdMatch = href.match(/\/jobs\/(\d+)\/detail/);
+              if (jobIdMatch && jobIdMatch[1]) {
+                  jobId = jobIdMatch[1];
+              }
+          }
+          
+          if (jobId) {
+              // Open split view and select the job
+              if (typeof window.openSplitViewAndSelectJob === 'function') {
+                  window.openSplitViewAndSelectJob(jobId);
+              }
+          }
+          return false;
+      }
+  }, true); // Use capture phase to run before other handlers
+  
   if (gridViewBtn && listViewContainer && splitViewContainer) {
     gridViewBtn.addEventListener('click', function () {
         const isSplitView = splitViewContainer.style.display === 'grid';
@@ -4263,6 +4625,13 @@ function showToast(message, type = 'info') {
             splitViewContainer.style.display = 'none';
             listViewContainer.style.display = 'block';
             gridViewBtn.classList.remove('active');
+            
+            // Re-enable sticky in list view
+            const stickyContainer = document.querySelector('.sticky-header-container');
+            if (stickyContainer) {
+                stickyContainer.style.position = 'sticky';
+                stickyContainer.style.top = '0';
+            }
             
             // Show job header in list view
             const jobHeader = document.querySelector('.sticky-header-container .table-responsive-wrapper');
@@ -4301,12 +4670,46 @@ function showToast(message, type = 'info') {
             try { toggleActionsVisibility && toggleActionsVisibility(); } catch (e) {}
             try { updateActions && updateActions(); } catch (e) {}
             if (detailNoteBtn) { detailNoteBtn.style.display = 'none'; }
+            // Hide detail action buttons container
+            const detailActionButtons = document.getElementById('detail-action-buttons');
+            if (detailActionButtons) {
+                detailActionButtons.style.display = 'none';
+            }
+            
             if (detailTimelineBtn) { detailTimelineBtn.style.display = 'none'; }
+            const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
+            if (detailViewDetailsBtn) { detailViewDetailsBtn.style.display = 'none'; }
         } else {
-            // Switch to split view
+            // Check if filters are active - if so, reload page without filters to show unfiltered split view
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('category') || urlParams.has('days');
+            const filtersActive = sessionStorage.getItem('filtersActive') === 'true' || hasFilters;
+            
+            if (filtersActive) {
+                // Reload page without filter parameters to show unfiltered split view
+                const currentUrl = window.location.pathname;
+                const newParams = new URLSearchParams();
+                // Keep only status parameter if it exists (though saved page might not have status)
+                const status = urlParams.get('status');
+                if (status) {
+                    newParams.append('status', status);
+                }
+                const newUrl = newParams.toString() ? `${currentUrl}?${newParams.toString()}` : currentUrl;
+                window.location.href = newUrl;
+                return;
+            }
+            
+            // Switch to split view (no filters active)
             splitViewContainer.style.display = 'grid';
             splitViewContainer.style.setProperty('display', 'grid', 'important');
             listViewContainer.style.display = 'none';
+            
+            // Disable sticky in split view
+            const stickyContainer = document.querySelector('.sticky-header-container');
+            if (stickyContainer) {
+                stickyContainer.style.position = 'relative';
+                stickyContainer.style.top = 'auto';
+            }
             
             // Hide job header in split view
             const jobHeader = document.querySelector('.sticky-header-container .table-responsive-wrapper');
@@ -4366,9 +4769,15 @@ function showToast(message, type = 'info') {
           });
   }
   
-  // Job card selection
+  // Job card selection - only when clicking on the title
   if (splitJobList) {
       splitJobList.addEventListener('click', function (e) {
+          // Only trigger if clicking on the job title specifically
+          const jobTitle = e.target.closest('.split-job-card-title');
+          if (!jobTitle) {
+              return; // Not clicking on title, ignore
+          }
+          
           const jobCard = e.target.closest('.split-job-card');
           if (jobCard && !e.target.classList.contains('job-checkbox')) {
               if (typeof window.selectJobCard === 'function') {
@@ -4378,21 +4787,187 @@ function showToast(message, type = 'info') {
       });
   }
   
+  // Function to open split view and select a job
+  window.openSplitViewAndSelectJob = function(jobId) {
+      const splitViewContainer = document.getElementById('split-view-container');
+      const listViewContainer = document.querySelector('.job-list-container');
+      const gridViewBtn = document.getElementById('grid-view-btn');
+      const splitJobList = document.getElementById('split-job-list');
+      
+      if (!splitViewContainer || !listViewContainer) {
+          console.error('Split view or list view container not found', { splitViewContainer, listViewContainer });
+          return;
+      }
+      
+      const isSplitViewOpen = splitViewContainer.style.display === 'grid';
+      
+      // If split view is already open, just select the job
+      if (isSplitViewOpen && splitJobList) {
+          // Try to find the card with retry logic
+          const findAndSelectCard = (retries = 3) => {
+              let cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+              
+              // If not found, try finding by string comparison (in case of UUID formatting issues)
+              if (!cardToSelect) {
+                  const allCards = splitJobList.querySelectorAll('.split-job-card');
+                  for (let card of allCards) {
+                      const cardJobId = card.getAttribute('data-job-id');
+                      if (cardJobId && (cardJobId === jobId || cardJobId.toString() === jobId.toString())) {
+                          cardToSelect = card;
+                          break;
+                      }
+                  }
+              }
+              
+          if (cardToSelect && typeof window.selectJobCard === 'function') {
+                  // Scroll card into view
+                  cardToSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              window.selectJobCard(cardToSelect);
+                  return true;
+              } else if (retries > 0) {
+                  // Retry after a short delay
+                  setTimeout(() => findAndSelectCard(retries - 1), 100);
+                  return false;
+          }
+              return false;
+          };
+          
+          findAndSelectCard();
+          return;
+      }
+      
+      // Check if filters are active - if so, reload page without filters to show unfiltered split view
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('category') || urlParams.has('days');
+      const filtersActive = sessionStorage.getItem('filtersActive') === 'true' || hasFilters;
+      
+      if (filtersActive) {
+          // Reload page without filter parameters to show unfiltered split view
+          const currentUrl = window.location.pathname;
+          const newParams = new URLSearchParams();
+          const status = urlParams.get('status');
+          if (status) {
+              newParams.append('status', status);
+          }
+          const newUrl = newParams.toString() ? `${currentUrl}?${newParams.toString()}` : currentUrl;
+          // Add jobId to URL so we can select it after reload
+          const finalUrl = newUrl + (newUrl.includes('?') ? '&' : '?') + 'selectJob=' + jobId;
+          window.location.href = finalUrl;
+          return;
+      }
+      
+      // Switch to split view
+      splitViewContainer.style.display = 'grid';
+      splitViewContainer.style.setProperty('display', 'grid', 'important');
+      listViewContainer.style.display = 'none';
+      
+      // Disable sticky in split view
+      const stickyContainer = document.querySelector('.sticky-header-container');
+      if (stickyContainer) {
+          stickyContainer.style.position = 'relative';
+          stickyContainer.style.top = 'auto';
+      }
+      
+      // Hide job header in split view
+      const jobHeader = document.querySelector('.sticky-header-container .table-responsive-wrapper');
+      if (jobHeader) {
+          jobHeader.style.display = 'none';
+      }
+      
+      // Enable scrolling on split job list
+      if (splitJobList) {
+          splitJobList.style.overflowY = 'auto';
+          splitJobList.style.overflowX = 'hidden';
+      }
+      
+      // Enable vertical scrolling on split job details, disable horizontal
+      const splitJobDetails = document.getElementById('split-job-details');
+      if (splitJobDetails) {
+          splitJobDetails.style.overflowY = 'auto';
+          splitJobDetails.style.overflowX = 'hidden';
+      }
+      
+      if (gridViewBtn) {
+          gridViewBtn.classList.add('active');
+          gridViewBtn.innerHTML = `
+              <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M3 11H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M3 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              List View
+          `;
+      }
+      
+      const actionsContainer = document.querySelector('.actions-container');
+      if (actionsContainer) {
+          actionsContainer.classList.add('scrollable');
+      }
+      
+      // Show split-view-only menu items
+      document.querySelectorAll('.split-view-only').forEach(el => {
+          if (el.classList.contains('menu-item')) {
+              el.style.display = 'flex';
+          } else if (el.classList.contains('menu-divider')) {
+              el.style.display = 'block';
+          }
+      });
+      
+      // Select the job with retry logic to ensure DOM is ready
+      const findAndSelectCard = (retries = 5) => {
+          if (!splitJobList) {
+              if (retries > 0) {
+                  setTimeout(() => findAndSelectCard(retries - 1), 100);
+              }
+              return;
+          }
+          
+          let cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
+          
+          // If not found, try finding by string comparison (in case of UUID formatting issues)
+          if (!cardToSelect) {
+              const allCards = splitJobList.querySelectorAll('.split-job-card');
+              for (let card of allCards) {
+                  const cardJobId = card.getAttribute('data-job-id');
+                  if (cardJobId && (cardJobId === jobId || cardJobId.toString() === jobId.toString())) {
+                      cardToSelect = card;
+                      break;
+                  }
+              }
+          }
+          
+          if (cardToSelect && typeof window.selectJobCard === 'function') {
+              // Scroll card into view
+              setTimeout(() => {
+                  cardToSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }, 50);
+              window.selectJobCard(cardToSelect);
+          } else if (retries > 0) {
+              // Retry after a short delay
+              setTimeout(() => findAndSelectCard(retries - 1), 150);
+          }
+      };
+      
+      // Start trying to find and select the card
+      setTimeout(() => findAndSelectCard(), 100);
+      
+      try { closeNotesPanel && closeNotesPanel(); toggleActionsVisibility && toggleActionsVisibility(); updateButtonStates && updateButtonStates(); } catch (e) {}
+  };
+  
   window.selectJobCard = function(jobCard) {
+      const jobId = jobCard.dataset.jobId;
+      
+      // Check if this job is already selected
+      if (jobCard.classList.contains('active') && window.selectedJobId === jobId) {
+          // Job is already selected - navigate to detail page
+          window.location.href = `/provider/jobs/${jobId}/detail`;
+          return;
+      }
+      
       // Remove active class from all cards
       document.querySelectorAll('.split-job-card').forEach(card => {
           card.classList.remove('active');
       });
-      
-      // Uncheck all checkboxes in split view - REMOVED, handled by change event listener
-      /*
-      const splitJobList = document.getElementById('split-job-list');
-      if (splitJobList) {
-          splitJobList.querySelectorAll('.job-checkbox').forEach(checkbox => {
-              checkbox.checked = false;
-          });
-      }
-      */
       
       // Add active class to selected card
       jobCard.classList.add('active');
@@ -4406,7 +4981,7 @@ function showToast(message, type = 'info') {
       }
       
       // Get job ID and load details
-      selectedJobId = jobCard.dataset.jobId;
+      selectedJobId = jobId;
       window.selectedJobId = selectedJobId;
       try { toggleActionsVisibility && toggleActionsVisibility(); updateButtonStates && updateButtonStates(); } catch (e) {}
       // If notes panel is open, load notes for the newly selected job
@@ -4461,12 +5036,26 @@ function showToast(message, type = 'info') {
     
     fetch(url)
         .then(response => {
+            // Check if response is actually HTML, not an error page
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('text/html')) {
+                throw new Error(`Unexpected content type: ${contentType}`);
+            }
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.text();
         })
         .then(html => {
+            // Check if HTML contains error pages or script tags that might cause issues
+            if (html.trim().startsWith('<!DOCTYPE') && html.includes('<html')) {
+                // This might be a full HTML page, extract just the body content
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const bodyContent = doc.body ? doc.body.innerHTML : html;
+                html = bodyContent;
+            }
+            
             console.log('Received HTML, length:', html.length);
             console.log('First 100 chars:', html.substring(0, 100));
             
@@ -4480,11 +5069,36 @@ function showToast(message, type = 'info') {
             jobDetailContent.innerHTML = html;
             jobDetailContent.style.display = 'block';
             
+            // Remove any script tags from loaded HTML to prevent execution errors
+            const scripts = jobDetailContent.querySelectorAll('script');
+            scripts.forEach(script => {
+                // Remove script tag but log it for debugging
+                console.warn('Removed script tag from loaded HTML:', script.src || script.textContent.substring(0, 50));
+                script.remove();
+            });
+            
             console.log('HTML set successfully, element:', jobDetailContent);
             
             if (noJobSelected) noJobSelected.style.display = 'none';
-            if (detailNoteBtn) { detailNoteBtn.style.display = 'flex'; }
-            if (detailTimelineBtn) { detailTimelineBtn.style.display = 'flex'; }
+            if (detailNoteBtn) { 
+                detailNoteBtn.style.display = 'flex';
+                detailNoteBtn.style.alignItems = 'center';
+            }
+            // Show detail action buttons container
+            const detailActionButtons = document.getElementById('detail-action-buttons');
+            if (detailActionButtons) {
+                detailActionButtons.style.display = 'flex';
+            }
+            
+            if (detailTimelineBtn) { 
+                detailTimelineBtn.style.display = 'flex';
+                detailTimelineBtn.style.alignItems = 'center';
+            }
+            const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
+            if (detailViewDetailsBtn) { 
+                detailViewDetailsBtn.style.display = 'flex';
+                detailViewDetailsBtn.style.alignItems = 'center';
+            }
             // Update toggle button position after content loads
             setTimeout(() => {
                 if (typeof updateToggleButtonPosition === 'function') {
@@ -4530,6 +5144,9 @@ function showToast(message, type = 'info') {
           notesPanel.setAttribute('aria-hidden', 'true');
           if (jobDetails) {
               jobDetails.classList.remove('notes-open');
+              // Restore vertical scrolling when panel is closed
+              jobDetails.style.overflowY = 'auto';
+              jobDetails.style.overflowX = 'hidden';
           }
       }
       
@@ -4561,9 +5178,9 @@ function showToast(message, type = 'info') {
               jobDetails.scrollLeft = 0;
               jobDetails.scrollTop = 0;
               
-              // Force hide scrollbars
+              // Hide scrollbars when timeline panel is open
               jobDetails.style.overflowY = 'hidden';
-              jobDetails.style.overflowX = 'visible';
+              jobDetails.style.overflowX = 'hidden';
               
               // Hide scrollbars on job list as well
               const jobList = document.getElementById('split-job-list');
@@ -4575,7 +5192,7 @@ function showToast(message, type = 'info') {
               // Ensure panel is visible by checking container overflow
               const container = jobDetails.closest('.split-view-container');
               if (container) {
-                  container.style.overflowX = 'visible';
+                  container.style.overflowX = 'hidden';
                   container.style.overflowY = 'hidden';
               }
           }
@@ -4615,15 +5232,9 @@ function showToast(message, type = 'info') {
               // Build timeline content with real data
               timelineContent.innerHTML = `
                   <div class="timeline-events">
-                      <!-- Job ID Section -->
-                      <div class="timeline-info-box">
-                      </div>
-                      
-                      <div class="timeline-event-divider"></div>
-                      
                       <!-- Application Overview -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon">
+                          <div class="timeline-event-icon" style="background: #e8f5e9;">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                   <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -4631,9 +5242,9 @@ function showToast(message, type = 'info') {
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Application Overview</h6>
-                              <div class="timeline-detail-item">
+                              <div class="timeline-detail-item" style="display: flex; gap: 8px; align-items: center;">
                                   <span class="timeline-detail-label">Status:</span>
-                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}">${data.applicationStatus}</span>
+                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="background: #85BB65; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;">${data.applicationStatus}</span>
                               </div>
                               ${data.applicationDate ? `
                               <div class="timeline-detail-item">
@@ -4668,25 +5279,17 @@ function showToast(message, type = 'info') {
                       
                       <div class="timeline-event-divider"></div>
                       
-                      <!-- Interview Information -->
+                      <!-- Interview Schedule -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon ${data.interviews && data.interviews.length > 0 ? 'has-interview' : ''}">
+                          <div class="timeline-event-icon" style="background: #f8f9fa;">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2"/>
-                                  <path d="M16 2V6M8 2V6M3 10H21" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
-                                  <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="${data.interviews && data.interviews.length > 0 ? '#85BB65' : '#6c757d'}" stroke-width="2" stroke-linecap="round"/>
+                                  <rect x="3" y="4" width="18" height="18" rx="2" stroke="#6c757d" stroke-width="2"/>
+                                  <path d="M16 2V6M8 2V6M3 10H21" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
                               </svg>
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Interview Schedule</h6>
                               ${interviewsHTML}
-                              <a href="{{ path('app_provider_interview_calendar') }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 5px;">
-                                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                                      <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                  </svg>
-                                  View Full Calendar
-                              </a>
                           </div>
                       </div>
                       
@@ -4694,7 +5297,7 @@ function showToast(message, type = 'info') {
                       
                       <!-- Quick Actions -->
                       <div class="timeline-event">
-                          <div class="timeline-event-icon">
+                          <div class="timeline-event-icon" style="background: #e8f5e9;">
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
                                   <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
@@ -4702,11 +5305,7 @@ function showToast(message, type = 'info') {
                           </div>
                           <div class="timeline-event-content">
                               <h6 class="timeline-event-title">Quick Actions</h6>
-                              <div class="timeline-actions">
-                                  <a href="/provider/jobs/${data.jobId}/detail" class="btn btn-sm btn-outline-secondary">
-                                      View Full Details
-                                  </a>
-                              </div>
+                              <a href="/provider/jobs/${data.jobId}/detail" style="display: inline-block; background: #85BB65; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; margin-top: 4px;">View Full Details</a>
                           </div>
                       </div>
                   </div>
@@ -4768,6 +5367,7 @@ function showToast(message, type = 'info') {
                           gap: 8px;
                           margin-bottom: 6px;
                           font-size: 13px;
+                          align-items: center;
                       }
                       .timeline-detail-label {
                           color: #6c757d;
@@ -4780,7 +5380,7 @@ function showToast(message, type = 'info') {
                       .timeline-detail-value.status-offered,
                       .timeline-detail-value.status-accepted,
                       .timeline-detail-value.status-hired {
-                          color: #85BB65;
+                          color: #000000;
                           font-weight: 600;
                       }
                       .timeline-detail-value.status-rejected {
@@ -4818,12 +5418,6 @@ function showToast(message, type = 'info') {
               console.error('Error loading timeline:', error);
               timelineContent.innerHTML = `
                   <div class="timeline-events">
-                      <!-- Job ID Section -->
-                      <div class="timeline-info-box">
-                      </div>
-                      
-                      <div class="timeline-event-divider"></div>
-                      
                       <div class="alert alert-warning">
                           <p class="mb-0">Unable to load detailed timeline information.</p>
                           <a href="/provider/jobs/${jobId}/detail" class="btn btn-sm btn-outline-primary mt-2">
@@ -4876,6 +5470,9 @@ function showToast(message, type = 'info') {
       }
       if (jobDetails) {
           jobDetails.classList.remove('timeline-open');
+          // Restore vertical scrolling when panel is closed
+          jobDetails.style.overflowY = 'auto';
+          jobDetails.style.overflowX = 'hidden';
       }
   }
   
@@ -4907,6 +5504,40 @@ function showToast(message, type = 'info') {
           if (jobId) {
               // Open timeline panel (it will handle collapsing the list)
               openTimelinePanel(jobId);
+          } else {
+              if (typeof showToast === 'function') {
+                  showToast('Please select a job first', 'warning');
+              }
+          }
+      }
+      
+      // View Details button click handler
+      if (e.target.closest('#detail-view-details-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Get the selected job ID
+          let jobId = window.selectedJobId || null;
+          
+          // If not found, try to find from active split job card
+          if (!jobId) {
+              const activeCard = document.querySelector('.split-job-card.active');
+              if (activeCard) {
+                  jobId = activeCard.getAttribute('data-job-id');
+              }
+          }
+          
+          // If still not found, try to find from checked checkbox
+          if (!jobId) {
+              const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+              if (checkedCheckbox) {
+                  jobId = checkedCheckbox.getAttribute('data-job-id');
+              }
+          }
+          
+          if (jobId) {
+              // Navigate to job detail page
+              window.location.href = `/provider/jobs/${jobId}/detail`;
           } else {
               if (typeof showToast === 'function') {
                   showToast('Please select a job first', 'warning');
@@ -5001,24 +5632,52 @@ function showToast(message, type = 'info') {
       // Fetch job details
       const url = '/provider/jobs/' + jobId + '/detail-content';
       fetch(url)
-          .then(response => response.text())
+          .then(response => {
+              // Check if response is actually HTML
+              const contentType = response.headers.get('content-type');
+              if (!contentType || !contentType.includes('text/html')) {
+                  throw new Error(`Unexpected content type: ${contentType}`);
+              }
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.text();
+          })
           .then(html => {
-              // Create a new window for printing
-              const printWindow = window.open('', '_blank');
-              
-              // Extract job details from HTML
+              // Clean the HTML - remove script tags and other problematic elements
               const parser = new DOMParser();
               const doc = parser.parseFromString(html, 'text/html');
               
+              // Remove all script tags, style tags with problematic content, and other elements
+              doc.querySelectorAll('script').forEach(script => script.remove());
+              doc.querySelectorAll('style').forEach(style => {
+                  // Keep styles but check for problematic content
+                  const styleContent = style.textContent || '';
+                  if (styleContent.includes('@import') || styleContent.includes('url(')) {
+                      style.remove();
+                  }
+              });
+              
+              // Remove buttons and action elements
+              doc.querySelectorAll('button, .btn, .action-btn, .no-print').forEach(el => el.remove());
+              
+              // Get cleaned HTML
+              const cleanedHTML = doc.body ? doc.body.innerHTML : html;
+              
               // Get job title
               const jobTitle = (doc.querySelector('.job-title, h1, h2, h3, h4') && doc.querySelector('.job-title, h1, h2, h3, h4').textContent) || 'Job Details';
+              
+              // Create a new window for printing
+              const printWindow = window.open('', '_blank');
               
               // Create print-friendly HTML - using string concatenation to avoid Twig issues
               // Split script tag to prevent Twig from interpreting it
               const scriptStart = '<scr' + 'ipt>';
               const scriptEnd = '</scr' + 'ipt>';
-              const printHTML = '<!DOCTYPE html><html><head><title>' + jobTitle + ' - Job Details</title><style>@media print {@page {margin: 1cm;}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;}h1, h2, h3, h4, h5, h6 {color: #000;margin-top: 1em;margin-bottom: 0.5em;}.job-detail-section {margin-bottom: 1.5em;page-break-inside: avoid;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}img {max-width: 100%;height: auto;}a {color: #000;text-decoration: none;}button, .btn, .action-btn {display: none !important;}.no-print {display: none !important;}}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;padding: 20px;max-width: 800px;margin: 0 auto;}h1 {border-bottom: 2px solid #000;padding-bottom: 10px;margin-bottom: 20px;}.job-detail-section {margin-bottom: 1.5em;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}</style></head><body><h1>' + jobTitle + '</h1>' + html + scriptStart + 'window.onload = function() {window.print();};' + scriptEnd + '</body></html>';
+              const printHTML = '<!DOCTYPE html><html><head><title>' + jobTitle + ' - Job Details</title><style>@media print {@page {margin: 1cm;}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;}h1, h2, h3, h4, h5, h6 {color: #000;margin-top: 1em;margin-bottom: 0.5em;}.job-detail-section {margin-bottom: 1.5em;page-break-inside: avoid;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}img {max-width: 100%;height: auto;}a {color: #000;text-decoration: none;}button, .btn, .action-btn {display: none !important;}.no-print {display: none !important;}}body {font-family: Arial, sans-serif;font-size: 12pt;line-height: 1.6;color: #000;padding: 20px;max-width: 800px;margin: 0 auto;}h1 {border-bottom: 2px solid #000;padding-bottom: 10px;margin-bottom: 20px;}.job-detail-section {margin-bottom: 1.5em;}.job-detail-label {font-weight: bold;margin-right: 0.5em;}</style></head><body><h1>' + jobTitle + '</h1>' + cleanedHTML + scriptStart + 'window.onload = function() {window.print();};' + scriptEnd + '</body></html>';
               
+              // Write to print window
+              printWindow.document.open();
               printWindow.document.write(printHTML);
               printWindow.document.close();
               
@@ -5045,11 +5704,24 @@ function showToast(message, type = 'info') {
       // Fetch job details
       const url = '/provider/jobs/' + jobId + '/detail-content';
       fetch(url)
-          .then(response => response.text())
+          .then(response => {
+              // Check if response is actually HTML
+              const contentType = response.headers.get('content-type');
+              if (!contentType || !contentType.includes('text/html')) {
+                  throw new Error(`Unexpected content type: ${contentType}`);
+              }
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.text();
+          })
           .then(html => {
               // Parse the HTML to extract job details
               const parser = new DOMParser();
               const doc = parser.parseFromString(html, 'text/html');
+              
+              // Remove all script tags first to prevent execution errors
+              doc.querySelectorAll('script').forEach(script => script.remove());
               
               // Extract job information
               const jobTitle = doc.querySelector('.job-detail-title, h1, h2, h3, h4')?.textContent?.trim() || 'Job Details';
@@ -5063,14 +5735,15 @@ function showToast(message, type = 'info') {
               sections.forEach(section => {
                   // Clone and clean the section
                   const clone = section.cloneNode(true);
-                  // Remove buttons and action elements
-                  clone.querySelectorAll('button, .btn, .action-btn, .no-print').forEach(el => el.remove());
+                  // Remove buttons, action elements, and any remaining script tags
+                  clone.querySelectorAll('button, .btn, .action-btn, .no-print, script').forEach(el => el.remove());
                   jobDetailsHTML += clone.outerHTML;
               });
               
               // If no sections found, use the full HTML
               if (!jobDetailsHTML) {
                   const fullContent = doc.body.cloneNode(true);
+                  // Remove all problematic elements including script tags
                   fullContent.querySelectorAll('button, .btn, .action-btn, .no-print, script, style').forEach(el => el.remove());
                   jobDetailsHTML = fullContent.innerHTML;
               }
@@ -5172,6 +5845,7 @@ function showToast(message, type = 'info') {
               
               // Open in new window and trigger print
               const printWindow = window.open('', '_blank', 'width=800,height=600');
+              printWindow.document.open();
               printWindow.document.write(pdfHTML);
               printWindow.document.close();
               
@@ -5323,6 +5997,9 @@ function closeNotesPanel() {
     // Remove class from job details container to restore layout
     if (jobDetails) {
         jobDetails.classList.remove('notes-open');
+        // Restore vertical scrolling when panel is closed
+        jobDetails.style.overflowY = 'auto';
+        jobDetails.style.overflowX = 'hidden';
     }
 }
 
@@ -5370,7 +6047,7 @@ function updateButtonStates() {
   const allCheckboxes = [...listCheckboxes, ...splitCheckboxes];
   
   let checkedCount = Array.from(allCheckboxes).filter(cb => cb.checked).length;
-  const showApply = checkedCount === 1;
+  const showApply = checkedCount >= 1; // Show apply button when any job is selected
   const showNote = checkedCount === 1;
 
   // Show/hide and enable/disable Apply and Note buttons
@@ -5381,11 +6058,13 @@ function updateButtonStates() {
     btn.disabled = !showApply;
     if (showApply) {
         btn.classList.remove('hidden-btn');
+        btn.style.display = 'flex';
         btn.style.visibility = 'visible';
         btn.style.opacity = '1';
         btn.style.pointerEvents = 'auto';
     } else {
         btn.classList.add('hidden-btn');
+        btn.style.display = 'none';
         btn.style.visibility = 'hidden';
         btn.style.opacity = '0';
         btn.style.pointerEvents = 'none';
@@ -5589,6 +6268,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isHidden) {
       filterPanel.classList.remove('hidden');
       filterPanel.style.display = 'block';
+      
+      // Position the filter panel correctly to prevent clipping
+      const filterBtnRect = filterBtn.getBoundingClientRect();
+      const splitViewContainer = document.getElementById('split-view-container');
+      // Check if we're in split view - if so, use fixed positioning to prevent clipping
+      const isSplitView = splitViewContainer && splitViewContainer.style.display === 'grid';
+      
+      // Always use fixed positioning to prevent clipping (works in both views)
+      // Use setProperty with important flag to override CSS !important rules
+      filterPanel.style.setProperty('position', 'fixed', 'important');
+      filterPanel.style.setProperty('left', filterBtnRect.left + 'px', 'important');
+      filterPanel.style.setProperty('top', (filterBtnRect.bottom + 8) + 'px', 'important');
+      filterPanel.style.setProperty('z-index', '99999', 'important');
+      filterPanel.style.setProperty('margin-top', '0', 'important');
     } else {
       filterPanel.classList.add('hidden');
       filterPanel.style.display = 'none';
@@ -5609,9 +6302,26 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       e.stopPropagation();
       try {
+        // Hide filter panel immediately
+        if (filterPanel) {
+          filterPanel.classList.add('hidden');
+          filterPanel.style.display = 'none';
+        }
+        // If currently in split view, switch to list view first
+        const splitViewContainer = document.getElementById('split-view-container');
+        const listViewContainer = document.querySelector('.job-list-container');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        if (splitViewContainer && splitViewContainer.style.display === 'grid') {
+          // Switch to list view before applying filters
+          splitViewContainer.style.display = 'none';
+          if (listViewContainer) {
+            listViewContainer.style.display = 'block';
+          }
+          if (gridViewBtn) {
+            gridViewBtn.classList.remove('active');
+          }
+        }
         applyFilters();
-        if (filterPanel) filterPanel.classList.add('hidden');
-        if (filterPanel) filterPanel.style.display = 'none';
       } catch (error) {
         console.error('Error applying filters:', error);
         if (container) {
@@ -5637,7 +6347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Apply filters via AJAX
+  // Apply filters - check for results first, then reload page to reset everything cleanly
   function applyFilters() {
     const locationInput = document.getElementById('filter-location');
     const salaryMinInput = document.getElementById('filter-salary-min');
@@ -5645,11 +6355,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryInput = document.getElementById('filter-category');
     const datePostedInput = document.getElementById('filter-date-posted');
     
-    if (!container) {
-      console.error('Container not found');
-        return;
-      }
-      
     // Build filter parameters
     const params = new URLSearchParams();
     if (locationInput?.value) params.append('location', locationInput.value);
@@ -5658,21 +6363,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (categoryInput?.value) params.append('category', categoryInput.value);
     if (datePostedInput?.value) params.append('days', datePostedInput.value);
     
-    // Show loading spinner
+    // Get the base URL
+    const savedUrl = "{{ path('app_provider_jobs_saved') }}";
+    
+    // Show loading spinner on the page
     const listContainer = document.querySelector('.job-list-container');
     if (listContainer) {
       listContainer.innerHTML = `
         <div class="text-center p-4">
           <div class="spinner-border text-success mb-3" role="status"></div>
-          <p>Filtering jobs...</p>
+          <p>Filtering saved jobs...</p>
         </div>
       `;
     }
     
-    // Use Symfony route dynamically
-    const savedUrl = "{{ path('app_provider_jobs_saved') }}";
-    
-    // Make AJAX request
+    // First check if there are results using AJAX
     fetch(`${savedUrl}?${params.toString()}`, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
@@ -5683,12 +6388,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return res.json();
       })
       .then(data => {
-        console.log('Filter response received:', data);
-        if (!data || !data.html) {
-          throw new Error('Invalid response format');
-        }
-        
-        // Check if no jobs found - check for various "no results" messages
+        // Check if no jobs found
         if (data.html && (
           data.html.includes('No saved jobs found') || 
           data.html.includes('Saved jobs not found') || 
@@ -5700,48 +6400,27 @@ document.addEventListener('DOMContentLoaded', function() {
           if (listContainer) {
             listContainer.innerHTML = '';
           }
-          // Show custom popup for 3 seconds, then redirect
+          // Show custom popup for 3 seconds, then redirect to original page (without filters)
           showNoResultsPopup('No saved jobs found', function() {
-            // Redirect to the current page (reload without filters)
-            window.location.href = "{{ path('app_provider_jobs_saved') }}";
+            window.location.href = savedUrl;
           });
           // Close the filter panel
-          filterPanel.classList.add('hidden');
+          if (filterPanel) {
+            filterPanel.classList.add('hidden');
+            filterPanel.style.display = 'none';
+          }
           return;
         }
         
-        if (listContainer) {
-          // The response is already just the job-list-container, so replace it directly
-          listContainer.outerHTML = data.html;
-          // Re-initialize todo popups after AJAX update
-          if (typeof initializeTodoPopups === 'function') {
-            initializeTodoPopups();
-          }
-        } else if (container) {
-          // Find where to insert the new content
-          const oldContainer = container.querySelector('.job-list-container');
-          if (oldContainer) {
-            oldContainer.outerHTML = data.html;
-          } else {
-            // Insert before actions-container or at end
-            const actionsContainer = container.querySelector('.actions-container');
-            if (actionsContainer) {
-              actionsContainer.insertAdjacentHTML('beforebegin', data.html);
-            } else {
-              container.insertAdjacentHTML('beforeend', data.html);
-            }
-          }
-        }
-        if (filterPanel) {
-          filterPanel.classList.add('hidden');
-          filterPanel.style.display = 'none';
-        }
+        // If results exist, reload the page with filter parameters - this will reset everything cleanly
+        const newUrl = params.toString() ? `${savedUrl}?${params.toString()}` : savedUrl;
+        window.location.href = newUrl;
       })
       .catch(err => {
-        console.error('Filter error:', err);
-        if (listContainer) {
-          listContainer.innerHTML = `<p class="text-danger p-4">Failed to load filtered jobs. Error: ${err.message}</p>`;
-        }
+        console.error('Filter check error:', err);
+        // On error, just reload with filters anyway
+        const newUrl = params.toString() ? `${savedUrl}?${params.toString()}` : savedUrl;
+        window.location.href = newUrl;
       });
   }
 
@@ -6201,67 +6880,56 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 </script>
 
-<!-- Notify Hire JavaScript -->
+<!-- Apply Button Visibility JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const saveBtn = document.getElementById('save-btn');
-    const saveBtnBottom = document.querySelector('#save-btn-bottom') || document.querySelector('.hidden-buttons #save-btn');
     const applyBtn = document.getElementById('apply-btn');
-    
-    if (saveBtn) {
-        saveBtn.addEventListener('click', handleNotifyHireFromSaved);
-    }
-    
-    if (saveBtnBottom) {
-        saveBtnBottom.addEventListener('click', handleNotifyHireFromSaved);
-    }
+    const applyBtnBottom = document.querySelector('#apply-btn-bottom') || document.querySelector('.hidden-buttons #apply-btn');
     
     // Enable/disable buttons based on selection
     function updateActionButtons() {
         const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
         const hasSelection = selectedCheckboxes.length > 0;
-        const actionsContainer = document.querySelector('.actions-container');
         
-        // Show/hide notify of hire button
-        if (saveBtn) {
-            if (hasSelection) {
-                saveBtn.style.display = 'flex';
-                saveBtn.disabled = false;
-            } else {
-                saveBtn.style.display = 'none';
-                saveBtn.disabled = true;
-            }
-        }
-        
-        // Adjust grid layout dynamically based on button visibility
-        if (actionsContainer) {
-            if (hasSelection && saveBtn && saveBtn.style.display !== 'none') {
-                // When notify of hire is visible, adjust grid to prevent line breaking
-                actionsContainer.style.gridTemplateColumns = 'auto auto 1fr';
-                actionsContainer.style.gap = '8px';
-            } else {
-                // Default layout when notify of hire is hidden
-                actionsContainer.style.gridTemplateColumns = '1fr auto 1fr';
-                actionsContainer.style.gap = '16px';
-            }
-        }
-        
+        // Show/hide apply button when job is selected
         if (applyBtn) {
-            applyBtn.disabled = !hasSelection;
-        }
-        if (saveBtnBottom) {
-            saveBtnBottom.disabled = !hasSelection;
+            if (hasSelection) {
+                applyBtn.classList.remove('hidden-btn');
+                applyBtn.style.display = 'flex';
+                applyBtn.style.visibility = 'visible';
+                applyBtn.style.opacity = '1';
+                applyBtn.style.pointerEvents = 'auto';
+                applyBtn.disabled = false;
+                applyBtn.title = "Apply to selected jobs";
+            } else {
+                applyBtn.classList.add('hidden-btn');
+                applyBtn.style.display = 'none';
+                applyBtn.style.visibility = 'hidden';
+                applyBtn.style.opacity = '0';
+                applyBtn.style.pointerEvents = 'none';
+                applyBtn.disabled = true;
+                applyBtn.title = "Apply";
+            }
         }
         
-        // Update tooltips
-        if (hasSelection) {
-            if (saveBtn) saveBtn.title = "Notify Hire for Selected Jobs";
-            if (saveBtnBottom) saveBtnBottom.title = "Notify Hire for Selected Jobs";
-            if (applyBtn) applyBtn.title = "Apply to selected jobs";
-        } else {
-            if (saveBtn) saveBtn.title = "Notify of Hire";
-            if (saveBtnBottom) saveBtnBottom.title = "Notify of Hire";
-            if (applyBtn) applyBtn.title = "Apply";
+        if (applyBtnBottom) {
+            if (hasSelection) {
+                applyBtnBottom.classList.remove('hidden-btn');
+                applyBtnBottom.style.display = 'flex';
+                applyBtnBottom.style.visibility = 'visible';
+                applyBtnBottom.style.opacity = '1';
+                applyBtnBottom.style.pointerEvents = 'auto';
+                applyBtnBottom.disabled = false;
+                applyBtnBottom.title = "Apply to selected jobs";
+            } else {
+                applyBtnBottom.classList.add('hidden-btn');
+                applyBtnBottom.style.display = 'none';
+                applyBtnBottom.style.visibility = 'hidden';
+                applyBtnBottom.style.opacity = '0';
+                applyBtnBottom.style.pointerEvents = 'none';
+                applyBtnBottom.disabled = true;
+                applyBtnBottom.title = "Apply";
+            }
         }
     }
     
@@ -6273,314 +6941,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial update
     updateActionButtons();
 });
-
-function handleNotifyHireFromSaved() {
-    const selectedCheckboxes = Array.from(document.querySelectorAll('.job-checkbox:checked'));
-    
-    if (selectedCheckboxes.length === 0) {
-        showToast('Please select at least one job to notify hire.', 'warning');
-        return;
-    }
-    
-    const selectedJobIds = selectedCheckboxes.map(cb => cb.dataset.jobId);
-    
-    // Show confirmation modal
-    showNotifyHireModal(selectedJobIds);
-}
-
-function showNotifyHireModal(jobIds) {
-    const modalHtml = `
-        <div class="modal fade" id="notifyHireModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Notify Hire for Selected Jobs</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>This action will:</p>
-                        <ul>
-                            
-                            <li>Notify the admin about the hire</li>
-                        </ul>
-                        
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success" id="confirm-notify-hire-btn">
-                            Yes, Notify Hire
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal if any
-    const existingModal = document.getElementById('notifyHireModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Add modal to DOM
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-    const modal = new bootstrap.Modal(document.getElementById('notifyHireModal'));
-    modal.show();
-    
-    // Handle confirm button
-    document.getElementById('confirm-notify-hire-btn').addEventListener('click', function() {
-        modal.hide();
-        processNotifyHire(jobIds);
-    });
-}
-
-function processNotifyHire(jobIds) {
-    // Show loading state
-    const saveBtn = document.getElementById('save-btn');
-    const saveBtnBottom = document.querySelector('#save-btn-bottom') || document.querySelector('.hidden-buttons #save-btn');
-    const originalHtml = saveBtn ? saveBtn.innerHTML : '';
-    
-    if (saveBtn) {
-    saveBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Processing...';
-    saveBtn.disabled = true;
-    }
-    if (saveBtnBottom) {
-        saveBtnBottom.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
-        saveBtnBottom.disabled = true;
-    }
-    
-    fetch('{{ path("app_provider_saved_jobs_notify_hire") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify({ jobIds: jobIds })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showResultsModal(data.results);
-            // Remove successful jobs from the UI
-            removeSuccessfulJobsFromUI(data.results.successful);
-            // Uncheck all checkboxes
-            uncheckAllCheckboxes();
-            // Update counters after all UI changes are complete
-            updateJobCounters();
-        } else {
-            showToast('Error: ' + (data.message || 'Unknown error'), 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('Network error. Please try again.', 'error');
-    })
-    .finally(() => {
-        // Reset button
-        if (saveBtn) {
-        saveBtn.innerHTML = originalHtml;
-        saveBtn.disabled = false;
-        }
-        if (saveBtnBottom) {
-            saveBtnBottom.innerHTML = '<svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/><circle cx="19" cy="5" r="3" stroke="#1C274C" stroke-width="1.5"/><path d="M7 14H16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 17.5H13" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-            saveBtnBottom.disabled = false;
-        }
-    });
-}
-
-function showResultsModal(results) {
-    const successfulCount = results.successful ? results.successful.length : 0;
-    const notAppliedCount = results.notApplied ? results.notApplied.length : 0;
-    const failedCount = results.failed ? results.failed.length : 0;
-    
-    let resultsHtml = `
-        <div class="modal fade" id="resultsModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Hire Notification Results</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-    `;
-    
-    // Successful results
-    if (successfulCount > 0) {
-        resultsHtml += `
-            <div class="alert alert-success">
-                <h6>✅ Successfully Hired (${successfulCount})</h6>
-                <small>The following jobs have been moved to "Accepted" and removed from saved:</small>
-                <ul class="mb-0 mt-2">
-        `;
-        results.successful.forEach(job => {
-            resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId}</li>`;
-        });
-        resultsHtml += `</ul></div>`;
-    }
-    
-    // Not applied jobs
-    if (notAppliedCount > 0) {
-        resultsHtml += `
-            <div class="alert alert-warning">
-                <h6>⚠️ Not Applied (${notAppliedCount})</h6>
-                <small>These jobs need to be applied to first:</small>
-                <ul class="mb-0 mt-2">
-        `;
-        results.notApplied.forEach(job => {
-            resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId}</li>`;
-        });
-        resultsHtml += `</ul></div>`;
-    }
-    
-    // Failed jobs
-    if (failedCount > 0) {
-        resultsHtml += `
-            <div class="alert alert-danger">
-                <h6>❌ Failed (${failedCount})</h6>
-                <small>These jobs could not be processed:</small>
-                <ul class="mb-0 mt-2">
-        `;
-        results.failed.forEach(job => {
-            resultsHtml += `<li>${job.jobTitle || job.title || 'Job #' + job.jobId} - ${job.reason || 'Unknown error'}</li>`;
-        });
-        resultsHtml += `</ul></div>`;
-    }
-    
-    resultsHtml += `
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continue</button>
-                        ${notAppliedCount > 0 ? 
-                            '<button type="button" class="btn btn-success" id="apply-remaining-btn">Apply to Remaining Jobs</button>' : 
-                            ''
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal if any
-    const existingModal = document.getElementById('resultsModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Add modal to DOM
-    document.body.insertAdjacentHTML('beforeend', resultsHtml);
-    
-    const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
-    modal.show();
-    
-    // Handle apply remaining button
-    if (notAppliedCount > 0) {
-        document.getElementById('apply-remaining-btn').addEventListener('click', function() {
-            modal.hide();
-            // Apply to the not applied jobs
-            const notAppliedJobIds = results.notApplied.map(job => job.jobId);
-            applyToSelectedJobs(notAppliedJobIds);
-        });
-    }
-}
-
-function removeSuccessfulJobsFromUI(successfulJobs) {
-    successfulJobs.forEach(job => {
-        // Remove from list view
-        const jobRow = document.querySelector(`.job-checkbox[data-job-id="${job.jobId}"]`)?.closest('.job-lists');
-        if (jobRow) {
-            jobRow.remove();
-        }
-        
-        // Remove from split view
-        const splitJobCard = document.querySelector(`.split-job-card[data-job-id="${job.jobId}"]`);
-        if (splitJobCard) {
-            splitJobCard.remove();
-        }
-    });
-    
-    // Don't update counters here - will be done after unchecking checkboxes
-}
-
-function uncheckAllCheckboxes() {
-    document.querySelectorAll('.job-checkbox').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-}
-
-function updateJobCounters() {
-    // Update the saved jobs count in the status cards
-    // Count unique jobs by their job-id (not all checkboxes, since there are 2 per job - list & split view)
-    const allCheckboxes = document.querySelectorAll('.job-checkbox[data-job-id]');
-    const uniqueJobIds = new Set();
-    
-    allCheckboxes.forEach(checkbox => {
-        const jobId = checkbox.getAttribute('data-job-id');
-        if (jobId) {
-            uniqueJobIds.add(jobId);
-        }
-    });
-    
-    const remainingBookmarks = uniqueJobIds.size;
-    const savedCountElement = document.querySelector('.is-card.is-saved .card-text');
-    if (savedCountElement) {
-        savedCountElement.textContent = remainingBookmarks;
-    }
-}
-
-function applyToSelectedJobs(jobIds) {
-    if (!jobIds || jobIds.length === 0) {
-        showToast('No jobs to apply to.', 'warning');
-        return;
-    }
-    
-    // Show loading state
-    const applyBtn = document.getElementById('apply-btn');
-    const applyBtnBottom = document.getElementById('apply-btn-bottom');
-    const originalHtml = applyBtn ? applyBtn.innerHTML : '';
-    
-    if (applyBtn) {
-    applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
-    applyBtn.disabled = true;
-    }
-    if (applyBtnBottom) {
-        applyBtnBottom.innerHTML = '<div class="spinner-border spinner-border-sm"></div>';
-        applyBtnBottom.disabled = true;
-    }
-    
-    // Apply to each job
-    const applyPromises = jobIds.map(jobId => {
-        return applyToJob(jobId);
-    });
-    
-    // Execute all apply operations
-    Promise.allSettled(applyPromises).then(results => {
-        const successful = results.filter(r => r.status === 'fulfilled').length;
-        const failed = results.filter(r => r.status === 'rejected').length;
-        
-        // Reset button
-        if (applyBtn) {
-        applyBtn.innerHTML = originalHtml;
-        applyBtn.disabled = false;
-        }
-        if (applyBtnBottom) {
-            applyBtnBottom.innerHTML = '<svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g data-name="Layer 2"><g data-name="checkmark-circle"><rect width="24" height="24" opacity="0"/><path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/><path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 a1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/></g></g></svg>';
-            applyBtnBottom.disabled = false;
-        }
-        
-        // Show results
-        if (failed === 0) {
-            showToast(`Successfully applied to ${successful} job(s)!`, 'success');
-        } else {
-            showToast(`Applied to ${successful} job(s), ${failed} failed.`, 'warning');
-        }
-        
-        // Refresh the page to update the UI
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-    });
-}
 
 function applyToJob(jobId) {
     if (confirm('Are you sure you want to apply to this job?')) {
@@ -6741,7 +7101,7 @@ function startSavedJobsTour() {
                 },
                 {
                     element: document.querySelector('#email-btn') || document.querySelector('.job-actions-left'),
-                    intro: "<h4>Action Buttons</h4><p>These buttons allow you to perform actions on selected jobs: <strong>Notify of hire</strong> to mark jobs as hired, <strong>Email</strong> to send job details via email, and <strong>Apply</strong> to submit applications to selected jobs.</p>",
+                    intro: "<h4>Action Buttons</h4><p>These buttons allow you to perform actions on selected jobs: <strong>Email</strong> to send job details via email, and <strong>Apply</strong> to submit applications to selected jobs.</p>",
                     position: 'bottom'
                 },
                 {
@@ -7048,7 +7408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   },
                   {
                       element: document.querySelector('#email-btn') || document.querySelector('.job-actions-left'),
-                      intro: "<h4>Action Buttons</h4><p>These buttons allow you to perform actions on selected jobs: <strong>Notify of hire</strong> to mark jobs as hired, <strong>Email</strong> to send job details via email, and <strong>Apply</strong> to submit applications to selected jobs.</p>",
+                      intro: "<h4>Action Buttons</h4><p>These buttons allow you to perform actions on selected jobs: <strong>Email</strong> to send job details via email, and <strong>Apply</strong> to submit applications to selected jobs.</p>",
                       position: 'bottom'
                   },
                   {

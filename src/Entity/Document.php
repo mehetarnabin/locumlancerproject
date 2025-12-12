@@ -21,11 +21,23 @@ class Document
     #[ORM\ManyToOne]
     private ?User $user = null;
 
+    #[ORM\ManyToOne]
+    private ?Application $application = null;
+
+    #[ORM\ManyToOne]
+    private ?User $provider = null;
+
     #[ORM\Column(length: 255, nullable: true)] // Make name nullable
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
     private ?string $fileName = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $filePath = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $mimeType = null;
@@ -59,6 +71,46 @@ class Document
     public function setUser(?User $user): void
     {
         $this->user = $user;
+    }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(?Application $application): void
+    {
+        $this->application = $application;
+    }
+
+    public function getProvider(): ?User
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(?User $provider): void
+    {
+        $this->provider = $provider;
+    }
+
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath(?string $filePath): void
+    {
+        $this->filePath = $filePath;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getName(): ?string // Return type can be null

@@ -23,7 +23,10 @@ use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
+use App\Repository\DocumentRequestRepository;
 
 #[Route('/provider')]
 class DashboardController extends AbstractController
@@ -166,6 +169,51 @@ class DashboardController extends AbstractController
             return $b->getCreatedAt() <=> $a->getCreatedAt();
         });
 
+        // Group document requests by employer for bundling
+        $bundledTodos = [];
+        $documentRequestTodos = [];
+        $otherTodos = [];
+
+        foreach ($todos as $todo) {
+            // Only bundle document requests that have an employer
+            if ($todo->getDocumentRequest() && $todo->getEmployer()) {
+                $employerId = $todo->getEmployer()->getId()->toString();
+                if (!isset($documentRequestTodos[$employerId])) {
+                    $documentRequestTodos[$employerId] = [
+                        'employer' => $todo->getEmployer(),
+                        'todos' => [],
+                        'latestDate' => $todo->getCreatedAt(),
+                    ];
+                }
+                $documentRequestTodos[$employerId]['todos'][] = $todo;
+                // Update latest date if this todo is newer
+                if ($todo->getCreatedAt() > $documentRequestTodos[$employerId]['latestDate']) {
+                    $documentRequestTodos[$employerId]['latestDate'] = $todo->getCreatedAt();
+                }
+            } else {
+                $otherTodos[] = $todo;
+            }
+        }
+
+        // Convert bundled document requests to single todo items
+        foreach ($documentRequestTodos as $employerId => $bundle) {
+            $bundledTodo = new ToDo();
+            $bundledTodo->setTitle('📄 Document Request');
+            $bundledTodo->setEmployer($bundle['employer']);
+            $bundledTodo->setProvider($provider);
+            $bundledTodo->setCreatedAt($bundle['latestDate']);
+            $bundledTodo->setType('bundled_document_request');
+            // Store the count in description for reference
+            $bundledTodo->setDescription(count($bundle['todos']) . ' document(s)');
+            $bundledTodos[] = $bundledTodo;
+        }
+
+        // Merge bundled todos with other todos and sort
+        $finalTodos = array_merge($bundledTodos, $otherTodos);
+        usort($finalTodos, function ($a, $b) {
+            return $b->getCreatedAt() <=> $a->getCreatedAt();
+        });
+
         return $this->render('provider/dashboard.html.twig', [
             'bookmarks' => $bookmarks,
             'matchingJobs' => $matchingJobs,
@@ -182,7 +230,8 @@ class DashboardController extends AbstractController
             'metrics' => $metrics,
             'skills' => $skills,
             'resume' => $resume,
-            'todos' => $todos,
+            'todos' => $finalTodos,
+            'bundledDocumentRequests' => $documentRequestTodos, // Pass bundled data for popup
             'hasProvider' => $provider !== null,
         ]);
     }
@@ -214,5 +263,54 @@ class DashboardController extends AbstractController
         $em->flush();
 
         return $this->json(['success' => true, 'isDone' => $todo->isDone()]);
+    }
+
+    #[Route('/todos/employer/{employerId}/document-requests', name: 'app_provider_employer_document_requests', methods: ['GET'])]
+    public function getEmployerDocumentRequests(
+        string $employerId,
+        EntityManagerInterface $em,
+        DocumentRequestRepository $documentRequestRepository
+    ): JsonResponse {
+        $user = $this->getUser();
+        $provider = $user->getProvider();
+
+        if (!$provider) {
+            return $this->json(['success' => false, 'message' => 'Provider not found'], 404);
+        }
+
+        try {
+            // Convert string to UUID
+            $employerUuid = Uuid::fromString($employerId);
+        } catch (\Exception $e) {
+            return $this->json(['success' => false, 'message' => 'Invalid employer ID'], 400);
+        }
+
+        // Get all pending document requests for this provider from this employer
+        $documentRequests = $documentRequestRepository->createQueryBuilder('dr')
+            ->leftJoin('dr.application', 'a')
+            ->leftJoin('a.employer', 'e')
+            ->where('dr.provider = :provider')
+            ->andWhere('dr.providedAt IS NULL')
+            ->andWhere('e.id = :employerId')
+            ->setParameter('provider', $provider)
+            ->setParameter('employerId', $employerUuid, UuidType::NAME)
+            ->orderBy('dr.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $data = array_map(function (DocumentRequest $dr) {
+            return [
+                'id' => $dr->getId()->toString(),
+                'name' => $dr->getName(),
+                'createdAt' => $dr->getCreatedAt()?->format('M d, Y h:i A'),
+                'application' => $dr->getApplication()?->getJob()?->getTitle() ?? 'N/A',
+            ];
+        }, $documentRequests);
+
+        return $this->json([
+            'success' => true,
+            'documentRequests' => $data,
+            'count' => count($data),
+        ]);
     }
 }

@@ -51,17 +51,15 @@ class DocumentType extends AbstractType
             ->add('issueDate', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
-                'html5' => false,
             ])
             ->add('expirationDate', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
-                'html5' => false,
             ])
             ->add('fileName', FileType::class, [
                 'label' => 'Choose File (PDF or DOCX)',
                 'mapped' => false,
-                'required' => !($options['is_edit'] ?? false), // Required for new upload, optional for edit
+                'required' => $options['is_edit'] ?? true, // true for new upload, false for edit
                 'constraints' => [
                     new File([
                         'maxSize' => '8M',
@@ -75,14 +73,13 @@ class DocumentType extends AbstractType
                 ],
                 'help' => 'Max upload size 8MB. Only PDF and DOCX allowed.',
             ]);
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Document::class,
-            'is_edit' => false, // Default to false (new upload mode)
-            'allow_extra_fields' => true, // Allow extra fields for AJAX submission
         ]);
     }
 }

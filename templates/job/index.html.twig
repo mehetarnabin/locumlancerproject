@@ -761,29 +761,96 @@
                 }
             });
 
-            // --- AJAX Job Detail Loading ---
+            // --- Split View Job Detail Loading ---
             function attachJobCardClickHandler() {
                 $('.job-info-card').off('click').on('click', function(event) {
                     event.preventDefault();
                     // Prevent page reload
                     // Get job ID and URL from data attributes
+                    const jobId = $(this).data('job-id');
                     const jobUrl = $(this).data('job-url');
-                    // Remove 'active' class from all job cards and add to the...
+                    
+                    // Remove 'active' class from all job cards and add to the clicked one
                     $('.job-info-card.active').removeClass('active');
                     $(this).addClass('active');
-                    // Show a loading indicator
-                    $('#job-detail-container').html('<div class="loading-spinner"></div>');
-                    // Fetch job details via AJAX
+                    
+                    // Open split view if not already open
+                    const splitViewContainer = $('#split-view-container');
+                    const jobListContainer = $('.job-sidebar').closest('.col-md-4');
+                    const detailContainer = $('#job-detail-container').closest('.col-md-8');
+                    
+                    // Check if split view is already active
+                    if (!splitViewContainer.length || splitViewContainer.css('display') === 'none') {
+                        // Create split view container if it doesn't exist
+                        if (!splitViewContainer.length) {
+                            $('body').append(`
+                                <div class="split-view-container" id="split-view-container" style="display: grid; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: white; grid-template-columns: 400px 1fr; gap: 0;">
+                                    <div class="split-job-list" id="split-job-list" style="overflow-y: auto; border-right: 1px solid #e6eef6; padding: 20px; background: #f8f9fa; height: 100%;"></div>
+                                    <div class="split-job-details" id="split-job-details" style="overflow-y: auto; overflow-x: hidden; padding: 20px; height: 100%; max-height: 100%; scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc;"></div>
+                                    <button class="close-split-view" style="position: absolute; top: 10px; right: 10px; z-index: 10000; background: white; border: 1px solid #e6eef6; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 14px;">Close</button>
+                                </div>
+                                <style>
+                                #split-view-container .split-job-details::-webkit-scrollbar {
+                                    width: 8px;
+                                    display: block;
+                                }
+                                #split-view-container .split-job-details::-webkit-scrollbar-track {
+                                    background: #f7fafc;
+                                    border-radius: 4px;
+                                }
+                                #split-view-container .split-job-details::-webkit-scrollbar-thumb {
+                                    background: #cbd5e0;
+                                    border-radius: 4px;
+                                }
+                                #split-view-container .split-job-details::-webkit-scrollbar-thumb:hover {
+                                    background: #a0aec0;
+                                }
+                                </style>
+                            `);
+                            
+                            // Add close button handler
+                            $('.close-split-view').on('click', function() {
+                                $('#split-view-container').hide();
+                            });
+                            
+                            // Copy job list to split view
+                            const jobListHtml = $('.job-sidebar').html();
+                            $('#split-job-list').html(`
+                                <div class="job-sidebar">${jobListHtml}</div>
+                            `);
+                            
+                            // Re-attach click handlers to the new job cards in split view
+                            attachJobCardClickHandler();
+                        } else {
+                            splitViewContainer.show();
+                        }
+                    }
+                    
+                    // Show loading indicator in split view
+                    $('#split-job-details').html('<div class="text-center py-5"><div class="spinner-border text-primary mb-3" role="status"></div><p>Loading job details...</p></div>');
+                    
+                    // Fetch job details via AJAX - use the detail route
+                    const detailUrl = '/jobs/detail/' + jobId;
                     $.ajax({
-                        url: jobUrl,
+                        url: detailUrl,
                         type: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
                         success: function(response) {
                             const newHtml = $(response);
                             const jobDetails = newHtml.find('.job-detail').html();
+                            if (!jobDetails) {
+                                // Try to get the full response if no .job-detail found
+                                jobDetails = newHtml.html();
+                            }
+                            $('#split-job-details').html('<div class="job-detail" id="job-detail-content">' + jobDetails + '</div>');
+                            
+                            // Also update the regular detail container for consistency
                             $('#job-detail-container').html('<div class="job-detail" id="job-detail-content">' + jobDetails + '</div>');
                         },
                         error: function() {
-                            $('#job-detail-container').html('<div class="text-center p-5"><p>Error loading job details. Please try again.</p></div>');
+                            $('#split-job-details').html('<div class="text-center p-5"><p>Error loading job details. Please try again.</p></div>');
                         }
                     });
                 });

@@ -639,27 +639,14 @@ class ApplicationController extends AbstractController
             }
         }
 
-        $debugLog .= "Final bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
+        $debugLog .= "Final bookmark IDs (pre-normalize): " . print_r($bookmarkIds, true) . "\n";
 
-        // Handle both JSON and form-encoded requests
-        $bookmarkIdsJson = null;
-        if ($request->isXmlHttpRequest() && $request->getContentType() === 'json') {
-            $data = json_decode($request->getContent(), true);
-            $bookmarkIdsJson = $data['bookmark_ids'] ?? null;
-        } else {
-            $bookmarkIdsJson = $request->request->get('bookmark_ids');
+        // Normalize: ensure array of unique, non-empty strings
+        if (!is_array($bookmarkIds)) {
+            $bookmarkIds = [];
         }
-        
-        $debugLog .= "Raw bookmark_ids: " . $bookmarkIdsJson . "\n";
-        
-        // Decode JSON string if it's a JSON string, otherwise treat as array
-        if (is_string($bookmarkIdsJson)) {
-            $bookmarkIds = json_decode($bookmarkIdsJson, true);
-        } else {
-            $bookmarkIds = $bookmarkIdsJson;
-        }
-        
-        $debugLog .= "Decoded bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
+        $bookmarkIds = array_values(array_filter(array_unique(array_map('strval', $bookmarkIds))));
+        $debugLog .= "Normalized bookmark IDs: " . print_r($bookmarkIds, true) . "\n";
 
         if (empty($bookmarkIds)) {
             $debugLog .= "ERROR: No bookmarks selected for deletion\n";

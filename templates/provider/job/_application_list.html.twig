@@ -42,9 +42,22 @@
 .todo-icon svg {
     width: 16px;
     height: 16px;
-    stroke: #85BB65;
     fill: none;
 }
+.todo-icon-wrapper { cursor: pointer; pointer-events: auto; position: relative; z-index: 100001; }
+.todo-icon { pointer-events: auto; position: relative; z-index: 100002; }
+.todo-icon svg { pointer-events: auto; }
+.todo-icon.status-applied svg { stroke: #f59e0b; }
+.todo-icon.status-shortlisted svg { stroke: #3b82f6; }
+.todo-icon.status-in_review svg,
+.todo-icon.status-inreview svg { stroke: #3b82f6; }
+.todo-icon.status-interview svg,
+.todo-icon.status-interviewing svg { stroke: #8b5cf6; }
+.todo-icon.status-negotiating svg { stroke: #ef4444; }
+.todo-icon.status-offered svg { stroke: #f59e0b; }
+.todo-icon.status-accepted svg { stroke: #10b981; }
+.todo-icon.status-hired svg { stroke: #10b981; }
+.todo-icon.status-completed svg { stroke: #64748b; }
 
 .todo-popup {
     position: fixed;
@@ -152,11 +165,16 @@
             {{ job.workType|default('—')|replace({'_': ' '})|title }}
         {% endif %}
       </div>
+      {% if hideTodoColumn is not defined or not hideTodoColumn %}
       <div class="col-start col-center" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
           {% set todoTask = null %}
+          {% set isAssigned = assignedJobIds is defined and (job.id) in assignedJobIds %}
           {% set hasNewRequests = application.documentRequests|length > 0 %}
           {% set pendingDocs = false %}
           {% set pendingDocNames = [] %}
+          {% set jobKey = job.id ~ '' %}
+          {% set docsForJob = pendingDocsByJob[jobKey]|default([]) %}
+          {% set docStatusText = docStatusesTextByJob[jobKey]|default('') %}
           {% for dr in application.documentRequests %}
               {% if not dr.providedAt %}
                   {% set pendingDocs = true %}
@@ -165,6 +183,7 @@
           {% endfor %}
 
           
+          {% set statusLower = application.status|lower|replace({'_': ''}) %}
           {% if hasNewRequests and pendingDocs %}
               {# Keep action generic for JS handler, but make display specific #}
               {% set todoTask = 'Provide requested documents' %}
@@ -175,29 +194,89 @@
           {% elseif application.contractSentAt and not application.contractSignedAt %}
               {% set todoTask = 'Sign and return contract' %}
               {% set displayTask = todoTask %}
+          {% elseif application.status == 'applied' or statusLower == 'applied' %}
+              {% set todoTask = 'Revisit Alert' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'shortlisted' or statusLower == 'shortlisted' %}
+              {% set todoTask = 'Open Response' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'in_review' or statusLower == 'inreview' %}
+              {% set todoTask = 'Check status' %}
+              {% set displayTask = todoTask %}
           {# {% elseif application.oneFileRequestedAt and not application.oneFileProvidedAt %}
               {% set todoTask = 'Provide OneFile documents' %} #}
-          {% elseif application.status == 'interview' %}
-              {% set todoTask = 'Prepare for interview' %}
+          {% elseif application.status == 'interview' or application.status == 'interviewing' or statusLower == 'interview' or statusLower == 'interviewing' %}
+              {% set todoTask = 'Confirm interview' %}
               {% set displayTask = todoTask %}
-          {% elseif application.status == 'negotiating' %}
-              {% set todoTask = 'Review and respond to offer' %}
+          {% elseif application.status == 'negotiating' or statusLower == 'negotiating' %}
+              {% set todoTask = 'Sign offer' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'offered' or statusLower == 'offered' %}
+              {% set todoTask = 'Review offer' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'accepted' or statusLower == 'accepted' %}
+              {% set todoTask = 'Open Credentialing Docs' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'hired' or statusLower == 'hired' %}
+              {% set todoTask = 'View details' %}
+              {% set displayTask = todoTask %}
+          {% elseif application.status == 'completed' or statusLower == 'completed' %}
+              {% set todoTask = 'See your review' %}
               {% set displayTask = todoTask %}
           {% endif %}
+          {% set tooltipText = docStatusText ?: ((docsForJob|length > 0) ? ('Docs: ' ~ docsForJob|join(', ')) : (displayTask|default('Assigned'))) %}
           
            {% if todoTask %}
-              <div class="todo-icon-wrapper" data-bs-toggle="tooltip" title="{{ displayTask }}">
-                  <div class="todo-icon" data-todo-action="{{ todoTask }}" data-todo-type="application" data-application-id="{{ application.id }}" data-status="{{ application.status }}">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <div class="todo-icon-wrapper" title="{{ tooltipText }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" aria-controls="assignedDocsModal" data-bs-toggle="modal" data-bs-target="#assignedDocsModal" style="pointer-events:auto; z-index:100010;" onclick="return handleTodoIconClick(event, this)">
+                  <div class="todo-icon status-{{ application.status }}" data-todo-action="{{ todoTask }}" data-todo-type="application" data-todo-icon-type="{{ application.status in ['interview','interviewing'] ? 'interview' : 'documents' }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" data-status="{{ application.status }}" style="pointer-events:auto; z-index:100011;" onclick="return handleTodoIconClick(event, this.parentElement)">
+                      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                          <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                          {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                          {% if application.status == 'applied' or statusLower == 'applied' %}
+                              <circle cx="18" cy="10" r="1.5" fill="currentColor" />
+                          {% elseif application.status == 'shortlisted' or statusLower == 'shortlisted' %}
+                              <path d="M16 12L18 14L21 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          {% elseif application.status == 'in_review' or statusLower == 'inreview' %}
+                              <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                              <path d="M18 10.5V12L19 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                          {% elseif application.status in ['interview','interviewing'] or statusLower == 'interview' or statusLower == 'interviewing' %}
+                              <rect x="14" y="10" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                              <path d="M16 12H18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                          {% elseif application.status == 'negotiating' or statusLower == 'negotiating' %}
+                              <path d="M14 12L18 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path d="M15 13C16.2 13.8 17.3 13.8 18.5 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                          {% elseif application.status == 'offered' or statusLower == 'offered' %}
+                              <path d="M14 12L18 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              <path d="M15 13C16.2 13.8 17.3 13.8 18.5 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                          {% elseif application.status == 'accepted' or statusLower == 'accepted' %}
+                              <path d="M16 12L18 14L21 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          {% elseif application.status == 'hired' or statusLower == 'hired' %}
+                              <path d="M16 12L18 14L21 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              <circle cx="18" cy="10" r="1" fill="currentColor" />
+                          {% elseif application.status == 'completed' or statusLower == 'completed' %}
+                              <path d="M18 10L19 12L21 12L19.5 13.2L20.2 15L18.8 14L17.4 15L18 13.2L16.5 12L18 12Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                          {% endif %}
                       </svg>
                   </div>
               </div>
           {% else %}
-              —
-          {% endif %}
+              {% if isAssigned %}
+                  <div class="todo-icon-wrapper" title="{{ docStatusText ?: ((docsForJob|length > 0) ? ('Docs: ' ~ docsForJob|join(', ')) : 'Assigned') }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" aria-controls="assignedDocsModal" data-bs-toggle="modal" data-bs-target="#assignedDocsModal" style="pointer-events:auto; z-index:100010;" onclick="return handleTodoIconClick(event, this)">
+                      <div class="todo-icon status-{{ application.status }}" data-todo-type="application" data-todo-icon-type="{{ application.status in ['interview','interviewing'] ? 'interview' : 'documents' }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" data-status="{{ application.status }}" style="pointer-events:auto; z-index:100011;" onclick="return handleTodoIconClick(event, this.parentElement)">
+                          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                              <path d="M4 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                              <path d="M16 12L18 14L21 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                      </div>
+                  </div>
+              {% else %}
+                  —
+              {% endif %}
+           {% endif %}
       </div>
+      {% endif %}
       <div class="col-start col-center col-rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
           <span class="rank-display" data-application-id="{{ application.id }}" style="font-size: 12px;">
             {{ application.rank is not null ? application.rank : '—' }}
@@ -226,3 +305,19 @@
     <p class="mb-0" style="font-size: 18px; color: #666; text-align: center;">No applications found.</p>
 </div>
 {% endif %}
+
+<script>
+document.addEventListener('click', function(e) {
+  var el = e.target.closest('.todo-icon-wrapper') || e.target.closest('.todo-icon');
+  if (!el) return;
+  try { window.handleTodoIconClick && window.handleTodoIconClick(e, el.classList.contains('todo-icon') ? el.parentElement : el); } catch (_) {}
+}, true);
+document.addEventListener('keydown', function(e) {
+  var el = e.target.closest('.todo-icon-wrapper');
+  if (!el) return;
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    try { window.handleTodoIconClick && window.handleTodoIconClick(e, el); } catch (_) {}
+  }
+}, true);
+</script>

@@ -7,6 +7,7 @@ use App\Entity\DocumentRequest;
 use App\Entity\Interview;
 use App\Entity\Job;
 use App\Entity\Review;
+use App\Entity\ToDo;
 use App\Event\ApplicationEvent;
 use App\Event\ReviewEvent;
 use App\Repository\ApplicationRepository;
@@ -45,6 +46,60 @@ class ApplicationController extends AbstractController
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
+        ]);
+    }
+
+    #[Route('/{id}/todo/create', name: 'app_employer_application_createtodo', methods: ['POST'])]
+    public function createTodoForApplication(Application $application, Request $request, EntityManagerInterface $em): Response
+    {
+        $employer = $this->getUser()->getEmployer();
+        if ($application->getEmployer() !== $employer) {
+            return $this->json(['success' => false, 'message' => 'Permission denied'], 403);
+        }
+
+        $payload = json_decode($request->getContent(), true) ?? [];
+        $actionKey = $payload['actionKey'] ?? null;
+        $status = $application->getStatus();
+
+        $map = [
+            'applied' => 'Revisit Alert',
+            'shortlisted' => 'Open Response',
+            'interview' => 'Confirm interview',
+            'interviewing' => 'Confirm interview',
+            'negotiating' => 'Sign offer',
+            'accepted' => 'Open Credentialing Docs',
+            'completed' => 'See your review',
+        ];
+
+        $title = null;
+        if ($actionKey && isset($map[$actionKey])) {
+            $title = $map[$actionKey];
+        } elseif ($status && isset($map[$status])) {
+            $title = $map[$status];
+        } else {
+            $title = 'Employer Task';
+        }
+
+        $todo = new ToDo();
+        $todo->setProvider($application->getProvider());
+        $todo->setEmployer($employer);
+        $todo->setJob($application->getJob());
+        $todo->setTitle($title);
+        $todo->setType('employer_task');
+        $todo->setIsCompleted(false);
+
+        $em->persist($todo);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'To-Do created for provider',
+            'todo' => [
+                'id' => (string)$todo->getId(),
+                'title' => $todo->getTitle(),
+                'type' => $todo->getType(),
+                'createdAt' => $todo->getCreatedAt()->format('c'),
+            ]
         ]);
     }
 

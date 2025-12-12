@@ -25,7 +25,7 @@ class MessageController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
-    
+
     #[Route('/messages', name: 'app_provider_messages')]
     public function index(Request $request, EntityManagerInterface $em)
     {
@@ -36,7 +36,7 @@ class MessageController extends AbstractController
         $offset = ($page - 1) * $perPage;
         $filters = [];
         $filters['keyword'] = $request->query->get('keyword');
-        
+
         // CRITICAL FIX: Proper filtering based on type
         switch ($type) {
             case 'inbox':
@@ -65,7 +65,7 @@ class MessageController extends AbstractController
 
         // Get thread-based messages with pagination
         $messageThreads = $em->getRepository(Message::class)->getThreadBasedMessages($offset, $perPage, $filters);
-        
+
         // Get total count for pagination
         $totalMessages = $em->getRepository(Message::class)->getCount($filters);
         $totalPages = ceil($totalMessages / $perPage);
@@ -79,7 +79,9 @@ class MessageController extends AbstractController
 
         return $this->render('provider/message/index.html.twig', [
             'message_threads' => $messageThreads,
-            'messages' => array_map(function($thread) { return $thread['root']; }, $messageThreads), // For backward compatibility
+            'messages' => array_map(function ($thread) {
+                return $thread['root'];
+            }, $messageThreads), // For backward compatibility
             'draft_count' => $draftCount,
             'trash_count' => $trashCount,
             'current_type' => $type,
@@ -96,10 +98,10 @@ class MessageController extends AbstractController
             ]
         ]);
     }
-    
+
     #[Route('/messages/new', name: 'app_provider_messages_new')]
     public function new(
-        Request $request, 
+        Request $request,
         EntityManagerInterface $em,
         EventDispatcherInterface $dispatcher,
         MailerInterface $mailer,
@@ -107,10 +109,10 @@ class MessageController extends AbstractController
         #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
     ) {
         $user = $this->getUser();
-        
+
         // Find provider by user relationship
         $provider = $em->getRepository(Provider::class)->findOneBy(['user' => $user]);
-        
+
         if (!$provider) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['error' => 'No provider profile found'], 400);
@@ -118,7 +120,7 @@ class MessageController extends AbstractController
             $this->addFlash('error', 'Please complete your provider profile before sending messages.');
             return $this->redirectToRoute('app_provider_profile');
         }
-        
+
         // Get employers
         try {
             $employers = $em->getRepository(User::class)->getEmployersForMessage($provider->getId());
@@ -138,7 +140,7 @@ class MessageController extends AbstractController
             error_log("Message Text: " . $request->get('message'));
             error_log("Save as Draft: " . ($request->get('save_as_draft') ? 'YES' : 'NO'));
             error_log("Draft ID: " . $request->get('draft_id'));
-            
+
             $receiverId = $request->get('receiver');
             $subject = $request->get('subject');
             $text = $request->get('message');
@@ -184,11 +186,11 @@ class MessageController extends AbstractController
             if ($receiverId) {
                 $employerUser = $em->getRepository(User::class)->find($receiverId);
                 error_log("🔍 RECEIVER USER: " . ($employerUser ? $employerUser->getId() : 'NOT FOUND'));
-                
+
                 if ($employerUser) {
                     $employer = $employerUser->getEmployer();
                     error_log("🔍 EMPLOYER: " . ($employer ? $employer->getId() : 'NO EMPLOYER'));
-                    
+
                     $message->setEmployer($employer);
                     $message->setReceiver($employerUser);
                     error_log("✅ RECEIVER SET: " . $employerUser->getEmail());
@@ -208,13 +210,13 @@ class MessageController extends AbstractController
             $message->setText($text);
 
             // Handle file upload BEFORE deciding to send or save draft
-            if($request->files->get('attachment')) {
+            if ($request->files->get('attachment')) {
                 $file = $request->files->get('attachment');
                 error_log("📎 ATTACHMENT FOUND: " . $file->getClientOriginalName());
 
                 $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$file->guessExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
                 try {
                     // Ensure directory exists
@@ -222,12 +224,12 @@ class MessageController extends AbstractController
                         mkdir($uploadDirectory, 0755, true);
                         error_log("📁 CREATED MESSAGES UPLOAD DIRECTORY: " . $uploadDirectory);
                     }
-                    
+
                     $file->move($uploadDirectory, $newFilename);
                     $message->setAttachment($newFilename);
                     error_log("✅ ATTACHMENT UPLOADED: " . $newFilename);
                     error_log("📁 STORED AT: " . $uploadDirectory . '/' . $newFilename);
-                    
+
                     // Verify the file was actually saved
                     if (file_exists($uploadDirectory . '/' . $newFilename)) {
                         error_log("✅ FILE VERIFICATION: File exists after upload");
@@ -258,24 +260,24 @@ class MessageController extends AbstractController
                 $message->setSeen(false); // Sent messages start as unread for receiver
                 $successMessage = 'Message has been sent successfully';
                 $redirectParams = ['type' => 'sent'];
-                
+
                 error_log("📤 SENDING MESSAGE");
                 error_log("📧 RECEIVER EMAIL: " . ($message->getReceiver() ? $message->getReceiver()->getEmail() : 'NO EMAIL'));
-                
+
                 // Only dispatch event and send email for actual sent messages
                 if ($message->getReceiver()) {
                     $dispatcher->dispatch(new MessageEvent($message), MessageEvent::MESSAGE_CREATED);
-                    
+
                     // ✅ DEBUG: Check if attachment exists before sending email
                     if ($message->getAttachment()) {
                         $filePath = $uploadDirectory . '/' . $message->getAttachment();
-                        
+
                         error_log("🔍 PRE-EMAIL ATTACHMENT CHECK:");
                         error_log("  - Attachment: " . $message->getAttachment());
                         error_log("  - File path: " . $filePath);
                         error_log("  - Exists: " . (file_exists($filePath) ? 'YES' : 'NO'));
                         error_log("  - Readable: " . (is_readable($filePath) ? 'YES' : 'NO'));
-                        
+
                         if (file_exists($filePath)) {
                             $originalFilename = $this->getOriginalFilename($message->getAttachment());
                             error_log("  - Original filename: " . $originalFilename);
@@ -284,7 +286,7 @@ class MessageController extends AbstractController
                     } else {
                         error_log("ℹ️ NO ATTACHMENT TO CHECK");
                     }
-                    
+
                     $this->sendEmailToReceiver($message, $mailer);
                 } else {
                     error_log("⚠️ NO RECEIVER - CANNOT SEND EMAIL");
@@ -315,7 +317,7 @@ class MessageController extends AbstractController
         EntityManagerInterface $em
     ): JsonResponse {
         $user = $this->getUser();
-        
+
         $data = json_decode($request->getContent(), true);
         $draftId = $data['id'] ?? null;
         $receiverId = $data['receiver_id'] ?? null;
@@ -374,7 +376,7 @@ class MessageController extends AbstractController
     public function loadDraft(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only load their own drafts
         if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -383,11 +385,11 @@ class MessageController extends AbstractController
         // Get upload directory for attachment path
         $uploadDirectory = $this->getParameter('messages_attachments_directory');
         $attachmentInfo = null;
-        
+
         if ($message->getAttachment()) {
             $filePath = $uploadDirectory . '/' . $message->getAttachment();
             $fileExists = file_exists($filePath);
-            
+
             $attachmentInfo = [
                 'filename' => $message->getAttachment(),
                 'original_filename' => $this->getOriginalFilename($message->getAttachment()),
@@ -417,7 +419,7 @@ class MessageController extends AbstractController
     public function deleteDraft(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check
         if ($message->getSender()->getId() !== $user->getId() || !$message->isDraft()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -429,7 +431,7 @@ class MessageController extends AbstractController
             $message->setDeletedAt(new \DateTime());
             // Keep isDraft = true so we know it was originally a draft
             // This helps if we want to restore it back to drafts
-            
+
             $em->persist($message);
             $em->flush();
 
@@ -455,11 +457,44 @@ class MessageController extends AbstractController
         return new JsonResponse(['count' => $count]);
     }
 
+    // Get message data for forwarding (JSON endpoint)
+    #[Route('/messages/{id}/forward-data', name: 'app_provider_message_forward_data', methods: ['GET'])]
+    public function getMessageForwardData(Message $message, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+
+        // Security check - user must be sender or receiver
+        $isSender = $message->getSender() && $message->getSender()->getId() === $user->getId();
+        $isReceiver = $message->getReceiver() && $message->getReceiver()->getId() === $user->getId();
+
+        if (!$isSender && !$isReceiver) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        // Get root message for thread context
+        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+        
+        $senderName = $message->getSender() ? ($message->getSender()->getName() ?: $message->getSender()->getEmail()) : 'Unknown';
+        $createdAt = $message->getCreatedAt() ? $message->getCreatedAt()->format('F j, Y \\a\\t g:i A') : '';
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => [
+                'id' => $message->getId(),
+                'subject' => $message->getSubject() ?: 'No subject',
+                'text' => $message->getText(),
+                'sender_name' => $senderName,
+                'created_at' => $createdAt,
+                'root_id' => $rootMessage->getId(),
+            ]
+        ]);
+    }
+
     #[Route('/message/{id}/show', name: 'app_provider_message_show', methods: ['GET'])]
     public function show(Message $message, EntityManagerInterface $em)
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only view their own messages
         if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You cannot access this message.');
@@ -481,10 +516,10 @@ class MessageController extends AbstractController
 
         // Get root message (thread starter)
         $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
-        
+
         // Get all messages in the thread
         $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
-        
+
         return $this->render('provider/message/show.html.twig', [
             'message' => $message,
             'root_message' => $rootMessage,
@@ -516,14 +551,14 @@ class MessageController extends AbstractController
         $reply->setParent($message);
         $reply->setEmployer($message->getEmployer());
         $reply->setSender($user);
-        
+
         // Set receiver - if user is sender, reply goes to original receiver, and vice versa
         if ($message->getSender()->getId() === $user->getId()) {
             $reply->setReceiver($message->getReceiver());
         } else {
             $reply->setReceiver($message->getSender());
         }
-        
+
         $reply->setText($request->request->get('message'));
 
         if ($file = $request->files->get('attachment')) {
@@ -553,7 +588,7 @@ class MessageController extends AbstractController
     public function delete(Message $message, EntityManagerInterface $entityManager, Request $request): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only delete their own messages
         if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -563,7 +598,7 @@ class MessageController extends AbstractController
             // Instead of removing, move to trash
             $message->setDeleted(true);
             $message->setDeletedAt(new \DateTime());
-            
+
             $entityManager->persist($message);
             $entityManager->flush();
 
@@ -594,7 +629,7 @@ class MessageController extends AbstractController
     public function restoreMessage(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only restore their own messages
         if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -608,10 +643,10 @@ class MessageController extends AbstractController
         try {
             $message->setDeleted(false);
             $message->setDeletedAt(null);
-            
+
             // If it was originally a draft, it stays as a draft when restored
             // If it was a sent message, it goes back to sent folder
-            
+
             $em->persist($message);
             $em->flush();
 
@@ -633,7 +668,7 @@ class MessageController extends AbstractController
     public function permanentDelete(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only delete their own messages
         if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -665,7 +700,7 @@ class MessageController extends AbstractController
     public function emptyTrash(EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Find all deleted messages for this user (both regular messages and drafts)
         $messages = $em->getRepository(Message::class)->findBy([
             'deleted' => true,
@@ -675,7 +710,7 @@ class MessageController extends AbstractController
         foreach ($messages as $message) {
             $em->remove($message);
         }
-        
+
         $em->flush();
 
         return new JsonResponse([
@@ -690,7 +725,7 @@ class MessageController extends AbstractController
     public function markAsRead(Message $message, EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        
+
         // Security check - user can only mark their own received messages as read
         if ($message->getReceiver()->getId() !== $user->getId()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
@@ -706,6 +741,111 @@ class MessageController extends AbstractController
         ]);
     }
 
+    // FORWARD ENTIRE THREAD
+    #[Route('/messages/{id}/forward-thread', name: 'app_provider_message_forward_thread', methods: ['GET', 'POST'])]
+    public function forwardThread(
+        Message $message,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher,
+        MailerInterface $mailer,
+        SluggerInterface $slugger,
+        #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
+    ) {
+        $user = $this->getUser();
+
+        // Get root message (thread starter)
+        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+
+        // Security check
+        $isSender = $rootMessage->getSender() && $rootMessage->getSender()->getId() === $user->getId();
+        $isReceiver = $rootMessage->getReceiver() && $rootMessage->getReceiver()->getId() === $user->getId();
+
+        if (!$isSender && !$isReceiver) {
+            $this->addFlash('error', 'You cannot forward this thread.');
+            return $this->redirectToRoute('app_provider_messages');
+        }
+
+        // Get all messages in thread
+        $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+
+        // Get employers for the forward modal
+        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+
+        // Handle POST request (actual forwarding)
+        if ($request->isMethod('POST')) {
+            $receiverId = $request->get('receiver');
+            $forwardText = $request->get('forward_message');
+            $subject = $request->get('subject');
+
+            // Validation
+            if (empty($receiverId) || empty(trim($forwardText))) {
+                $this->addFlash('error', 'Receiver and message are required to forward');
+                return $this->redirectToRoute('app_provider_messages');
+            }
+
+            // Build forwarded content with entire thread
+            $forwardedContent = $this->buildForwardedThreadContent($threadMessages, $forwardText);
+
+            // Create forwarded message
+            $forwardedMessage = new Message();
+            $forwardedMessage->setSender($user);
+            $forwardedMessage->setIsForwarded(true);
+            $forwardedMessage->setOriginalSubject($rootMessage->getSubject());
+
+            // Set receiver
+            $receiverUser = $em->getRepository(User::class)->find($receiverId);
+            if ($receiverUser) {
+                $forwardedMessage->setReceiver($receiverUser);
+                $forwardedMessage->setEmployer($receiverUser->getEmployer());
+            } else {
+                $this->addFlash('error', 'Receiver not found');
+                return $this->redirectToRoute('app_provider_messages');
+            }
+
+            $forwardedMessage->setText($forwardedContent);
+            $forwardedMessage->setSubject($subject ?: $this->buildForwardSubject($rootMessage->getSubject()));
+            $forwardedMessage->setSentAt(new \DateTime());
+
+            // Handle file upload for new attachment
+            if ($request->files->get('attachment')) {
+                $file = $request->files->get('attachment');
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+                try {
+                    if (!is_dir($uploadDirectory)) {
+                        mkdir($uploadDirectory, 0755, true);
+                    }
+
+                    $file->move($uploadDirectory, $newFilename);
+                    $forwardedMessage->setAttachment($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('warning', 'Message forwarded but file upload failed');
+                }
+            }
+
+            $em->persist($forwardedMessage);
+            $em->flush();
+
+            // Send email notification
+            $dispatcher->dispatch(new MessageEvent($forwardedMessage), MessageEvent::MESSAGE_CREATED);
+            $this->sendEmailToReceiver($forwardedMessage, $mailer);
+
+            $this->addFlash('success', 'Thread has been forwarded successfully');
+            return $this->redirectToRoute('app_provider_messages', ['type' => 'sent']);
+        }
+
+        // For GET request, show the forward form
+        return $this->render('provider/message/forward.html.twig', [
+            'message' => $rootMessage,
+            'thread_messages' => $threadMessages,
+            'forward_thread' => true,
+            'employers' => $employers,
+        ]);
+    }
+
     // FORWARD FUNCTIONALITY - RENAMED TO AVOID CONFLICT
     #[Route('/messages/{id}/forward-message', name: 'app_provider_message_forward', methods: ['GET', 'POST'])]
     public function forwardMessage(
@@ -718,12 +858,22 @@ class MessageController extends AbstractController
         #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
     ) {
         $user = $this->getUser();
-        
-        // Security check - user can only forward messages they have access to
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+
+        // Get root message (thread starter) - same as forwardThread method
+        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+
+        // Security check - use same logic as forwardThread
+        // Check if user is sender or receiver of the root message (handle null cases properly)
+        $isSender = $rootMessage->getSender() && $rootMessage->getSender()->getId() === $user->getId();
+        $isReceiver = $rootMessage->getReceiver() && $rootMessage->getReceiver()->getId() === $user->getId();
+
+        if (!$isSender && !$isReceiver) {
             $this->addFlash('error', 'You cannot forward this message.');
             return $this->redirectToRoute('app_provider_messages');
         }
+
+        // Use the original message (not root) for forwarding individual message
+        // But we've verified access via root message
 
         // Get employers for the forward modal
         $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
@@ -745,7 +895,7 @@ class MessageController extends AbstractController
             $forwardedMessage->setSender($user);
             $forwardedMessage->setIsForwarded(true);
             $forwardedMessage->setOriginalSubject($message->getSubject());
-            
+
             // Set receiver
             $receiverUser = $em->getRepository(User::class)->find($receiverId);
             if ($receiverUser) {
@@ -773,7 +923,7 @@ class MessageController extends AbstractController
                     if (!is_dir($uploadDirectory)) {
                         mkdir($uploadDirectory, 0755, true);
                     }
-                    
+
                     $file->move($uploadDirectory, $newFilename);
                     $forwardedMessage->setAttachment($newFilename);
                 } catch (FileException $e) {
@@ -804,30 +954,32 @@ class MessageController extends AbstractController
     public function downloadAttachment(string $filename, #[Autowire('%messages_attachments_directory%')] string $uploadDirectory): Response
     {
         $user = $this->getUser();
-        
+
         // Security: Find the message that contains this attachment
         $message = $this->entityManager->getRepository(Message::class)
             ->findOneBy(['attachment' => $filename]);
-        
+
         if (!$message) {
             throw $this->createNotFoundException('Attachment not found');
         }
-        
+
         // Security: User must be sender or receiver of the message
-        if ($message->getSender()->getId() !== $user->getId() && 
-            (!$message->getReceiver() || $message->getReceiver()->getId() !== $user->getId())) {
+        if (
+            $message->getSender()->getId() !== $user->getId() &&
+            (!$message->getReceiver() || $message->getReceiver()->getId() !== $user->getId())
+        ) {
             throw $this->createAccessDeniedException('You cannot access this attachment');
         }
-        
+
         $filePath = $uploadDirectory . '/' . $filename;
-        
+
         if (!file_exists($filePath)) {
             throw $this->createNotFoundException('File not found');
         }
-        
+
         // Get original filename
         $originalFilename = $this->getOriginalFilename($filename);
-        
+
         return $this->file($filePath, $originalFilename);
     }
 
@@ -835,7 +987,7 @@ class MessageController extends AbstractController
     {
         $originalSender = $originalMessage->getSender()->getName() ?: $originalMessage->getSender()->getEmail();
         $originalDate = $originalMessage->getCreatedAt()->format('F j, Y \\a\\t g:i A');
-        
+
         $content = "---------- Forwarded message ---------\n";
         $content .= "From: {$originalSender}\n";
         $content .= "Date: {$originalDate}\n";
@@ -844,13 +996,37 @@ class MessageController extends AbstractController
         $content .= $originalMessage->getText() . "\n\n";
         $content .= "----------\n\n";
         $content .= $forwardText;
-        
+
         return $content;
     }
 
     private function buildForwardSubject(string $originalSubject): string
     {
         return "Fwd: " . $originalSubject;
+    }
+
+    private function buildForwardedThreadContent(array $threadMessages, string $forwardText): string
+    {
+        $content = "---------- Forwarded conversation ---------\n";
+        $content .= "Total messages: " . count($threadMessages) . "\n\n";
+
+        foreach ($threadMessages as $msg) {
+            $sender = $msg->getSender()->getName() ?: $msg->getSender()->getEmail();
+            $receiver = $msg->getReceiver() ? ($msg->getReceiver()->getName() ?: $msg->getReceiver()->getEmail()) : 'Unknown';
+            $date = $msg->getCreatedAt()->format('F j, Y \\a\\t g:i A');
+
+            $content .= "----------\n";
+            $content .= "From: {$sender}\n";
+            $content .= "To: {$receiver}\n";
+            $content .= "Date: {$date}\n";
+            $content .= "Subject: " . ($msg->getSubject() ?: 'No subject') . "\n\n";
+            $content .= $msg->getText() . "\n\n";
+        }
+
+        $content .= "----------\n\n";
+        $content .= $forwardText;
+
+        return $content;
     }
 
     private function sendEmailToReceiver(Message $message, MailerInterface $mailer): void
@@ -860,30 +1036,30 @@ class MessageController extends AbstractController
             error_log("🚫 NOT SENDING EMAIL - THIS IS A DRAFT");
             return;
         }
-        
+
         try {
             error_log("📧📧📧 SEND EMAIL DEBUG START 📧📧📧");
             error_log("📧 Message ID: " . $message->getId());
             error_log("📧 Attachment from message: " . ($message->getAttachment() ?: 'NONE'));
-            
+
             $receiver = $message->getReceiver();
             $sender = $message->getSender();
-            
+
             if (!$receiver || !$receiver->getEmail()) {
                 error_log("❌ No email found for receiver: " . ($receiver ? $receiver->getId() : 'null'));
                 return;
             }
-            
+
             $senderName = $sender->getName() ?: $sender->getEmail();
             $senderEmail = $sender->getEmail();
-            
+
             if (!$senderEmail) {
                 error_log("❌ Provider has no email: " . $sender->getId());
                 return;
             }
-            
+
             $subject = $message->getSubject() ?: "New message from {$senderName}";
-            
+
             // Create the email
             $email = (new Email())
                 ->from('notifications@locumlancer.com')
@@ -897,13 +1073,13 @@ class MessageController extends AbstractController
                 $uploadDirectory = $this->getParameter('messages_attachments_directory');
                 $filePath = $uploadDirectory . '/' . $message->getAttachment();
                 $originalFilename = $this->getOriginalFilename($message->getAttachment());
-                
+
                 error_log("📧 ATTACHMENT DEBUG IN EMAIL SEND:");
                 error_log("  - Attachment: " . $message->getAttachment());
                 error_log("  - Full path: " . $filePath);
                 error_log("  - File exists: " . (file_exists($filePath) ? 'YES' : 'NO'));
                 error_log("  - File readable: " . (is_readable($filePath) ? 'YES' : 'NO'));
-                
+
                 if (file_exists($filePath) && is_readable($filePath)) {
                     try {
                         $email->attachFromPath($filePath, $originalFilename);
@@ -922,7 +1098,6 @@ class MessageController extends AbstractController
             $mailer->send($email);
             error_log("✅ EMAIL SENT TO: " . $receiver->getEmail());
             error_log("📧📧📧 SEND EMAIL DEBUG END 📧📧📧");
-            
         } catch (\Exception $e) {
             error_log("❌ EMAIL SENDING FAILED: " . $e->getMessage());
         }
@@ -935,26 +1110,26 @@ class MessageController extends AbstractController
         // Format: original-name-uniqid.extension
         $parts = explode('-', $storedFilename);
         $extension = pathinfo($storedFilename, PATHINFO_EXTENSION);
-        
+
         // Remove the last part (uniqid) and reconstruct
         array_pop($parts);
         $originalName = implode('-', $parts) . '.' . $extension;
-        
+
         return $originalName;
     }
 
     private function getProviderMessageTemplate(Message $message, string $senderName, string $senderEmail): string
     {
         $subject = $message->getSubject() ?: "New message";
-        
+
         $attachmentHtml = '';
         $attachment = $message->getAttachment();
-        
+
         // FORCE CHECK - Always show if file exists on disk
         if ($attachment) {
             $uploadDirectory = $this->getParameter('messages_attachments_directory');
             $filePath = $uploadDirectory . '/' . $attachment;
-            
+
             if (file_exists($filePath)) {
                 $originalFilename = $this->getOriginalFilename($attachment);
                 $attachmentHtml = "
@@ -969,7 +1144,7 @@ class MessageController extends AbstractController
                 error_log("✅✅✅ FORCING ATTACHMENT DISPLAY: " . $originalFilename);
             }
         }
-        
+
         if (empty($attachmentHtml)) {
             $attachmentHtml = "
                 <div style='background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #6c757d;'>
@@ -977,7 +1152,7 @@ class MessageController extends AbstractController
                 </div>
             ";
         }
-        
+
         // Rest of your template code remains the same...
         return "
             <!DOCTYPE html>
@@ -1033,18 +1208,18 @@ class MessageController extends AbstractController
     {
         try {
             $user = $this->getUser(); // Get logged in provider
-            
+
             if (!$user) {
                 return new JsonResponse(['error' => 'No user logged in'], 400);
             }
-            
+
             $senderName = $user->getName() ?: $user->getEmail();
             $senderEmail = $user->getEmail();
-            
+
             if (!$senderEmail) {
                 return new JsonResponse(['error' => 'Logged in user has no email'], 400);
             }
-            
+
             $email = (new Email())
                 ->from('notifications@locumlancer.com') // System email
                 ->replyTo($senderEmail, $senderName) // Provider's actual email for replies
@@ -1069,7 +1244,7 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
         $uploadDirectory = $this->getParameter('messages_attachments_directory');
-        
+
         $attachmentInfo = null;
         if ($message->getAttachment()) {
             $filePath = $uploadDirectory . '/' . $message->getAttachment();
@@ -1082,7 +1257,7 @@ class MessageController extends AbstractController
                 'original_filename' => $this->getOriginalFilename($message->getAttachment())
             ];
         }
-        
+
         return new JsonResponse([
             'message_id' => $message->getId(),
             'subject' => $message->getSubject(),

@@ -87,6 +87,9 @@ body {
     height: 100%;
     overflow: visible;
     z-index: 10;
+    justify-content: flex-start;
+    padding-top: 12px;
+    margin-top: 20px; /* Shift toolbar down */
 }
 
 .sidebar-icon {
@@ -533,6 +536,94 @@ body {
     margin: 0 24px 16px 24px;
 }
 
+/* Gmail-style thread messages */
+.gmail-style-thread {
+    border-top: 1px solid #e6eef6;
+}
+
+.gmail-message-item {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.1s ease;
+}
+
+.gmail-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.gmail-message-item.active-message {
+    background-color: #f1f3f4;
+}
+
+.gmail-message-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    min-height: 48px;
+}
+
+.gmail-message-avatar {
+    flex-shrink: 0;
+}
+
+.gmail-sender-name {
+    font-weight: 600;
+    color: #202124;
+}
+
+.gmail-message-actions {
+    opacity: 1; /* Always visible */
+    transition: none; /* No animation */
+    visibility: visible; /* Always visible */
+}
+
+.gmail-message-item:hover .gmail-message-actions {
+    opacity: 1;
+}
+
+.gmail-action-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: color 0.2s ease; /* Only transition color */
+    opacity: 1; /* Always visible */
+    visibility: visible; /* Always visible */
+}
+
+.gmail-action-btn:hover {
+    background-color: #e8eaed;
+    color: #85BB65; /* Green on hover */
+}
+
+.gmail-message-content {
+    padding: 0 16px 12px 16px;
+}
+
+.gmail-message-content.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.gmail-message-item.collapsed .gmail-message-content.collapsible-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.gmail-message-item.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+    color: #5f6368;
+}
+
 .message-attachment {
     display: flex;
     align-items: center;
@@ -651,60 +742,99 @@ body {
 .reply-form-section {
     background: #fff;
     border: 1px solid #e6eef6;
-    border-radius: 10px;
+    border-radius: 12px; /* Match inbox border-radius */
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-top: 24px;
 }
 
 .reply-form-title {
     font-size: 18px;
     font-weight: 600;
-    color: #000000;
+    color: #121C0C; /* Match inbox text color */
     margin-bottom: 20px;
 }
 
 .reply-form textarea {
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e6eef6;
-    border-radius: 8px;
+    padding: 16px;
+    border: 2px solid #85BB65; /* Green border */
+    border-radius: 12px; /* Match inbox border-radius */
     font-size: 14px;
-    color: #000000;
+    color: #121C0C;
     resize: vertical;
-    min-height: 120px;
+    min-height: 220px; /* Longer textarea */
     font-family: inherit;
     margin-bottom: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+    line-height: 1.6;
+}
+
+.reply-form textarea::placeholder {
+    color: #9ca3af;
 }
 
 .reply-form textarea:focus {
     outline: none;
     border-color: #85BB65;
-    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.15); /* Green shadow */
+}
+
+/* File attachment section - improved styling */
+.reply-form .file-attachment-wrapper {
+    position: relative;
+    margin-bottom: 16px;
 }
 
 .reply-form input[type="file"] {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #e6eef6;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border: 2px solid #e6eef6;
+    border-radius: 12px; /* Match inbox border-radius */
     font-size: 14px;
-    color: #000000;
-    margin-bottom: 16px;
-    background: #F4F9F1;
+    color: #121C0C;
+    margin-bottom: 0;
+    background: #F4F9F1; /* Light green background */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.reply-form input[type="file"]:hover {
+    border-color: #85BB65;
+    background: #f0f7ec;
 }
 
 .reply-form input[type="file"]:focus {
     outline: none;
     border-color: #85BB65;
     box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    background: #fff;
+}
+
+.reply-form input[type="file"]::file-selector-button {
+    padding: 8px 16px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #85BB65;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.reply-form input[type="file"]::file-selector-button:hover {
+    background: #6fa050;
 }
 
 .reply-form button {
-    background: #85BB65;
+    background: #85BB65; /* Green background */
     color: #fff;
     border: none;
     border-radius: 8px;
-    padding: 12px 24px;
+    padding: 12px 32px; /* More padding for better look */
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
@@ -712,10 +842,17 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);
 }
 
 .reply-form button:hover {
-    background: #6fa050;
+    background: #6fa050; /* Darker green on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(133, 187, 101, 0.3);
+}
+
+.reply-form button:active {
+    transform: translateY(0);
 }
 
 .empty-replies {
@@ -1275,8 +1412,13 @@ body {
                         <li class="folder-item">
                             <a href="{{ path('app_provider_messages', {'type': 'inbox'}) }}" 
                             class="folder-link">
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g id="style=stroke">
+                                    <g id="email">
+                                    <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"/>
+                                    <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"/>
+                                    </g>
+                                    </g>
                                 </svg>
                                 <span>Inbox</span>
                             </a>
@@ -1380,17 +1522,26 @@ body {
         </a>
         
         <div class="message-actions">
-            <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="forward-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Forward
-            </a>
+            {% if thread_messages is defined and thread_messages|length > 1 %}
+                <a href="{{ path('app_provider_message_forward_thread', {id: root_message.id}) }}" class="forward-btn" title="Forward entire conversation" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward all
+                </a>
+            {% else %}
+                <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="forward-btn" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward
+                </a>
+            {% endif %}
         </div>
     </div>
     
     {% if thread_messages is defined and thread_messages|length > 1 %}
-        <div class="thread-header" style="background: #f8f9fa; padding: 12px 24px; border-bottom: 1px solid #e6eef6; margin-bottom: 24px;">
+        <div class="thread-header" style="background: #f8f9fa; padding: 12px 24px; border-bottom: 1px solid #e6eef6; margin-bottom: 0;">
             <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #5f6368;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1400,42 +1551,67 @@ body {
         </div>
     {% endif %}
 
-    <!-- Thread Messages -->
+    <!-- Thread Messages - Gmail Style -->
     {% if thread_messages is defined and thread_messages|length > 1 %}
-        <div class="thread-messages-container" style="margin-bottom: 24px;">
+        <div class="thread-messages-container gmail-style-thread" style="margin-bottom: 0;">
             {% for threadMsg in thread_messages %}
-                <div class="thread-message-card {% if threadMsg.id == message.id %}active-message{% endif %}" style="background: {% if threadMsg.id == message.id %}#e8f5e9{% else %}#fff{% endif %}; border: 1px solid #e6eef6; border-radius: 10px; padding: 0; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <div class="message-header-info">
-                        {% set msgSenderName = threadMsg.sender.name|default(threadMsg.sender.email) %}
-                        {% set msgSenderAvatar = threadMsg.sender.profilePictureFilename ? '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
-                        
-                        <img src="{{ msgSenderAvatar }}" alt="{{ msgSenderName }}" class="message-sender-avatar">
-                        <div class="message-header-details" style="flex: 1;">
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div>
-                                    <div class="message-sender-name">{{ msgSenderName }}</div>
-                                    <div class="message-date">{{ threadMsg.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
+                {% set isRoot = threadMsg.id == root_message.id %}
+                {% set isReply = not isRoot %}
+                <div class="gmail-message-item {% if threadMsg.id == message.id %}active-message{% endif %}" data-message-id="{{ threadMsg.id }}">
+                    <div class="gmail-message-header" {% if isReply %}onclick="toggleMessageCollapse(this)" style="cursor: pointer;"{% endif %}>
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            {% if isReply %}
+                                <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition: transform 0.2s ease; transform: rotate(0deg);">
+                                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            {% else %}
+                                <div style="width: 16px;"></div>
+                            {% endif %}
+                            
+                            {% set msgSenderName = threadMsg.sender.name|default(threadMsg.sender.email) %}
+                            {% set msgSenderAvatar = threadMsg.sender.profilePictureFilename ? '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                            
+                            <img src="{{ msgSenderAvatar }}" alt="{{ msgSenderName }}" class="gmail-message-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span class="gmail-sender-name" style="font-weight: 600; font-size: 14px; color: #202124;">{{ msgSenderName }}</span>
+                                    {% if isReply %}
+                                        <span style="font-size: 12px; color: #5f6368;">to me</span>
+                                    {% endif %}
+                                    <span style="font-size: 12px; color: #5f6368; margin-left: auto;">{{ threadMsg.createdAt|date('M j, Y, g:i A') }}</span>
                                 </div>
-                                {% if threadMsg.id != root_message.id %}
-                                    <span style="font-size: 11px; color: #85BB65; background: #e8f5e9; padding: 4px 8px; border-radius: 12px; font-weight: 500;">Reply</span>
-                                {% endif %}
                             </div>
                         </div>
-                    </div>
-
-                    <div class="message-body">
-                        {{ threadMsg.text|raw }}
+                        
+                        <div class="gmail-message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 12px;">
+                            {% if isReply %}
+                                <button type="button" class="gmail-action-btn" onclick="event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); window.location.href='{{ path('app_provider_message_forward', {id: threadMsg.id}) }}'; return false;" title="Forward this message">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        </div>
                     </div>
                     
-                    {% if threadMsg.attachment %}
-                        <a href="{{ '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.attachment }}" target="_blank" class="message-attachment">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>{{ threadMsg.attachment }}</span>
-                        </a>
-                    {% endif %}
+                    <div class="gmail-message-content {% if isReply %}collapsible-content{% endif %}" {% if isReply %}style="display: none;"{% endif %}>
+                        <div class="gmail-message-body" style="padding: 12px 0 12px 44px; font-size: 14px; line-height: 1.5; color: #202124;">
+                            {{ threadMsg.text|raw }}
+                        </div>
+                        
+                        {% if threadMsg.attachment %}
+                            <div style="padding: 0 0 12px 44px;">
+                                <a href="{{ '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.attachment }}" target="_blank" class="message-attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; text-decoration: none; color: #1a73e8; font-size: 13px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ threadMsg.attachment }}</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         </div>
@@ -1508,15 +1684,17 @@ body {
         <h5 class="reply-form-title">Write a Reply</h5>
         <form id="reply-form" enctype="multipart/form-data" class="reply-form">
             <textarea name="message" placeholder="Type your reply here..." required></textarea>
-            <input type="file" name="attachment" class="form-control">
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 12px;">
-                <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="email-detail-forward-btn" style="text-decoration: none;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div class="file-attachment-wrapper">
+                <input type="file" name="attachment" class="form-control" id="reply-attachment">
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+                <a href="{{ path('app_provider_message_forward', {id: root_message.id}) }}" class="email-detail-forward-btn" style="text-decoration: none; padding: 10px 20px; border: 1px solid #e6eef6; border-radius: 8px; color: #5f6368; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#85BB65'; this.style.color='#85BB65';" onmouseout="this.style.borderColor='#e6eef6'; this.style.color='#5f6368';" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
                         <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Forward
                 </a>
-                <button type="submit" style="margin-left: auto;">
+                <button type="submit" style="background: #85BB65; color: white; border: none; border-radius: 8px; padding: 12px 32px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);" onmouseover="this.style.background='#6fa050'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(133, 187, 101, 0.3)';" onmouseout="this.style.background='#85BB65'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(133, 187, 101, 0.2)';">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -1657,6 +1835,31 @@ body {
 
 {% block footer_scripts %}
 <script>
+// Toggle message collapse (Gmail-style)
+function toggleMessageCollapse(headerElement) {
+    const messageItem = headerElement.closest('.gmail-message-item');
+    if (messageItem) {
+        messageItem.classList.toggle('collapsed');
+        const content = messageItem.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            if (messageItem.classList.contains('collapsed')) {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        }
+    }
+}
+
+// Initialize - expand all messages by default
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.gmail-message-item').forEach(function(item) {
+        const content = item.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            content.style.display = 'block';
+        }
+    });
+});
 // ============================================================================
 // MESSAGES SYSTEM
 // ============================================================================

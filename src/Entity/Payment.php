@@ -15,7 +15,6 @@ class Payment
     const STATUS_PENDING = 'pending';
     const STATUS_COMPLETED = 'completed';
     const STATUS_FAILED = 'failed';
-    const STATUS_ERROR = 'error';
 
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
@@ -58,8 +57,6 @@ class Payment
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $completedAt = null;
-
-   
 
     public function __construct()
     {
@@ -187,7 +184,6 @@ class Payment
         return $this->completedAt;
     }
 
-   
     // Simple helper methods
     public function isForSameUser(): bool
     {

@@ -24,10 +24,10 @@ class LinkTrackingLogRepository extends ServiceEntityRepository
             ->andWhere('cl.isActive = :active')
             ->setParameter('provider', $provider)
             ->setParameter('active', true);
-        
+
         // Note: status field filtering removed as the status column is not mapped in the CredentialingLink entity
         // Status filtering will be added when the column is properly mapped via migration
-        
+
         return $qb->orderBy('cl.createdAt', 'DESC')
             ->getQuery()
             ->getResult();

@@ -26,7 +26,8 @@ class ApplicationRepository extends ServiceEntityRepository
             ->join('a.job', 'j')                 // ✅ join related Job
             ->leftJoin('a.documentRequests', 'dr')
             ->addSelect('dr')
-            ->where('1 = 1');
+            ->where('1 = 1')
+            ->addOrderBy('dr.createdAt', 'DESC'); // Explicit ordering to prevent status field access
         // Temporarily removed archived filter to avoid column not found error
 
         if (!empty($filters['status'])) {

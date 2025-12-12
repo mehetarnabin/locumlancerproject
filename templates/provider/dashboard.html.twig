@@ -438,9 +438,10 @@ div.container-xl,
         </div>
 
         <!-- Messages List -->
+        <div class="messages-content">
         {% if messages|length > 0 %}
         <div class="job-list-container">
-            {% for message in messages|slice(0,6) %}
+            {% for message in messages|slice(0,5) %}
             {% set avatar = message.sender.avatar|default(message.employerAvatar|default(asset('assets/img/user-image.png'))) %}
             {% set sender = message.senderName|default(message.employer|default('')) %}
             {% set subject = message.subject|default(message.text|striptags) %}
@@ -476,6 +477,7 @@ div.container-xl,
         {% else %}
             <p class="mb-0">Messages not found.</p>
         {% endif %}
+        </div>
             </div>
         </div>
     </div>
@@ -501,18 +503,18 @@ div.container-xl,
                     <ul class="list-unstyled m-0 p-0" id="todoList">
                         {% if todos is defined and todos|length > 0 %}
                             {% for todo in todos %}
-                            <li class="todo-item todo-id-{{ todo.id }}">
+                            <li class="todo-item {% if todo.id %}todo-id-{{ todo.id }}{% endif %} {% if todo.type == 'bundled_document_request' %}bundled-todo-item{% endif %}">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div class="todo-content-left flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div class="todo-title-section flex-grow-1">
-                                                <a href="{{ path('app_provider_documents') }}" class="text-decoration-none text-dark todo-link">
-                                                    <div class="todo-title fw-semibold {{ todo.isDone ? 'text-decoration-line-through text-muted' : '' }}" id="todo-title-{{ todo.id }}" style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
+                                                <a href="{{ path('app_provider_documents') }}#requests-grid-view-container" class="text-decoration-none text-dark todo-link">
+                                                    <div class="todo-title fw-semibold {{ todo.isDone ? 'text-decoration-line-through text-muted' : '' }}" {% if todo.id %}id="todo-title-{{ todo.id }}"{% endif %} style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
                                                         {{ todo.title }}
                                                     </div>
                                                     {% if todo.documentRequest or todo.employer %}
                                                     <div class="todo-meta-info mt-1">
-                                                        {% if todo.documentRequest %}
+                                                        {% if todo.documentRequest and todo.type != 'bundled_document_request' %}
                                                         <span class="todo-badge-document">
                                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
                                                                 <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#1976D2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -530,15 +532,24 @@ div.container-xl,
                                                             {{ todo.employer.companyName|default(todo.employer.name) }}
                                                         </span>
                                                         {% endif %}
+                                                        {% if todo.type == 'bundled_document_request' %}
+                                                        <span class="todo-badge-count" style="font-size: 11px; color: #6c757d; margin-left: 4px;">
+                                                            ({{ todo.description|replace({' document(s)': ''}) }})
+                                                        </span>
+                                                        {% endif %}
                                                     </div>
                                                     {% endif %}
                                                 </a>
                                             </div>
                                             <div class="todo-badge-top">
-                                                {% if todo.isDone %}
-                                                <span class="todo-status-badge completed">Completed</span>
+                                                {% if todo.type != 'bundled_document_request' %}
+                                                    {% if todo.isDone %}
+                                                    <span class="todo-status-badge completed">Completed</span>
+                                                    {% else %}
+                                                    <span class="todo-status-badge pending">Pending</span>
+                                                    {% endif %}
                                                 {% else %}
-                                                <span class="todo-status-badge pending">Pending</span>
+                                                    <span class="todo-status-badge pending">Pending</span>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -574,7 +585,12 @@ div.container-xl,
                                 e.stopPropagation();
                                 const todoItem = statusBadge.closest('.todo-item');
                                 if(todoItem) {
-                                    const idMatch = todoItem.className.match(/todo-id-(\d+)/);
+                                    // Skip toggle for bundled items (they don't have real IDs)
+                                    if (todoItem.classList.contains('bundled-todo-item')) {
+                                        return;
+                                    }
+                                    
+                                    const idMatch = todoItem.className.match(/todo-id-([\w-]+)/);
                                     const id = idMatch ? idMatch[1] : null;
                                     if(id) {
                                         const isCompleted = statusBadge.classList.contains('completed');
@@ -806,7 +822,7 @@ div.container-xl,
 }
 .list-condensed .list-item + .list-item { border-top: 1px solid rgba(0,0,0,.06); }
   .job-logo { width: 44px; height: 44px; object-fit: cover;border-radius:100%!Important;overflow:hidden; }
-  .avatar { width: 40px; height: 40px; object-fit: cover; }
+  .avatar { width: 40px; height: 40px; object-fit: cover; border-radius: 10px !important; }
   .link-plain { color: var(--app-primary, #0d6efd); text-decoration: none; margin-right: 20px; }
   .link-plain:hover { text-decoration: underline; }
 
@@ -1072,12 +1088,14 @@ div.container-xl,
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 320px;
   overflow-y: auto;
   padding-right: 0;
   padding-left: 0;
   margin-right: 0;
   margin-left: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(4 * 50px + 3 * 10px);
 }
 
 .job-list-container::-webkit-scrollbar {
@@ -1117,7 +1135,7 @@ div.container-xl,
   max-height: 48px !important;
   background: #f3f4f6 !important;
   border: 1px solid #e5e7eb;
-  border-radius: 8px !important;
+  border-radius: 50px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1125,6 +1143,7 @@ div.container-xl,
   padding: 8px;
   box-sizing: border-box;
   margin-left: 0;
+  overflow: hidden;
 }
 
 .job-logo-img {
@@ -1134,7 +1153,7 @@ div.container-xl,
   max-height: calc(100% - 4px) !important;
   object-fit: contain;
   object-position: center;
-  border-radius: 4px !important;
+  border-radius: 50px !important;
   background: transparent;
   margin: auto;
   display: block;
@@ -1157,11 +1176,12 @@ div.container-xl,
   position: relative;
   margin-top: 0 !important;
   padding-top: 1rem !important;
+  min-height: 0; /* allows flex children to shrink */
 }
 
 /* Ensure both Matched Jobs and Messages sections align at the same vertical position */
 .row .col-12.col-lg-6.d-flex {
-  align-items: flex-start;
+  align-items: stretch;
   margin-top: 0;
   padding-top: 0;
 }
@@ -1181,6 +1201,9 @@ div.container-xl,
   margin-left: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: calc(6 * 50px + 5 * 10px);
+  max-height: calc(6 * 50px + 5 * 10px);
 }
 
 .job-section .job-list-container::-webkit-scrollbar {
@@ -1202,6 +1225,26 @@ div.container-xl,
   margin-right: 0;
   margin-left: 0;
   width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .messages-content {
+  padding-left: 0;
+  padding-right: 0;
+  margin-right: 0;
+  margin-left: 0;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .messages-content .job-list-container {
+  min-height: calc(6 * 50px + 5 * 10px);
 }
 
 .job-section .job-card:first-child {
@@ -1228,6 +1271,8 @@ div.container-xl,
   padding-left: 0;
   margin-right: 0;
   margin-left: 0;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Each message box */
@@ -1238,15 +1283,6 @@ div.container-xl,
   justify-content: space-between;
   align-items: center;
   min-height: 40px;
-}
-
-/* Container max-height = 4 items + 3 gaps of 10px each */
-.job-list-container {
-  max-height: calc(4 * 50px + 3 * 10px);
-  padding-right: 0;
-  padding-left: 0;
-  margin-left: 0;
-  margin-right: 0;
 }
 
 /* Scrollbar styling */
@@ -1419,6 +1455,22 @@ div.container-xl,
     box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
     transform: translateY(-2px) !important;
     border-color: #85BB65 !important;
+}
+
+/* Bundled todo item styles */
+.bundled-todo-item {
+    position: relative;
+    cursor: pointer;
+}
+
+.bundled-todo-item .todo-link {
+    cursor: pointer;
+}
+
+.todo-badge-count {
+    font-size: 11px;
+    color: #6c757d;
+    margin-left: 4px;
 }
 
 .todo-item-content {
@@ -2973,6 +3025,123 @@ setTimeout(applySpacingStyles, 500);
 // Re-apply on window resize to override any responsive changes
 window.addEventListener('resize', function() {
     setTimeout(applySpacingStyles, 50);
+});
+
+// Split View Functionality for Job Links
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercept clicks on job title links to open split view instead of redirecting
+    document.addEventListener('click', function(e) {
+        const jobLink = e.target.closest('a.job-title');
+        if (jobLink && jobLink.href && jobLink.href.includes('/jobs/') && jobLink.href.includes('/detail')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Extract job ID from href
+            const href = jobLink.href;
+            let jobId = null;
+            
+            // Match UUID pattern: /jobs/{uuid}/detail
+            const uuidMatch = href.match(/\/jobs\/([a-f0-9-]{36})\/detail/i);
+            if (uuidMatch && uuidMatch[1]) {
+                jobId = uuidMatch[1];
+            } else {
+                // Match numeric ID pattern: /jobs/{number}/detail
+                const jobIdMatch = href.match(/\/jobs\/(\d+)\/detail/);
+                if (jobIdMatch && jobIdMatch[1]) {
+                    jobId = jobIdMatch[1];
+                }
+            }
+            
+            if (jobId) {
+                // Open split view
+                openJobInSplitView(jobId);
+            }
+        }
+    }, true);
+    
+    // Function to open job in split view
+    window.openJobInSplitView = function(jobId) {
+        // Check if split view container exists
+        let splitViewContainer = document.getElementById('split-view-container');
+        
+        if (!splitViewContainer) {
+            // Create split view container
+            splitViewContainer = document.createElement('div');
+            splitViewContainer.id = 'split-view-container';
+            splitViewContainer.style.cssText = 'display: grid; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: white; grid-template-columns: 400px 1fr; gap: 0;';
+            
+            const splitJobList = document.createElement('div');
+            splitJobList.id = 'split-job-list';
+            splitJobList.className = 'split-job-list';
+            splitJobList.style.cssText = 'overflow-y: auto; border-right: 1px solid #e6eef6; padding: 20px; background: #f8f9fa; height: 100%;';
+            splitJobList.innerHTML = '<div class="text-center py-5"><p class="text-muted">Job list will appear here</p></div>';
+            
+            const splitJobDetails = document.createElement('div');
+            splitJobDetails.id = 'split-job-details';
+            splitJobDetails.className = 'split-job-details';
+            splitJobDetails.style.cssText = 'overflow-y: auto; overflow-x: hidden; padding: 20px; height: 100%; max-height: 100%; scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc;';
+            
+            // Add custom vertical scrollbar styles
+            if (!document.getElementById('split-view-scrollbar-styles')) {
+                const style = document.createElement('style');
+                style.id = 'split-view-scrollbar-styles';
+                style.textContent = `
+                    #split-view-container .split-job-details::-webkit-scrollbar {
+                        width: 8px;
+                        display: block;
+                    }
+                    #split-view-container .split-job-details::-webkit-scrollbar-track {
+                        background: #f7fafc;
+                        border-radius: 4px;
+                    }
+                    #split-view-container .split-job-details::-webkit-scrollbar-thumb {
+                        background: #cbd5e0;
+                        border-radius: 4px;
+                    }
+                    #split-view-container .split-job-details::-webkit-scrollbar-thumb:hover {
+                        background: #a0aec0;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-split-view';
+            closeBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; z-index: 10000; background: white; border: 1px solid #e6eef6; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 14px;';
+            closeBtn.textContent = 'Close';
+            closeBtn.onclick = function() {
+                splitViewContainer.style.display = 'none';
+            };
+            
+            splitViewContainer.appendChild(splitJobList);
+            splitViewContainer.appendChild(splitJobDetails);
+            splitViewContainer.appendChild(closeBtn);
+            document.body.appendChild(splitViewContainer);
+        }
+        
+        // Show split view
+        splitViewContainer.style.display = 'grid';
+        
+        // Show loading state
+        const splitJobDetails = document.getElementById('split-job-details');
+        splitJobDetails.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary mb-3" role="status"></div><p>Loading job details...</p></div>';
+        
+        // Fetch job details
+        const detailUrl = '/provider/jobs/' + jobId + '/detail-content';
+        fetch(detailUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            splitJobDetails.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading job details:', error);
+            splitJobDetails.innerHTML = '<div class="alert alert-danger">Error loading job details. Please try again.</div>';
+        });
+    };
 });
 </script>
 {% endblock %}

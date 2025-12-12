@@ -3,12 +3,139 @@
 {% block title %}Job Detail{% endblock %}
 
 {% block employer_body %}
+<style>
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match provider */
 
-    <div class="container-xl">
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
+.app-content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching provider */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Job Details Styling - Match Provider */
+.job-details {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+}
+
+.job-row {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.job-row:last-child {
+    border-bottom: none;
+}
+
+.job-label {
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    min-width: 200px;
+    flex-shrink: 0;
+}
+
+.job-value {
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 500;
+    flex: 1;
+}
+
+.app-page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #121C0C;
+    margin-bottom: 16px;
+}
+
+/* Remove fade effects from modals */
+.modal {
+    transition: none !important;
+}
+
+.modal.fade .modal-dialog {
+    transition: none !important;
+    transform: none !important;
+}
+
+.modal.show .modal-dialog {
+    transform: none !important;
+}
+</style>
+
+    <div class="container-xl" style="position: relative;">
 
         <h1 class="app-page-title">Job Detail</h1>
-
-        <hr class="mb-4">
 
         <div class="mb-4">
             <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}"
