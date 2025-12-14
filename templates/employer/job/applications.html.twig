@@ -503,6 +503,46 @@ div.container-xl,
     color: #85BB65;
 }
 
+/* To-Do icon wrapper */
+.todo-icon-wrapper {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #121C0C;
+    transition: all 0.2s ease;
+}
+.todo-icon-wrapper:hover {
+    color: #85BB65;
+    border-color: #85BB65;
+}
+.todo-icon-wrapper svg {
+    display: block;
+}
+.todo-icon-wrapper svg path {
+    stroke: #121C0C;
+}
+
+/* Inline actions on list cards (visible in To-Do column area) */
+.card-v2 { position: relative; overflow: visible; z-index: 1; }
+.card-v2 .card-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    z-index: 2;
+}
+.card-v2 .card-actions .provider-sent-icons svg path {
+    stroke: currentColor;
+}
+
 /* Filter Panel */
 .custom-dropdown {
     position: absolute !important;
@@ -1390,10 +1430,82 @@ div.container-xl,
                 {% for application in applications %}
                     {% set provider = application.provider %}
                     {% set user = provider.user %}
+                    {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                    {% set todoTask = null %}
+                    {% if statusLower == 'applied' %}
+                        {% set todoTask = 'Revisit Alert' %}
+                    {% elseif statusLower == 'shortlisted' %}
+                        {% set todoTask = 'Open Response' %}
+                    {% elseif statusLower == 'interview' or statusLower == 'interviewing' %}
+                        {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                    {% elseif statusLower == 'negotiating' %}
+                        {% set todoTask = 'Review signed offer/contract' %}
+                    {% elseif statusLower == 'accepted' %}
+                        {% set todoTask = 'Request Credentialing Docs' %}
+                    {% elseif statusLower == 'completed' %}
+                        {% set todoTask = 'See your review' %}
+                    {% endif %}
+                    {% set sentItems = [] %}
+                    {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
+                    {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                    {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
 
                     <a href="{{ path('app_employer_job_applications', {'id': job.id, 'applicationId': application.id}) }}">
                     <div class="card card-v2 {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}active-card{% endif %}" id="{{ application.id }}">
                         <div class="card-body">
+                            <div class="card-actions">
+                                {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                                {% set todoTask = null %}
+                                {% if statusLower == 'applied' %}
+                                    {% set todoTask = 'Revisit Alert' %}
+                                {% elseif statusLower == 'shortlisted' %}
+                                    {% set todoTask = 'Open Response' %}
+                                {% elseif statusLower == 'interview' or statusLower == 'interviewing' %}
+                                    {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                                {% elseif statusLower == 'negotiating' %}
+                                    {% set todoTask = 'Review signed offer/contract' %}
+                                {% elseif statusLower == 'accepted' %}
+                                    {% set todoTask = 'Request Credentialing Docs' %}
+                                {% elseif statusLower == 'completed' %}
+                                    {% set todoTask = 'See your review' %}
+                                {% endif %}
+                                {% set sentItems = [] %}
+                                {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
+                                {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                                {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
+                                <span class="todo-icon-wrapper" title="{{ todoTask ?: 'Add To-Do' }}" data-application-id="{{ application.id }}" data-job-id="{{ job.id }}" data-status="{{ application.status }}" data-todo-action="{{ todoTask }}" onclick="return handleEmployerTodoIconClick(event, this)">
+                                    <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                        <path d="M4 7H20M4 12H20M4 17H12" stroke="#121C0C" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;">
+                                    {% if application.documentProvidedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    {% endif %}
+                                    {% if application.oneFileProvidedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M12 5V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M7 9V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        </svg>
+                                    {% endif %}
+                                    {% if application.contractSignedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    {% elseif application.contractSentAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;">
+                                            <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        </svg>
+                                    {% endif %}
+                                </span>
+                            </div>
                             {% if provider.user.profilePicture %}
                                 <img src="{{ provider.user.profilePicture }}" width="40px" />
                             {% endif %}
@@ -1408,6 +1520,40 @@ div.container-xl,
                         <div class="mt-4">
                             <span class="badge badge-pill is-{{ statusColors[application.status] }}">
                                 {{ application.status | replace({'_': ' '}) | title }}
+                            </span>
+                            <span style="display:inline-flex; gap:8px; align-items:center; margin-left:8px;">
+                                <span class="todo-icon-wrapper" title="{{ todoTask ?: 'Add To-Do' }}" data-application-id="{{ application.id }}" data-job-id="{{ job.id }}" data-status="{{ application.status }}" data-todo-action="{{ todoTask }}" onclick="return handleEmployerTodoIconClick(event, this)">
+                                    <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                        <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;">
+                                    {% if application.documentProvidedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    {% endif %}
+                                    {% if application.oneFileProvidedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M12 5V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M7 9V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        </svg>
+                                    {% endif %}
+                                    {% if application.contractSignedAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                            <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    {% elseif application.contractSentAt %}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;">
+                                            <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        </svg>
+                                    {% endif %}
+                                </span>
                             </span>
                             <a href="{{ path('app_employer_application_delete', {'id': application.id}) }}" onclick="return confirm('Are you sure? Do you want to delete this application?')"><img src="{{ asset('assets/icons/delete.png') }}" class="icon-image" /></a>
                         </div>
@@ -2016,6 +2162,25 @@ div.container-xl,
                         {% for application in applications %}
                             {% set provider = application.provider %}
                             {% set user = provider.user %}
+                            {% set sentItems = [] %}
+                            {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                            {% set todoTask = null %}
+                            {% if statusLower == 'applied' %}
+                                {% set todoTask = 'Revisit Alert' %}
+                            {% elseif statusLower == 'shortlisted' %}
+                                {% set todoTask = 'Open Response' %}
+                            {% elseif statusLower == 'interview' or statusLower == 'interviewing' %}
+                                {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                            {% elseif statusLower == 'negotiating' %}
+                                {% set todoTask = 'Review signed offer/contract' %}
+                            {% elseif statusLower == 'accepted' %}
+                                {% set todoTask = 'Request Credentialing Docs' %}
+                            {% elseif statusLower == 'completed' %}
+                                {% set todoTask = 'See your review' %}
+                            {% endif %}
+                            {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
+                            {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                            {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
                             <div class="split-job-card" data-application-id="{{ application.id }}" data-job-id="{{ job.id }}">
                                 <div class="split-job-card-header">
                                     <input type="checkbox" class="job-checkbox" data-application-id="{{ application.id }}" data-job-id="{{ job.id }}" data-status="{{ application.status }}" style="margin-top: 2px;">
@@ -2027,6 +2192,40 @@ div.container-xl,
                                     <div class="flex-grow-1">
                                         <div class="split-job-card-title">{{ user.name }}</div>
                                         <div class="split-job-card-company">{{ provider.city }}, {{ provider.state }}</div>
+                                    </div>
+                                    <div class="d-flex align-items-center" style="gap:8px;">
+                                        <div class="todo-icon-wrapper" title="{{ todoTask ?: 'Add To-Do' }}" data-application-id="{{ application.id }}" data-job-id="{{ job.id }}" data-status="{{ application.status }}" data-todo-action="{{ todoTask }}" onclick="return handleEmployerTodoIconClick(event, this)">
+                                            <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                                <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            </svg>
+                                        </div>
+                                        <div class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:flex;align-items:center;gap:6px;">
+                                            {% if application.documentProvidedAt %}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                                    <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
+                                                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            {% endif %}
+                                            {% if application.oneFileProvidedAt %}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                                    <path d="M12 5V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    <path d="M7 9V15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    <path d="M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                </svg>
+                                            {% endif %}
+                                            {% if application.contractSignedAt %}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                                    <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    <path d="M9 11L11 13L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            {% elseif application.contractSentAt %}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#f59e0b;">
+                                                    <path d="M4 5H14C15.6569 5 17 6.34315 17 8V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    <path d="M17 19L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                </svg>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="split-job-summary">
@@ -2053,9 +2252,9 @@ div.container-xl,
                         </svg>
                         Note
                     </button>
-                    <button id="detail-todo-btn" class="action-btn" title="Add To-Do" style="position: absolute; top: 10px; right: 10px; display: none; cursor: pointer;">
+                    <button id="detail-todo-btn" class="action-btn" title="Add To-Do" style="position: absolute; top: 10px; right: 10px; cursor: pointer;">
                         <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M4 7H20M4 12H20M4 17H12" stroke="#121C0C" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                         To-Do
                     </button>
@@ -2269,10 +2468,10 @@ div.container-xl,
 const TODO_ACTIONS = {
   applied: 'Revisit Alert',
   shortlisted: 'Open Response',
-  interview: 'Confirm interview',
-  interviewing: 'Confirm interview',
-  negotiating: 'Sign offer',
-  accepted: 'Open Credentialing Docs',
+  interview: 'Confirm interview from the list of interview dates',
+  interviewing: 'Confirm interview from the list of interview dates',
+  negotiating: 'Review signed offer/contract',
+  accepted: 'Request Credentialing Docs',
   completed: 'See your review'
 };
 
@@ -2356,6 +2555,65 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+function handleEmployerTodoIconClick(e, el) {
+  try {
+    var card = el.closest('.split-job-card');
+    var appId = el.getAttribute('data-application-id') || (card ? card.getAttribute('data-application-id') : '');
+    var status = (el.getAttribute('data-status') || '').toLowerCase();
+    var action = el.getAttribute('data-todo-action') || '';
+    if (!appId) return false;
+    var reviewUrlT = '{{ path("app_employer_application_review_provider", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
+    var contractUrlT = '{{ path("app_employer_application_sendcontract", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
+    var interviewUrlT = '{{ path("app_employer_application_scheduleinterview", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
+    var docReqUrlT = '{{ path("app_employer_application_askfordocument", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
+    function showModal(modalEl){
+      if (!modalEl) return;
+      if (window.bootstrap && window.bootstrap.Modal) {
+        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+      } else if (typeof $ !== 'undefined' && $(modalEl).modal) {
+        $(modalEl).modal('show');
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        modalEl.setAttribute('aria-hidden', 'false');
+      }
+    }
+    if (status === 'completed' || (action && action.toLowerCase().indexOf('review') !== -1)) {
+      var rm = document.getElementById('reviewModal');
+      var rf = rm ? rm.querySelector('form') : null;
+      if (rf) rf.setAttribute('action', reviewUrlT.replace('00000000-0000-0000-0000-000000000000', appId));
+      showModal(rm);
+      return false;
+    }
+    if (status === 'negotiating' || (action && action.toLowerCase().indexOf('offer') !== -1 || action.toLowerCase().indexOf('contract') !== -1)) {
+      var cm = document.getElementById('contractModal');
+      var cf = cm ? cm.querySelector('form') : null;
+      if (cf) cf.setAttribute('action', contractUrlT.replace('00000000-0000-0000-0000-000000000000', appId));
+      showModal(cm);
+      return false;
+    }
+    if (status === 'interview' || status === 'interviewing' || (action && action.toLowerCase().indexOf('interview') !== -1)) {
+      var im = document.getElementById('interviewModal');
+      var iform = im ? im.querySelector('form') : null;
+      if (iform) iform.setAttribute('action', interviewUrlT.replace('00000000-0000-0000-0000-000000000000', appId));
+      showModal(im);
+      return false;
+    }
+    if (status === 'accepted' || (action && action.toLowerCase().indexOf('credential') !== -1)) {
+      var dm = document.getElementById('askDocumentModal');
+      var df = dm ? dm.querySelector('form') : null;
+      if (df) df.setAttribute('action', docReqUrlT.replace('00000000-0000-0000-0000-000000000000', appId));
+      showModal(dm);
+      return false;
+    }
+    var cardEl = card || getActiveApplication();
+    if (cardEl) showTodoModalForApplication(cardEl);
+    return false;
+  } catch(_) {
+    return false;
+  }
+}
 </script>
         $(".js-datepicker").flatpickr({
             enableTime: true,

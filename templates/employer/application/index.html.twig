@@ -730,6 +730,32 @@
     flex: 1;
     justify-content: flex-end;
 }
+.todo-icon-wrapper {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #121C0C;
+    transition: all 0.2s ease;
+}
+.todo-icon-wrapper:hover {
+    color: #85BB65;
+    border-color: #85BB65;
+}
+.todo-icon-wrapper svg path {
+    stroke: #121C0C;
+}
+.provider-sent-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 4px;
+}
 </style>
 
     {% set statusColors = {
@@ -1010,7 +1036,40 @@
                                 {% endif %}
                             </div>
                             <div class="col-start col-center col-todo" data-column="todo" style="width: 80px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
-                                —
+                                {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                                {% set todoTask = null %}
+                                {% if statusLower == 'applied' %}
+                                    {% set todoTask = 'Revisit Alert' %}
+                                {% elseif statusLower == 'shortlisted' %}
+                                    {% set todoTask = 'Open Response' %}
+                                {% elseif statusLower in ['interview','interviewing'] %}
+                                    {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                                {% elseif statusLower in ['negotiating','offered'] %}
+                                    {% set todoTask = 'Review signed offer/contract' %}
+                                {% elseif statusLower in ['accepted','hired'] %}
+                                    {% set todoTask = 'Request Credentialing Docs' %}
+                                {% elseif statusLower == 'completed' %}
+                                    {% set todoTask = 'See your review' %}
+                                {% endif %}
+                                {% set sentItems = [] %}
+                                {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
+                                {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                                {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
+                                <span class="todo-icon-wrapper" title="{{ todoTask ?: 'Add To-Do' }}" data-application-id="{{ application.id }}" data-status="{{ application.status }}" data-todo-action="{{ todoTask }}" onclick="return handleEmployerTodoIconClick(event, this)">
+                                    <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                        <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                                {% if sentItems|length > 0 %}
+                                    <span class="provider-sent-icons" title="{{ 'Sent: ' ~ sentItems|join(', ') }}">
+                                        {% for item in sentItems %}
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.5"/>
+                                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        {% endfor %}
+                                    </span>
+                                {% endif %}
                             </div>
                             <div class="col-start col-center col-rank" data-column="rank" style="width: 100px; min-width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; overflow: visible; position: relative;">
                                 <span style="font-size: 12px;">—</span>
@@ -1605,6 +1664,73 @@
                 }
             });
             }
-    });
-</script>
+        });
+        
+        function handleEmployerTodoIconClick(e, el) {
+            try {
+                var appId = el.getAttribute('data-application-id') || '';
+                var action = (el.getAttribute('data-todo-action') || '').toLowerCase();
+                function show(id) {
+                    var modalEl = document.getElementById(id);
+                    if (!modalEl) return;
+                    if (window.bootstrap && window.bootstrap.Modal) {
+                        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    } else if ((window.$ || window.jQuery) && ((window.$ && window.$.fn && window.$.fn.modal) || (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal))) {
+                        var $ = window.$ || window.jQuery;
+                        $(modalEl).modal('show');
+                    } else {
+                        modalEl.classList.add('show');
+                        modalEl.style.display = 'flex';
+                        modalEl.style.position = 'fixed';
+                        modalEl.style.top = '0';
+                        modalEl.style.left = '0';
+                        modalEl.style.width = '100vw';
+                        modalEl.style.height = '100vh';
+                        modalEl.style.alignItems = 'center';
+                        modalEl.style.justifyContent = 'center';
+                        modalEl.style.background = 'rgba(0,0,0,0.5)';
+                        modalEl.style.zIndex = '100005';
+                        modalEl.style.pointerEvents = 'auto';
+                        modalEl.setAttribute('aria-hidden', 'false');
+                    }
+                }
+                if (action.indexOf('interview') !== -1) {
+                    var idInput = document.getElementById('scheduleInterviewApplicationId');
+                    if (idInput) idInput.value = appId;
+                    show('scheduleInterviewModal');
+                    e.preventDefault && e.preventDefault();
+                    return false;
+                }
+                if (action.indexOf('credential') !== -1) {
+                    var appInput = document.getElementById('credentialLinkApplicationId');
+                    if (appInput) appInput.value = appId;
+                    show('sendCredentialLinkModal');
+                    e.preventDefault && e.preventDefault();
+                    return false;
+                }
+                if (action.indexOf('review') !== -1) {
+                    var rInput = document.getElementById('writeReviewApplicationId');
+                    if (rInput) rInput.value = appId;
+                    show('writeReviewModal');
+                    e.preventDefault && e.preventDefault();
+                    return false;
+                }
+                if (action.indexOf('contract') !== -1 || action.indexOf('offer') !== -1) {
+                    var sInput = document.getElementById('sendOfferApplicationId');
+                    if (sInput) sInput.value = appId;
+                    show('sendOfferModal');
+                    e.preventDefault && e.preventDefault();
+                    return false;
+                }
+                if (action.indexOf('document') !== -1 || action.indexOf('provide') !== -1) {
+                    var dInput = document.getElementById('selectedApplicationId');
+                    if (dInput) dInput.value = appId;
+                    show('askDocumentModal');
+                    e.preventDefault && e.preventDefault();
+                    return false;
+                }
+            } catch(_) {}
+            return false;
+        }
+    </script>
 {% endblock %}
