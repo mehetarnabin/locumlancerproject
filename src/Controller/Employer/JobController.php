@@ -180,7 +180,16 @@ class JobController extends AbstractController
 
         $jobApplicationTransitions = [];
         foreach ($applications as $jobApplication) {
-            $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
+            try {
+                $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
+            } catch (\LogicException $e) {
+                if ($jobApplication->getStatus() === 'negotiating') {
+                    $jobApplication->setStatus('offered');
+                } elseif ($jobApplication->getStatus() === 'accepted') {
+                    $jobApplication->setStatus('hired');
+                }
+                $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
+            }
         }
 
         $statusCounts =  $em->getRepository(Application::class)->getApplicationStatusCounts();
@@ -289,6 +298,13 @@ class JobController extends AbstractController
         }
 
         $application = $em->getRepository(Application::class)->findOneBy(['id' => $applicationId, 'employer' => $currentEmployer]);
+
+        if ($application && $application->getStatus() === 'negotiating') {
+            $application->setStatus('offered');
+        }
+        if ($application && $application->getStatus() === 'accepted') {
+            $application->setStatus('hired');
+        }
 
         if ($jobApplicationWorkflow->can($application, $transition)) {
             $jobApplicationWorkflow->apply($application, $transition);

@@ -25,8 +25,9 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
         $type = $request->query->get('type', 'inbox');
-        $offset = $request->query->get('page', 1);
-        $perPage = $request->get('per_page', 10);
+        $page = max(1, (int)$request->query->get('page', 1));
+        $perPage = max(1, (int)$request->query->get('per_page', 10));
+        $offset = ($page - 1) * $perPage;
         $filters['keyword'] = $request->query->get('keyword');
         if($type == 'inbox') {
             $filters = [
@@ -39,10 +40,24 @@ class MessageController extends AbstractController
             ];
         }
 
-        $messages = $em->getRepository(Message::class)->getAll($offset, $perPage, $filters);
+        $repo = $em->getRepository(Message::class);
+        $messages = $repo->getAll($offset, $perPage, $filters);
+        $totalItems = $repo->getCount($filters);
+        $totalPages = (int)ceil($totalItems / $perPage);
 
         return $this->render('employer/message/index.html.twig', [
             'messages' => $messages,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'per_page' => $perPage,
+                'total_items' => $totalItems,
+                'has_previous' => $page > 1,
+                'has_next' => $page < $totalPages,
+                'previous_page' => max(1, $page - 1),
+                'next_page' => min($totalPages ?: 1, $page + 1),
+            ],
+            'current_type' => $type,
         ]);
     }
 

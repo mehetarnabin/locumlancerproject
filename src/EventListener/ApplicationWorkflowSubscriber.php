@@ -102,8 +102,7 @@ class ApplicationWorkflowSubscriber implements EventSubscriberInterface
         }
 
         if ($transition === 'offer') {
-            $application->setStatus('negotiating');
-            $this->em->persist($application);
+            // Status is set to 'offered' by the workflow; do not override to an invalid place
 
             // Notify the employer being provider offered
             $this->notificationService->sendNotification(

@@ -35,7 +35,7 @@ class ApplicationService
 
     public function markAsHired(Application $application): void
     {
-        $application->setStatus('accepted');
+        $application->setStatus('hired');
         $application->setHiredAt(new \DateTime());
         
         $this->em->persist($application);

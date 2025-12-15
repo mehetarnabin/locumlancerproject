@@ -3,6 +3,7 @@
 
 namespace App\Service;
 
+use App\Entity\Employer;
 use App\Entity\Provider;
 use App\Entity\User;
 use App\Repository\ApplicationRepository;
@@ -140,6 +141,70 @@ class ProfileAnalyticsService
     public function recordSearchImpression(Provider $provider): void
     {
         $this->profileAnalyticsRepo->recordAnalyticsEvent($provider, null, 'search_impression');
+    }
+
+    public function getEmployerTopSkillsInDemand(Employer $employer): array
+    {
+        try {
+            $jobs = array_merge(
+                $this->jobRepo->getEmployerCurrentJobs($employer->getId()),
+                $this->jobRepo->getEmployerPastJobs($employer->getId())
+            );
+
+            if (empty($jobs)) {
+                return $this->getDefaultSkills();
+            }
+
+            $skillFrequency = $this->analyzeSkillsFromJobs($jobs);
+            $skillsData = $this->calculateSkillDemand($skillFrequency, []);
+
+            return array_slice($skillsData, 0, 5);
+        } catch (\Exception $e) {
+            error_log('Error in getEmployerTopSkillsInDemand: ' . $e->getMessage());
+            return $this->getDefaultSkills();
+        }
+    }
+
+    public function getEmployerProfileInsights(Employer $employer, User $user): array
+    {
+        try {
+            $fieldsToCheck = [
+                'companyName' => $employer->getCompanyName(),
+                'name' => $employer->getName(),
+                'email' => $employer->getEmail(),
+                'contactEmail' => $employer->getContactEmail(),
+                'contactPersonName' => $employer->getContactPersonName(),
+                'phone1' => $employer->getPhone1(),
+                'address' => $employer->getAddress(),
+                'website' => $employer->getWebsite(),
+                'logo' => $employer->getLogo(),
+            ];
+
+            $completedFields = 0;
+            $missingFields = [];
+
+            foreach ($fieldsToCheck as $field => $value) {
+                if (!empty($value)) {
+                    $completedFields++;
+                } else {
+                    $missingFields[] = $this->formatFieldName($field);
+                }
+            }
+
+            $completenessScore = count($fieldsToCheck) > 0 ? ($completedFields / count($fieldsToCheck)) * 100 : 0;
+
+            return [
+                'profileCompleteness' => round($completenessScore),
+                'missingFields' => $missingFields,
+                'suggestions' => array_slice($missingFields, 0, 3),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'profileCompleteness' => 0,
+                'missingFields' => ['Company Profile'],
+                'suggestions' => ['Complete your company profile details'],
+            ];
+        }
     }
 
     private function getApplicationToInterviewRatio(Provider $provider): array

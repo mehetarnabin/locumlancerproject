@@ -1061,7 +1061,7 @@
                                     </svg>
                                 </span>
                                 {% if sentItems|length > 0 %}
-                                    <span class="provider-sent-icons" title="{{ 'Sent: ' ~ sentItems|join(', ') }}">
+                                    <span class="provider-sent-icons" title="{{ 'Sent: ' ~ sentItems|join(', ') }}" onclick="openEmployerDocsModal('{{ application.id }}'); return false;">
                                         {% for item in sentItems %}
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
                                                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.5"/>
@@ -1080,13 +1080,32 @@
                         </div>
                     </div>
                 {% endfor %}
-                </div>
-            </div>
-            {% else %}
+    </div>
+    </div>
+    {% else %}
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 400px; padding: 40px;">
                     <p style="font-size: 18px; color: #666; text-align: center;">Applications not found.</p>
+    </div>
+    {% endif %}
+    </div>
+    </div>
+
+    <div class="modal fade" id="assignedDocsModal" tabindex="-1" aria-labelledby="assignedDocsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignedDocsLabel">Documents</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            {% endif %}
+                <div class="modal-body" style="display:flex; gap:12px; align-items: stretch;">
+                    <div style="width:280px; flex-shrink:0;">
+                        <ul id="assignedDocsList" class="list-group"></ul>
+                    </div>
+                    <div style="flex:1;">
+                        <iframe id="assignedDocPreview" style="width:100%; height:70vh; border:1px solid #e6eef6; border-radius:10px;" src=""></iframe>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1666,6 +1685,57 @@
             }
         });
         
+        function showModal(el) {
+            if (!el) return;
+            try {
+                if (el.parentElement !== document.body) {
+                    document.body.appendChild(el);
+                }
+            } catch(_){}
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).show();
+                return;
+            }
+            if ((window.$ || window.jQuery) && ((window.$ && window.$.fn && window.$.fn.modal) || (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal))) {
+                var $ = window.$ || window.jQuery;
+                $(el).modal('show');
+                return;
+            }
+            el.classList.add('show');
+            el.style.display = 'flex';
+            el.style.position = 'fixed';
+            el.style.top = '0';
+            el.style.left = '0';
+            el.style.width = '100vw';
+            el.style.height = '100vh';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.background = 'rgba(0,0,0,0.5)';
+            el.style.zIndex = '100005';
+            el.style.pointerEvents = 'auto';
+            el.setAttribute('aria-hidden', 'false');
+            try {
+                document.body.classList.add('modal-open');
+                var existing = document.querySelector('.modal-backdrop');
+                if (!existing) {
+                    var bd = document.createElement('div');
+                    bd.className = 'modal-backdrop fade show';
+                    bd.style.zIndex = '100004';
+                    document.body.appendChild(bd);
+                }
+                var closeBtn = el.querySelector('[data-bs-dismiss="modal"], [data-dismiss="modal"]');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function(){
+                        el.classList.remove('show');
+                        el.style.display = 'none';
+                        document.body.classList.remove('modal-open');
+                        var b = document.querySelector('.modal-backdrop');
+                        if (b && b.parentElement) b.parentElement.removeChild(b);
+                    });
+                }
+            } catch(_){}
+        }
+
         function handleEmployerTodoIconClick(e, el) {
             try {
                 var appId = el.getAttribute('data-application-id') || '';
@@ -1673,32 +1743,14 @@
                 function show(id) {
                     var modalEl = document.getElementById(id);
                     if (!modalEl) return;
-                    if (window.bootstrap && window.bootstrap.Modal) {
-                        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
-                    } else if ((window.$ || window.jQuery) && ((window.$ && window.$.fn && window.$.fn.modal) || (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal))) {
-                        var $ = window.$ || window.jQuery;
-                        $(modalEl).modal('show');
-                    } else {
-                        modalEl.classList.add('show');
-                        modalEl.style.display = 'flex';
-                        modalEl.style.position = 'fixed';
-                        modalEl.style.top = '0';
-                        modalEl.style.left = '0';
-                        modalEl.style.width = '100vw';
-                        modalEl.style.height = '100vh';
-                        modalEl.style.alignItems = 'center';
-                        modalEl.style.justifyContent = 'center';
-                        modalEl.style.background = 'rgba(0,0,0,0.5)';
-                        modalEl.style.zIndex = '100005';
-                        modalEl.style.pointerEvents = 'auto';
-                        modalEl.setAttribute('aria-hidden', 'false');
-                    }
+                    showModal(modalEl);
                 }
                 if (action.indexOf('interview') !== -1) {
                     var idInput = document.getElementById('scheduleInterviewApplicationId');
                     if (idInput) idInput.value = appId;
                     show('scheduleInterviewModal');
                     e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
                     return false;
                 }
                 if (action.indexOf('credential') !== -1) {
@@ -1706,13 +1758,7 @@
                     if (appInput) appInput.value = appId;
                     show('sendCredentialLinkModal');
                     e.preventDefault && e.preventDefault();
-                    return false;
-                }
-                if (action.indexOf('review') !== -1) {
-                    var rInput = document.getElementById('writeReviewApplicationId');
-                    if (rInput) rInput.value = appId;
-                    show('writeReviewModal');
-                    e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
                     return false;
                 }
                 if (action.indexOf('contract') !== -1 || action.indexOf('offer') !== -1) {
@@ -1720,6 +1766,15 @@
                     if (sInput) sInput.value = appId;
                     show('sendOfferModal');
                     e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
+                    return false;
+                }
+                if (action.indexOf('review') !== -1) {
+                    var rInput = document.getElementById('writeReviewApplicationId');
+                    if (rInput) rInput.value = appId;
+                    show('writeReviewModal');
+                    e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
                     return false;
                 }
                 if (action.indexOf('document') !== -1 || action.indexOf('provide') !== -1) {
@@ -1727,10 +1782,104 @@
                     if (dInput) dInput.value = appId;
                     show('askDocumentModal');
                     e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
+                    return false;
+                }
+                if (appId) {
+                    if (typeof window.openEmployerDocsModal === 'function') {
+                        window.openEmployerDocsModal(appId);
+                    } else {
+                        show('assignedDocsModal');
+                    }
+                    e.preventDefault && e.preventDefault();
+                    e.stopPropagation && e.stopPropagation();
                     return false;
                 }
             } catch(_) {}
             return false;
         }
+        
+        function openEmployerDocsModal(appId) {
+            try {
+                var listEl = document.getElementById('assignedDocsList');
+                var iframeEl = document.getElementById('assignedDocPreview');
+                if (listEl) listEl.innerHTML = '';
+                if (iframeEl) iframeEl.src = '';
+                fetch(window.location.origin + '/employer/applications/' + appId + '/document-requests', {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin'
+                }).then(function(r){ return r.json(); }).then(function(data){
+                    var items = [];
+                    if (data && data.contractUrl) {
+                        items.push({ name: 'Contract', url: data.contractUrl });
+                    }
+                    var reqs = (data && data.documentRequests) ? data.documentRequests : [];
+                    reqs.forEach(function(dr){
+                        if (dr && dr.document && dr.document.url) {
+                            items.push({ name: dr.name || (dr.document.name || 'Document'), url: dr.document.url });
+                        }
+                    });
+                    if (items.length === 0) {
+                        if (listEl) {
+                            var li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = 'No documents available';
+                            listEl.appendChild(li);
+                        }
+                    } else {
+                        items.forEach(function(it, idx){
+                            var li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action';
+                            li.textContent = it.name;
+                            li.addEventListener('click', function(){
+                                if (iframeEl) iframeEl.src = it.url;
+                            });
+                            listEl && listEl.appendChild(li);
+                            if (idx === 0 && iframeEl) iframeEl.src = it.url;
+                        });
+                    }
+                    var modalEl = document.getElementById('assignedDocsModal');
+                    if (modalEl) {
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                        } else if ((window.$ || window.jQuery) && ((window.$ && window.$.fn && window.$.fn.modal) || (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal))) {
+                            var $ = window.$ || window.jQuery;
+                            $(modalEl).modal('show');
+                        } else {
+                            modalEl.classList.add('show');
+                            modalEl.style.display = 'block';
+                            modalEl.setAttribute('aria-hidden', 'false');
+                        }
+                    }
+                }).catch(function(){
+                    var modalEl = document.getElementById('assignedDocsModal');
+                    if (modalEl) {
+                        if (window.bootstrap && window.bootstrap.Modal) {
+                            window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                        } else {
+                            modalEl.classList.add('show');
+                            modalEl.style.display = 'block';
+                            modalEl.setAttribute('aria-hidden', 'false');
+                        }
+                    }
+                    if (listEl) {
+                        var li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = 'Failed to load documents';
+                        listEl.appendChild(li);
+                    }
+                });
+            } catch(_) {}
+        }
+        
+        document.addEventListener('click', function(ev){
+            var el = ev.target.closest('.todo-icon-wrapper');
+            if (!el) return;
+            ev.preventDefault && ev.preventDefault();
+            ev.stopPropagation && ev.stopPropagation();
+            try {
+                handleEmployerTodoIconClick(ev, el);
+            } catch(_){}
+        });
     </script>
 {% endblock %}

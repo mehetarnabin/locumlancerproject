@@ -20,6 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
@@ -46,6 +47,54 @@ class ApplicationController extends AbstractController
             'applications' => $applications,
             'statusCounts' => $statusCounts,
             'totalApplications' => $totalApplications,
+        ]);
+    }
+    
+    #[Route('/{id}/document-requests', name: 'app_employer_application_document_requests', methods: ['GET'])]
+    public function applicationDocumentRequests(Application $application, EntityManagerInterface $em, Request $request): JsonResponse
+    {
+        $currentEmployer = $this->getUser()->getEmployer();
+        if ($application->getEmployer() !== $currentEmployer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+        $provider = $application->getProvider();
+        $requests = $em->getRepository(DocumentRequest::class)->findBy([
+            'application' => $application,
+            'provider' => $provider
+        ], ['createdAt' => 'DESC']);
+        $data = array_map(function (DocumentRequest $dr) {
+            $doc = $dr->getDocument();
+            $docData = null;
+            if ($doc) {
+                $path = $doc->getFilePath();
+                if (!$path && $doc->getUser() && $doc->getFileName()) {
+                    $path = '/uploads/' . $doc->getUser()->getId() . '/' . $doc->getFileName();
+                }
+                $docData = [
+                    'id' => (string)$doc->getId(),
+                    'name' => $doc->getDisplayName(),
+                    'mimeType' => $doc->getMimeType(),
+                    'filePath' => $path,
+                    'url' => $path
+                ];
+            }
+            return [
+                'id' => (string)$dr->getId(),
+                'name' => $dr->getName(),
+                'createdAt' => $dr->getCreatedAt() ? $dr->getCreatedAt()->format('c') : null,
+                'providedAt' => $dr->getProvidedAt() ? $dr->getProvidedAt()->format('c') : null,
+                'document' => $docData
+            ];
+        }, $requests);
+        $contractUrl = null;
+        if ($application->getContractSignedFileName() || $application->getContractFileName()) {
+            $file = $application->getContractSignedFileName() ?: $application->getContractFileName();
+            $contractUrl = $file ? ('/uploads/contracts/' . $file) : null;
+        }
+        return $this->json([
+            'success' => true,
+            'documentRequests' => $data,
+            'contractUrl' => $contractUrl
         ]);
     }
 
@@ -160,16 +209,50 @@ class ApplicationController extends AbstractController
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
-        $interview = new Interview();
+        $dates = $request->request->all('interview_dates');
+        $singleDate = $request->request->get('interview_date') ?? $request->request->get('meeting_date');
+        $platform = $request->request->get('meeting_platform') ?? $request->request->get('platform') ?? 'Interview';
+        $url = $request->request->get('meeting_url') ?? $request->request->get('link');
 
-        $interview->setDate(new \DateTime($request->get('meeting_date')));
-        $interview->setMeetingUrl($request->get('meeting_url'));
-        $interview->setMeetingPlatform($request->get('meeting_platform'));
-        $interview->setApplication($application);
+        $createdAny = false;
+        $firstInterview = null;
 
-        $application->setInterview($interview);
+        if (is_array($dates) && count($dates) > 0) {
+            foreach ($dates as $dateStr) {
+                if (!$dateStr) {
+                    continue;
+                }
+                $interview = new Interview();
+                $interview->setDate(new \DateTime($dateStr));
+                $interview->setMeetingUrl($url);
+                $interview->setMeetingPlatform($platform);
+                $interview->setApplication($application);
+                $em->persist($interview);
+                if (!$firstInterview) {
+                    $firstInterview = $interview;
+                }
+                $createdAny = true;
+            }
+        } elseif ($singleDate) {
+            $interview = new Interview();
+            $interview->setDate(new \DateTime($singleDate));
+            $interview->setMeetingUrl($url);
+            $interview->setMeetingPlatform($platform);
+            $interview->setApplication($application);
+            $em->persist($interview);
+            $firstInterview = $interview;
+            $createdAny = true;
+        }
 
-        $em->persist($interview);
+        if (!$createdAny) {
+            $this->addFlash('error', 'Please provide at least one interview date.');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+        }
+
+        if ($firstInterview) {
+            $application->setInterview($firstInterview);
+        }
+
         $em->persist($application);
         $em->flush();
 

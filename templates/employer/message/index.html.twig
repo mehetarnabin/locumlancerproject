@@ -672,19 +672,29 @@ body {
                         <div class="messages-list">
                         {% if messages|length > 0 %}
                             {% for message in messages %}
-                                {% set senderName = app.request.get('type') == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                {% set senderProviderName = app.request.get('type') == 'sent' 
+                                    ? (message.receiver.provider ? message.receiver.provider.name : null)
+                                    : (message.sender.provider ? message.sender.provider.name : null) %}
+                                {% set senderName = senderProviderName|default(
+                                    app.request.get('type') == 'sent' 
+                                    ? message.receiver.name|default(message.receiver.email) 
+                                    : message.sender.name|default(message.sender.email)
+                                ) %}
                                 {% set senderAvatar = app.request.get('type') == 'sent' 
                                     ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
                                     : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
                                 {% set isRead = message.seen|default(false) %}
-                                {% set messageText = message.text|striptags|slice(0, 100) %}
+                                {% set subjectCandidate = message.originalSubject ?? message.subject ?? '' %}
+                                {% set subjectText = subjectCandidate|slice(0,4) == 'Fwd:' ? subjectCandidate|slice(4)|trim : subjectCandidate %}
+                                {% set subjectText = subjectText ?: (message.text|striptags) %}
+                                {% set subjectShort = subjectText|slice(0, 100) %}
                                 
                                 <a href="{{ path('app_employer_message_show', {'id': message.id}) }}" 
                                    class="message-item {% if not isRead and app.request.get('type') != 'sent' %}unread{% else %}read{% endif %}">
                                     <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
                                     <div class="message-content">
                                         <div class="message-sender">{{ senderName }}</div>
-                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                        <div class="message-text">{{ subjectShort }}{% if subjectText|length > 100 %}...{% endif %}</div>
                                                 </div>
                                     <div class="message-meta">
                                         <div class="message-time">{{ message.createdAt|time_diff }}</div>
@@ -708,9 +718,23 @@ body {
                         </div>
                     </div>
                     
-                    {% if messages.nbPages > 1 %}
+                    {% if pagination is defined and pagination.total_pages > 1 %}
                         <div style="padding: 16px 20px; border-top: 1px solid #e6eef6; background: #fff;">
-                            {{ pagerfanta(messages, 'twitter_bootstrap5') }}
+                            <nav aria-label="Messages pagination">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item {% if not pagination.has_previous %}disabled{% endif %}">
+                                        <a class="page-link" href="{{ path('app_employer_messages', {'type': app.request.get('type') ?: 'inbox', 'page': pagination.previous_page, 'per_page': pagination.per_page}) }}" tabindex="-1">Previous</a>
+                                    </li>
+                                    {% for p in 1..pagination.total_pages %}
+                                        <li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+                                            <a class="page-link" href="{{ path('app_employer_messages', {'type': app.request.get('type') ?: 'inbox', 'page': p, 'per_page': pagination.per_page}) }}">{{ p }}</a>
+                                        </li>
+                                    {% endfor %}
+                                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                        <a class="page-link" href="{{ path('app_employer_messages', {'type': app.request.get('type') ?: 'inbox', 'page': pagination.next_page, 'per_page': pagination.per_page}) }}">Next</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     {% endif %}
                 </div>

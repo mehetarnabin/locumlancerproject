@@ -1478,7 +1478,7 @@ div.container-xl,
                                         <path d="M4 7H20M4 12H20M4 17H12" stroke="#121C0C" stroke-width="2" stroke-linecap="round"/>
                                     </svg>
                                 </span>
-                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;">
+                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;" onclick="openEmployerDocsModal('{{ application.id }}'); return false;">
                                     {% if application.documentProvidedAt %}
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
                                             <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
@@ -1527,7 +1527,7 @@ div.container-xl,
                                         <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                     </svg>
                                 </span>
-                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;">
+                                <span class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:inline-flex;align-items:center;gap:6px;" onclick="openEmployerDocsModal('{{ application.id }}'); return false;">
                                     {% if application.documentProvidedAt %}
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
                                             <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
@@ -2199,7 +2199,7 @@ div.container-xl,
                                                 <path d="M4 7H20M4 12H20M4 17H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                             </svg>
                                         </div>
-                                        <div class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:flex;align-items:center;gap:6px;">
+                                        <div class="provider-sent-icons" title="{{ sentItems|length > 0 ? ('Sent: ' ~ sentItems|join(', ')) : 'No items sent yet' }}" style="display:flex;align-items:center;gap:6px;" onclick="openEmployerDocsModal('{{ application.id }}'); return false;">
                                             {% if application.documentProvidedAt %}
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#10b981;">
                                                     <path d="M6 2H14L18 6V20C18 20.5523 17.5523 21 17 21H6C5.44772 21 5 20.5523 5 20V3C5 2.44772 5.44772 2 6 2Z" stroke="currentColor" stroke-width="1.5"/>
@@ -2456,6 +2456,24 @@ div.container-xl,
 {% endblock %}
 
 {% block footer_scripts %}
+    <div class="modal fade" id="assignedDocsModal" tabindex="-1" aria-labelledby="assignedDocsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignedDocsLabel">Documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" style="display:flex; gap:12px; align-items: stretch;">
+                    <div style="width:280px; flex-shrink:0;">
+                        <ul id="assignedDocsList" class="list-group"></ul>
+                    </div>
+                    <div style="flex:1;">
+                        <iframe id="assignedDocPreview" style="width:100%; height:70vh; border:1px solid #e6eef6; border-radius:10px;" src=""></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
@@ -2563,6 +2581,12 @@ function handleEmployerTodoIconClick(e, el) {
     var status = (el.getAttribute('data-status') || '').toLowerCase();
     var action = el.getAttribute('data-todo-action') || '';
     if (!appId) return false;
+    if (typeof window.openEmployerDocsModal === 'function') {
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+      window.openEmployerDocsModal(appId);
+      return false;
+    }
     var reviewUrlT = '{{ path("app_employer_application_review_provider", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
     var contractUrlT = '{{ path("app_employer_application_sendcontract", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
     var interviewUrlT = '{{ path("app_employer_application_scheduleinterview", {"id": "00000000-0000-0000-0000-000000000000"}) }}';
@@ -2614,6 +2638,123 @@ function handleEmployerTodoIconClick(e, el) {
     return false;
   }
 }
+
+function openEmployerDocsModal(appId) {
+  try {
+    var modalEl = document.getElementById('assignedDocsModal');
+    if (!modalEl) {
+      modalEl = document.createElement('div');
+      modalEl.className = 'modal fade';
+      modalEl.id = 'assignedDocsModal';
+      modalEl.tabIndex = -1;
+      modalEl.setAttribute('role', 'dialog');
+      modalEl.setAttribute('aria-labelledby', 'assignedDocsLabel');
+      modalEl.setAttribute('aria-hidden', 'true');
+      modalEl.innerHTML = '<div class="modal-dialog modal-xl" role="document"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="assignedDocsLabel">Documents</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><div class="modal-body" style="display:flex; gap:12px; align-items: stretch;"><div style="width:280px; flex-shrink:0;"><ul id="assignedDocsList" class="list-group"></ul></div><div style="flex:1;"><iframe id="assignedDocPreview" style="width:100%; height:70vh; border:1px solid #e6eef6; border-radius:10px;" src=""></iframe></div></div></div></div>';
+      document.body.appendChild(modalEl);
+    }
+    function showDocsModal(el) {
+      if (!el) return;
+      try {
+        if (el.parentElement !== document.body) {
+          document.body.appendChild(el);
+        }
+      } catch(_){}
+      if (window.bootstrap && window.bootstrap.Modal) {
+        window.bootstrap.Modal.getOrCreateInstance(el).show();
+        return;
+      }
+      if ((window.$ || window.jQuery) && ((window.$ && window.$.fn && window.$.fn.modal) || (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal))) {
+        var $ = window.$ || window.jQuery;
+        $(el).modal('show');
+        return;
+      }
+      el.classList.add('show');
+      el.style.display = 'flex';
+      el.style.position = 'fixed';
+      el.style.top = '0';
+      el.style.left = '0';
+      el.style.width = '100vw';
+      el.style.height = '100vh';
+      el.style.alignItems = 'center';
+      el.style.justifyContent = 'center';
+      el.style.background = 'rgba(0,0,0,0.5)';
+      el.style.zIndex = '100005';
+      el.style.pointerEvents = 'auto';
+      el.setAttribute('aria-hidden', 'false');
+      try {
+        document.body.classList.add('modal-open');
+        var existing = document.querySelector('.modal-backdrop');
+        if (!existing) {
+          var bd = document.createElement('div');
+          bd.className = 'modal-backdrop fade show';
+          bd.style.zIndex = '100004';
+          document.body.appendChild(bd);
+        }
+        var closeBtn = el.querySelector('[data-dismiss="modal"]');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(){
+            el.classList.remove('show');
+            el.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            var b = document.querySelector('.modal-backdrop');
+            if (b && b.parentElement) b.parentElement.removeChild(b);
+          });
+        }
+      } catch(_){}
+    }
+    showDocsModal(modalEl);
+    try { console.log('[DocsModal] openEmployerDocsModal called for app', appId); } catch(_){}
+    var listEl = document.getElementById('assignedDocsList');
+    var iframeEl = document.getElementById('assignedDocPreview');
+    if (listEl) listEl.innerHTML = '';
+    if (iframeEl) iframeEl.src = '';
+    fetch(window.location.origin + '/employer/applications/' + appId + '/document-requests', {
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin'
+    }).then(function(r){ return r.json(); }).then(function(data){
+      var items = [];
+      if (data && data.contractUrl) {
+        items.push({ name: 'Contract', url: data.contractUrl });
+      }
+      var reqs = (data && data.documentRequests) ? data.documentRequests : [];
+      reqs.forEach(function(dr){
+        if (dr && dr.document && dr.document.url) {
+          items.push({ name: dr.name || (dr.document.name || 'Document'), url: dr.document.url });
+        }
+      });
+      if (items.length === 0) {
+        if (listEl) {
+          var li = document.createElement('li');
+          li.className = 'list-group-item';
+          li.textContent = 'No documents available';
+          listEl.appendChild(li);
+        }
+      } else {
+        items.forEach(function(it, idx){
+          var li = document.createElement('li');
+          li.className = 'list-group-item list-group-item-action';
+          li.textContent = it.name;
+          li.addEventListener('click', function(){
+            if (iframeEl) iframeEl.src = it.url;
+          });
+          listEl && listEl.appendChild(li);
+          if (idx === 0 && iframeEl) iframeEl.src = it.url;
+        });
+      }
+      showDocsModal(document.getElementById('assignedDocsModal'));
+    }).catch(function(){
+      showDocsModal(document.getElementById('assignedDocsModal'));
+      if (listEl) {
+        var li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = 'Failed to load documents';
+        listEl.appendChild(li);
+      }
+    });
+  } catch(_) {}
+}
+try { window.openEmployerDocsModal = openEmployerDocsModal; } catch(_){}
 </script>
         $(".js-datepicker").flatpickr({
             enableTime: true,
