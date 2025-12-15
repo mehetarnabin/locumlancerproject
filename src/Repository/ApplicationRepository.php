@@ -28,7 +28,8 @@ class ApplicationRepository extends ServiceEntityRepository
             ->addSelect('dr')
             ->where('1 = 1')
             ->addOrderBy('dr.createdAt', 'DESC'); // Explicit ordering to prevent status field access
-        // Temporarily removed archived filter to avoid column not found error
+        // Exclude archived applications
+        $qb->andWhere('a.archivedAt IS NULL');
 
         if (!empty($filters['status'])) {
             $statuses = is_array($filters['status']) ? $filters['status'] : [$filters['status']];
@@ -96,6 +97,7 @@ class ApplicationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a.status, COUNT(a.id) as count')
             ->where('a.employer = :employer')->setParameter('employer', $employer, UuidType::NAME)
+            ->andWhere('a.archivedAt IS NULL')
             ->groupBy('a.status')
             ->getQuery()
             ->getResult();

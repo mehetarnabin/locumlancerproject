@@ -25,6 +25,7 @@ class DocumentRequest
     private ?Provider $provider = null;
 
     #[ORM\ManyToOne(inversedBy: 'documentRequests')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private ?Application $application = null;
 
     #[ORM\ManyToOne]

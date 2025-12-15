@@ -6,8 +6,10 @@ when@dev:
     monolog:
         handlers:
             main:
-                type: stream
+                type: rotating_file
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
+                max_files: 14
+                use_locking: false
                 level: debug
                 channels: ["!event"]
             console:

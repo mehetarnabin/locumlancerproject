@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Uid\Uuid;
 
 #[Route('/employer/applications')]
 class ApplicationController extends AbstractController
@@ -376,29 +377,39 @@ class ApplicationController extends AbstractController
         }
 
         if ($request->getMethod() == 'POST') {
-            $message = $request->get('message');
+            $message = $request->get('review_text') ?? $request->get('message');
+            $rating = (int)$request->get('rating');
             $professionalism = (int)$request->get('professionalism');
             $quality = (int)$request->get('quality');
             $communication = (int)$request->get('communication');
             $emotionalIntelligence = (int)$request->get('emotional_intelligence');
 
-            if (
-                !empty($message) &&
-                $professionalism && $quality && $communication && $emotionalIntelligence
-            ) {
+            $hasCategoryScores = $professionalism && $quality && $communication && $emotionalIntelligence;
+            $hasRatingOnly = $rating && $rating >= 1 && $rating <= 5;
+
+            if (!empty($message) && ($hasCategoryScores || $hasRatingOnly)) {
                 $review = new Review();
 
                 $review->setMessage($message);
-                $review->setProfessionalism($professionalism);
-                $review->setQuality($quality);
-                $review->setCommunication($communication);
-                $review->setEmotionalIntelligence($emotionalIntelligence);
+                if ($hasCategoryScores) {
+                    $review->setProfessionalism($professionalism);
+                    $review->setQuality($quality);
+                    $review->setCommunication($communication);
+                    $review->setEmotionalIntelligence($emotionalIntelligence);
+                    $averagePoint = ($professionalism + $quality + $communication + $emotionalIntelligence) / 4;
+                } else {
+                    // Map the single rating to all category fields
+                    $review->setProfessionalism($rating);
+                    $review->setQuality($rating);
+                    $review->setCommunication($rating);
+                    $review->setEmotionalIntelligence($rating);
+                    $averagePoint = (float)$rating;
+                }
+
                 $review->setEmployer($application->getEmployer());
                 $review->setProvider($application->getProvider());
                 $review->setApplication($application);
                 $review->setReviewedBy('EMPLOYER');
-
-                $averagePoint = ($professionalism + $quality + $communication + $emotionalIntelligence) / 4;
                 $review->setPoint($averagePoint);
 
                 $em->persist($review);
@@ -414,7 +425,7 @@ class ApplicationController extends AbstractController
                     ->setParameter('reviewedBy', 'EMPLOYER');
 
                 $average = $qb->getQuery()->getSingleScalarResult();
-                $provider->setAveragePoint(round((float)$average, 2)); // rounded to 2 decimals
+                $provider->setAveragePoint(round((float)$average, 2));
 
                 $em->persist($provider);
                 $em->flush();
@@ -431,6 +442,92 @@ class ApplicationController extends AbstractController
 
         // GET request - show the review form (no error message needed)
         return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
+    }
+
+    #[Route('/archive', name: 'app_employer_applications_archive', methods: ['POST'])]
+    public function archiveApplications(Request $request, EntityManagerInterface $em): Response
+    {
+        $applicationIdsJson = $request->request->get('application_ids') ?? $request->getContent();
+        $applicationIds = is_string($applicationIdsJson) ? json_decode($applicationIdsJson, true) : (array)$applicationIdsJson;
+        if (empty($applicationIds)) {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'No applications selected for archive.'], 400);
+            }
+            $this->addFlash('error', 'No applications selected for archive.');
+            return $this->redirectToRoute('app_employer_applications');
+        }
+        $employer = $this->getUser()->getEmployer();
+        $count = 0;
+        foreach ($applicationIds as $id) {
+            try {
+                $uuid = Uuid::fromString($id);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            $application = $em->getRepository(Application::class)->find($uuid);
+            if (!$application) {
+                continue;
+            }
+            if ($application->getEmployer() !== $employer) {
+                continue;
+            }
+            // Always archive to refresh archivedAt and ensure consistency
+            $application->archive();
+            $em->persist($application);
+            $count++;
+        }
+        $em->flush();
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse([
+                'success' => $count > 0,
+                'message' => 'Archived ' . $count . ' application(s).',
+                'count' => $count
+            ]);
+        }
+        $this->addFlash('success', 'Archived ' . $count . ' application(s).');
+        return $this->redirectToRoute('app_employer_applications');
+    }
+
+    #[Route('/delete', name: 'app_employer_applications_delete', methods: ['POST'])]
+    public function deleteApplications(Request $request, EntityManagerInterface $em): Response
+    {
+        $applicationIdsJson = $request->request->get('application_ids') ?? $request->getContent();
+        $applicationIds = is_string($applicationIdsJson) ? json_decode($applicationIdsJson, true) : (array)$applicationIdsJson;
+        if (empty($applicationIds)) {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse(['success' => false, 'message' => 'No applications selected for deletion.'], 400);
+            }
+            $this->addFlash('error', 'No applications selected for deletion.');
+            return $this->redirectToRoute('app_employer_applications');
+        }
+        $employer = $this->getUser()->getEmployer();
+        $count = 0;
+        foreach ($applicationIds as $id) {
+            try {
+                $uuid = Uuid::fromString($id);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            $application = $em->getRepository(Application::class)->find($uuid);
+            if (!$application) {
+                continue;
+            }
+            if ($application->getEmployer() !== $employer) {
+                continue;
+            }
+            $em->remove($application);
+            $count++;
+        }
+        $em->flush();
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse([
+                'success' => $count > 0,
+                'message' => 'Deleted ' . $count . ' application(s).',
+                'count' => $count
+            ]);
+        }
+        $this->addFlash('success', 'Deleted ' . $count . ' application(s).');
+        return $this->redirectToRoute('app_employer_applications');
     }
 
     #[Route('/{id}/delete', name: 'app_employer_application_delete', methods: ['GET'])]

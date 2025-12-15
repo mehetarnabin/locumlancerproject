@@ -76,7 +76,7 @@ class Application
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isArchived = false;
 
-    #[ORM\OneToMany(mappedBy: 'application', targetEntity: DocumentRequest::class)]
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: DocumentRequest::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $documentRequests;
 
     public function __construct()

@@ -135,13 +135,26 @@ class JobController extends AbstractController
         }
 
         if(!empty($request->get('status'))) {
-            $application = $em->getRepository(Application::class)->findOneBy(['job' => $job, 'employer' => $currentEmployer, 'status' => $request->get('status')], ['id' => 'DESC']);
+            $application = $em->getRepository(Application::class)->findOneBy([
+                'job' => $job,
+                'employer' => $currentEmployer,
+                'status' => $request->get('status'),
+                'isArchived' => false
+            ], ['id' => 'DESC']);
         }else{
-            $application = $em->getRepository(Application::class)->findOneBy(['job' => $job, 'employer' => $currentEmployer], ['id' => 'DESC']);
+            $application = $em->getRepository(Application::class)->findOneBy([
+                'job' => $job,
+                'employer' => $currentEmployer,
+                'isArchived' => false
+            ], ['id' => 'DESC']);
         }
 
         if($request->get('applicationId')) {
-            $application = $em->getRepository(Application::class)->findOneBy(['id' => $request->get('applicationId'), 'employer' => $currentEmployer]);
+            $application = $em->getRepository(Application::class)->findOneBy([
+                'id' => $request->get('applicationId'),
+                'employer' => $currentEmployer,
+                'isArchived' => false
+            ]);
 
             if($application->getStatus() == 'applied'){
                 if ($jobApplicationWorkflow->can($application, 'review')) {
@@ -169,9 +182,16 @@ class JobController extends AbstractController
         $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $application->getProvider(), 'application' => $application]);
 
         if(!empty($request->get('status'))){
-            $applications = $em->getRepository(Application::class)->findBy(['job' => $job, 'status' => $request->get('status')], ['id' => 'DESC']);
+            $applications = $em->getRepository(Application::class)->findBy([
+                'job' => $job,
+                'status' => $request->get('status'),
+                'isArchived' => false
+            ], ['id' => 'DESC']);
         }else{
-            $applications = $em->getRepository(Application::class)->findBy(['job' => $job], ['id' => 'DESC']);
+            $applications = $em->getRepository(Application::class)->findBy([
+                'job' => $job,
+                'isArchived' => false
+            ], ['id' => 'DESC']);
         }
 
         if(count($applications) > 0) {
