@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\WorkflowInterface;
 
@@ -156,7 +157,7 @@ class JobController extends AbstractController
                 'isArchived' => false
             ]);
 
-            if($application->getStatus() == 'applied'){
+            if($application && $application->getStatus() == 'applied'){
                 if ($jobApplicationWorkflow->can($application, 'review')) {
                     $jobApplicationWorkflow->apply($application, 'review');
                     $em->persist($application);
@@ -166,21 +167,13 @@ class JobController extends AbstractController
             }
         }
 
-        if(!$application){
-            return $this->render('employer/job/applications-empty.html.twig', ['job' => $job,]);
-        }
+        // Get ALL applications (unfiltered) for status card counts
+        $allApplications = $em->getRepository(Application::class)->findBy([
+            'job' => $job,
+            'isArchived' => false
+        ], ['id' => 'DESC']);
 
-        $provider = $application->getProvider();
-
-        $user = $provider->getUser();
-
-        $educations = $em->getRepository(Education::class)->findBy(['user' => $user]);
-        $experiences = $em->getRepository(Experience::class)->findBy(['user' => $user]);
-        $insurances = $em->getRepository(Insurance::class)->findBy(['user' => $user]);
-        $review = $em->getRepository(Review::class)->findOneBy(['application' => $application, 'provider' => $provider]);
-
-        $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $application->getProvider(), 'application' => $application]);
-
+        // Get filtered applications for the list display
         if(!empty($request->get('status'))){
             $applications = $em->getRepository(Application::class)->findBy([
                 'job' => $job,
@@ -188,36 +181,57 @@ class JobController extends AbstractController
                 'isArchived' => false
             ], ['id' => 'DESC']);
         }else{
-            $applications = $em->getRepository(Application::class)->findBy([
-                'job' => $job,
-                'isArchived' => false
-            ], ['id' => 'DESC']);
+            $applications = $allApplications;
         }
 
+        // Initialize variables for when there's no application
+        $provider = null;
+        $user = null;
+        $educations = [];
+        $experiences = [];
+        $insurances = [];
+        $review = null;
+        $documentRequests = [];
+
+        // Only set these if we have an application
+        if($application){
+            $provider = $application->getProvider();
+            $user = $provider->getUser();
+            $educations = $em->getRepository(Education::class)->findBy(['user' => $user]);
+            $experiences = $em->getRepository(Experience::class)->findBy(['user' => $user]);
+            $insurances = $em->getRepository(Insurance::class)->findBy(['user' => $user]);
+            $review = $em->getRepository(Review::class)->findOneBy(['application' => $application, 'provider' => $provider]);
+            $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $application->getProvider(), 'application' => $application]);
+        }
+
+        // Initialize workflow and transitions
+        $workflow = null;
+        $jobApplicationTransitions = [];
+        
         if(count($applications) > 0) {
             $workflow = $workflowRegistry->get(reset($applications), 'job_application_workflow');
-        }
-
-        $jobApplicationTransitions = [];
-        foreach ($applications as $jobApplication) {
-            try {
-                $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
-            } catch (\LogicException $e) {
-                if ($jobApplication->getStatus() === 'negotiating') {
-                    $jobApplication->setStatus('offered');
-                } elseif ($jobApplication->getStatus() === 'accepted') {
-                    $jobApplication->setStatus('hired');
+            
+            foreach ($applications as $jobApplication) {
+                try {
+                    $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
+                } catch (\LogicException $e) {
+                    if ($jobApplication->getStatus() === 'negotiating') {
+                        $jobApplication->setStatus('offered');
+                    } elseif ($jobApplication->getStatus() === 'accepted') {
+                        $jobApplication->setStatus('hired');
+                    }
+                    $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
                 }
-                $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
             }
         }
 
-        $statusCounts =  $em->getRepository(Application::class)->getApplicationStatusCounts();
+        $statusCounts =  $em->getRepository(Application::class)->getJobApplicationStatusCounts($job->getId());
 
         return $this->render('employer/job/applications.html.twig', [
             'job' => $job,
             'applicationDetail' => $application,
-            'applications' => $applications,
+            'applications' => $applications, // Filtered applications for list display
+            'allApplications' => $allApplications, // All applications for status card counts
             'educations' => $educations,
             'experiences' => $experiences,
             'insurances' => $insurances,
@@ -227,8 +241,8 @@ class JobController extends AbstractController
             'review' => $review,
             'jobApplicationTransitions' => $jobApplicationTransitions,
             'statusCounts' => $statusCounts,
-            'healthAssessment' => $provider->getHealthAssessment(),
-            'riskAssessment' => $provider->getRiskAssessment(),
+            'healthAssessment' => $provider ? $provider->getHealthAssessment() : null,
+            'riskAssessment' => $provider ? $provider->getRiskAssessment() : null,
         ]);
     }
 
@@ -336,5 +350,76 @@ class JobController extends AbstractController
         }
 
         return $this->redirectToRoute('app_employer_job_applications', ['id' => $job->getId(), 'applicationId' => $application->getId()]);
+    }
+
+    #[Route('/{id}/applications/{applicationId}/detail', name: 'app_employer_job_application_detail_ajax', methods: ['GET'])]
+    public function applicationDetailAjax(
+        Job $job,
+        string $applicationId,
+        Request $request,
+        EntityManagerInterface $em,
+        Registry $workflowRegistry
+    ): Response
+    {
+        $currentEmployer = $this->getUser()->getEmployer();
+
+        if($job->getEmployer() !== $currentEmployer) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $applicationIdUuid = Uuid::fromString($applicationId);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Invalid application ID'], 400);
+        }
+
+        $application = $em->getRepository(Application::class)->findOneBy([
+            'id' => $applicationIdUuid,
+            'job' => $job,
+            'isArchived' => false
+        ]);
+
+        if(!$application) {
+            return $this->json(['error' => 'Application not found'], 404);
+        }
+
+        $provider = $application->getProvider();
+        $user = $provider->getUser();
+        $educations = $em->getRepository(Education::class)->findBy(['user' => $user]);
+        $experiences = $em->getRepository(Experience::class)->findBy(['user' => $user]);
+        $insurances = $em->getRepository(Insurance::class)->findBy(['user' => $user]);
+        $review = $em->getRepository(Review::class)->findOneBy(['application' => $application, 'provider' => $provider]);
+        $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $provider, 'application' => $application]);
+
+        if(count([$application]) > 0) {
+            $workflow = $workflowRegistry->get($application, 'job_application_workflow');
+        }
+
+        $jobApplicationTransitions = [];
+        try {
+            $jobApplicationTransitions[$application->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($application));
+        } catch (\LogicException $e) {
+            if ($application->getStatus() === 'negotiating') {
+                $application->setStatus('offered');
+            } elseif ($application->getStatus() === 'accepted') {
+                $application->setStatus('hired');
+            }
+            $jobApplicationTransitions[$application->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($application));
+        }
+
+        return $this->render('employer/job/_application_detail.html.twig', [
+            'job' => $job,
+            'application' => $application,
+            'educations' => $educations,
+            'experiences' => $experiences,
+            'insurances' => $insurances,
+            'documentRequests' => $documentRequests,
+            'user' => $user,
+            'provider' => $provider,
+            'review' => $review,
+            'jobApplicationTransitions' => $jobApplicationTransitions,
+            'healthAssessment' => $provider->getHealthAssessment(),
+            'riskAssessment' => $provider->getRiskAssessment(),
+        ]);
     }
 }

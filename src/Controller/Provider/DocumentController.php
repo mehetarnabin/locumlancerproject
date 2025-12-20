@@ -731,7 +731,7 @@ class DocumentController extends AbstractController
         ]);
     }
 
-    #[Route('/documents/application/{id}/requests', name: 'app_provider_application_document_requests', methods: ['GET'])]
+    #[Route('/documents/application/{id}/requests-details', name: 'app_provider_application_document_requests_details', methods: ['GET'])]
     public function applicationDocumentRequests(
         Application $application,
         Request $request,
@@ -748,11 +748,14 @@ class DocumentController extends AbstractController
         ], ['createdAt' => 'DESC']);
 
         $data = array_map(function (DocumentRequest $req) {
+            $doc = $req->getDocument();
             return [
                 'id' => (string)$req->getId(),
                 'name' => $req->getName(),
                 'createdAt' => $req->getCreatedAt()?->format('c'),
                 'providedAt' => $req->getProvidedAt()?->format('c'),
+                'documentUrl' => $doc ? $doc->getFilePath() : null,
+                'documentName' => $doc ? $doc->getFileName() : null,
             ];
         }, $requests);
 
@@ -780,7 +783,7 @@ class DocumentController extends AbstractController
 
     #[Route('/applications/{id}/upload-document', name: 'app_provider_application_upload_document', methods: ['POST'])]
     public function uploadDocumentFromApplication(
-        int $id,
+        string $id,
         Request $request,
         EntityManagerInterface $em,
         SluggerInterface $slugger,
@@ -809,7 +812,7 @@ class DocumentController extends AbstractController
             return $this->json(['success' => false, 'message' => 'File size exceeds 10MB limit'], 400);
         }
 
-        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
         $fileExtension = strtolower($uploadedFile->getClientOriginalExtension());
         if (!in_array($fileExtension, $allowedExtensions)) {
             return $this->json(['success' => false, 'message' => 'File type not allowed'], 400);
@@ -818,7 +821,7 @@ class DocumentController extends AbstractController
         try {
             // Create Document object
             $document = new Document();
-            $document->setProvider($provider);
+            $document->setUser($user); // Set the User, not Provider entity directly if types mismatch
             $document->setApplication($application);
             $document->setName($uploadedFile->getClientOriginalName());
 
@@ -827,8 +830,16 @@ class DocumentController extends AbstractController
             $safeFilename = $slugger->slug($originalFilename);
             $newFilename = $safeFilename . '-' . uniqid() . '.' . $uploadedFile->guessExtension();
 
-            $uploadedFile->move($uploadDirectory, $newFilename);
-            $document->setFilePath('/uploads/' . $newFilename);
+            $userUploadDir = $uploadDirectory . '/' . $user->getId();
+            if (!file_exists($userUploadDir)) {
+                mkdir($userUploadDir, 0777, true);
+            }
+            $uploadedFile->move($userUploadDir, $newFilename);
+            
+            $document->setFileName($newFilename); // Required field
+            $document->setFilePath('/uploads/' . $user->getId() . '/' . $newFilename);
+            $document->setMimeType($uploadedFile->getClientMimeType());
+            $document->setCategory('Application Document');
 
             // Add description if provided
             $description = $request->request->get('documentDescription');

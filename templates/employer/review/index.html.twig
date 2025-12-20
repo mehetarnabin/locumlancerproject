@@ -26,8 +26,9 @@
         </div>
         {% endif %}
 
-        <!-- Reviews Section -->
+        <!-- Received Reviews (from providers) -->
         {% if reviews is not empty %}
+            <h5 class="mb-3">Received Reviews</h5>
             <div class="row">
                 {% for review in reviews %}
                     {% set bgClass = review.point >= 4 ? 'border-success' : (review.point >= 3 ? 'border-warning' : 'border-danger') %}
@@ -55,7 +56,34 @@
                     </div>
                 {% endfor %}
             </div>
-        {% else %}
+        {% endif %}
+
+        <!-- Written Reviews (by employer) -->
+        {% if writtenReviews is not empty %}
+            <h5 class="mt-4 mb-3">Written Reviews</h5>
+            <div class="row">
+                {% for review in writtenReviews %}
+                    {% set bgClass = review.point >= 4 ? 'border-success' : (review.point >= 3 ? 'border-warning' : 'border-danger') %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm review-card {{ bgClass }}">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    {{ review.provider }}
+                                    <span class="badge bg-secondary float-end">{{ review.point }}/5</span>
+                                </h5>
+                                <h6 class="text-muted">{{ review.application.job }}</h6>
+                                <p class="mt-2">{{ review.message|default('No message') }}</p>
+                            </div>
+                            <div class="card-footer text-muted text-end small">
+                                {{ review.createdAt|date('M d, Y') }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if reviews is empty and writtenReviews is empty %}
             <div class="alert alert-info text-center">
                 No reviews found.
             </div>

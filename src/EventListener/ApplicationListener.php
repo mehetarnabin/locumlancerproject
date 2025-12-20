@@ -183,6 +183,12 @@ final class ApplicationListener
     {
         $application = $event->getApplication();
 
+        $interview = $application->getInterview();
+        if (!$interview && $application->getInterviews()->count() > 0) {
+            $interview = $application->getInterviews()->first();
+        }
+        $interviewId = $interview ? $interview->getId() : null;
+
         // Notify the provider about the document being requested
         $this->notificationService->sendNotification(
             $application->getProvider()->getUser(),
@@ -191,7 +197,7 @@ final class ApplicationListener
             true,
             [
                 'application' => $application->getId(),
-                'interview' => $application->getInterview()->getId(),
+                'interview' => $interviewId,
                 'job' => $application->getJob()->getId(),
                 'provider' => $application->getProvider()->getId(),
                 'employer' => $application->getEmployer()->getId(),

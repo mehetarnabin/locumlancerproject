@@ -3,57 +3,825 @@
 {% block title %}Invoices{% endblock %}
 
 {% block employer_body %}
-    <div class="container-xl">
+<style>
+/* Invoice table styling matching saved jobs design */
+.invoice-section {
+    background-color: #fff;
+    position: relative;
+    z-index: 1;
+}
 
+.invoice-header, .invoice-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
+    background-color: #fff !important;
+    z-index: 100 !important;
+    overflow: visible !important;
+    width: 100% !important;
+}
+
+.invoice-header {
+    padding: 2px 14px 2px 0;
+    color: #121C0C;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    border: 1px solid #e6eef6;
+    height: 40px;
+    margin-bottom: 1px !important;
+    font-size: 13px;
+    position: relative !important;
+    background-color: #F8FAF9 !important;
+}
+
+.invoice-row {
+    border: none;
+    padding: 2px 14px 2px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2px 0;
+    font-size: 12px;
+    border-radius: 10px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    min-height: 40px;
+    height: auto;
+}
+
+.invoice-row:nth-child(even) {
+    background: #fff;
+}
+
+.invoice-row:hover {
+    background-color: #F8FAF9;
+}
+
+.invoice-header > div,
+.invoice-row > div {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+/* Ensure consistent vertical alignment */
+.invoice-header {
+    min-height: 40px;
+    height: 40px;
+}
+
+.invoice-header > div,
+.invoice-row > div {
+    min-height: 40px;
+    height: 40px;
+}
+
+.table-responsive-wrapper {
+    margin-bottom: 0 !important;
+    margin-top: 16px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.invoice-list-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding: 0 1rem 1rem 1rem;
+    padding-right: 1rem !important;
+}
+
+.invoice-list-container .invoice-lists:first-child .invoice-row,
+.invoice-list-container > .invoice-lists:first-of-type .invoice-row,
+.invoice-list-container .invoice-lists:first-child {
+    margin-top: 0 !important;
+}
+
+/* Checkbox styling */
+.col-check input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cfd9e3;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.col-check input[type="checkbox"]:hover {
+    border-color: #85BB65;
+    background-color: #f7fef4;
+}
+
+.col-check input[type="checkbox"]:checked {
+    background-color: #85BB65;
+    border-color: #85BB65;
+}
+
+.col-check input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    box-sizing: border-box;
+}
+
+.col-check {
+    width: 30px !important;
+    flex-shrink: 0 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Action buttons styling */
+.action-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 13px;
+    color: #121C0C;
+}
+
+.action-btn:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+}
+
+.action-btn:hover svg {
+    color: #85BB65;
+}
+
+/* Hidden state for buttons that appear on selection */
+.action-btn.hidden-btn {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    display: flex !important; /* Keep flex to maintain space */
+}
+
+.action-btn.visible-btn {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.actions-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.job-actions-left,
+.job-actions-middle,
+.job-actions-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.job-actions-middle {
+    flex: 1;
+    justify-content: center;
+}
+
+.job-actions-right {
+    flex: 1;
+    justify-content: flex-end;
+}
+
+/* Dropdown styling */
+.custom-dropdown {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: auto;
+    background: #fff;
+    padding: 10px;
+    min-width: 150px;
+    z-index: 10000;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    overflow: visible;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.position-relative {
+    position: relative;
+}
+
+/* Sortable columns */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: 4px;
+    gap: 2px;
+}
+
+.sort-toggle .arrow {
+    width: 12px;
+    height: 12px;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+}
+
+.sort-toggle .arrow.active {
+    opacity: 1;
+    color: #85BB65;
+}
+
+/* Column widths */
+.col-number { width: 120px; flex-shrink: 0; }
+.col-job { width: 150px; flex-shrink: 0; }
+.col-provider { width: 150px; flex-shrink: 0; }
+.col-particular { width: 200px; flex-shrink: 0; }
+.col-amount { width: 120px; flex-shrink: 0; }
+.col-date { width: 120px; flex-shrink: 0; }
+.col-status { width: 120px; flex-shrink: 0; }
+/* Removed col-action as action buttons are now in top container */
+
+.col-center {
+    justify-content: center;
+    text-align: center;
+}
+
+.col-start {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/* Badge styling */
+.badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.badge.is-review {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.badge.is-hired {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+/* Icon styling */
+.icon-image {
+    width: 16px;
+    height: 16px;
+}
+
+/* Filter panel */
+.filter-panel {
+    width: 240px;
+    max-width: 240px;
+    padding: 16px;
+}
+
+.filter-panel h6 {
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #121C0C;
+}
+
+.filter-panel .form-control {
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 13px;
+    padding: 6px 10px;
+}
+
+.filter-panel .form-control:focus {
+    border-color: #85BB65;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.1);
+}
+
+.filter-panel label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #121C0C;
+}
+
+.filter-panel > div {
+    margin-bottom: 16px;
+}
+
+/* Menu panel */
+.menu-panel {
+    min-width: 160px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+    background-color: #f3f4f6;
+    border-radius: 6px;
+}
+
+.menu-item svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.dropdown-cstm {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+.dropdown-cstm:hover {
+    color: #85BB65;
+    border: 1px solid #85BB65;
+}
+</style>
+
+    <div class="container-xl">
         <h1 class="app-page-title">Invoices</h1>
 
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                <tr>
-                    <th>Number</th>
-                    <th>Job</th>
-                    <th>Provider</th>
-                    <th>Particular</th>
-                    <th>Amount($)</th>
-                    <th>CreatedAt</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for invoice in invoices %}
-                    <tr>
-                        <td>
-                            {% if invoice.status == 'paid' %}
-                                <a href="{{ path('app_employer_invoice_show', {'id': invoice.id}) }}">{{ invoice.invoiceNumber }}</a>
-                            {% elseif invoice.status == 'pending' %}
-                                <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}">{{ invoice.invoiceNumber }}</a>
-                            {% endif %}
-                        </td>
-                        <td>{{ invoice.job }}</td>
-                        <td>{{ invoice.provider }}</td>
-                        <td>{{ invoice.particular }}</td>
-                        <td>{{ invoice.amount|number_format }}</td>
-                        <td>{{ invoice.createdAt ? invoice.createdAt|date('m/d/Y') : '' }}</td>
-                        <td>
-                            <span class="badge badge-pill {% if invoice.status == 'pending' %}is-review{% elseif invoice.status == 'paid' %}is-hired{% endif %}">
-                                {{ invoice.status }}
-                            </span>
-                        </td>
-                        <td class="text-nowrap">
-                            {% if invoice.status == 'pending' %}
-                                <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}" title="Pay Now"><img src="{{ asset('assets/icons/cheque.png') }}" class="icon-image" /></a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="12">no records found</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="invoice-section shadow-lg p-3 rounded-3">
+        <div class="sticky-header-container">
+            <!-- Action Buttons Container -->
+            <div class="actions-container">
+                <!-- Left Group: Filter, Email -->
+                <div class="job-actions-left">
+                    <div class="position-relative">
+                        <button id="filter-btn" class="action-btn" title="Filter">
+                            <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Filter
+                        </button>
+                        <div id="filter-panel" class="filter-panel custom-dropdown hidden">
+                            <h6>Filter Invoices</h6>
+                            <div>
+                                <label>Status</label>
+                                <select id="filter-status" class="form-control">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Date Range</label>
+                                <input type="date" id="filter-date-from" class="form-control" style="margin-bottom: 8px;">
+                                <input type="date" id="filter-date-to" class="form-control">
+                            </div>
+                            <div>
+                                <label>Amount Range</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="number" id="filter-amount-min" class="form-control" placeholder="Min" style="flex: 1;">
+                                    <span style="color: #6b7280;">-</span>
+                                    <input type="number" id="filter-amount-max" class="form-control" placeholder="Max" style="flex: 1;">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 16px;">
+                                <button id="apply-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; text-align: center; display: flex; justify-content: center; align-items: center;">Apply</button>
+                                <button id="clear-filter-btn" class="action-btn" style="flex: 1; padding: 8px 12px; background: #f3f4f6; color: #6b7280; text-align: center; display: flex; justify-content: center; align-items: center;">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="email-btn" class="action-btn" title="Email">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentColor"></path>
+                        </svg>
+                        Email
+                    </button>
+                </div>
+
+                <!-- Middle Group: View, Analytics (shown when selected), Archive, Delete -->
+                <div class="job-actions-middle">
+                    <button id="view-btn" class="action-btn hidden-btn" title="View" style="min-width: 80px;">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        View
+                    </button>
+                    <button id="analytics-btn" class="action-btn hidden-btn" title="Analytics" style="min-width: 90px;">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 10H16V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Analytics
+                    </button>
+                    <button id="archive-btn" class="action-btn" title="Archive">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Archive
+                    </button>
+                    <button id="delete-btn" class="action-btn" title="Delete">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M20.5 6H3.49988" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+
+                <!-- Right Group: Split View, New Window, Menu -->
+                <div class="job-actions-right">
+                    <button id="split-view-btn" class="action-btn" title="Split View">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3H10V10H3V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 3H21V10H14V3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 14H10V21H3V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 14H21V21H14V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Split View
+                    </button>
+                    <button id="new-window-btn" class="action-btn" title="New Window">
+                        <svg class="icon-image" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M13 21H3V3H21V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M13 11L21 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        New Window
+                    </button>
+                    <div class="position-relative">
+                        <button type="button" class="dropdown-cstm menu-dropdown-btn">
+                            <span>Menu</span>
+                        </button>
+                        <div class="menu-panel custom-dropdown hidden">
+                            <button class="menu-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 9V2H18V9" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 14H18V22H6V14Z" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Print/Share</span>
+                            </button>
+                            <div style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                            <a href="#" class="menu-item">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="#121C0C" stroke-width="1.5"/>
+                                    <path d="M12 7L12 16M12 16L15 12.6667M12 16L9 12.6667" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Export Report</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        {% if invoices|length > 0 %}
+        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
+            <div class="d-flex align-items-center invoice-lists">
+                <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
+                    <div class="invoice-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
+                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                        </div>
+                        <div class="sortable" data-sort="number" data-column="number" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">
+                            Number
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable" data-sort="job" data-column="job" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">
+                            Job
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable col-center" data-sort="provider" data-column="provider" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            Provider
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable" data-sort="particular" data-column="particular" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 4px;">
+                            Particular
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable col-center" data-sort="amount" data-column="amount" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            Amount($)
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable col-center" data-sort="date" data-column="date" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            Created At
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="sortable col-center" data-sort="status" data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            Status
+                            <span class="sort-toggle">
+                                <svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);">
+                                    <path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-list-container bg-light rounded-3">
+            {% for invoice in invoices %}
+                <div class="d-flex align-items-center invoice-lists">
+                    <div class="invoice-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0; box-sizing: border-box !important;">
+                        <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
+                            <input type="checkbox" class="invoice-checkbox" data-invoice-id="{{ invoice.id }}" />
+                        </div>
+                        <div data-column="number" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">
+                            {% if invoice.status == 'paid' %}
+                                <a href="{{ path('app_employer_invoice_show', {'id': invoice.id}) }}" style="color: #121C0C; text-decoration: none; font-weight: 500;">
+                                    {{ invoice.invoiceNumber }}
+                                </a>
+                            {% elseif invoice.status == 'pending' %}
+                                <a href="{{ path('app_employer_invoice_pay', {'id': invoice.id}) }}" style="color: #121C0C; text-decoration: none; font-weight: 500;">
+                                    {{ invoice.invoiceNumber }}
+                                </a>
+                            {% else %}
+                                {{ invoice.invoiceNumber }}
+                            {% endif %}
+                        </div>
+                        <div data-column="job" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">{{ invoice.job }}</div>
+                        <div data-column="provider" style="width: 150px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ invoice.provider }}</div>
+                        <div data-column="particular" style="width: 200px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">{{ invoice.particular }}</div>
+                        <div data-column="amount" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">${{ invoice.amount|number_format(2, '.', ',') }}</div>
+                        <div data-column="date" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ invoice.createdAt ? invoice.createdAt|date('m/d/Y') : '—' }}</div>
+                        <div data-column="status" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                            <span class="badge badge-pill {% if invoice.status == 'pending' %}is-review{% elseif invoice.status == 'paid' %}is-hired{% endif %}">
+                                {{ invoice.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="invoice-list-container bg-light rounded-3" style="padding: 40px; text-align: center;">
+                <p class="mb-0">No invoices found.</p>
+            </div>
+        {% endif %}
     </div>
+</div>
+
+<script>
+// Filter button toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const filterBtn = document.getElementById('filter-btn');
+    const filterPanel = document.getElementById('filter-panel');
+    
+    if (filterBtn && filterPanel) {
+        filterBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterPanel.classList.toggle('hidden');
+        });
+        
+        // Close filter panel when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!filterBtn.contains(e.target) && !filterPanel.contains(e.target)) {
+                filterPanel.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Menu dropdown toggle
+    const menuBtn = document.querySelector('.menu-dropdown-btn');
+    const menuPanel = document.querySelector('.menu-panel');
+    
+    if (menuBtn && menuPanel) {
+        menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menuPanel.classList.toggle('hidden');
+        });
+        
+        // Close menu panel when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menuBtn.contains(e.target) && !menuPanel.contains(e.target)) {
+                menuPanel.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Clear filter button
+    const clearFilterBtn = document.getElementById('clear-filter-btn');
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', function() {
+            document.getElementById('filter-status').value = '';
+            document.getElementById('filter-date-from').value = '';
+            document.getElementById('filter-date-to').value = '';
+            document.getElementById('filter-amount-min').value = '';
+            document.getElementById('filter-amount-max').value = '';
+        });
+    }
+    
+    // Apply filter button (placeholder - implement actual filtering logic)
+    const applyFilterBtn = document.getElementById('apply-filter-btn');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', function() {
+            // TODO: Implement actual filtering logic
+            alert('Filter functionality will be implemented');
+        });
+    }
+    
+    // Handle checkbox selection to show/hide View and Analytics buttons
+    const viewBtn = document.getElementById('view-btn');
+    const analyticsBtn = document.getElementById('analytics-btn');
+    const checkboxes = document.querySelectorAll('.invoice-checkbox');
+    
+    function updateActionButtons() {
+        const selectedCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);
+        const hasSelection = selectedCheckboxes.length > 0;
+        
+        if (viewBtn) {
+            if (hasSelection) {
+                viewBtn.classList.remove('hidden-btn');
+                viewBtn.classList.add('visible-btn');
+            } else {
+                viewBtn.classList.add('hidden-btn');
+                viewBtn.classList.remove('visible-btn');
+            }
+        }
+        
+        if (analyticsBtn) {
+            if (hasSelection) {
+                analyticsBtn.classList.remove('hidden-btn');
+                analyticsBtn.classList.add('visible-btn');
+            } else {
+                analyticsBtn.classList.add('hidden-btn');
+                analyticsBtn.classList.remove('visible-btn');
+            }
+        }
+    }
+    
+    // Add event listeners to all checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateActionButtons);
+    });
+    
+    // View button handler
+    if (viewBtn) {
+        viewBtn.addEventListener('click', function() {
+            const selectedCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one invoice to view.');
+                return;
+            }
+            
+            // If only one is selected, go directly to that invoice
+            if (selectedCheckboxes.length === 1) {
+                const invoiceId = selectedCheckboxes[0].dataset.invoiceId;
+                // Get the invoice row to find the link
+                const invoiceRow = selectedCheckboxes[0].closest('.invoice-row');
+                const invoiceLink = invoiceRow.querySelector('a[href*="invoice"]');
+                if (invoiceLink) {
+                    window.location.href = invoiceLink.href;
+                } else {
+                    // Fallback: construct URL
+                    window.location.href = '/employer/invoice/' + invoiceId + '/show';
+                }
+            } else {
+                // Multiple selected - open first one or show modal
+                const firstInvoiceId = selectedCheckboxes[0].dataset.invoiceId;
+                const firstRow = selectedCheckboxes[0].closest('.invoice-row');
+                const firstLink = firstRow.querySelector('a[href*="invoice"]');
+                if (firstLink) {
+                    window.location.href = firstLink.href;
+                } else {
+                    window.location.href = '/employer/invoice/' + firstInvoiceId + '/show';
+                }
+            }
+        });
+    }
+    
+    // Analytics button handler
+    if (analyticsBtn) {
+        analyticsBtn.addEventListener('click', function() {
+            const selectedCheckboxes = Array.from(checkboxes).filter(cb => cb.checked);
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one invoice for analytics.');
+                return;
+            }
+            
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.invoiceId);
+            // TODO: Implement analytics functionality
+            alert('Analytics functionality will be implemented for selected invoices: ' + selectedIds.join(', '));
+        });
+    }
+    
+    // Select all checkbox functionality (if you want to add a header checkbox)
+    // This is optional but useful for UX
+});
+</script>
 {% endblock %}

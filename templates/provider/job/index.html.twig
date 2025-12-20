@@ -251,7 +251,7 @@
                             data-job-need="{{ job.need|e('html_attr') }}"
                             {#data-job-listing="{{ job.timeRange|e('html_attr') }}"
                             data-job-mode="{{ job.mode|e('html_attr') }}"#}
-                            data-job-url="{{ path('app_jobs', {'id': job.id}) }}"
+                            data-job-url="{{ path('app_provider_jobs_detail', {'id': job.id}) }}"
                             style="cursor: pointer;">
 
 
@@ -617,20 +617,19 @@
         fetch(`/provider/jobs/${jobId}/timeline-data`)
             .then(response => response.json())
             .then(data => {
-                // Build interview section HTML
                 let interviewsHTML = '';
                 if (data.interviews && data.interviews.length > 0) {
                     interviewsHTML = data.interviews.map(interview => `
                         <div class="timeline-detail-item">
                             <span class="timeline-detail-label">${interview.type}:</span>
-                            <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
+                            <span class="timeline-detail-value">
+                                <strong>${interview.date}</strong>
+                                <span class="badge rounded-pill" style="background:#eef2ff;color:#111827;border:1px solid #c7d2fe;padding:2px 8px;font-size:11px;font-weight:600;display:inline-block;margin-left:8px;">
+                                    From ${interview.time || 'Not Set'} — To ${interview.endTime || 'Not Set'}
+                                </span>
+                                ${interview.platform ? `<small class="text-muted" style="margin-left:8px;">${interview.platform}</small>` : ''}
+                            </span>
                         </div>
-                        ${interview.platform ? `
-                        <div class="timeline-detail-item">
-                            <span class="timeline-detail-label">Platform:</span>
-                            <span class="timeline-detail-value">${interview.platform}</span>
-                        </div>
-                        ` : ''}
                         ${interview.meetingUrl ? `
                         <div class="timeline-detail-item">
                             <span class="timeline-detail-label">Meeting Link:</span>
@@ -991,32 +990,37 @@
     <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=67fa4cd659793500196ab1e5&product=sop' async='async'></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+            const reportModalEl = document.getElementById('reportModal');
             const jobIdInput = document.getElementById('report-job-id');
             const reportText = document.getElementById('report-text');
             const reportForm = document.getElementById('reportJobForm');
-            document.querySelectorAll('.btn-report').forEach(button => {
-                button.addEventListener('click', () => {
-                    const jobId = button.getAttribute('data-job-id');
-                    jobIdInput.value = jobId;
-                    reportText.value = '';
-                    reportModal.show();
+            
+            if (reportModalEl && jobIdInput && reportText) {
+                const reportModal = new bootstrap.Modal(reportModalEl);
+                document.querySelectorAll('.btn-report').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const jobId = button.getAttribute('data-job-id');
+                        if (jobIdInput) jobIdInput.value = jobId;
+                        if (reportText) reportText.value = '';
+                        reportModal.show();
+                    });
                 });
-            });
-            reportForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                fetch('{{ path('app_job_report_ajax') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': '{{ csrf_token('report_job') }}'
-                    },
-                    body: JSON.stringify({
-                        job_id: jobIdInput.value,
-                        text: reportText.value
+            }
+            if (reportForm) {
+                reportForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    fetch('{{ path('app_job_report_ajax') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token('report_job') }}'
+                        },
+                        body: JSON.stringify({
+                            job_id: jobIdInput.value,
+                            text: reportText.value
+                        })
                     })
-                })
                     .then(response => {
                         if (response.status === 401) {
                             showToast('error', 'Please login first to report this job.');
@@ -1040,7 +1044,8 @@
                         console.error(err);
                         showToast('error', 'An error occurred while submitting the report.');
                     });
-            });
+                });
+            }
         });
     </script>
     <script>
@@ -1084,10 +1089,10 @@
                     url: url.href,
                     type: 'GET',
                     success: function(response) {
-                        const newHtml = $(response);
-                        const $newJobList = newHtml.find('.job-sidebar').html();
+                        let newHtml = $(response);
+                        let $newJobList = newHtml.find('.job-sidebar').html();
                         $('.job-sidebar').html($newJobList);
-                        const $newCount = newHtml.find('#results-count').text();
+                        let $newCount = newHtml.find('#results-count').text();
                         $('#results-count').text($newCount);
                         attachJobCardClickHandler();
                         sortDropdown.removeClass('show');
@@ -1105,97 +1110,162 @@
                 }
             });
 
-            // --- Split View Job Detail Loading ---
+            // --- Job Card Click Handler - Navigate to Detail Page or Open Split View ---
             function attachJobCardClickHandler() {
                 $('.job-info-card').off('click').on('click', function(event) {
-                    event.preventDefault();
-                    // Prevent page reload
-                    // Get job ID and URL from data attributes
-                    const jobId = $(this).data('job-id');
-                    const jobUrl = $(this).data('job-url');
-                    
-                    // Remove 'active' class from all job cards and add to the clicked one
-                    $('.job-info-card.active').removeClass('active');
-                    $(this).addClass('active');
-                    
-                    // Open split view if not already open
-                    const splitViewContainer = $('#split-view-container');
-                    const jobListContainer = $('.job-sidebar').closest('.col-md-4');
-                    const detailContainer = $('#job-detail-container').closest('.col-md-8');
-                    
-                    // Check if split view is already active
-                    if (!splitViewContainer.length || splitViewContainer.css('display') === 'none') {
-                        // Create split view container if it doesn't exist
-                        if (!splitViewContainer.length) {
-                            $('body').append(`
-                                <div class="split-view-container" id="split-view-container" style="display: grid; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: white; grid-template-columns: 400px 1fr; gap: 0;">
-                                    <div class="split-job-list" id="split-job-list" style="overflow-y: auto; border-right: 1px solid #e6eef6; padding: 20px; background: #f8f9fa; height: 100%;"></div>
-                                    <div class="split-job-details" id="split-job-details" style="overflow-y: auto; overflow-x: hidden; padding: 20px; height: 100%; max-height: 100%; scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc;"></div>
-                                    <button class="close-split-view" style="position: absolute; top: 10px; right: 10px; z-index: 10000; background: white; border: 1px solid #e6eef6; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 14px;">Close</button>
-                                </div>
-                                <style>
-                                #split-view-container .split-job-details::-webkit-scrollbar {
-                                    width: 8px;
-                                    display: block;
-                                }
-                                #split-view-container .split-job-details::-webkit-scrollbar-track {
-                                    background: #f7fafc;
-                                    border-radius: 4px;
-                                }
-                                #split-view-container .split-job-details::-webkit-scrollbar-thumb {
-                                    background: #cbd5e0;
-                                    border-radius: 4px;
-                                }
-                                #split-view-container .split-job-details::-webkit-scrollbar-thumb:hover {
-                                    background: #a0aec0;
-                                }
-                                </style>
-                            `);
-                            
-                            // Add close button handler
-                            $('.close-split-view').on('click', function() {
-                                $('#split-view-container').hide();
-                            });
-                            
-                            // Copy job list to split view
-                            const jobListHtml = $('.job-sidebar').html();
-                            $('#split-job-list').html(`
-                                <div class="job-sidebar">${jobListHtml}</div>
-                            `);
-                            
-                            // Re-attach click handlers to the new job cards in split view
-                            attachJobCardClickHandler();
-                        } else {
-                            splitViewContainer.show();
-                        }
+                    // Don't prevent default if clicking on save button or other interactive elements
+                    if ($(event.target).closest('.btn-save, button, a').length) {
+                        return; // Let those elements handle their own clicks
                     }
                     
-                    // Show loading indicator in split view
-                    $('#split-job-details').html('<div class="text-center py-5"><div class="spinner-border text-primary mb-3" role="status"></div><p>Loading job details...</p></div>');
+                    // Check if user is logged in
+                    const isLoggedIn = {{ app.user ? 'true' : 'false' }};
+                    const jobId = $(this).data('job-id');
                     
-                    // Fetch job details via AJAX - use provider endpoint
-                    const detailUrl = '/provider/jobs/' + jobId + '/detail-content';
-                    $.ajax({
-                        url: detailUrl,
-                        type: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        success: function(response) {
-                            // Response might be JSON with html property or direct HTML
-                            let jobDetails = response;
-                            if (typeof response === 'object' && response.html) {
-                                jobDetails = response.html;
-                            }
-                            $('#split-job-details').html(jobDetails);
+                    if (isLoggedIn) {
+                        // If logged in, navigate to provider detail page
+                        window.location.href = '/provider/jobs/' + jobId + '/detail';
+                    } else {
+                        // If NOT logged in, open split view and show job details
+                        event.preventDefault();
+                        
+                        // Remove 'active' class from all job cards and add to the clicked one
+                        $('.job-info-card.active').removeClass('active');
+                        $(this).addClass('active');
+                        
+                        // Open split view
+                        openSplitViewForJob(jobId);
+                    }
+                });
+            }
+            
+            // Function to open split view and load job details
+            function openSplitViewForJob(jobId) {
+                const splitViewContainer = $('#split-view-container');
+                
+                // Create split view container if it doesn't exist
+                if (!splitViewContainer.length) {
+                    $('body').append(`
+                        <div class="split-view-container" id="split-view-container" style="display: grid; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background: white; grid-template-columns: 400px 1fr; gap: 0;">
+                            <div class="split-job-list" id="split-job-list" style="overflow-y: auto; border-right: 1px solid #e6eef6; padding: 20px; background: #f8f9fa; height: 100%;"></div>
+                            <div class="split-job-details" id="split-job-details" style="overflow-y: auto; overflow-x: hidden; padding: 20px; height: 100%; max-height: 100%; scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc;"></div>
+                            <button class="close-split-view" style="position: absolute; top: 10px; right: 10px; z-index: 10000; background: white; border: 1px solid #e6eef6; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 14px;">Close</button>
+                        </div>
+                        <style>
+                        #split-view-container .split-job-details::-webkit-scrollbar {
+                            width: 8px;
+                            display: block;
+                        }
+                        #split-view-container .split-job-details::-webkit-scrollbar-track {
+                            background: #f7fafc;
+                            border-radius: 4px;
+                        }
+                        #split-view-container .split-job-details::-webkit-scrollbar-thumb {
+                            background: #cbd5e0;
+                            border-radius: 4px;
+                        }
+                        #split-view-container .split-job-details::-webkit-scrollbar-thumb:hover {
+                            background: #a0aec0;
+                        }
+                        /* Ensure job details in split view match original design */
+                        #split-view-container .split-job-details .job-title-wrap,
+                        #split-view-container .split-job-details .job-header,
+                        #split-view-container .split-job-details .job-detail {
+                            max-width: 100%;
+                            width: 100%;
+                        }
+                        #split-view-container .split-job-details .job-header h1 {
+                            font-size: 24px;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            color: #121C0C;
+                        }
+                        #split-view-container .split-job-details .job-header h3 {
+                            font-size: 16px;
+                            color: #6b7280;
+                            margin-bottom: 20px;
+                        }
+                        #split-view-container .split-job-details .block-buttons {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 20px;
+                            flex-wrap: wrap;
+                        }
+                        #split-view-container .split-job-details .details.content-area {
+                            margin-top: 30px;
+                        }
+                        #split-view-container .split-job-details .details.content-area h4 {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            color: #121C0C;
+                        }
+                        </style>
+                    `);
+                    
+                    // Add close button handler
+                    $('.close-split-view').on('click', function() {
+                        $('#split-view-container').hide();
+                    });
+                    
+                    // Copy job list to split view
+                    const jobListHtml = $('.job-sidebar').html();
+                    $('#split-job-list').html(`
+                        <div class="job-sidebar">${jobListHtml}</div>
+                    `);
+                    
+                    // Re-attach click handlers to the new job cards in split view
+                    attachJobCardClickHandler();
+                } else {
+                    splitViewContainer.show();
+                }
+                
+                // Show loading indicator in split view
+                $('#split-job-details').html('<div class="text-center py-5"><div class="spinner-border text-primary mb-3" role="status"></div><p>Loading job details...</p></div>');
+                
+                // Fetch job details via AJAX - use the dedicated endpoint that returns just the job detail HTML
+                const detailUrl = '/jobs/detail/' + encodeURIComponent(jobId);
+                $.ajax({
+                    url: detailUrl,
+                    type: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        // Response is HTML from the endpoint - directly use it
+                        if (response && typeof response === 'string' && response.trim()) {
+                            $('#split-job-details').html(response);
                             
                             // Also update the regular detail container for consistency
-                            $('#job-detail-container').html(jobDetails);
-                        },
-                        error: function() {
-                            $('#split-job-details').html('<div class="text-center p-5"><p>Error loading job details. Please try again.</p></div>');
+                            $('#job-detail-container').html(response);
+                            
+                            // Re-initialize any scripts that might be needed (like save button handlers)
+                            if (typeof attachSaveButtonHandlers === 'function') {
+                                attachSaveButtonHandlers();
+                            }
+                        } else {
+                            console.error('Empty or invalid response:', response);
+                            $('#split-job-details').html('<div class="text-center p-5"><p>No job details found in response.</p></div>');
                         }
-                    });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading job details:', {
+                            status: status,
+                            error: error,
+                            xhrStatus: xhr.status,
+                            responseText: xhr.responseText,
+                            url: detailUrl
+                        });
+                        let errorMsg = 'Error loading job details. Please try again.';
+                        if (xhr.status === 404) {
+                            errorMsg = 'Job not found.';
+                        } else if (xhr.status === 403) {
+                            errorMsg = 'Access denied.';
+                        } else if (xhr.status === 500) {
+                            errorMsg = 'Server error. Please try again later.';
+                        }
+                        $('#split-job-details').html('<div class="text-center p-5"><p class="text-danger">' + errorMsg + '</p><p class="text-muted small">Status: ' + xhr.status + '</p></div>');
+                    }
                 });
             }
             // Initial call to attach handlers when the page first loads
@@ -1320,17 +1390,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function showPage(page, cards, perPage) {
-        const start = (page - 1) * perPage;
-        const end = start + perPage;
-
-        cards.forEach((card, index) => {
-            card.style.display = (index >= start && index < end) ? 'block' : 'none';
-        });
-    }
-
     // Bind change listener to all inputs (including dynamically injected ones)
     function bindFilterListeners() {
+        if (!$form) return;
         $form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach(input => {
             input.removeEventListener('change', filterJobs); // prevent duplicates
             input.addEventListener('change', filterJobs);
@@ -1400,16 +1462,16 @@ window.openTimelinePanel = function(jobId) {
             let interviewsHTML = '';
             if (data.interviews && data.interviews.length > 0) {
                 interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
+                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px; align-items: center;">
                         <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
-                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
+                        <span class="timeline-detail-value" style="color: #121C0C;">
+                            <strong>${interview.date}</strong>
+                            <span class="badge rounded-pill" style="background:#eef2ff;color:#111827;border:1px solid #c7d2fe;padding:2px 8px;font-size:11px;font-weight:600;display:inline-block;margin-left:8px;">
+                                From ${interview.time || 'Not Set'} — To ${interview.endTime || 'Not Set'}
+                            </span>
+                            ${interview.platform ? `<small class="text-muted" style="margin-left:8px;">${interview.platform}</small>` : ''}
+                        </span>
                     </div>
-                    ${interview.platform ? `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
-                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
-                    </div>
-                    ` : ''}
                     ${interview.meetingUrl ? `
                     <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
                         <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>

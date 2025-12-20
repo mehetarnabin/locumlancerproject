@@ -5,26 +5,52 @@
 <style>
 /* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match provider dashboard */
 
-/* Reset app-wrapper - remove all custom.css overrides */
+/* Reset app-wrapper - allow base template to handle sidebar animation */
+/* Don't override margin-left - let base template JavaScript handle it */
 body.app .app-wrapper,
 .app-wrapper {
     display: block !important;
     justify-content: unset !important;
     align-items: unset !important;
     width: 100% !important;
-    margin-left: 0 !important;
     margin-right: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
+    position: relative !important;
+    z-index: 1 !important; /* Ensure content is above sidebar */
 }
 
-/* Shift app-wrapper to the left to eliminate gap */
+/* On small screens, reset margin-left */
+@media (max-width: 1199.98px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+/* Sidebar animation - let base template handle margin-left transitions */
+/* Only ensure transition is smooth and content doesn't go behind sidebar */
 @media (min-width: 1200px) {
     body.app .app-wrapper,
     .app-wrapper {
-        margin-left: 250px !important;
-        transform: translateX(-150px) !important;
-        width: calc(100% - 250px + 150px) !important;
+        /* Don't set margin-left here - let base template JavaScript handle it */
+        transform: none !important; /* Remove transform to allow animation */
+        width: auto !important; /* Remove width constraints */
+        transition: margin-left 0.4s ease-in-out !important; /* Smooth animation */
+        position: relative !important;
+        z-index: 1 !important; /* Ensure content is above sidebar */
+    }
+    
+    /* When sidebar is hovered (expanded) or nav item is hovered */
+    /* Base template JavaScript will handle margin-left changes */
+    body.nav-hover-active .app-wrapper,
+    body.nav-hover-active body.app .app-wrapper,
+    body.sidebar-hovered .app-wrapper,
+    body.sidebar-hovered body.app .app-wrapper {
+        transform: none !important;
+        width: auto !important;
+        position: relative !important;
+        z-index: 1 !important;
     }
 }
 
@@ -46,12 +72,15 @@ body.app .app-wrapper .app-content,
 }
 
 /* Override custom.css width constraints at 1200px breakpoint */
+/* Ensure padding is maintained from base template */
 @media (min-width: 1200px) {
     body.app .app-wrapper .app-content,
     .app-wrapper .app-content,
     .app-content {
         width: 100% !important;
         max-width: 100% !important;
+        padding-left: 2rem !important; /* Explicitly maintain padding from base template */
+        padding-right: 2rem !important; /* Explicitly maintain padding from base template */
     }
 }
 
@@ -143,13 +172,29 @@ div.container-xl,
 }
 
 @media (min-width: 1200px) {
+    /* Don't override margin-left - let base template JavaScript handle sidebar animation */
     body.app .app-wrapper {
         position: relative !important;
-        margin-left: 250px !important;
-        transform: translateX(-150px) !important;
-        width: calc(100% - 250px + 150px) !important;
+        /* margin-left will be set by base template JavaScript */
+        transform: none !important; /* Remove transform to allow animation */
+        width: auto !important; /* Remove width constraints */
+        transition: margin-left 0.4s ease-in-out !important; /* Smooth animation */
+        z-index: 1 !important; /* Ensure content is above sidebar */
     }
     
+    /* When sidebar is hovered (expanded) or nav item is hovered */
+    /* Base template JavaScript will handle margin-left changes */
+    body.nav-hover-active .app-wrapper,
+    body.nav-hover-active body.app .app-wrapper,
+    body.sidebar-hovered .app-wrapper,
+    body.sidebar-hovered body.app .app-wrapper {
+        transform: none !important;
+        width: auto !important;
+        z-index: 1 !important;
+    }
+    
+    /* Match provider dashboard: app-content padding structure */
+    /* Ensure padding is maintained from base template */
     body.app .app-wrapper .app-content,
     .app-wrapper .app-content,
     .app-content {
@@ -158,10 +203,11 @@ div.container-xl,
         width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding-left: 2rem !important; /* Explicitly maintain padding from base template */
+        padding-right: 2rem !important; /* Explicitly maintain padding from base template */
     }
     
+    /* Match provider dashboard: container-xl padding structure */
     body.app .app-wrapper .app-content .container-xl,
     .app-wrapper .app-content .container-xl,
     .app-content .container-xl,
@@ -177,6 +223,11 @@ div.container-xl,
         width: 100% !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+    }
+    
+    .container-xl .application {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
     }
 }
 
@@ -212,12 +263,11 @@ div.container-xl,
         'in_review': 'review',
         'interview': 'interview',
         'offered': 'offered',
-        'rejected': 'rejected',
         'hired': 'hired',
         'completed': 'completed',
     } %}
 
-    {% set allStatuses = ['applied', 'in_review', 'interview', 'offered', 'rejected', 'hired', 'completed'] %}
+    {% set allStatuses = ['applied', 'in_review', 'interview', 'offered', 'hired', 'completed'] %}
 
        {% if totalJobs == 0 %}
           <div class="app-card shadow-sm mb-4 border-left-decoration" role="alert">
@@ -264,7 +314,13 @@ div.container-xl,
                        <a href="{{ path('app_employer_applications', {'status': status}) }}">
                            <div class="card is-card mb-3 is-{{ statusColors[status] }} {% if app.request.get('status') == status %}active{% endif %}">
                                <div class="card-body">
-                                   <h6 class="card-title">{{ status | replace({'_': ' '}) | title }}</h6>
+                                   <h6 class="card-title">
+                                       {% if status == 'in_review' %}
+                                           Negotiating
+                                       {% else %}
+                                           {{ status | replace({'_': ' '}) | title }}
+                                       {% endif %}
+                                   </h6>
                                    <p class="card-text">{{ count }}</p>
                                </div>
                            </div>
@@ -277,16 +333,22 @@ div.container-xl,
     </div>
 
     
-    <!-- Row 1 -->
-    <div class="row g-3 mt-4 align-items-start">
-        <!-- Current Jobs -->
+    <!-- Row 1: Current Jobs and Messages Side by Side -->
+    <div class="row g-3 mt-4 align-items-stretch">
+        <!-- Current Jobs - Left Column -->
         <div class="col-12 col-lg-6 d-flex">
             <div class="job-section shadow-lg p-3 rounded-3 h-100 d-flex flex-column w-100">
 
-                    <!-- Top Tabs as Button Boxes -->
+                    <!-- Header with Tabs -->
                     <div class="d-flex justify-content-between align-items-center mb-10-px">
-                        <div class="d-flex gap-2">
-                            <a href="{{ path('app_employer_jobs') }}" style="text-decoration:none;"><h6 class="app-card-title mb-0">Current Jobs</h6></a>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button class="job-tab-btn active" data-tab="posted-jobs" role="tab" aria-selected="true" style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: none;">
+                                <h6 class="app-card-title mb-0" style="color: #85BB65; font-weight: 600;">Posted Jobs</h6>
+                            </button>
+                            <span style="color: #e5e7eb; margin: 0 8px;">|</span>
+                            <button class="job-tab-btn" data-tab="recruiter-jobs" role="tab" aria-selected="false" style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: none;">
+                                <h6 class="app-card-title mb-0" style="color: #6b7280; font-weight: 500;">Recruiter Jobs</h6>
+                            </button>
                         </div>
 
                         <!-- Eye Icon (View All) -->
@@ -298,21 +360,29 @@ div.container-xl,
                     </div>
 
                 <!-- Tab Content -->
-                <div class="tab-content">
+                <div class="job-tab-content">
+                    <!-- Posted Jobs Tab -->
+                    <div class="job-tab-pane active" id="posted-jobs-tab" role="tabpanel">
                         {% if currentJobs|length > 0 %}
                         <div class="job-list-container">
                         {% for job in currentJobs|slice(0,6) %}
                             {% set logo = job.companyLogo|default(job.employerLogo|default(job.employer.logo|default(asset('assets/icons/job.png')))) %}
                             {% set salary = job.salary|default(job.salaryText|default(null)) %}
+                            {% set statusColors = {
+                                'draft': 'secondary',
+                                'published': 'primary',
+                                'paused': 'warning',
+                                'closed': 'dark'
+                            } %}
 
-                                <div class="job-card">
+                                <div class="job-card" style="position: relative;">
                             <div class="d-flex align-items-center gap-2 flex-grow-1">
                                     <div class="job-logo-box">
                                     <img src="{{ logo }}" class="job-logo-img" alt="" onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
                                     </div>
                                 <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
                                     <a class="job-title d-block fw-semibold text-decoration-none"
-                                    href="{{ path('app_employer_job_applications', {'id': job.id}) }}"
+                                    href="{{ path('app_employer_job_show', {'id': job.id}) }}"
                                     style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                             {{ job.title }}
                                         </a>
@@ -331,16 +401,29 @@ div.container-xl,
                                     </div>
                                 </div>
                             </div>
+                            <span class="badge badge-pill badge-{{ statusColors[job.status] ?? 'secondary' }}" style="position: absolute; top: 8px; right: 14px; font-size: 11px; padding: 4px 8px;">
+                                {{ job.status|capitalize }}
+                            </span>
                             {% endfor %}
                         </div>
                         {% else %}
-                    <p class="mb-0">Current jobs not found.</p>
+                        <div class="job-list-container">
+                            <p class="mb-0">Posted jobs not found.</p>
+                        </div>
                         {% endif %}
+                    </div>
+                    
+                    <!-- Recruiter Jobs Tab -->
+                    <div class="job-tab-pane" id="recruiter-jobs-tab" role="tabpanel" style="display: none;">
+                        <div class="job-list-container">
+                            <p class="mb-0">Recruiter jobs not found.</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-        <!-- Messages -->
+        <!-- Messages - Right Column -->
         <div class="col-12 col-lg-6 d-flex">
             <div class="job-section shadow-lg p-3 rounded-3 h-100 d-flex flex-column w-100">
 
@@ -355,6 +438,7 @@ div.container-xl,
                     </div>
 
         <!-- Messages List -->
+        <div class="messages-content">
                     {% if messages|length > 0 %}
                     <div class="job-list-container">
             {% for message in messages|slice(0,6) %}
@@ -391,15 +475,19 @@ div.container-xl,
                         {% endfor %}
                     </div>
                     {% else %}
+                    <div class="job-list-container">
                         <p class="mb-0">Messages not found.</p>
+                    </div>
                     {% endif %}
+        </div>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Row 2: 3 Equal Cards -->
-    <div class="dashboard-three-cards-wrapper">
-    <div class="row g-3 mt-4">
+    <div class="dashboard-three-cards-wrapper" style="position: relative; z-index: 10;">
+    <div class="row g-3 mt-4 align-items-stretch">
         <!-- To Do List -->
         <div class="col-12 col-lg-4">
             <div class="todo-card shadow-lg rounded-3 p-3 h-100 d-flex flex-column">
@@ -418,12 +506,12 @@ div.container-xl,
                     <ul class="list-unstyled m-0 p-0" id="todoList">
                         {% if employerTodos is defined and employerTodos|length > 0 %}
                             {% for todo in employerTodos %}
-                                <li class="todo-item">
+                                <li class="todo-item {% if todo.id %}todo-id-{{ todo.id }}{% endif %}">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="todo-content-left flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div class="todo-title-section flex-grow-1">
-                                                    <div class="todo-title fw-semibold" style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
+                                                    <div class="todo-title fw-semibold {{ todo.isCompleted ? 'text-decoration-line-through text-muted' : '' }}" {% if todo.id %}id="todo-title-{{ todo.id }}"{% endif %} style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
                                                         {{ todo.title }}
                                                     </div>
                                                     <div class="todo-meta-info mt-1">
@@ -455,6 +543,50 @@ div.container-xl,
                         {% endif %}
                     </ul>
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const todoList = document.getElementById('todoList');
+                        
+                        // Event Delegation for Toggle - click on status badge to toggle
+                        todoList?.addEventListener('click', function(e) {
+                            // Toggle via status badge click
+                            const statusBadge = e.target.closest('.todo-status-badge');
+                            if(statusBadge) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const todoItem = statusBadge.closest('.todo-item');
+                                if(todoItem) {
+                                    const idMatch = todoItem.className.match(/todo-id-([\w-]+)/);
+                                    const id = idMatch ? idMatch[1] : null;
+                                    if(id) {
+                                        const isCompleted = statusBadge.classList.contains('completed');
+                                        
+                                        fetch(`/employer/todos/${id}/toggle`, { method: 'POST' })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if(data.success) {
+                                                const newStatus = data.isCompleted;
+                                                const titleEl = document.getElementById(`todo-title-${id}`);
+                                                
+                                                if(newStatus) {
+                                                    if(titleEl) titleEl.classList.add('text-decoration-line-through', 'text-muted');
+                                                    statusBadge.textContent = 'Completed';
+                                                    statusBadge.className = 'todo-status-badge completed';
+                                                } else {
+                                                    if(titleEl) titleEl.classList.remove('text-decoration-line-through', 'text-muted');
+                                                    statusBadge.textContent = 'Pending';
+                                                    statusBadge.className = 'todo-status-badge pending';
+                                                }
+                                            }
+                                        })
+                                        .catch(err => console.error('Error toggling todo:', err));
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
             </div>
         </div>
 
@@ -658,7 +790,7 @@ div.container-xl,
 }
 .list-condensed .list-item + .list-item { border-top: 1px solid rgba(0,0,0,.06); }
   .job-logo { width: 44px; height: 44px; object-fit: cover;border-radius:100%!Important;overflow:hidden; }
-  .avatar { width: 40px; height: 40px; object-fit: cover; }
+  .avatar { width: 40px; height: 40px; object-fit: cover; border-radius: 10px !important; }
   .link-plain { color: var(--app-primary, #0d6efd); text-decoration: none; margin-right: 20px; }
   .link-plain:hover { text-decoration: underline; }
 
@@ -905,25 +1037,56 @@ div.container-xl,
   border-radius: 12px;
 }
 
+/* Job Tabs Styling */
 .job-tab-btn {
-  padding: 6px 16px;
-  border-radius: 18px;
-  border: 1px solid #ddd;
-  background: #f9f9f9;
-  font-weight: 500;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.job-tab-btn h6 {
+  transition: all 0.2s ease;
+  margin: 0;
+  pointer-events: none; /* Prevent h6 from blocking clicks */
+}
+
+.job-tab-btn.active h6 {
+  color: #85BB65 !important;
+  font-weight: 600 !important;
+}
+
+.job-tab-btn:not(.active) h6 {
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+}
+
+.job-tab-btn:hover:not(.active) h6 {
+  color: #85BB65 !important;
+}
+
+.job-tab-pane {
+  display: none;
+}
+
+.job-tab-pane.active {
+  display: block;
 }
 
 .job-list-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 320px;
   overflow-y: auto;
   padding-right: 0;
   padding-left: 0;
   margin-right: 0;
   margin-left: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(4 * 50px + 3 * 10px);
 }
 
 .job-list-container::-webkit-scrollbar {
@@ -963,7 +1126,7 @@ div.container-xl,
   max-height: 48px !important;
   background: #f3f4f6 !important;
   border: 1px solid #e5e7eb;
-  border-radius: 8px !important;
+  border-radius: 50px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -971,6 +1134,7 @@ div.container-xl,
   padding: 8px;
   box-sizing: border-box;
   margin-left: 0;
+  overflow: hidden;
 }
 
 .job-logo-img {
@@ -980,7 +1144,7 @@ div.container-xl,
   max-height: calc(100% - 4px) !important;
   object-fit: contain;
   object-position: center;
-  border-radius: 4px !important;
+  border-radius: 50px !important;
   background: transparent;
   margin: auto;
   display: block;
@@ -1003,11 +1167,12 @@ div.container-xl,
   position: relative;
   margin-top: 0 !important;
   padding-top: 1rem !important;
+  min-height: calc(6 * 50px + 5 * 10px + 100px) !important; /* Match content area + header + padding */
 }
 
 /* Ensure both Current Jobs and Messages sections align at the same vertical position */
 .row .col-12.col-lg-6.d-flex {
-  align-items: flex-start;
+  align-items: stretch;
   margin-top: 0;
   padding-top: 0;
 }
@@ -1027,6 +1192,9 @@ div.container-xl,
   margin-left: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: calc(6 * 50px + 5 * 10px);
+  max-height: calc(6 * 50px + 5 * 10px);
 }
 
 .job-section .job-list-container::-webkit-scrollbar {
@@ -1042,12 +1210,58 @@ div.container-xl,
   background: transparent;
 }
 
+.job-section .messages-content {
+  padding-left: 0;
+  padding-right: 0;
+  margin-right: 0;
+  margin-left: 0;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .messages-content .job-list-container {
+  min-height: calc(6 * 50px + 5 * 10px);
+  max-height: calc(6 * 50px + 5 * 10px);
+}
+
 .job-section .tab-content {
   padding-left: 0;
   padding-right: 0;
   margin-right: 0;
   margin-left: 0;
   width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .job-tab-content {
+  padding-left: 0;
+  padding-right: 0;
+  margin-right: 0;
+  margin-left: 0;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .job-tab-content .job-tab-pane {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-section .job-tab-content .job-tab-pane .job-list-container {
+  min-height: calc(6 * 50px + 5 * 10px);
+  max-height: calc(6 * 50px + 5 * 10px);
+  flex: 1 1 auto;
 }
 
 .job-section .job-card:first-child {
@@ -1133,6 +1347,7 @@ div.container-xl,
     animation: none !important;
     transform: none !important;
     transition: none !important;
+    min-height: calc(6 * 50px + 5 * 10px + 100px) !important; /* Match Messages box height: content area + header + padding */
 }
 
 /* Ensure card containers don't animate on hover */
@@ -1146,10 +1361,29 @@ div.container-xl,
 }
 
 /* --- To Do List --- */
+.todo-header-section {
+    opacity: 0;
+    transform: translateY(-10px);
+    animation: todoHeaderFadeIn 0.5s ease-out forwards;
+}
+
+@keyframes todoHeaderFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .todo-list {
     overflow-y: auto;
-    max-height: calc(4 * 72px + 3 * 10px); /* 4 visible items */
+    min-height: calc(6 * 50px + 5 * 10px);
+    max-height: calc(6 * 50px + 5 * 10px);
     padding-right: 6px;
+    flex: 1 1 auto;
 }
 .todo-item {
     border-radius: 10px;
@@ -1157,35 +1391,168 @@ div.container-xl,
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     padding: 2px 14px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: todoItemFadeIn 0.4s ease-out forwards;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
     display: flex;
     flex-direction: column;
 }
 
+@keyframes todoItemFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.todo-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.todo-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.todo-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.todo-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.todo-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.todo-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.todo-item:hover {
+    background: #F4F9F1 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
+    transform: translateY(-2px) !important;
+    border-color: #85BB65 !important;
+}
+
 .todo-status-badge {
-    font-size: 10px;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 10px;
-    font-weight: 500;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
     white-space: nowrap;
 }
 
+.todo-status-badge:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
 .todo-status-badge.pending {
-    background: #fef3c7;
-    color: #92400e;
+    background: #FFF3E0;
+    color: #E65100;
 }
 
 .todo-status-badge.completed {
-    background: #d1fae5;
-    color: #065f46;
+    background: #E8F5E9;
+    color: #2E7D32;
+}
+
+.todo-date-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.todo-content-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.todo-badge-top {
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.todo-title {
+    font-size: 13px;
+    line-height: 1.3;
+    color: #121C0C;
+    margin-bottom: 3px;
+}
+
+.todo-title.text-decoration-line-through {
+    color: #6c757d;
+}
+
+/* Child elements inside todo-item are static for animation */
+.todo-item > *,
+.todo-item .d-flex,
+.todo-item .todo-date-right,
+.todo-item .todo-content-left,
+.todo-item .todo-title-section,
+.todo-item .todo-badge-top,
+.todo-item .fw-semibold,
+.todo-item .small {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    position: relative;
 }
 
 /* --- Interview Schedule --- */
+/* COMPLETE ISOLATION: Make ALL containers static - NO animations */
+.interview-schedule-column,
+.interview-schedule-column > div,
+.interview-card,
+.interview-card > div,
+.interview-card > div > div,
+.interview-card h6,
+.interview-card a,
+.interview-list,
+.interview-list ul,
+.interview-list ul li:not(.interview-item) {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+}
+
+/* Override ALL global card hover effects for interview-card */
+.interview-card:hover,
+.interview-card:focus,
+.interview-card:active {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
 .interview-list {
     overflow-y: auto;
-    max-height: calc(4 * 70px + 3 * 8px);
+    min-height: calc(6 * 50px + 5 * 10px);
+    max-height: calc(6 * 50px + 5 * 10px);
     padding-right: 6px;
+    flex: 1 1 auto;
 }
+
+/* ONLY interview-item tiles animate - everything else is static */
 .interview-item {
     border-radius: 10px;
     background: #F4F9F1;
@@ -1195,12 +1562,88 @@ div.container-xl,
     margin-bottom: 8px;
     display: flex;
     flex-direction: column;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: interviewItemFadeIn 0.4s ease-out forwards;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Child elements inside interview-item are static */
+.interview-item > *,
+.interview-item > div,
+.interview-item .d-flex,
+.interview-item .schedule-left,
+.interview-item .schedule-right,
+.interview-item .fw-semibold,
+.interview-item .small {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    position: relative;
+}
+
+.interview-item:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.interview-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.interview-item:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.interview-item:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.interview-item:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.interview-item:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.interview-item:hover {
+    background: #F4F9F1 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08), 0 0 0 3px rgba(133, 187, 101, 0.2) !important;
+    transform: translateY(-2px) !important;
+    border-color: #85BB65 !important;
+}
+
+@keyframes interviewItemFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 .analytics-chart {
     border-radius: 10px;
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    min-height: calc(6 * 50px + 5 * 10px);
+    padding: 10px;
+    flex: 1 1 auto;
+}
+
+/* Chart content improvements */
+.chart-content:not(.d-none) {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
 }
 
 /* --- Profile Analytics --- */
@@ -1308,7 +1751,7 @@ div.container-xl,
     align-items: center;
     justify-content: center;
 }
-.is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-rejected:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-rejected.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
+.is-card.is-applied:hover *, .is-card.is-review:hover *, .is-card.is-interview:hover *, .is-card.is-hired:hover *, .is-card.is-offered:hover *, .is-card.is-completed:hover *, .is-card.is-applied.active *, .is-card.is-review.active *, .is-card.is-interview.active *, .is-card.is-hired.active *, .is-card.is-offered.active *, .is-card.is-completed.active *, .is-card .card-body p, .is-card .card-body:hover, .application .col .card-body .card-title:hover, .is-card:hover {
     color: #000000 !important;
     opacity: 1 !important;
     visibility: visible !important;
@@ -1620,5 +2063,383 @@ div.container-xl,
     }
 })();
 </script>
+
+<script>
+// Define applySpacingStyles globally so base template can detect it and skip its own animation
+// This prevents the base template from interfering with dashboard styles
+window.applySpacingStyles = function() {
+    const isLargeScreen = window.innerWidth >= 1200;
+    const appWrapper = document.querySelector('.app-wrapper');
+    const appContent = document.querySelector('.app-content');
+    const container = document.querySelector('.container-xl');
+    
+    if (appWrapper) {
+        if (isLargeScreen) {
+            // Remove transform and width constraints to allow CSS animation to work
+            // DO NOT set margin-left inline - let CSS transition handle it
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', 'auto', 'important');
+            // Ensure transition is applied
+            appWrapper.style.setProperty('transition', 'margin-left 0.4s ease-in-out', 'important');
+        } else {
+            // On small screens, reset everything
+            appWrapper.style.setProperty('margin-left', '0', 'important');
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', 'auto', 'important');
+        }
+    }
+    
+    if (appContent) {
+        // Don't override padding - let CSS handle it from base template
+        // The base template sets padding-left: 2rem at 1200px+
+    }
+    
+    if (container) {
+        container.style.setProperty('padding-left', '0', 'important');
+        container.style.setProperty('padding-right', isLargeScreen ? '30px' : '20px', 'important');
+    }
+};
+
+// Apply once after page loads - but let base template handle sidebar animation
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for base template to initialize first
+        setTimeout(window.applySpacingStyles, 500);
+    });
+} else {
+    setTimeout(window.applySpacingStyles, 500);
+}
+
+// Only re-apply on resize (debounced) - but don't interfere with animation
+let resizeTimeout;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function() {
+        window.applySpacingStyles();
+    }, 150);
+});
+
+// Watch for sidebar hover state changes - but don't interfere with CSS animation
+// The CSS will handle the margin-left transition automatically based on body classes
+const sidebarObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            // Only ensure transform and width are reset, let CSS handle margin-left
+            const appWrapper = document.querySelector('.app-wrapper');
+            if (appWrapper && window.innerWidth >= 1200) {
+                appWrapper.style.setProperty('transform', 'none', 'important');
+                appWrapper.style.setProperty('width', 'auto', 'important');
+                appWrapper.style.setProperty('transition', 'margin-left 0.4s ease-in-out', 'important');
+            }
+        }
+    });
+});
+
+if (document.body) {
+    sidebarObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}
+
+// Job Tabs Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.job-tab-btn');
+    const tabPanes = document.querySelectorAll('.job-tab-pane');
+    
+    tabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons and panes
+            tabButtons.forEach(function(btn) {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+                const h6 = btn.querySelector('h6');
+                if (h6) {
+                    h6.style.color = '#6b7280';
+                    h6.style.fontWeight = '500';
+                }
+            });
+            
+            tabPanes.forEach(function(pane) {
+                pane.classList.remove('active');
+                pane.style.display = 'none';
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            this.setAttribute('aria-selected', 'true');
+            const h6 = this.querySelector('h6');
+            if (h6) {
+                h6.style.color = '#85BB65';
+                h6.style.fontWeight = '600';
+            }
+            
+            // Show corresponding pane
+            const targetPane = document.getElementById(targetTab + '-tab');
+            if (targetPane) {
+                targetPane.classList.add('active');
+                targetPane.style.display = 'block';
+            }
+        });
+    });
+    
+    // Initialize: ensure first tab is active
+    const firstTab = document.querySelector('.job-tab-btn[data-tab="posted-jobs"]');
+    if (firstTab) {
+        const h6 = firstTab.querySelector('h6');
+        if (h6) {
+            h6.style.color = '#85BB65';
+            h6.style.fontWeight = '600';
+        }
+    }
+});
+</script>
+
+<!-- FINAL OVERRIDE - Force spacing styles to load last and override all other CSS -->
+<style>
+/* COMPLETE RESET - Final override at end of page */
+/* BUT preserve sidebar animation on large screens */
+body.app .app-wrapper {
+    position: relative !important;
+    display: block !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+}
+
+/* Only reset margin-left on small screens */
+@media (max-width: 1199.98px) {
+    body.app .app-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+/* Match provider dashboard: app-content padding structure */
+body.app .app-wrapper .app-content {
+    position: relative !important;
+    padding-left: 2rem !important; /* Match provider: 2rem padding on smaller screens */
+    padding-right: 2rem !important; /* Match provider: 2rem padding on smaller screens */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Keep padding from base template at 1200px+ */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content {
+        padding-left: 2rem !important; /* Keep padding from base template */
+        padding-right: 2rem !important; /* Keep padding from base template */
+    }
+}
+
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+.dashboard .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Remove left padding from application status tracker */
+.container-xl .application {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Column width adjustments to fill space better */
+.container-xl .row.g-2 > .col-12.col-lg-7 {
+    flex: 0 0 58.333333% !important;
+    max-width: 58.333333% !important;
+}
+
+.container-xl .row.g-2 > .col-12.col-lg-5 {
+    flex: 0 0 41.666667% !important;
+    max-width: 41.666667% !important;
+}
+
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+}
+
+/* SIDEBAR SQUEEZING ANIMATION - Let base template JavaScript handle margin-left */
+/* Only ensure smooth transitions and proper z-index */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    body .app-wrapper,
+    .app-wrapper {
+        position: relative !important;
+        /* margin-left will be set dynamically by base template JavaScript */
+        transform: none !important; /* Remove transform to allow animation */
+        width: auto !important; /* Remove width constraints */
+        transition: margin-left 0.4s ease-in-out !important; /* Smooth animation */
+        z-index: 1 !important; /* Ensure content is above sidebar */
+    }
+    
+    /* When sidebar is hovered (expanded) or nav item is hovered */
+    /* Base template JavaScript will handle margin-left changes */
+    body.nav-hover-active .app-wrapper,
+    body.nav-hover-active body.app .app-wrapper,
+    body.nav-hover-active body .app-wrapper,
+    body.sidebar-hovered .app-wrapper,
+    body.sidebar-hovered body.app .app-wrapper,
+    body.sidebar-hovered body .app-wrapper {
+        transform: none !important;
+        width: auto !important;
+        z-index: 1 !important;
+    }
+    
+    /* Match provider dashboard: container-xl padding structure */
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    .container-xl .application {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* CRITICAL: Override custom.css media queries with maximum specificity - FINAL OVERRIDE */
+/* But maintain padding from base template */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        /* Don't override padding - let base template handle it */
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        /* Don't override padding - let base template handle it */
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 2rem !important; /* Maintain padding from base template */
+        padding-right: 2rem !important; /* Maintain padding from base template */
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (min-width: 1600px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        padding-left: 2rem !important; /* Maintain padding from base template */
+        padding-right: 2rem !important; /* Maintain padding from base template */
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* Responsive padding for smaller screens */
+@media (max-width: 1199.98px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    .dashboard .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+</style>
 
 {% endblock %}

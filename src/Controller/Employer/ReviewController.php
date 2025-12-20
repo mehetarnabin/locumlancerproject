@@ -17,13 +17,18 @@ class ReviewController extends AbstractController
     public function index(ReviewRepository $reviewRepository): Response
     {
         $employer = $this->getUser()->getEmployer();
-        $reviews = $reviewRepository->findBy([
+        $receivedReviews = $reviewRepository->findBy([
             'employer' => $employer,
             'reviewedBy' => 'PROVIDER'
         ], ['createdAt' => 'DESC']);
+        $writtenReviews = $reviewRepository->findBy([
+            'employer' => $employer,
+            'reviewedBy' => 'EMPLOYER'
+        ], ['createdAt' => 'DESC']);
 
         return $this->render('employer/review/index.html.twig', [
-            'reviews' => $reviews,
+            'reviews' => $receivedReviews,
+            'writtenReviews' => $writtenReviews,
             'employer' => $employer,
         ]);
     }

@@ -1622,7 +1622,7 @@ body {
                 {% set senderName = message.sender.name|default(message.sender.email) %}
                 {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
                 
-                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar">
+                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
                 <div class="message-header-details">
                     <div class="message-sender-name">{{ senderName }}</div>
                     <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
@@ -1657,7 +1657,7 @@ body {
                     
                     <div class="reply-item">
                         <div class="reply-header">
-                            <img src="{{ replySenderAvatar }}" alt="{{ replySenderName }}" class="reply-avatar">
+                            <img src="{{ replySenderAvatar }}" alt="{{ replySenderName }}" class="reply-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
                             <div class="reply-sender">{{ replySenderName }}</div>
                             <div class="reply-date">{{ reply.createdAt|date('M j, Y g:i A') }}</div>
                         </div>

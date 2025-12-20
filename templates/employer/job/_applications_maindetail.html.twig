@@ -1,0 +1,391 @@
+{# Job Applications Main Detail Section #}
+{# This file controls the entire main detail layout: Top Action Buttons, Left (Candidates + Search), Right (Application Detail) #}
+
+<!-- Status Cards (Light Green Cards Style) -->
+<div class="application mb-3">
+    <div class="row g-2">
+        <div class="col">
+            <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}">
+                <div class="card is-card mb-3 is-applied {% if app.request.get('status') == '' or app.request.get('status') is empty %}active{% endif %}">
+                    <div class="card-body">
+                        <h6 class="card-title">All</h6>
+                        <p class="card-text">{{ totalApplications|number_format }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {% for status in allStatuses %}
+            {% set count = 0 %}
+            {% for application in allApplications|default(applications) %}
+                {% if application.status == status %}
+                    {% set count = count + 1 %}
+                {% endif %}
+            {% endfor %}
+            <div class="col">
+                <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}">
+                    <div class="card is-card mb-3 is-{{ statusColors[status] }} {% if app.request.get('status') == status %}active{% endif %}">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                {% if status == 'in_review' %}
+                                    Negotiating
+                                {% else %}
+                                    {{ status | replace({'_': ' '}) | title }}
+                                {% endif %}
+                            </h6>
+                            <p class="card-text">{{ count }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Action Buttons (Below Status Cards) -->
+<div class="actions-container" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+    <!-- Left Group: Filter, Email, and Status-based Action Buttons -->
+    <div class="job-actions-left" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <div class="position-relative" style="flex-shrink: 0;">
+            <button id="filter-btn" class="action-btn" title="Filter" onclick="toggleFilterPanel(event)" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                    <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Filter
+            </button>
+            <!-- Filter Dropdown Panel -->
+            <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 200px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 16px; display: none;">
+                <form>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #000000;">Candidate</label>
+                        <select name="status" class="form-control form-select" style="width: 100%; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 6px; font-size: 14px; color: #000000;">
+                            <option value="">All</option>
+                            <option value="applied" {% if app.request.get('status') == 'applied' %}selected{% endif %}>Applied</option>
+                            <option value="in_review" {% if app.request.get('status') == 'in_review' %}selected{% endif %}>Shortlisted</option>
+                            <option value="interview" {% if app.request.get('status') == 'interview' %}selected{% endif %}>Interview</option>
+                            <option value="offered" {% if app.request.get('status') == 'offered' %}selected{% endif %}>Offered</option>
+                            <option value="hired" {% if app.request.get('status') == 'hired' %}selected{% endif %}>Hired</option>
+                            <option value="completed" {% if app.request.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="submit" value="Filter" class="btn btn-sm" style="width: 100%; background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <button id="email-btn" class="action-btn" title="Email" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Email
+        </button>
+
+        <!-- Status-based Action Buttons (Hidden by default, shown based on application status) -->
+        <button id="action-request-file-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request One File">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Request One File
+        </button>
+
+        <button id="action-schedule-interview-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal" title="Schedule Interview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Schedule Interview
+        </button>
+
+        <button id="action-request-documents-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request Documents">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Request Documents
+        </button>
+
+        <button id="action-send-offer-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="offer" title="Send Offer Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Send Offer Letter
+        </button>
+
+        <button id="action-send-contract-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="contract" title="Send Contract Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Send Contract Letter
+        </button>
+
+        <button id="action-send-credential-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendCredentialLinkModal" title="Send Credential Link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Send Credential Link
+        </button>
+
+        <button id="action-write-review-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#writeReviewModal" title="Write Review">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Write Review
+        </button>
+    </div>
+    
+    <!-- Right Group: Menu, Search, View Job Details -->
+    <div class="job-actions-right" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <div class="position-relative" style="flex-shrink: 0;">
+            <button id="search-toggle-btn-top" class="action-btn" title="Search" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" onclick="toggleSearchPanel(event)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Search
+            </button>
+            <!-- Search Panel -->
+            <div id="search-panel" class="search-panel custom-dropdown hidden" style="position: absolute; top: 100%; right: 0; margin-top: 8px; min-width: 300px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 16px; display: none;">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #000000;">Search</label>
+                    <input type="text" id="job-id-search" placeholder="Search by Job ID, Name, or Email" class="form-control" style="width: 100%; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 6px; font-size: 14px; color: #000000;">
+                </div>
+                <button type="button" onclick="performSearch()" class="btn btn-sm" style="width: 100%; background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <button type="button" id="view-job-details-btn" onclick="toggleJobDetails()" class="action-btn" title="View Job Details" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+                <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            View Job Details
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000; transition: transform 0.2s ease; margin-left: auto;">
+                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        
+        <!-- Menu Dropdown -->
+        <div class="menu-dropdown position-relative">
+            <button type="button" class="menu-dropdown-btn dropdown-cstm" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #D9F2D9; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
+                <span>Menu</span>
+            </button>
+            <div class="dropdown-panel menu-panel custom-dropdown hidden" style="position: absolute; top: 110%; right: 0; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 10px; min-width: 160px; z-index: 30;">
+                <!-- Print/Share Button -->
+                <button id="print-share-btn" class="menu-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 0; width: 100%; text-align: left; color: inherit; text-decoration: none; background: none; border: none; cursor: pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #121C0C;">
+                        <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Print/Share</span>
+                </button>
+                <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                <!-- Hx Button -->
+                <button id="history-btn" class="menu-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 0; width: 100%; text-align: left; color: inherit; text-decoration: none; background: none; border: none; cursor: pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #121C0C;">
+                        <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Hx</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Layout: Left Column (Candidates), Right Column (Application Detail) -->
+<div class="applications-main-layout" style="display: grid; grid-template-columns: 250px 1fr; gap: 20px; align-items: start; margin-top: 10px;">
+    <!-- Left Column: Candidate List -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        <!-- Candidate Field (Application List) -->
+        <div class="candidate-field" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 16px; min-height: 400px;">
+            <label style="display: block; margin-bottom: 16px; margin-left: 0; font-size: 15px; font-weight: 600; color: #000000;">Candidate</label>
+            <div class="job-list-container" id="list-view-container" style="display: block; margin: 0; padding: 0; margin-left: 0;">
+                <div class="left-aside" style="margin: 0; padding: 0; margin-left: 0;">
+                            {% if applications|length > 0 %}
+                            {% for application in applications %}
+                                {% set provider = application.provider %}
+                                {% set user = provider.user %}
+                                {% set statusLower = application.status|lower|replace({'_': ''}) %}
+                                {% set todoTask = null %}
+                                {% if statusLower == 'applied' %}
+                                    {% set todoTask = 'Revisit Alert' %}
+                                {% elseif statusLower == 'shortlisted' %}
+                                    {% set todoTask = 'Open Response' %}
+                                {% elseif statusLower == 'interview' or statusLower == 'interviewing' %}
+                                    {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                                {% elseif statusLower == 'negotiating' %}
+                                    {% set todoTask = 'Review signed offer/contract' %}
+                                {% elseif statusLower == 'accepted' %}
+                                    {% set todoTask = 'Request Credentialing Docs' %}
+                                {% elseif statusLower == 'completed' %}
+                                    {% set todoTask = 'See your review' %}
+                                {% endif %}
+                                {% set sentItems = [] %}
+                                {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
+                                {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                                {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
+
+                                <a href="{{ path('app_employer_job_applications', {'id': job.id, 'applicationId': application.id}) }}" style="text-decoration: none; color: inherit;">
+                                    <div class="card card-v2 {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}active-card{% endif %}" id="{{ application.id }}" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 10px; color: #000; transition: all 0.2s ease; {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}border-color: #85BB65; box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);{% endif %}">
+                                        <div class="card-body" style="padding: 0;">
+                                            <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px;">
+                                                {% if provider.user.profilePicture %}
+                                                    <img src="{{ provider.user.profilePicture }}" width="48px" height="48px" style="border-radius: 50%; object-fit: cover; flex-shrink: 0;" />
+                                                {% else %}
+                                                    <div style="width: 48px; height: 48px; border-radius: 50%; background: #e6eef6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #000000; font-weight: 600; font-size: 19px;">
+                                                        {{ user.name|slice(0, 1)|upper }}
+                                                    </div>
+                                                {% endif %}
+                                                <div style="flex: 1; min-width: 0; overflow: hidden;">
+                                                    <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600; color: #000000; line-height: 1.3;">{{ user.name }}</h4>
+                                                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #000000;">
+                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000;"><i class="fa fa-clock" style="width: 14px; color: #000000;"></i> <span style="color: #000000;">{{ application.createdAt|time_diff }}</span></span>
+                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000;"><i class="fa fa-star" style="width: 14px; color: #000000;"></i> <span style="color: #000000;">{{ application.provider.averagePoint ?: 'Not Rated Yet' }}</span></span>
+                                                        <span style="display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000;"><i class="fa fa-map-marked" style="width: 14px; color: #000000;"></i> <span style="overflow: hidden; text-overflow: ellipsis; color: #000000;">{{ provider.country~' '~provider.state~' '~provider.city }}</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; overflow: hidden;">
+                                                <span class="badge badge-pill is-{{ statusColors[application.status] }}" style="font-size: 11px; padding: 4px 8px; background: {% if statusColors[application.status] == 'review' %}#3b82f6{% elseif statusColors[application.status] == 'interview' %}#85BB65{% elseif statusColors[application.status] == 'offered' %}#f59e0b{% elseif statusColors[application.status] == 'hired' %}#10b981{% elseif statusColors[application.status] == 'completed' %}#6b7280{% else %}#6b7280{% endif %}; color: #fff; border: none; border-radius: 12px; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                    {% if application.status == 'in_review' %}
+                                                        Negotiating
+                                                    {% else %}
+                                                        {{ application.status | replace({'_': ' '}) | title }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                            {% else %}
+                                <!-- Empty state for candidate list -->
+                                <div style="text-align: center; padding: 40px 20px; color: #666; font-size: 14px;">
+                                    <p style="margin: 0;">No candidates found</p>
+                                </div>
+                            {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Application Detail -->
+    <div class="main-content-area" style="flex: 1;">
+        {% if applications|length > 0 and applicationDetail %}
+            <div class="right-aside" style="padding-left: 15px;">
+                <!-- View Job Details Panel (Hidden by default, shown when button is clicked) -->
+                <div id="view-job-details-panel" style="display: none; background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <div style="margin-bottom: 16px;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000;">
+                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none;">{{ job.title }}</a>
+                        </h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #000000; margin-bottom: 12px;">
+                            {% if job.workType %}<span>{{ job.workType }}</span>{% endif %}
+                            {% if job.need %}<span>{{ job.need }}</span>{% endif %}
+                            {% if job.schedule %}<span>{{ job.schedule }}</span>{% endif %}
+                            {% if job.state or job.city %}<span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
+                            {% if job.expirationDate %}<span>Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: #000000; font-weight: 500;">Status:</span>
+                            {% set jobStatusClass = 'job-status-badge' %}
+                            {% if job.status == 'published' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-published' %}
+                            {% elseif job.status == 'draft' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-draft' %}
+                            {% elseif job.status == 'paused' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-paused' %}
+                            {% elseif job.status == 'closed' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-closed' %}
+                            {% endif %}
+                            <span class="badge badge-pill {{ jobStatusClass }}" style="font-size: 11px; padding: 4px 8px; background: {% if job.status == 'published' %}#85BB65{% elseif job.status == 'draft' %}#6b7280{% elseif job.status == 'paused' %}#f59e0b{% elseif job.status == 'closed' %}#ef4444{% else %}#6b7280{% endif %}; color: #fff; border: none;">{{ job.status|capitalize }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="application-detail-content">
+                    {% include 'employer/job/_application_detail.html.twig' with {
+                        'application': applicationDetail,
+                        'provider': applicationDetail.provider,
+                        'user': applicationDetail.provider.user,
+                        'educations': educations,
+                        'experiences': experiences,
+                        'insurances': insurances,
+                        'documentRequests': documentRequests,
+                        'review': review,
+                        'jobApplicationTransitions': jobApplicationTransitions,
+                        'healthAssessment': healthAssessment,
+                        'riskAssessment': riskAssessment
+                    } %}
+                </div>
+            </div>
+        {% else %}
+            <!-- View Job Details Panel (Hidden by default, shown when button is clicked) -->
+            <div class="right-aside" style="padding-left: 15px;">
+                <div id="view-job-details-panel" style="display: none; background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                    <div style="margin-bottom: 16px;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000;">
+                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none;">{{ job.title }}</a>
+                        </h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #000000; margin-bottom: 12px;">
+                            {% if job.workType %}<span>{{ job.workType }}</span>{% endif %}
+                            {% if job.need %}<span>{{ job.need }}</span>{% endif %}
+                            {% if job.schedule %}<span>{{ job.schedule }}</span>{% endif %}
+                            {% if job.state or job.city %}<span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
+                            {% if job.expirationDate %}<span>Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: #000000; font-weight: 500;">Status:</span>
+                            {% set jobStatusClass = 'job-status-badge' %}
+                            {% if job.status == 'published' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-published' %}
+                            {% elseif job.status == 'draft' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-draft' %}
+                            {% elseif job.status == 'paused' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-paused' %}
+                            {% elseif job.status == 'closed' %}
+                                {% set jobStatusClass = 'job-status-badge job-status-closed' %}
+                            {% endif %}
+                            <span class="badge badge-pill {{ jobStatusClass }}" style="font-size: 11px; padding: 4px 8px; background: {% if job.status == 'published' %}#85BB65{% elseif job.status == 'draft' %}#6b7280{% elseif job.status == 'paused' %}#f59e0b{% elseif job.status == 'closed' %}#ef4444{% else %}#6b7280{% endif %}; color: #fff; border: none;">{{ job.status|capitalize }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Applications Found - Centered and properly styled -->
+                <div id="application-detail-content" class="app-detail-content" style="width: 100%; max-width: 100%; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 500px;">
+                    <div class="app-detail-section" style="text-align: center; padding: 80px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="margin-bottom: 32px;">
+                            <svg width="96" height="96" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                                <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="app-detail-section-title" style="justify-content: center; border-bottom: none; margin-bottom: 16px; padding-bottom: 0;">
+                            <span style="color: #000000 !important; font-size: 28px; font-weight: 700;">No Applications Found</span>
+                        </h3>
+                        <p style="color: #000000; font-size: 17px; margin: 0; line-height: 1.6; max-width: 500px;">
+                            There are no applications matching the selected filter criteria. Try selecting a different status or check back later.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

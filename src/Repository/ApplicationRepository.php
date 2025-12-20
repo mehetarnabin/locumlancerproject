@@ -86,7 +86,9 @@ class ApplicationRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->select('a.status, COUNT(a.id) as count')
+            ->join('a.job', 'j')
             ->where('a.provider = :provider')->setParameter('provider', $provider, UuidType::NAME)
+            ->andWhere('a.archivedAt IS NULL')
             ->groupBy('a.status')
             ->getQuery()
             ->getResult();
@@ -97,6 +99,17 @@ class ApplicationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a.status, COUNT(a.id) as count')
             ->where('a.employer = :employer')->setParameter('employer', $employer, UuidType::NAME)
+            ->andWhere('a.archivedAt IS NULL')
+            ->groupBy('a.status')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getJobApplicationStatusCounts($jobId): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.status, COUNT(a.id) as count')
+            ->where('a.job = :job')->setParameter('job', $jobId, UuidType::NAME)
             ->andWhere('a.archivedAt IS NULL')
             ->groupBy('a.status')
             ->getQuery()

@@ -364,14 +364,12 @@ div.container-xl,
                                         <span class="match-pill">+{{ p }}%</span>
                                         {% endif %}
                                         <div class="apply-within">
-                                            <div class="apply-text">Apply by</div>
+                                            <div class="apply-text">Posted</div>
                                             <div class="apply-value">
-                                            {% if hasExpiry %}
-                                                {% if date(job.expirationDate) > date('now') %}
-                                                    {{ daysLeft }} days
-                                                {% else %}
-                                                    Expired
-                                                {% endif %}
+                                            {% if job.createdAt is defined and job.createdAt %}
+                                                {{ job.createdAt|time_diff }}
+                                            {% elseif job.postedAt is defined and job.postedAt %}
+                                                {{ job.postedAt|time_diff }}
                                             {% else %}
                                                 —
                                             {% endif %}
@@ -451,7 +449,7 @@ div.container-xl,
             <div class="job-card">
                 <div class="d-flex align-items-center gap-2 flex-grow-1">
                     <div class="job-logo-box">
-                        <img src="{{ avatar }}" class="job-logo-img" alt="" />
+                        <img src="{{ avatar }}" class="job-logo-img" alt="" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';" />
                     </div>
                     <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
                         <a class="job-title d-block fw-semibold text-decoration-none"
@@ -794,20 +792,46 @@ div.container-xl,
 
                 <div class="interview-list flex-grow-1">
                     <ul class="list-unstyled m-0 p-0">
-                        {% for i in 1..5 %}
-                        <li class="interview-item">
-                            <div class="d-flex justify-content-between">
-                                <div class="schedule-left">
-                                    <div class="fw-semibold">Company {{ i }}</div>
-                                    <div class="small">Position {{ i }}</div>
+                        {% if interviews is defined and interviews|length > 0 %}
+                            {% for iv in interviews %}
+                                {% set application = iv.application %}
+                                {% set job = application ? application.job : null %}
+                                {% set employer = application ? application.employer : (job ? job.employer : null) %}
+                                {% set company = employer ? (employer.companyName ?: employer.name) : '—' %}
+                                {% set position = job ? job.title : '—' %}
+                                <li class="interview-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="schedule-left">
+                                            <div class="fw-semibold">{{ company }}</div>
+                                            <div class="small">
+                                                {% if job %}
+                                                    <a href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}" class="link-plain">{{ position }}</a>
+                                                {% else %}
+                                                    {{ position }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="schedule-right text-end">
+                                            <div class="small fw-semibold" style="font-size:12px;">{{ iv.date|date('M d, Y') }}</div>
+                                            <div class="small" style="font-size:12px;">{{ iv.date|date('h:i A') }}</div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="interview-item">
+                                <div class="d-flex justify-content-between">
+                                    <div class="schedule-left">
+                                        <div class="fw-semibold">No interviews scheduled</div>
+                                        <div class="small">—</div>
+                                    </div>
+                                    <div class="schedule-right text-end">
+                                        <div class="small fw-semibold" style="font-size:12px;">—</div>
+                                        <div class="small" style="font-size:12px;">—</div>
+                                    </div>
                                 </div>
-                                <div class="schedule-right text-end">
-                                    <div class="small fw-semibold" style="font-size:12px;">Sep {{ 9+i }}, 2025</div>
-                                    <div class="small" style="font-size:12px;">10:00 AM</div>
-                                </div>
-                            </div>
-                        </li>
-                        {% endfor %}
+                            </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -3029,35 +3053,9 @@ window.addEventListener('resize', function() {
 
 // Split View Functionality for Job Links
 document.addEventListener('DOMContentLoaded', function() {
-    // Intercept clicks on job title links to open split view instead of redirecting
-    document.addEventListener('click', function(e) {
-        const jobLink = e.target.closest('a.job-title');
-        if (jobLink && jobLink.href && jobLink.href.includes('/jobs/') && jobLink.href.includes('/detail')) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Extract job ID from href
-            const href = jobLink.href;
-            let jobId = null;
-            
-            // Match UUID pattern: /jobs/{uuid}/detail
-            const uuidMatch = href.match(/\/jobs\/([a-f0-9-]{36})\/detail/i);
-            if (uuidMatch && uuidMatch[1]) {
-                jobId = uuidMatch[1];
-            } else {
-                // Match numeric ID pattern: /jobs/{number}/detail
-                const jobIdMatch = href.match(/\/jobs\/(\d+)\/detail/);
-                if (jobIdMatch && jobIdMatch[1]) {
-                    jobId = jobIdMatch[1];
-                }
-            }
-            
-            if (jobId) {
-                // Open split view
-                openJobInSplitView(jobId);
-            }
-        }
-    }, true);
+    // Allow normal navigation for job links - removed split view interception
+    // Job links will now navigate normally to the detail page
+    // If split view is needed in the future, it can be added as an optional feature
     
     // Function to open job in split view
     window.openJobInSplitView = function(jobId) {

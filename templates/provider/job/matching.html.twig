@@ -43,7 +43,6 @@ body.app .app-wrapper .app-content,
     margin-right: 0 !important;
     position: relative !important;
     box-sizing: border-box !important;
-    overflow: visible; /* Allow dropdowns to extend beyond content */
 }
 
 /* Override custom.css width constraints at 1200px breakpoint */
@@ -73,10 +72,9 @@ div.container-xl,
     width: 100% !important;
     transform: none !important;
     box-sizing: border-box !important;
-    overflow: visible; /* Allow dropdowns to extend beyond container */
 }
 
-/* Ensure proper left padding at all breakpoints */
+/* Override ALL media queries from custom.css */
 @media (min-width: 576px) {
     body.app .app-wrapper .app-content .container-xl,
     .app-wrapper .app-content .container-xl,
@@ -102,7 +100,6 @@ div.container-xl,
         padding-right: 30px !important;
     }
 }
-
 
 @media (min-width: 1200px) {
     body.app .app-wrapper {
@@ -165,92 +162,9 @@ div.container-xl,
     }
 }
 
-.sticky-header-container {
-    position: sticky !important;
-    top: 0 !important;
-    background-color: #fff !important;
-    z-index: 100 !important;
-    overflow: visible !important;
-    width: 100% !important;
-}
-
-/* Disable sticky in split view - more comprehensive selectors */
-.split-view-container ~ .sticky-header-container,
-.split-view-container .sticky-header-container,
-.split-view-container ~ * .sticky-header-container,
-.job-section:has(.split-view-container) .sticky-header-container,
-/* Split View Scrolling Styles */
-.split-job-details {
-    overflow-y: auto !important; /* Enable vertical scrolling */
-    overflow-x: hidden !important; /* Disable horizontal scrolling */
-    height: 100% !important; /* Take full height of container */
-    max-height: 100% !important; /* Don't exceed container height */
-    scrollbar-width: thin !important; /* Firefox - thin scrollbar */
-    scrollbar-color: #cbd5e0 #f7fafc !important; /* Firefox - thumb and track colors */
-    -ms-overflow-style: auto !important; /* IE and Edge - show scrollbar */
-}
-
-/* Custom vertical scrollbar for Chrome, Safari and Opera */
-.split-job-details::-webkit-scrollbar {
-    width: 8px !important; /* Width of the vertical scrollbar */
-    display: block !important; /* Show scrollbar */
-}
-
-.split-job-details::-webkit-scrollbar-track {
-    background: #f7fafc !important; /* Track color */
-    border-radius: 4px;
-}
-
-.split-job-details::-webkit-scrollbar-thumb {
-    background: #cbd5e0 !important; /* Thumb color */
-    border-radius: 4px;
-}
-
-.split-job-details::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0 !important; /* Thumb color on hover */
-}
-
-.split-view-container[style*="grid"] ~ .sticky-header-container,
-.split-view-container[style*="grid"] .sticky-header-container {
-    position: relative !important;
-    top: auto !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-/* Remove borders from child elements when sticky */
-.sticky-header-container .actions-container {
-    border: none !important;
-    box-shadow: none !important;
-}
-
-.sticky-header-container .table-responsive-wrapper {
-    border: none !important;
-}
-
 .job-header, .job-row {
     display: flex;
     align-items: center;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.job-header {
-    padding: 2px 14px 2px 0;
-    color: #121C0C;
-    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-    border-radius: 10px;
-    border: 1px solid #e6eef6;
-    height: 40px;
-    margin-bottom: 1px !important;
-    font-size: 13px;
-    position: relative !important;
-    background-color: #F8FAF9 !important;
-}
-
-.actions-container {
-    position: relative !important;
-    z-index: 100 !important;
 }
 
 .col-job,
@@ -266,6 +180,7 @@ div.container-xl,
     flex: 2;
 }
 .job-header {
+    padding: 0;
     color: #121C0C;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
@@ -284,18 +199,18 @@ div.container-xl,
 /* Perfect alignment between headers and rows */
 .job-header > div,
 .job-row > div {
-  display: flex;
-  align-items: center;
-  box-sizing: border-box;
-  min-width: 0;
-  overflow: hidden;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
 }
 
 /* Ensure all columns have consistent padding to align headers with data */
 .job-header > div,
 .job-row > div {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
 }
 
 /* Checkbox column alignment */
@@ -313,14 +228,13 @@ div.container-xl,
 /* Job column - left aligned */
 .job-header .col-job,
 .job-row .col-job {
-    width: 200px !important;
-    flex-shrink: 0 !important;
-    padding: 0 8px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
     text-align: left !important;
     box-sizing: border-box !important;
+    padding: 0 8px !important;
+    font-weight: 500;
 }
 
 /* Center aligned columns */
@@ -336,12 +250,12 @@ div.container-xl,
 
 .job-row {
     border: none;
-    padding: 2px 14px 2px 0;
+    padding: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 2px 0;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 400;
     color: #1a1a1a;
     line-height: 1.5;
@@ -349,8 +263,6 @@ div.container-xl,
     background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
-    min-height: 40px;
-    height: auto;
     transition: background-color 0.2s ease;
 }
 
@@ -358,44 +270,11 @@ div.container-xl,
     background-color: #F8FAF9;
 }
 
-/* Enhanced table alignment and typography */
-.job-header {
-  font-size: 13px;
-  font-weight: 600;
-  color: #121C0C;
-  letter-spacing: 0.01em;
-  line-height: 1.5;
-  background: #F8FAF9;
-  border-bottom: 2px solid #e6eef6;
-  min-height: 40px;
-  height: 40px;
-}
-
-.job-row {
-  font-size: 12px;
-  font-weight: 400;
-  color: #1a1a1a;
-  line-height: 1.5;
-  transition: background-color 0.2s ease;
-}
-
+/* Ensure consistent vertical alignment */
 .job-header > div,
 .job-row > div {
-  min-height: 40px;
-  height: 40px;
-}
-
-/* Job column specific styling */
-.col-job {
-  font-weight: 500;
-}
-
-/* Improve text truncation */
-.job-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: #121C0C;
-  line-height: 1.4;
+    min-height: 48px;
+    height: 48px;
 }
 .truncate-text {
     display: inline-block;
@@ -407,67 +286,6 @@ div.container-xl,
 }
 .job-section {
     background-color: #fff;
-    position: relative !important;
-    z-index: 1;
-    top: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    transform: none !important;
-    /* Allow dropdowns to overflow */
-    overflow: visible !important;
-}
-
-/* Fix: Ensure no spacing between header and job rows */
-.job-section .table-responsive-wrapper {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-.table-responsive-wrapper {
-    margin-top: 16px !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    padding-left: 11px !important;
-    padding-right: 11px !important;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-}
-
-.table-responsive-wrapper::-webkit-scrollbar {
-  height: 8px;
-}
-
-.table-responsive-wrapper::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-.table-responsive-wrapper::-webkit-scrollbar-thumb {
-  background: #85BB65;
-  border-radius: 10px;
-}
-
-.table-responsive-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #6fa852;
-}
-
-.job-section .table-responsive-wrapper .job-header {
-    margin-left: 0 !important;
-}
-
-/* Ensure no gap between header and job-list-container */
-.job-list-container {
-    margin-top: 0 !important;
-    padding-left: 11px !important;
-    padding-right: 11px !important;
-}
-
-/* Remove top margin from first job-row to align with header */
-.job-list-container .table-responsive-wrapper .job-lists:first-child .job-row {
-    margin-top: 0 !important;
 }
 /* Consistent rounded-square style for all job list checkboxes */
 .job-list-container input[type="checkbox"].job-check,
@@ -526,33 +344,33 @@ div.container-xl,
     margin-top: 1px;
 }
 .ml-15-px {
-    margin-left: 0 !important; /* Remove left margin to shift content left */
-    padding-left: 11px !important;
+    margin-left: 15px;
 }
 .mr-15-px {
     margin-right: 15px;
-    padding-right: 11px !important;
 }
 .action-btn {
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 4px 12px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
     background: transparent;
-    border: none;
-    padding: 0 4px;
 }
 
 .custom-dropdown {
-  position: absolute !important;
-  top: 110% !important;
-  left: 0 !important;
-  right: auto !important;
+  position: absolute;
+  top: 110%;
+  left: 0;
   background: #fff;
   padding: 10px;
   min-width: 150px;
-  z-index: 10000 !important;
+  z-index: 1000;
   border: 1px solid #e6eef6;
   box-shadow: 0 2px 6px rgba(11,22,40,0.03);
   border-radius: 10px;
-  overflow: visible !important;
-  max-height: none !important;
 }
 
 .hidden {
@@ -573,26 +391,14 @@ div.container-xl,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 0;
-  width: 100%;
-  text-align: left;
-  color: inherit;
-  text-decoration: none;
-  background: none;
-  border: none;
+  padding: 6px 0;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.menu-item:hover {
-  background-color: #f3f4f6;
-  border-radius: 6px;
+  color: #121C0C;
 }
 
 .menu-panel svg {
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
 }
 
 .dropdown-cstm {
@@ -678,7 +484,6 @@ div.container-xl,
 }
 
 .action-btn {
-    background: #F4F9F1;
     border: 1px solid #e6eef6;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     border-radius: 10px;
@@ -686,8 +491,37 @@ div.container-xl,
     display: flex;
     gap: 6px;
     align-items: center;
+    background: transparent;
+    min-width: 80px;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
-.action-btn, ..dropdown-cstm {
+
+/* Fixed width for specific buttons to prevent layout shift */
+#apply-btn,
+#note-btn {
+    min-width: 80px;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Fixed width for Archive button */
+#archive-btn {
+    min-width: 90px;
+    flex-shrink: 0;
+}
+
+/* Hidden state - maintain space but make invisible */
+.action-btn.hidden-btn {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    display: flex !important; /* Keep flex to maintain space */
+}
+
+.action-btn, .dropdown-cstm {
     transition: all 0.2s ease;
 }
 .action-btn:hover, .dropdown-cstm:hover {
@@ -710,86 +544,23 @@ div.container-xl,
     text-align: center;
 }
 .actions-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  margin-bottom: 12px;
-  padding-left: 15px;
-  padding-right: 15px;
-  white-space: nowrap;
-  overflow-y: visible !important;
-  overflow-x: visible !important;
-  overflow: visible !important;
-  position: relative;
-  z-index: 100 !important;
-  flex-wrap: nowrap;
-  pointer-events: auto !important;
-  isolation: isolate;
-}
-
-/* Ensure parent containers don't clip the dropdown */
-.job-actions-left {
-  overflow: visible !important;
-  position: relative;
-}
-
-.position-relative {
-  overflow: visible !important;
-}
-
-/* Ensure dropdown panels are positioned absolutely and not clipped */
-.menu-panel,
-.dropdown-panel,
-.position-relative .filter-panel,
-.position-relative .custom-dropdown,
-.actions-container .filter-panel,
-.actions-container .custom-dropdown,
-.job-actions-left .filter-panel,
-.job-actions-left .custom-dropdown {
-    position: absolute !important;
-}
-
-/* Fix menu dropdown clipping */
-.menu-dropdown {
-  position: relative !important;
-  overflow: visible !important;
-  z-index: 10001 !important;
-}
-
-.menu-dropdown .custom-dropdown {
-  z-index: 10002 !important;
-}
-
-.col-dropdowns {
-  overflow: visible !important;
-  position: relative !important;
-  z-index: 10001 !important;
-}
-
-/* CRITICAL: Force all parent containers to allow overflow */
-.job-section,
-.container-xl,
-.app-content,
-.app-wrapper {
-  overflow: visible !important;
-  position: relative !important;
-}
-
-/* Ensure filter panel specifically works as overlay */
-#filter-panel.filter-panel.custom-dropdown {
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  margin-top: 8px !important;
-  z-index: 9999 !important;
-  overflow: visible !important;
-  background: #fff !important;
-  border: 1px solid #e6eef6 !important;
-  box-shadow: 0 2px 6px rgba(11,22,40,0.03) !important;
-  border-radius: 10px !important;
-  padding: 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    padding-left: 15px;
+    padding-right: 15px;
+    white-space: nowrap;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    overflow: visible !important;
+    position: relative;
+    z-index: 100 !important;
+    flex-wrap: nowrap;
+    pointer-events: auto !important;
+    isolation: isolate;
 }
 
 .actions-container button,
@@ -798,80 +569,100 @@ div.container-xl,
 .actions-container #archive-btn,
 .job-actions-middle #delete-btn,
 .job-actions-middle #archive-btn {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  position: relative !important;
-  z-index: 1001 !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1001 !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+.actions-container > * {
+    flex-shrink: 0;
 }
 
 .job-actions-left {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex: 0 0 auto;
-  justify-content: flex-start;
-  flex-wrap: nowrap;
-  white-space: nowrap;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: visible !important;
+    position: relative;
 }
 
 .job-actions-middle {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10000 !important;
-  pointer-events: auto !important;
-  isolation: isolate;
+    display: flex !important;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+    isolation: isolate;
+    visibility: visible !important;
 }
 
 .job-actions-middle button,
 .job-actions-middle .action-btn,
 .job-actions-middle #archive-btn,
 .job-actions-middle #delete-btn {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  position: relative !important;
-  z-index: 10001 !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: transparent !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 10001 !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
 }
 
 @media (min-width: 1200px) {
-  .job-actions-middle {
-    z-index: 10000 !important;
-    pointer-events: auto !important;
-  }
-  
-  .job-actions-middle button,
-  .job-actions-middle .action-btn,
-  .job-actions-middle #archive-btn,
-  .job-actions-middle #delete-btn {
-    z-index: 10001 !important;
-    pointer-events: auto !important;
-  }
+    .job-actions-middle {
+        z-index: 10000 !important;
+        pointer-events: auto !important;
+    }
+    
+    .job-actions-middle button,
+    .job-actions-middle .action-btn,
+    .job-actions-middle #archive-btn,
+    .job-actions-middle #delete-btn {
+        z-index: 10001 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        position: relative !important;
+    }
+    
+    .actions-container {
+        overflow: visible !important;
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        pointer-events: auto !important;
+    }
+}
+
+.job-actions-left,
+.col-dropdowns {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    overflow: visible !important;
+    position: relative;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .col-dropdowns {
-  justify-self: end;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
-.actions-container > * {
-  flex-shrink: 0;
+    flex: 1;
+    justify-content: flex-end;
 }
 .sort-toggle {
   display: inline-flex;
@@ -891,12 +682,12 @@ div.container-xl,
 </style>
 <div class="container-xl">
     <div class="job-section shadow-lg p-3 rounded-3">
-        <div class="d-flex justify-content-between align-items-center" style="margin-bottom:30px; padding-left: 11px; padding-right: 11px;">
+        <div class="d-flex justify-content-between align-items-center ml-15-px" style="margin-bottom:30px;">
             <h6 class="app-card-title mb-0">Matching Jobs</h6>
         </div>
 
-        <div class="sticky-header-container">
-        <div class="actions-container ml-15-px mr-15-px">
+        <div class="actions-container d-flex justify-content-between align-items-center ml-15-px mr-15-px">
+            <!-- Left: Filter, Apply, Save, Email -->
             <div class="job-actions-left" style="display: flex; gap: 8px; align-items: center;">
               <div class="position-relative" style="flex-shrink: 0;">
                 <button id="filter-btn" class="action-btn" title="Filter">
@@ -968,7 +759,7 @@ div.container-xl,
                 <use xlink:href="#icon-apply"/>
                 </svg> Apply
               </button>
-              <div class="hidden-buttons d-flex" style="gap:8px; align-items:cneter; visibility: hidden;">
+              <div class="hidden-buttons d-flex" style="gap:8px; align-items:center; visibility: hidden;">
                 <button id="save-btn" class="action-btn" title="Save">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 8C6 5.18536 8 4 12 4C16 4 18 5.18537 18 8V19.0858C18 19.9767 16.9229 20.4229 16.2929 19.7929L12.7071 16.2071C12.3166 15.8166 11.6834 15.8166 11.2929 16.2071L7.70711 19.7929C7.07714 20.4229 6 19.9767 6 19.0858V8Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -986,54 +777,32 @@ div.container-xl,
                     <use xlink:href="#icon-email"/>
                     </svg> Email
                   </button>
-                  <button id="archive-btn" class="action-btn" title="Archive">
-                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
-                    </svg> Archive
-                  </button>
-                  <button id="delete-btn" class="action-btn" title="Delete">
-                    <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                    <use xlink:href="#icon-delete"/>
-                    </svg> Delete
-                  </button>
               </div>
-              {#<a href="{{ path('app_provider_profile_work_preferences') }}" class="action-btn">
-                    <svg class="icon-image" fill="currentcolor" height="25" width="25" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                         viewBox="0 0 423.469 423.469" xml:space="preserve">
-                    <path d="M422.197,211.735l-38.408-66.526c-1.697-2.939-4.833-4.75-8.228-4.75c-3.394,0-6.53,1.811-8.228,4.75l-38.409,66.526
-                        c-1.696,2.939-1.696,6.561,0,9.5c1.697,2.939,4.833,4.75,8.228,4.75h9.465c-3.315,34.18-18.505,65.846-43.376,90.024
-                        c-7.246,7.044-15.11,13.238-23.459,18.55v-11.706c0-29.462-16.446-55.151-40.638-68.38c24.193-13.228,40.641-38.919,40.641-68.381
-                        c0-42.943-34.937-77.88-77.88-77.88s-77.88,34.937-77.88,77.88c0,29.445,16.428,55.121,40.597,68.356
-                        c-6.454,3.529-12.445,7.99-17.787,13.337c-14.711,14.711-22.813,34.268-22.813,55.068v11.619
-                        c-40.56-25.828-67.523-71.192-67.523-122.738c0-80.177,65.229-145.406,145.407-145.406c38.84,0,75.354,15.125,102.818,42.589
-                        c3.711,3.71,9.725,3.71,13.436,0c3.71-3.71,3.71-9.725,0-13.435c-31.053-31.052-72.34-48.154-116.254-48.154
-                        c-90.654,0-164.407,73.752-164.407,164.406s73.752,164.407,164.407,164.407c43.036,0,83.729-16.517,114.58-46.509
-                        c30.786-29.928,48.452-70.009,49.744-112.861c0.077-2.568-0.889-5.058-2.678-6.902c-1.789-1.844-4.249-2.885-6.818-2.885h-3.126
-                        l21.954-38.026l21.954,38.026h-3.266c-5.157,0-9.372,4.114-9.497,9.27c-1.161,47.899-20.697,92.75-55.009,126.289
-                        c-34.369,33.594-79.77,52.095-127.839,52.095C101.051,394.639,19,312.589,19,211.734S101.051,28.83,201.905,28.83
-                        c48.855,0,94.787,19.025,129.333,53.572c3.71,3.709,9.724,3.71,13.436,0c3.71-3.71,3.71-9.725,0-13.435
-                        C306.539,30.832,255.835,9.83,201.905,9.83C90.574,9.83,0,100.404,0,211.734s90.574,201.905,201.905,201.905
-                        c53.063,0,103.18-20.424,141.12-57.508c35.653-34.851,56.854-80.768,60.288-130.146h10.656c3.394,0,6.53-1.811,8.228-4.75
-                        C423.893,218.296,423.893,214.675,422.197,211.735z M143.025,186.092c0-32.467,26.414-58.88,58.88-58.88
-                        c32.467,0,58.88,26.413,58.88,58.88s-26.413,58.88-58.88,58.88C169.438,244.972,143.025,218.559,143.025,186.092z M143.021,344.672
-                        v-21.818c0-15.725,6.125-30.51,17.25-41.635c11.112-11.121,25.896-17.245,41.63-17.245c32.467,0,58.88,26.414,58.88,58.88v21.89
-                        c-18.322,8.118-38.294,12.398-58.877,12.398C180.956,357.141,161.032,352.681,143.021,344.672z"/>
-                    </svg>
-                </a>#}
             </div>
             
-            <!-- Middle Group: Archive/Delete (if needed) -->
-            <div class="job-actions-middle"></div>
+            <!-- Center: Archive and Delete -->
+            <div class="job-actions-middle" style="display: flex; gap: 8px; align-items: center; visibility: visible;">
+              <button id="archive-btn" class="action-btn" title="Archive">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
+                </svg> Archive
+              </button>
+              <button id="delete-btn" class="action-btn" title="Delete">
+                <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
+                <use xlink:href="#icon-delete"/>
+                </svg> Delete
+              </button>
+            </div>
             
-            <!-- Right Group: Menu -->
-            <div class="col-dropdowns">
+            <!-- Right: Menu -->
+            <div class="col-dropdowns d-flex gap-2" style="margin-right: 15px;">
               <!-- Menu Dropdown -->
               <div class="menu-dropdown position-relative">
                 <button type="button" class="menu-dropdown-btn dropdown-cstm"><span>Menu</span></button>
@@ -1047,6 +816,14 @@ div.container-xl,
                     </svg> 
                     <span>Print/Share</span>
                   </button>
+                  <a id="timeline-job-btn" href="{{ path('app_provider_interview_calendar') }}" class="menu-item">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="3" y="4" width="18" height="18" rx="2" stroke="#121C0C" stroke-width="1.5"/>
+                      <path d="M16 2V6M8 2V6M3 10H21" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="#121C0C" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg> 
+                    <span>Timeline</span>
+                  </a>
                   <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                   <!-- Regular Menu Items -->
                   <a href="{{ path('app_provider_jobs_archived') }}" class="menu-item" style="text-decoration: none; color: inherit;"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1062,11 +839,21 @@ div.container-xl,
                 </div>
               </div>
             </div>
+        </div>
+        {#<div class="d-flex justify-content-between align-items-center mb-3" ml-15-px>
+            <div class="section-intro">Matching jobs are shown based on your work preferences. <a href="{{ path('app_provider_profile_work_preferences') }}"><u>Update your preferences</u></a> to improve job matching.</div>
+            <button id="toggleActions" class="btn btn-light d-flex align-items-center gap-1">
+                Actions
+            </button>
+        </div>
+
+        <hr class="mb-4">#}
+
         {% if jobs|length > 0 %}
-        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0;">
+        <div class="job-list-container bg-light p-3 rounded-3">
             <div class="d-flex align-items-center job-lists">
                 <div class="d-flex align-items-center flex-grow-1">
-                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
+                    <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="gap: 0;">
                         <div class="col-job sortable" data-sort="job" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; flex-grow: 2; cursor: pointer;">Job<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="location" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Location<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
                         <div class="col-start col-center sortable" data-sort="posted" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; flex-grow: 1; cursor: pointer;">Posted on<span class="sort-toggle"><svg class="arrow sort-up" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="arrow sort-down" width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg);"><path d="M6 15L12 9L18 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
@@ -1076,14 +863,10 @@ div.container-xl,
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
-        {% if jobs|length > 0 %}
-        <div class="job-list-container bg-light rounded-3" style="padding-bottom: 1rem; margin-top: 0;">
-        <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; padding-top: 0;">
+
             {% for job in jobs %}
             <div class="d-flex align-items-center job-lists">
-            <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0; box-sizing: border-box !important;">
+            <div class="job-row d-flex align-items-center flex-grow-1" style="gap: 0;">
                 <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
                     <input type="checkbox" class="job-check" data-job-id="{{ job.id }}" />
                 </div>
@@ -1093,9 +876,10 @@ div.container-xl,
                          style="width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;"
                          onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
                     <div class="flex-grow-2" style="min-width: 0; overflow: hidden;">
-                        <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
+                        <a class="job-title truncate-text d-block fw-semibold text-decoration-none job-title-link"
                            href="{{ path('app_provider_jobs_detail', {'id': job.id}) }}"
-                           style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                           data-job-id="{{ job.id }}"
+                           style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;">
                             {{ job.title }}
                         </a>
                         {#<div class="job-meta text-muted small">
@@ -1106,8 +890,8 @@ div.container-xl,
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.state }}</div>
                 <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.startDate ? job.startDate|date('m/d/Y') : '' }}</div>
                 <div class="col-expiry col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">{{ job.expirationDate ? job.expirationDate|date('m/d/Y') : '' }}</div>
-                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.formattedHourlyRate }}</div>
-                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #121C0C;">
+                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px;">{{ job.formattedHourlyRate }}</div>
+                <div class="col-start col-center flex-grow-1" style="padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #121C0C;">
                     {% if job.workType == 'locums' %}
                         Locums
                     {% elseif job.workType == 'parttime' or job.workType == 'part-time' %}
@@ -1173,47 +957,6 @@ div.container-xl,
         {% else %}
             <p class="mb-0">Matching jobs not found.</p>
         {% endif %}
-        <div class="job-actions hidden-buttons ml-15-px" style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center; visibility: hidden;">
-          <button id="apply-btn" class="action-btn" disabled title="Apply" style="display: none;">
-            <svg class="icon-image" fill="currentcolor" width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <g data-name="Layer 2">
-            <g data-name="checkmark-circle">
-            <rect width="24" height="24" opacity="0"/>
-            <path d="M9.71 11.29a1 1 0 0 0-1.42 1.42l3 3A1 1 0 0 0 12 16a1 1 0 0 0 .72-.34l7-8a1 1 0 0 0-1.5-1.32L12 13.54z"/>
-            <path d="M21 11a1 1 0 0 0-1 1 8 8 0 0 1-8 8A8 8 0 0 1 6.33 6.36 7.93 7.93 0 0 1 12 4a8.79 8.79 0 0 1 1.9.22 1 1 0 1 0 .47-1.94A10.54 10.54 0 0 0 12 2a10 10 0 0 0-7 17.09A9.93 9.93 0 0 0 12 22a10 10 0 0 0 10-10 1 1 0 0 0-1-1z"/>
-            </g>
-            </g>
-            <use xlink:href="#icon-apply"/>
-            </svg>
-          </button>
-          <button id="save-btn" class="action-btn" title="Save">
-            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 8C6 5.18536 8 4 12 4C16 4 18 5.18537 18 8V19.0858C18 19.9767 16.9229 20.4229 16.2929 19.7929L12.7071 16.2071C12.3166 15.8166 11.6834 15.8166 11.2929 16.2071L7.70711 19.7929C7.07714 20.4229 6 19.9767 6 19.0858V8Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <use xlink:href="#icon-save"/>
-            </svg>
-          </button>
-          <button id="email-btn" class="action-btn" title="Email">
-            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="style=stroke">
-            <g id="email">
-            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"></path>
-            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"></path>
-            </g>
-            </g>
-            <use xlink:href="#icon-email"/>
-            </svg>
-          </button>
-          <button id="delete-btn" class="action-btn" title="Delete">
-            <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9.17065 4C9.58249 2.83481 10.6937 2 11.9999 2C13.3062 2 14.4174 2.83481 14.8292 4" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M20.5 6H3.49988" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5M18.8334 8.5L18.6334 11.5" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M9.5 11L10 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M14.5 11L14 16" stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"/>
-            <use xlink:href="#icon-delete"/>
-            </svg>
-          </button>
-        </div>
     </div>
 </div>
 
@@ -1409,11 +1152,55 @@ div.container-xl,
             closeAllDropdowns();
         });
     }
+    
+    // Handle Timeline button click
+    const timelineBtn = document.getElementById('timeline-job-btn');
+    if (timelineBtn) {
+        timelineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Get job ID from the closest job card
+            const dropdown = timelineBtn.closest('.menu-dropdown');
+            let jobId = null;
+            
+            if (dropdown) {
+                const jobCard = dropdown.closest('.job-lists, .split-job-card');
+                if (jobCard) {
+                    jobId = jobCard.getAttribute('data-job-id');
+                }
+                
+                if (!jobId) {
+                    const checkbox = dropdown.closest('.job-lists, .split-view-container')?.querySelector('[data-job-id]');
+                    if (checkbox) {
+                        jobId = checkbox.getAttribute('data-job-id');
+                    }
+                }
+            }
+            
+            // Build calendar URL with job ID
+            let calendarUrl = timelineBtn.getAttribute('href');
+            if (jobId) {
+                calendarUrl += '?jobId=' + encodeURIComponent(jobId);
+            }
+            
+            window.open(calendarUrl, '_blank');
+            closeAllDropdowns();
+        });
+    }
+
+
     function toggleActionsVisibility() {
       const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
       actionsDivs.forEach(div => {
         div.style.visibility = anyChecked ? 'visible' : 'hidden';
       });
+      // Keep center buttons (archive and delete) always visible
+      const centerButtons = document.querySelector('.job-actions-middle');
+      if (centerButtons) {
+        centerButtons.style.visibility = 'visible';
+        centerButtons.style.display = 'flex';
+      }
     }
 
     // Single-selection feature: automatically uncheck previous selection when new one is selected
@@ -1448,8 +1235,49 @@ div.container-xl,
       }
     });
 
+    // Safeguard: Ensure archive and delete buttons are always visible
+    function ensureCenterButtonsVisible() {
+      const centerButtons = document.querySelector('.job-actions-middle');
+      if (centerButtons) {
+        centerButtons.style.visibility = 'visible';
+        centerButtons.style.display = 'flex';
+        // Ensure individual buttons are also visible
+        const archiveBtn = centerButtons.querySelector('#archive-btn');
+        const deleteBtn = centerButtons.querySelector('#delete-btn');
+        if (archiveBtn) {
+          archiveBtn.style.visibility = 'visible';
+          archiveBtn.style.display = 'flex';
+        }
+        if (deleteBtn) {
+          deleteBtn.style.visibility = 'visible';
+          deleteBtn.style.display = 'flex';
+        }
+      }
+    }
+    
     // Initial check in case some boxes are pre-checked
     toggleActionsVisibility();
+    
+    // Call immediately and after a short delay to ensure visibility
+    ensureCenterButtonsVisible();
+    setTimeout(ensureCenterButtonsVisible, 100);
+    setTimeout(ensureCenterButtonsVisible, 500);
+    
+    // Use MutationObserver to ensure buttons stay visible if something tries to hide them
+    const centerButtonsContainer = document.querySelector('.job-actions-middle');
+    if (centerButtonsContainer) {
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            ensureCenterButtonsVisible();
+          }
+        });
+      });
+      observer.observe(centerButtonsContainer, {
+        attributes: true,
+        attributeFilter: ['style']
+      });
+    }
 
     function updateActions() {
       const checked = Array.from(checkboxes).filter(cb => cb.checked);
@@ -1728,63 +1556,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
-  
 });
 </script>
 
 <script>
-// No results popup function
-function showNoResultsPopup(message, callback) {
-  // Create popup element
-  const popup = document.createElement('div');
-  popup.id = 'no-results-popup';
-  popup.style.cssText = `
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 24px 32px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 100000;
-    text-align: center;
-    font-size: 16px;
-    color: #121C0C;
-    font-weight: 500;
-    min-width: 280px;
-    animation: fadeIn 0.3s ease-in;
-  `;
-  popup.innerHTML = message;
-  
-  // Add fade-in animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-    }
-  `;
-  document.head.appendChild(style);
-  
-  // No overlay - just show the popup
-  document.body.appendChild(popup);
-  
-  // Auto-close after 3 seconds
-  setTimeout(() => {
-    popup.style.animation = 'fadeOut 0.3s ease-out';
-    setTimeout(() => {
-      if (popup.parentNode) popup.parentNode.removeChild(popup);
-      if (style.parentNode) style.parentNode.removeChild(style);
-      if (callback) callback();
-    }, 300);
-  }, 3000);
-}
-
 // Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
   const filterBtn = document.getElementById('filter-btn');
@@ -1869,28 +1644,6 @@ document.addEventListener('DOMContentLoaded', function() {
     })
       .then(res => res.json())
       .then(data => {
-        // Check if no jobs found - check for various "no results" messages
-        if (data.html && (
-          data.html.includes('No jobs found') || 
-          data.html.includes('Jobs not found') || 
-          data.html.includes('jobs not found') || 
-          data.html.includes('Matching jobs not found') ||
-          data.html.includes('No matching jobs') ||
-          data.html.includes('match the selected filters')
-        )) {
-          // Clear loading spinner first
-          if (container) {
-            container.innerHTML = '';
-          }
-          // Show custom popup for 3 seconds, then redirect
-          showNoResultsPopup('No jobs found', function() {
-            // Redirect to the current page (reload without filters)
-            window.location.href = "{{ path('app_provider_jobs_matching') }}";
-          });
-          // Close the filter panel
-          filterPanel.classList.add('hidden');
-          return;
-        }
         container.outerHTML = data.html;
         filterPanel.classList.add('hidden');
       })
@@ -2126,7 +1879,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   </script>
 
-{% endif %}
 {% endblock %}
 
 {% block footer_scripts %}
@@ -2139,7 +1891,6 @@ function applySpacingStyles() {
         container.style.setProperty('position', 'relative', 'important');
         container.style.setProperty('padding-left', '15px', 'important');
         container.style.setProperty('padding-right', '30px', 'important');
-        container.style.setProperty('overflow', 'visible', 'important');
         container.style.setProperty('margin-left', '0', 'important');
         container.style.setProperty('margin-right', '0', 'important');
         container.style.setProperty('transform', 'none', 'important');
@@ -2157,7 +1908,6 @@ function applySpacingStyles() {
         appContent.style.setProperty('margin-right', '0', 'important');
         appContent.style.setProperty('max-width', '100%', 'important');
         appContent.style.setProperty('width', '100%', 'important');
-        appContent.style.setProperty('overflow', 'visible', 'important');
     }
     
     // Reset app-wrapper
@@ -2179,12 +1929,6 @@ function applySpacingStyles() {
             appWrapper.style.setProperty('transform', 'none', 'important');
         }
     }
-    
-    // ENFORCE EQUAL SPACING on both sides - Must match job-row padding
-    const jobHeaders = document.querySelectorAll('.job-header');
-    jobHeaders.forEach(header => {
-        header.style.setProperty('padding', '2px 14px 2px 0', 'important');
-    });
 }
 
 // Run on load
@@ -2206,390 +1950,5 @@ window.addEventListener('resize', function() {
     <input type="hidden" name="_token" value="{{ csrf_token('delete_bookmarks') }}">
     <input type="hidden" name="bookmark_ids" id="bookmark-ids-input">
 </form>
-
-<!-- Timeline Panel -->
-<aside id="timeline-panel" class="timeline-panel" aria-hidden="true" style="position: fixed; top: 0; right: 0; height: 100vh; width: 400px; max-width: 90vw; background: #fff; border-left: 1px solid #e6eef6; box-shadow: -2px 0 8px rgba(11,22,40,0.06); transform: translateX(100%); transition: transform 0.2s ease; display: flex; flex-direction: column; z-index: 9999; visibility: hidden; overflow-y: auto; pointer-events: none;">
-    <div class="timeline-header" style="padding: 12px 14px; border-bottom: 1px solid #e6eef6; display: flex; justify-content: space-between; align-items: center;">
-        <h6 class="timeline-title" style="margin: 0; font-size: 14px; font-weight: 600;">Job Timeline</h6>
-        <button type="button" class="timeline-close" onclick="closeTimelinePanel()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </button>
-    </div>
-    <div class="timeline-body" id="timeline-content" style="flex: 1; padding: 16px; overflow-y: auto;">
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Loading timeline...</p>
-        </div>
-    </div>
-</aside>
-
-<!-- Timeline Panel Overlay -->
-<div id="timeline-overlay" class="timeline-panel-overlay" onclick="closeTimelinePanel()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none;"></div>
-
-<style>
-.timeline-panel.open {
-    transform: translateX(0) !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-}
-.timeline-panel-overlay.active {
-    display: block !important;
-}
-.timeline-event-content {
-    border: none !important;
-    border-left: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-}
-</style>
-
-<script>
-window.openTimelinePanel = function(jobId) {
-    const timelinePanel = document.getElementById('timeline-panel');
-    const timelineContent = document.getElementById('timeline-content');
-    const timelineOverlay = document.getElementById('timeline-overlay');
-    
-    if (!timelinePanel || !timelineContent) return;
-    
-    // Show loading state
-    timelineContent.innerHTML = `
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Loading timeline...</p>
-        </div>
-    `;
-    
-    // Open the panel
-    timelinePanel.classList.add('open');
-    timelinePanel.setAttribute('aria-hidden', 'false');
-    if (timelineOverlay) {
-        timelineOverlay.classList.add('active');
-    }
-    
-    // Fetch job timeline data from API
-    fetch(`/provider/jobs/${jobId}/timeline-data`)
-        .then(response => response.json())
-        .then(data => {
-            // Build interview section HTML
-            let interviewsHTML = '';
-            if (data.interviews && data.interviews.length > 0) {
-                interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">${interview.type}:</span>
-                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.date} at ${interview.time}</span>
-                    </div>
-                    ${interview.platform ? `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Platform:</span>
-                        <span class="timeline-detail-value" style="color: #121C0C;">${interview.platform}</span>
-                    </div>
-                    ` : ''}
-                    ${interview.meetingUrl ? `
-                    <div class="timeline-detail-item" style="display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px;">
-                        <span class="timeline-detail-label" style="color: #6c757d; font-weight: 500;">Meeting Link:</span>
-                        <span class="timeline-detail-value" style="color: #121C0C;">
-                            <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
-                        </span>
-                    </div>
-                    ` : ''}
-                `).join('');
-            } else {
-                interviewsHTML = '<p class="timeline-event-description text-muted" style="font-size: 12px; color: #6c757d; margin-bottom: 0;">No interviews scheduled yet.</p>';
-            }
-            
-            // Build interview section HTML
-            let interviewsHTML = '';
-            if (data.interviews && data.interviews.length > 0) {
-                interviewsHTML = data.interviews.map(interview => `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">${interview.type}:</span>
-                        <span class="timeline-detail-value">${interview.date} at ${interview.time}</span>
-                    </div>
-                    ${interview.platform ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Platform:</span>
-                        <span class="timeline-detail-value">${interview.platform}</span>
-                    </div>
-                    ` : ''}
-                    ${interview.meetingUrl ? `
-                    <div class="timeline-detail-item">
-                        <span class="timeline-detail-label">Meeting Link:</span>
-                        <span class="timeline-detail-value">
-                            <a href="${interview.meetingUrl}" target="_blank" class="text-primary">Join Meeting</a>
-                        </span>
-                    </div>
-                    ` : ''}
-                `).join('');
-            } else {
-                interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
-            }
-            
-            // Build timeline content with real data
-            timelineContent.innerHTML = `
-                <div class="timeline-events">
-                    <!-- Application Overview -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon" style="background: #e8f5e9;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Application Overview</h6>
-                            <div class="timeline-detail-item" style="display: flex; gap: 8px; align-items: center;">
-                                <span class="timeline-detail-label">Status:</span>
-                                <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="background: #85BB65; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;">${data.applicationStatus}</span>
-                            </div>
-                            ${data.applicationDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Applied On:</span>
-                                <span class="timeline-detail-value">${data.applicationDate}</span>
-                            </div>
-                            ` : ''}
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Job Saved:</span>
-                                <span class="timeline-detail-value">${data.bookmarkDate}</span>
-                            </div>
-                            ${data.hiredDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Hired Date:</span>
-                                <span class="timeline-detail-value">${data.hiredDate}</span>
-                            </div>
-                            ` : ''}
-                            ${data.contractSentDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Sent:</span>
-                                <span class="timeline-detail-value">${data.contractSentDate}</span>
-                            </div>
-                            ` : ''}
-                            ${data.contractSignedDate ? `
-                            <div class="timeline-detail-item">
-                                <span class="timeline-detail-label">Contract Signed:</span>
-                                <span class="timeline-detail-value">${data.contractSignedDate}</span>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-event-divider"></div>
-                    
-                    <!-- Interview Schedule -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon" style="background: #f8f9fa;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="#6c757d" stroke-width="2"/>
-                                <path d="M16 2V6M8 2V6M3 10H21" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Interview Schedule</h6>
-                            ${interviewsHTML}
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-event-divider"></div>
-                    
-                    <!-- Quick Actions -->
-                    <div class="timeline-event">
-                        <div class="timeline-event-icon" style="background: #e8f5e9;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="12" cy="12" r="10" stroke="#85BB65" stroke-width="2"/>
-                                <path d="M12 8V12L15 15" stroke="#85BB65" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </div>
-                        <div class="timeline-event-content">
-                            <h6 class="timeline-event-title">Quick Actions</h6>
-                            <a href="/provider/jobs/${data.jobId}/detail" style="display: inline-block; background: #85BB65; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 500; margin-top: 4px;">View Full Details</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <style>
-                    .timeline-events {
-                        padding: 10px 0;
-                    }
-                    .timeline-event {
-                        display: flex;
-                        gap: 15px;
-                        padding: 15px 0;
-                    }
-                    .timeline-event-icon {
-                        flex-shrink: 0;
-                        width: 40px;
-                        height: 40px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: #f8f9fa;
-                        border-radius: 50%;
-                    }
-                    .timeline-event-icon.has-interview {
-                        background: #e8f5e9;
-                    }
-                    .timeline-event-content {
-                        flex: 1;
-                    }
-                    .timeline-event-title {
-                        font-size: 14px;
-                        font-weight: 600;
-                        margin-bottom: 8px;
-                        color: #121C0C;
-                    }
-                    .timeline-detail-item {
-                        display: flex;
-                        gap: 8px;
-                        margin-bottom: 6px;
-                        font-size: 13px;
-                        align-items: center;
-                    }
-                    .timeline-detail-label {
-                        color: #6c757d;
-                        font-weight: 500;
-                    }
-                    .timeline-detail-value {
-                        color: #121C0C;
-                    }
-                    .timeline-detail-value.status-interview,
-                    .timeline-detail-value.status-offered,
-                    .timeline-detail-value.status-accepted,
-                    .timeline-detail-value.status-hired {
-                        color: #000000;
-                        font-weight: 600;
-                    }
-                    .timeline-detail-value.status-rejected {
-                        color: #dc3545;
-                        font-weight: 600;
-                    }
-                    .timeline-event-date {
-                        font-size: 12px;
-                        margin-bottom: 6px;
-                    }
-                    .timeline-event-description {
-                        font-size: 13px;
-                        color: #6c757d;
-                        margin-bottom: 0;
-                    }
-                    .timeline-event-divider {
-                        height: 1px;
-                        background: #e6eef6;
-                        margin: 10px 0;
-                    }
-                    .timeline-actions {
-                        display: flex;
-                        gap: 8px;
-                        flex-wrap: wrap;
-                        margin-top: 8px;
-                    }
-                    .timeline-actions .btn {
-                        font-size: 12px;
-                        padding: 6px 12px;
-                    }
-                </style>
-            `;
-        })
-        .catch(error => {
-            console.error('Error loading timeline:', error);
-            timelineContent.innerHTML = `
-                <div class="alert alert-warning">
-                    <p class="mb-0">Unable to load detailed timeline information.</p>
-                </div>
-            `;
-        });
-};
-
-window.closeTimelinePanel = function() {
-    const timelinePanel = document.getElementById('timeline-panel');
-    const timelineOverlay = document.getElementById('timeline-overlay');
-    if (timelinePanel) {
-        timelinePanel.classList.remove('open');
-        timelinePanel.setAttribute('aria-hidden', 'true');
-    }
-    if (timelineOverlay) {
-        timelineOverlay.classList.remove('active');
-    }
-};
-
-// Intercept clicks on job links in list view to open split view instead
-document.addEventListener('click', function(e) {
-    const jobLink = e.target.closest('a.job-title');
-    if (jobLink && jobLink.href && jobLink.href.includes('/detail')) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Extract job ID from href
-        const href = jobLink.href;
-        const jobIdMatch = href.match(/\/jobs\/(\d+)\/detail/);
-        if (jobIdMatch && jobIdMatch[1]) {
-            const jobId = jobIdMatch[1];
-            
-            // Open split view and select the job
-            if (typeof window.openSplitViewAndSelectJob === 'function') {
-                window.openSplitViewAndSelectJob(jobId);
-            }
-        }
-    }
-});
-
-// Function to open split view and select a job
-window.openSplitViewAndSelectJob = function(jobId) {
-    const splitViewContainer = document.getElementById('split-view-container');
-    const listViewContainer = document.querySelector('.job-list-container');
-    const gridViewBtn = document.getElementById('grid-view-btn');
-    const splitJobList = document.getElementById('split-job-list');
-    
-    if (!splitViewContainer || !listViewContainer) {
-        console.error('Split view or list view container not found', { splitViewContainer, listViewContainer });
-        return;
-    }
-    
-    const isSplitViewOpen = splitViewContainer.style.display === 'grid';
-    
-    // If split view is already open, just select the job
-    if (isSplitViewOpen && splitJobList) {
-        const cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
-        if (cardToSelect && typeof window.selectJobCard === 'function') {
-            window.selectJobCard(cardToSelect);
-        }
-        return;
-    }
-    
-    // Check if filters are active - if so, reload page without filters to show unfiltered split view
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasFilters = urlParams.has('location') || urlParams.has('salaryMin') || urlParams.has('salaryMax') || urlParams.has('category') || urlParams.has('days');
-    const filtersActive = sessionStorage.getItem('filtersActive') === 'true' || hasFilters;
-    
-    if (filtersActive) {
-        // Reload page without filter parameters to show unfiltered split view
-        const currentUrl = window.location.pathname;
-        const newParams = new URLSearchParams();
-        newParams.append('selectJob', jobId);
-        window.location.href = `${currentUrl}?${newParams.toString()}`;
-        return;
-    }
-    
-    // Open split view
-    if (gridViewBtn) {
-        gridViewBtn.click();
-        
-        // Wait for split view to open, then select the job
-        setTimeout(() => {
-            if (splitJobList) {
-                const cardToSelect = splitJobList.querySelector(`.split-job-card[data-job-id="${jobId}"]`);
-                if (cardToSelect && typeof window.selectJobCard === 'function') {
-                    window.selectJobCard(cardToSelect);
-                }
-            }
-        }, 300);
-    }
-};
-</script>
 
 {% endblock %}

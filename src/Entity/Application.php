@@ -76,12 +76,16 @@ class Application
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $isArchived = false;
 
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: Interview::class)]
+    private Collection $interviews;
+
     #[ORM\OneToMany(mappedBy: 'application', targetEntity: DocumentRequest::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $documentRequests;
 
     public function __construct()
     {
         $this->documentRequests = new ArrayCollection();
+        $this->interviews = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -319,6 +323,35 @@ class Application
             // set the owning side to null (unless already changed)
             if ($documentRequest->getApplication() === $this) {
                 $documentRequest->setApplication(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Interview>
+     */
+    public function getInterviews(): Collection
+    {
+        return $this->interviews;
+    }
+
+    public function addInterview(Interview $interview): static
+    {
+        if (!$this->interviews->contains($interview)) {
+            $this->interviews->add($interview);
+            $interview->setApplication($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInterview(Interview $interview): static
+    {
+        if ($this->interviews->removeElement($interview)) {
+            if ($interview->getApplication() === $this) {
+                $interview->setApplication(null);
             }
         }
 

@@ -3,6 +3,9 @@
 {% block title %}Saved Jobs{% endblock %}
 
 {% block provider_body %}
+<script>
+    window.appliedJobsIds = {{ appliedJobsIds|json_encode|raw }};
+</script>
 {# Intro.js CSS & JS for Quick Tour #}
 <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
 <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
@@ -4568,51 +4571,9 @@ function showToast(message, type = 'info') {
       }, 100);
   }
   
-  // Intercept clicks on job title links only (not entire job row) to open split view instead
-  // Use capture phase to ensure this runs before other handlers
-  document.addEventListener('click', function(e) {
-      // Only intercept if we're not clicking inside split view
-      const splitViewContainer = document.getElementById('split-view-container');
-      const isSplitViewOpen = splitViewContainer && splitViewContainer.style.display === 'grid';
-      const isClickInSplitView = splitViewContainer && splitViewContainer.contains(e.target);
-      
-      // Check if click is on a job title link only
-      const jobLink = e.target.closest('a.job-title');
-      if (jobLink && jobLink.href && jobLink.href.includes('/detail')) {
-          // Only intercept if not clicking inside split view (split view has its own handlers)
-          if (isClickInSplitView) {
-              return; // Let split view handle its own clicks
-          }
-          
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          
-          // Extract job ID from href (support both numeric IDs and UUIDs)
-          const href = jobLink.href;
-          let jobId = null;
-          
-          // Match UUID pattern: /jobs/{uuid}/detail
-          const uuidMatch = href.match(/\/jobs\/([a-f0-9-]{36})\/detail/i);
-          if (uuidMatch && uuidMatch[1]) {
-              jobId = uuidMatch[1];
-          } else {
-              // Match numeric ID pattern: /jobs/{number}/detail
-              const jobIdMatch = href.match(/\/jobs\/(\d+)\/detail/);
-              if (jobIdMatch && jobIdMatch[1]) {
-                  jobId = jobIdMatch[1];
-              }
-          }
-          
-          if (jobId) {
-              // Open split view and select the job
-              if (typeof window.openSplitViewAndSelectJob === 'function') {
-                  window.openSplitViewAndSelectJob(jobId);
-              }
-          }
-          return false;
-      }
-  }, true); // Use capture phase to run before other handlers
+  // Allow normal navigation for job links - removed split view interception
+  // Job links will now navigate normally to the detail page
+  // If split view is needed in the future, it can be added as an optional feature
   
   if (gridViewBtn && listViewContainer && splitViewContainer) {
     gridViewBtn.addEventListener('click', function () {
@@ -5091,8 +5052,14 @@ function showToast(message, type = 'info') {
             }
             
             if (detailTimelineBtn) { 
-                detailTimelineBtn.style.display = 'flex';
-                detailTimelineBtn.style.alignItems = 'center';
+                // Check if job is applied
+                const isApplied = window.appliedJobsIds && window.appliedJobsIds.includes(jobId);
+                if (isApplied) {
+                    detailTimelineBtn.style.display = 'flex';
+                    detailTimelineBtn.style.alignItems = 'center';
+                } else {
+                    detailTimelineBtn.style.display = 'none';
+                }
             }
             const detailViewDetailsBtn = document.getElementById('detail-view-details-btn');
             if (detailViewDetailsBtn) { 
@@ -5229,9 +5196,66 @@ function showToast(message, type = 'info') {
                   interviewsHTML = '<p class="timeline-event-description text-muted">No interviews scheduled yet.</p>';
               }
               
+              // Determine current status and progress stages
+              const statusLower = (data.applicationStatus || '').toLowerCase().replace(/\s+/g, '').replace(/_/g, '');
+              const stages = [
+                  { name: 'Applied', key: 'applied' },
+                  { name: 'Interview', key: 'interview' },
+                  { name: 'Negotiating', key: 'negotiating' },
+                  { name: 'Accepted', key: 'accepted' },
+                  { name: 'Completed', key: 'completed' }
+              ];
+              
+              // Determine which stage we're at
+              let currentStageIndex = -1;
+              if (statusLower === 'notapplied' || !data.applicationStatus) {
+                  currentStageIndex = -1;
+              } else if (statusLower.includes('applied')) {
+                  currentStageIndex = 0;
+              } else if (statusLower.includes('interview') || statusLower.includes('shortlisted') || statusLower.includes('inreview')) {
+                  currentStageIndex = 1;
+              } else if (statusLower.includes('negotiating') || statusLower.includes('offered')) {
+                  currentStageIndex = 2;
+              } else if (statusLower.includes('accepted') || statusLower.includes('hired')) {
+                  currentStageIndex = 3;
+              } else if (statusLower.includes('completed')) {
+                  currentStageIndex = 4;
+              }
+              
+              // Build progress stages HTML
+              const progressHTML = stages.map((stage, index) => {
+                  const isActive = index === currentStageIndex;
+                  const isCompleted = index < currentStageIndex;
+                  return `
+                      <div class="progress-stage-item" style="
+                          background: ${isCompleted ? '#e8f5e9' : '#fff'};
+                          border: 1px dashed ${isCompleted ? '#85BB65' : '#e6eef6'};
+                          border-radius: 6px;
+                          padding: 8px 12px;
+                          margin-bottom: 6px;
+                          text-align: center;
+                          color: ${isCompleted ? '#2e7d32' : '#121C0C'};
+                          font-size: 12px;
+                          font-weight: ${isActive ? '600' : isCompleted ? '500' : '400'};
+                          box-shadow: ${isActive ? '0 2px 4px rgba(11,22,40,0.03)' : 'none'};
+                      ">
+                          ${stage.name}
+                      </div>
+                  `;
+              }).join('');
+              
               // Build timeline content with real data
               timelineContent.innerHTML = `
                   <div class="timeline-events">
+                      <!-- Progress Section -->
+                      <div style="margin-bottom: 16px;">
+                          <h6 style="font-size: 12px; font-weight: 700; color: #121C0C; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">PROGRESS</h6>
+                          <div class="progress-stages-container">
+                              ${progressHTML}
+                          </div>
+                      </div>
+                      <div class="timeline-event-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                      
                       <!-- Application Overview -->
                       <div class="timeline-event">
                           <div class="timeline-event-icon" style="background: #e8f5e9;">
@@ -5244,7 +5268,7 @@ function showToast(message, type = 'info') {
                               <h6 class="timeline-event-title">Application Overview</h6>
                               <div class="timeline-detail-item" style="display: flex; gap: 8px; align-items: center;">
                                   <span class="timeline-detail-label">Status:</span>
-                                  <span class="timeline-detail-value status-${data.applicationStatus.toLowerCase().replace(/\s+/g, '-')}" style="background: #85BB65; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;">${data.applicationStatus}</span>
+                                  <span class="timeline-detail-value status-${(data.applicationStatus || 'Not Applied').toLowerCase().replace(/\s+/g, '-')}" style="background: #85BB65; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;">${data.applicationStatus || 'Not Applied'}</span>
                               </div>
                               ${data.applicationDate ? `
                               <div class="timeline-detail-item">

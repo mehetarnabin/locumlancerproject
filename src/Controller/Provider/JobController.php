@@ -221,15 +221,13 @@ class JobController extends AbstractController
         // $applications = $em->getRepository(Application::class)->findBy(['provider' => $this->getUser()->getProvider()], ['id' => 'DESC'], 5);
         $applications = $em->getRepository(Application::class)
             ->findBy(['provider' => $this->getUser()->getProvider()], ['createdAt' => 'DESC']);
-        // Temporarily removed archived filter to avoid column not found error
-
         $statusCounts = $em->getRepository(Application::class)->getProviderApplicationStatusCounts($provider->getId());
         $statusCounts[] = [
             'status' => 'saved',
             'count' => count($bookmarks),
         ];
 
-        $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
+        $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a JOIN a.job j WHERE a.provider = :provider AND a.archivedAt IS NULL")
             ->setParameter('provider', $this->getUser()->getProvider()->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
@@ -327,7 +325,7 @@ class JobController extends AbstractController
             'count' => count($bookmarks),
         ];
 
-        $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a WHERE a.provider = :provider")
+        $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a JOIN a.job j WHERE a.provider = :provider AND a.archivedAt IS NULL")
             ->setParameter('provider', $this->getUser()->getProvider()->getId())
             ->getSingleScalarResult();
 
@@ -597,6 +595,39 @@ class JobController extends AbstractController
         return $this->redirect($referer ?? $this->generateUrl('app_provider_jobs_application_detail', ['id' => $application->getId()]));
     }
 
+    #[Route('/{id}/review-details', name: 'app_provider_application_review_details', methods: ['GET'])]
+    public function getReviewDetails(
+        Application $application,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $provider = $application->getProvider();
+        $employer = $application->getEmployer();
+
+        $existingReview = $em->getRepository(Review::class)->findOneBy([
+            'application' => $application,
+            'employer' => $employer,
+            'provider' => $provider,
+            'reviewedBy' => 'PROVIDER'
+        ]);
+
+        if ($existingReview) {
+            return $this->json([
+                'success' => true,
+                'hasReview' => true,
+                'review' => [
+                    'point' => $existingReview->getPoint(),
+                    'message' => $existingReview->getMessage(),
+                    'date' => $existingReview->getCreatedAt() ? $existingReview->getCreatedAt()->format('M d, Y') : ''
+                ]
+            ]);
+        }
+
+        return $this->json([
+            'success' => true,
+            'hasReview' => false
+        ]);
+    }
+
     #[Route('/{id}/review-employer', name: 'app_provider_application_review_employer', methods: ['GET', 'POST'])]
     public function reviewEmployer(
         Application $application,
@@ -617,7 +648,15 @@ class JobController extends AbstractController
         if ($existingReview) {
             // If AJAX request, return JSON
             if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
-                return $this->json(['error' => 'You already have written a review for this employer.'], 400);
+                return $this->json([
+                    'success' => true,
+                    'message' => 'You have already submitted a review for this employer.',
+                    'review' => [
+                        'point' => $existingReview->getPoint(),
+                        'message' => $existingReview->getMessage(),
+                        'date' => $existingReview->getCreatedAt() ? $existingReview->getCreatedAt()->format('M d, Y') : ''
+                    ]
+                ]);
             }
             $this->addFlash('error', 'You already have write review for employer.');
             return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
@@ -705,7 +744,15 @@ class JobController extends AbstractController
             ]);
 
             if ($existingReview) {
-                return $this->json(['error' => 'You already have written a review for this employer.'], 400);
+                return $this->json([
+                    'success' => true,
+                    'message' => 'You have already submitted a review for this employer.',
+                    'review' => [
+                        'point' => $existingReview->getPoint(),
+                        'message' => $existingReview->getMessage(),
+                        'date' => $existingReview->getCreatedAt() ? $existingReview->getCreatedAt()->format('M d, Y') : ''
+                    ]
+                ]);
             }
 
             $review = new Review();
@@ -1888,6 +1935,14 @@ class JobController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
 
+    #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content', methods: ['GET'])]
+    public function detailContent(Job $job): Response
+    {
+        return $this->render('provider/job/_job_detail_content.html.twig', [
+            'job' => $job,
+        ]);
+    }
+
     #[Route('/api/job/{id}/note', name: 'api_job_note', methods: ['GET', 'POST', 'DELETE'])]
     public function handleJobNote(
         Job $job,
@@ -2319,13 +2374,13 @@ class JobController extends AbstractController
                     $interviews = [$interview];
                 }
 
-                // Add interviews
                 foreach ($interviews as $iv) {
                     if ($iv && $iv->getDate()) {
                         $timelineData['interviews'][] = [
                             'type' => 'Interview Scheduled',
                             'date' => $iv->getDate()->format('M d, Y'),
                             'time' => $iv->getDate()->format('h:i A'),
+                            'endTime' => $iv->getEndDate() ? $iv->getEndDate()->format('h:i A') : null,
                             'status' => 'scheduled',
                             'platform' => $iv->getMeetingPlatform() ?? 'Not specified',
                             'meetingUrl' => $iv->getMeetingUrl()

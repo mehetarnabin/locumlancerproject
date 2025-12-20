@@ -21,22 +21,58 @@
 .job-row > div {
     display: flex;
     align-items: center;
-    justify-content: center;
-    text-align: center;
     box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
 }
 
 /* Ensure all columns have consistent padding to align headers with data */
-.job-header > div[class*="col-"],
-.job-row > div[class*="col-"] {
+.job-header > div,
+.job-row > div {
     padding-left: 8px !important;
     padding-right: 8px !important;
 }
 
+/* Checkbox column alignment */
+.job-header .col-check,
+.job-row .col-check {
+    width: 30px !important;
+    flex-shrink: 0 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Job column - left aligned */
 .job-header .col-job,
 .job-row .col-job {
-    justify-content: flex-start;
-    text-align: left;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    padding: 0 8px !important;
+    font-weight: 500;
+}
+
+/* Center aligned columns */
+.job-header .col-start.col-center,
+.job-row .col-start.col-center {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    padding: 0 8px !important;
+}
+
+/* Ensure consistent vertical alignment */
+.job-header > div,
+.job-row > div {
+    min-height: 48px;
+    height: 48px;
 }
 
 .todo-icon svg {
@@ -151,7 +187,7 @@
           </div>
       </div>
       <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.state }}</div>
-      <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.formattedHourlyRate }}</div>
+      <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.formattedSalary }}</div>
       <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.employer|default(job.companyName|default('—')) }}</div>
       <div class="col-start col-center" style="width: 100px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ application.createdAt|date('m/d/Y') }}</div>
       <div class="col-start col-center" style="width: 120px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #121C0C;">
@@ -227,7 +263,7 @@
           {% set tooltipText = docStatusText ?: ((docsForJob|length > 0) ? ('Docs: ' ~ docsForJob|join(', ')) : (displayTask|default('Assigned'))) %}
           
            {% if todoTask %}
-              <div class="todo-icon-wrapper" title="{{ tooltipText }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" aria-controls="assignedDocsModal" data-bs-toggle="modal" data-bs-target="#assignedDocsModal" style="pointer-events:auto; z-index:100010;" onclick="return handleTodoIconClick(event, this)">
+              <div class="todo-icon-wrapper" title="{{ tooltipText }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" style="pointer-events:auto; z-index:100010;" onclick="try{ return window.handleTodoIconClick ? window.handleTodoIconClick(event, this) : false; }catch(_){ return false; }">
                   <div class="todo-icon status-{{ application.status }}" data-todo-action="{{ todoTask }}" data-todo-type="application" data-todo-icon-type="{{ application.status in ['interview','interviewing'] ? 'interview' : 'documents' }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" data-status="{{ application.status }}" style="pointer-events:auto; z-index:100011;" onclick="return handleTodoIconClick(event, this.parentElement)">
                       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -261,8 +297,8 @@
                   </div>
               </div>
           {% else %}
-              {% if isAssigned %}
-                  <div class="todo-icon-wrapper" title="{{ docStatusText ?: ((docsForJob|length > 0) ? ('Docs: ' ~ docsForJob|join(', ')) : 'Assigned') }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" aria-controls="assignedDocsModal" data-bs-toggle="modal" data-bs-target="#assignedDocsModal" style="pointer-events:auto; z-index:100010;" onclick="return handleTodoIconClick(event, this)">
+             {% if isAssigned %}
+                  <div class="todo-icon-wrapper" title="{{ docStatusText ?: ((docsForJob|length > 0) ? ('Docs: ' ~ docsForJob|join(', ')) : 'Assigned') }}" data-doc-status="{{ docStatusText }}" data-doc-pending="{{ docsForJob|join(', ') }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" role="button" tabindex="0" style="pointer-events:auto; z-index:100010;" onclick="try{ return window.handleTodoIconClick ? window.handleTodoIconClick(event, this) : false; }catch(_){ return false; }">
                       <div class="todo-icon status-{{ application.status }}" data-todo-type="application" data-todo-icon-type="{{ application.status in ['interview','interviewing'] ? 'interview' : 'documents' }}" data-application-id="{{ application.id }}" data-job-id="{{ application.job ? application.job.id : '' }}" data-status="{{ application.status }}" style="pointer-events:auto; z-index:100011;" onclick="return handleTodoIconClick(event, this.parentElement)">
                           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <path d="M4 6C4 5.44772 4.44772 5 5 5H9.58579C9.851 5 10.1054 5.10536 10.2929 5.29289L12 7H19C19.5523 7 20 7.44772 20 8V18C20 18.5523 19.5523 19 19 19H5C4.44772 19 4 18.5523 4 18V6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>

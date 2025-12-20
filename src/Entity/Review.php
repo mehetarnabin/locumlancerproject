@@ -26,7 +26,7 @@ class Review
     private ?Employer $employer = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Application $application = null;
 
     #[ORM\Column(length: 255)]

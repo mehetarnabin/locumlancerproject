@@ -1,53 +1,81 @@
-<div class="job-title-wrap">
-    <div class="job-header">
-        <h1>
-            {{ jobDetail.title }}
-        </h1>
-        {#                            <img src="{{ asset('assets/frontend/img/cty11.png') }}" alt="">#}
-        <h3>{{ jobDetail.state }}, {{ jobDetail.city }}, {{ jobDetail.streetAddress }}</h3>
+<div class="job-detail">
+    <div class="job-title-wrap">
+        <div class="job-header">
+            <h1>{{ jobDetail.title }}</h1>
+            <h3>{{ jobDetail.state }}, {{ jobDetail.city }}{% if jobDetail.streetAddress %}, {{ jobDetail.streetAddress }}{% endif %}</h3>
 
-        <ul class="job">
-            <li><strong>Profession:</strong> {{ jobDetail.profession }}</li>
-            <li><strong>Speciality:</strong> {{ jobDetail.speciality }}</li>
-            <li><strong>Pay:</strong>
-                {% if jobDetail.payRate == 'Hourly' %}{{ jobDetail.payRateHourly }} Hourly{% endif %}
-                {% if jobDetail.payRate == 'Daily' %}{{ jobDetail.payRateDaily }} Daily{% endif %}
-            </li>
-            {#                                <li><strong>Assignment Length:</strong> {{ jobDetail.assignmentLength }}</li>#}
-            <li><strong>Schedule:</strong> {{ jobDetail.schedule }}</li>
-            {#                                <li><strong>Openings:</strong> 1</li>#}
-            <li><strong>Start Date:</strong> {{ jobDetail.startDate|date('m/d/Y') }}</li>
-            {#                                <li><strong>Facility Info:</strong>#}
-        </ul>
+            <ul class="job">
+                <li><strong>Profession:</strong> {{ jobDetail.profession }}</li>
+                <li><strong>Speciality:</strong> {{ jobDetail.speciality }}</li>
+                <li><strong>Pay:</strong>
+                    {% if jobDetail.payRate == 'Hourly' %}{{ jobDetail.payRateHourly }} Hourly{% endif %}
+                    {% if jobDetail.payRate == 'Daily' %}{{ jobDetail.payRateDaily }} Daily{% endif %}
+                </li>
+                <li><strong>Schedule:</strong> {{ jobDetail.schedule }}</li>
+                <li><strong>Start Date:</strong> {{ jobDetail.startDate|date('m/d/Y') }}</li>
+            </ul>
 
-        <div class="block-buttons ">
-            <button class="th-btn" id="apply-button" data-job-id="{{ jobDetail.id }}" data-user-id="{{ app.user.id }}">
-                Apply
-            </button>
-            <button class="btn-save" id="save-button_{{ jobDetail.id }}"  data-user-id="{{ app.user.id }}" title="Save this job">
-                <img src="{{ asset('assets/icons/favorite.png') }}" alt="bookmark"/>
-            </button>
-            <button class="btn-report" data-job-id="{{ jobDetail.id }}"  data-user-id="{{ app.user.id }}" title="Report this job">
-                <img src="{{ asset('assets/icons/danger-sign.png') }}" alt="report" />
-            </button>
-            <div title="Share this job" class="share-btn">
-                <img src="{{ asset('assets/icons/send.png') }}" alt="share"/>
-                <div class="share-dropdown">
-                    <div class="sharethis-inline-share-buttons"></div>
+            <div class="block-buttons">
+                <button class="th-btn" id="apply-button" data-job-id="{{ jobDetail.id }}" data-user-id="{{ app.user ? app.user.id : 0 }}">
+                    Apply
+                </button>
+                <button class="btn-save" id="save-button_{{ jobDetail.id }}" data-user-id="{{ app.user ? app.user.id : 0 }}" title="{{ app.user ? 'Save this job' : 'Sign in to save this job' }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                {% if app.user %}
+                <button class="btn-report" data-job-id="{{ jobDetail.id }}" data-user-id="{{ app.user.id }}" title="Report this job" data-bs-toggle="modal" data-bs-target="#reportModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                {% endif %}
+                <div title="Share this job" class="share-btn" data-job-id="{{ jobDetail.id }}" data-job-url="{{ path('app_jobs', {'id': jobDetail.id}) }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 5.12549 15.0077 5.24919 15.0227 5.37063L8.08261 9.79838C7.54305 9.29264 6.80891 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15C6.80891 15 7.54305 14.7074 8.08261 14.2016L15.0227 18.6294C15.0077 18.7508 15 18.8745 15 19C15 20.6569 16.3431 22 18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C17.1911 16 16.457 16.2926 15.9174 16.7984L8.97727 12.3706C8.99231 12.2492 9 12.1255 9 12C9 11.8745 8.99231 11.7508 8.97727 11.6294L15.9174 7.20162C16.457 7.70736 17.1911 8 18 8Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="share-dropdown">
+                        <div class="sharethis-inline-share-buttons" data-url="{{ path('app_jobs', {'id': jobDetail.id}) }}" data-title="{{ jobDetail.title }}"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="details content-area">
-        <h4>Job Descriptions</h4>
+        <div class="details content-area">
+            <h4>Job Descriptions</h4>
+            {{ jobDetail.description|raw }}
+        </div>
 
-        {{ jobDetail.description|raw }}
+        {% if jobDetail.employer %}
+        <div class="recruiter-contact">
+            <h3>Employer Contact Details</h3>
+            <div class="flex">
+                <div class="detail">
+                    <p><strong>Company Name:</strong> {{ jobDetail.employer.companyName }}</p>
+                    {% if jobDetail.employer.contactPersonName %}
+                    <p><strong>Contact Person:</strong> {{ jobDetail.employer.contactPersonName }}</p>
+                    {% endif %}
+                    {% if jobDetail.employer.phone1 %}
+                    <p><strong>Phone:</strong> {{ jobDetail.employer.phone1 }}{% if jobDetail.employer.phone2 %} / {{ jobDetail.employer.phone2 }}{% endif %}</p>
+                    {% endif %}
+                    {% if jobDetail.employer.contactEmail %}
+                    <p><strong>Email:</strong> {{ jobDetail.employer.contactEmail }}</p>
+                    {% endif %}
+                </div>
+                {% if app.user %}
+                <div class="chat">
+                    <a href="{{ path('app_provider_messages_new', {'id': jobDetail.employer.id}) }}" class="btn-chat">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M2.272 6.365C2 6.9 2 7.6 2 9v6c0 1.4 0 2.1.272 2.635a2.5 2.5 0 0 0 1.093 1.092C3.9 19 4.6 19 6 19h12c1.4 0 2.1 0 2.635-.273a2.5 2.5 0 0 0 1.092-1.092C22 17.1 22 16.4 22 15V9c0-1.4 0-2.1-.273-2.635a2.5 2.5 0 0 0-1.092-1.093C20.1 5 19.4 5 18 5H6c-1.4 0-2.1 0-2.635.272a2.5 2.5 0 0 0-1.093 1.093zM4.647 7h14.706a.5.5 0 0 1 .278.916l-7.075 4.732a1 1 0 0 1-1.112 0L4.369 7.916A.5.5 0 0 1 4.647 7z" fill="currentColor"/>
+                        </svg>
+                        <span class="msg-text">Message Employer</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
     </div>
-</div>
-<div class="block-buttons ">
-    <button class="th-btn" id="apply-button-below">
-        Apply
-    </button>
 </div>
 

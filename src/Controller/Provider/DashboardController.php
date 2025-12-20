@@ -19,6 +19,7 @@ use App\Repository\ToDoRepository;
 use App\Service\ProfileAnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\BookmarkRepository;
+use App\Repository\InterviewRepository;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +40,8 @@ class DashboardController extends AbstractController
         BookmarkRepository $bookmarkRepository,
 
         ProfileAnalyticsService $analyticsService,
-        ToDoRepository $todoRepository
+        ToDoRepository $todoRepository,
+        InterviewRepository $interviewRepository
     ): Response {
         $user = $this->getUser();
 
@@ -214,6 +216,19 @@ class DashboardController extends AbstractController
             return $b->getCreatedAt() <=> $a->getCreatedAt();
         });
 
+        $interviewsForDashboard = [];
+        if ($provider) {
+            $allInterviews = $interviewRepository->getProviderInterviews($provider->getId());
+            usort($allInterviews, function ($a, $b) {
+                return $a->getDate() <=> $b->getDate();
+            });
+            $now = new \DateTime();
+            $upcoming = array_filter($allInterviews, function ($iv) use ($now) {
+                return $iv->getDate() && $iv->getDate() >= $now;
+            });
+            $interviewsForDashboard = array_slice(!empty($upcoming) ? $upcoming : $allInterviews, 0, 5);
+        }
+
         return $this->render('provider/dashboard.html.twig', [
             'bookmarks' => $bookmarks,
             'matchingJobs' => $matchingJobs,
@@ -233,6 +248,7 @@ class DashboardController extends AbstractController
             'todos' => $finalTodos,
             'bundledDocumentRequests' => $documentRequestTodos, // Pass bundled data for popup
             'hasProvider' => $provider !== null,
+            'interviews' => $interviewsForDashboard,
         ]);
     }
 

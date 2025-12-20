@@ -453,6 +453,14 @@ class Job
             return '$' . number_format($this->payRateHourly, 2) . '/hour';
         }
 
+        // Respect explicit payRate choice if present
+        if ($this->payRate === 'Hourly' && $this->payRateHourly) {
+            return '$' . number_format($this->payRateHourly, 2) . '/hour';
+        }
+        if ($this->payRate === 'Daily' && $this->payRateDaily) {
+            return '$' . number_format($this->payRateDaily) . '/day';
+        }
+
         // Fallback: Check individual salary fields if salaryType is not set
         if ($this->annualSalary) {
             return '$' . number_format($this->annualSalary) . '/year';
@@ -462,12 +470,12 @@ class Job
             return '$' . number_format($this->monthlySalary) . '/month';
         }
 
-        if ($this->payRateDaily) {
-            return '$' . number_format($this->payRateDaily) . '/day';
-        }
-
         if ($this->payRateHourly) {
             return '$' . number_format($this->payRateHourly, 2) . '/hour';
+        }
+
+        if ($this->payRateDaily) {
+            return '$' . number_format($this->payRateDaily) . '/day';
         }
 
         // Check the old payRate field for backward compatibility

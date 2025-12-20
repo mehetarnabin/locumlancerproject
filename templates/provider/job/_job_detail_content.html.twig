@@ -88,5 +88,16 @@
         </div>
     </div>
 
-    {# Action buttons removed - handled by main action bar in saved jobs page #}
+    {# Apply Button - Only show Apply button, no Timeline button #}
+    <div class="block-buttons sticky-block-buttons" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e6eef6;">
+        {% if job.id|striptags not in appliedJobsIds %}
+            <button class="th-btn" id="apply-button-ajax" data-job-id="{{ job.id }}">
+                Apply
+            </button>
+        {% else %}
+            <button class="th-btn" style="background: #6b7280; cursor: not-allowed;" disabled>
+                Already Applied
+            </button>
+        {% endif %}
+    </div>
 </div>

@@ -13,6 +13,7 @@ use App\Repository\JobRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -177,5 +178,21 @@ class DashboardController extends AbstractController
             'skills' => $skills,
             'resume' => $resume,
         ]);
+    }
+
+    #[Route('/todos/{id}/toggle', name: 'app_employer_dashboard_todo_toggle', methods: ['POST'])]
+    public function toggleTodo(ToDo $todo, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        $employer = $user ? $user->getEmployer() : null;
+        
+        if (!$employer || $todo->getEmployer() !== $employer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $todo->setIsCompleted(!$todo->isCompleted());
+        $em->flush();
+
+        return $this->json(['success' => true, 'isCompleted' => $todo->isCompleted()]);
     }
 }

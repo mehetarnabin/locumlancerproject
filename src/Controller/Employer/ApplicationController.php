@@ -23,7 +23,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Address;
+use App\Entity\Document;
 
 #[Route('/employer/applications')]
 class ApplicationController extends AbstractController
@@ -50,7 +55,43 @@ class ApplicationController extends AbstractController
             'totalApplications' => $totalApplications,
         ]);
     }
-    
+
+    #[Route('/{id}/review-details', name: 'app_employer_application_review_details', methods: ['GET'])]
+    public function getReviewDetails(
+        Application $application,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $employer = $this->getUser()->getEmployer();
+        $provider = $application->getProvider();
+
+        $existingReview = $em->getRepository(Review::class)->findOneBy([
+            'application' => $application,
+            'employer' => $employer,
+            'provider' => $provider,
+            'reviewedBy' => 'EMPLOYER'
+        ]);
+
+        if ($existingReview) {
+            return $this->json([
+                'success' => true,
+                'hasReview' => true,
+                'review' => [
+                    'message' => $existingReview->getMessage(),
+                    'professionalism' => $existingReview->getProfessionalism(),
+                    'quality' => $existingReview->getQuality(),
+                    'communication' => $existingReview->getCommunication(),
+                    'emotional_intelligence' => $existingReview->getEmotionalIntelligence(),
+                    'date' => $existingReview->getCreatedAt() ? $existingReview->getCreatedAt()->format('M d, Y') : ''
+                ]
+            ]);
+        }
+
+        return $this->json([
+            'success' => true,
+            'hasReview' => false
+        ]);
+    }
+
     #[Route('/{id}/document-requests', name: 'app_employer_application_document_requests', methods: ['GET'])]
     public function applicationDocumentRequests(Application $application, EntityManagerInterface $em, Request $request): JsonResponse
     {
@@ -63,7 +104,8 @@ class ApplicationController extends AbstractController
             'application' => $application,
             'provider' => $provider
         ], ['createdAt' => 'DESC']);
-        $data = array_map(function (DocumentRequest $dr) {
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $data = array_map(function (DocumentRequest $dr) use ($projectDir) {
             $doc = $dr->getDocument();
             $docData = null;
             if ($doc) {
@@ -71,13 +113,20 @@ class ApplicationController extends AbstractController
                 if (!$path && $doc->getUser() && $doc->getFileName()) {
                     $path = '/uploads/' . $doc->getUser()->getId() . '/' . $doc->getFileName();
                 }
-                $docData = [
-                    'id' => (string)$doc->getId(),
-                    'name' => $doc->getDisplayName(),
-                    'mimeType' => $doc->getMimeType(),
-                    'filePath' => $path,
-                    'url' => $path
-                ];
+                
+                if ($path && !file_exists($projectDir . '/public' . $path)) {
+                    $path = null;
+                }
+
+                if ($path) {
+                    $docData = [
+                        'id' => (string)$doc->getId(),
+                        'name' => $doc->getDisplayName(),
+                        'mimeType' => $doc->getMimeType(),
+                        'filePath' => $path,
+                        'url' => $path
+                    ];
+                }
             }
             return [
                 'id' => (string)$dr->getId(),
@@ -90,12 +139,63 @@ class ApplicationController extends AbstractController
         $contractUrl = null;
         if ($application->getContractSignedFileName() || $application->getContractFileName()) {
             $file = $application->getContractSignedFileName() ?: $application->getContractFileName();
-            $contractUrl = $file ? ('/uploads/contracts/' . $file) : null;
+            if ($file) {
+                $filePath = $projectDir . '/public/uploads/contracts/' . $file;
+                if (file_exists($filePath)) {
+                    $contractUrl = '/uploads/contracts/' . $file;
+                }
+            }
         }
         return $this->json([
             'success' => true,
             'documentRequests' => $data,
             'contractUrl' => $contractUrl
+        ]);
+    }
+
+    #[Route('/{id}/interview-details', name: 'app_employer_application_interview_details', methods: ['GET'])]
+    public function getInterviewDetails(Application $application, EntityManagerInterface $em): JsonResponse
+    {
+        $currentEmployer = $this->getUser()->getEmployer();
+        if ($application->getEmployer() !== $currentEmployer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $interviews = $em->getRepository(Interview::class)->findBy(
+            ['application' => $application],
+            ['date' => 'ASC']
+        );
+
+        $data = array_map(function (Interview $iv) {
+            return [
+                'id' => (string) $iv->getId(),
+                'date' => $iv->getDate() ? $iv->getDate()->format('c') : null,
+                'end_date' => $iv->getEndDate() ? $iv->getEndDate()->format('c') : null,
+                'platform' => $iv->getMeetingPlatform(),
+                'url' => $iv->getMeetingUrl(),
+            ];
+        }, $interviews);
+
+
+
+        // Fetch Interview Reschedule Requests
+        $rescheduleRequests = $em->getRepository(Document::class)->findBy([
+            'application' => $application,
+            'category' => 'Interview Reschedule Request'
+        ], ['createdAt' => 'DESC']);
+
+        $requestsData = array_map(function (Document $doc) {
+            return [
+                'id' => (string) $doc->getId(),
+                'message' => $doc->getDescription(),
+                'date' => $doc->getCreatedAt()->format('M d, Y H:i'),
+            ];
+        }, $rescheduleRequests);
+
+        return $this->json([
+            'success' => true,
+            'interviews' => $data,
+            'rescheduleRequests' => $requestsData
         ]);
     }
 
@@ -200,7 +300,8 @@ class ApplicationController extends AbstractController
     }
 
     #[Route('/{id}/shcudule-interview', name: 'app_employer_application_scheduleinterview', methods: ['POST'])]
-    public function scheduleInterview(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
+
+    public function scheduleInterview(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher, MailerInterface $mailer): Response
     {
         $referer = $request->headers->get('referer');
         $currentEmployer = $this->getUser()->getEmployer();
@@ -210,6 +311,8 @@ class ApplicationController extends AbstractController
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
+        $startDates = $request->request->all('interview_start');
+        $endDates = $request->request->all('interview_end');
         $dates = $request->request->all('interview_dates');
         $singleDate = $request->request->get('interview_date') ?? $request->request->get('meeting_date');
         $platform = $request->request->get('meeting_platform') ?? $request->request->get('platform') ?? 'Interview';
@@ -218,7 +321,28 @@ class ApplicationController extends AbstractController
         $createdAny = false;
         $firstInterview = null;
 
-        if (is_array($dates) && count($dates) > 0) {
+        if (is_array($startDates) && count($startDates) > 0) {
+            foreach ($startDates as $index => $startStr) {
+                if (!$startStr) {
+                    continue;
+                }
+                $endStr = $endDates[$index] ?? null;
+
+                $interview = new Interview();
+                $interview->setDate(new \DateTime($startStr));
+                if ($endStr) {
+                    $interview->setEndDate(new \DateTime($endStr));
+                }
+                $interview->setMeetingUrl($url);
+                $interview->setMeetingPlatform($platform);
+                $interview->setApplication($application);
+                $em->persist($interview);
+                if (!$firstInterview) {
+                    $firstInterview = $interview;
+                }
+                $createdAny = true;
+            }
+        } elseif (is_array($dates) && count($dates) > 0) {
             foreach ($dates as $dateStr) {
                 if (!$dateStr) {
                     continue;
@@ -251,7 +375,12 @@ class ApplicationController extends AbstractController
         }
 
         if ($firstInterview) {
-            $application->setInterview($firstInterview);
+            // Do NOT automatically set the first interview as confirmed
+            // $application->setInterview($firstInterview);
+
+            if ($application->getStatus() !== 'interview') {
+                $application->setStatus('interview');
+            }
         }
 
         $em->persist($application);
@@ -259,7 +388,129 @@ class ApplicationController extends AbstractController
 
         $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_INTERVIEW_SCHEDULED);
 
+        // Send Email Notification to Provider and Employer
+        if ($firstInterview) {
+            try {
+                $jobTitle = $application->getJob()->getTitle();
+                $dateStr = $firstInterview->getDate()->format('M d, Y');
+                $timeStr = $firstInterview->getDate()->format('h:i A');
+                $platform = $firstInterview->getMeetingPlatform();
+                $meetingUrl = $firstInterview->getMeetingUrl();
+
+                $email = (new TemplatedEmail())
+                    ->from(new Address('support@locumlancer.com', 'LocumLancer Team')) // Replace with param if available
+                    ->subject('Interview Scheduled: ' . $jobTitle)
+                    ->htmlTemplate('emails/interview_scheduled.html.twig')
+                    ->context([
+                        'job_title' => $jobTitle,
+                        'date' => $dateStr,
+                        'time' => $timeStr,
+                        'platform' => $platform,
+                        'url' => $meetingUrl
+                    ]);
+
+                // Send to Provider
+                if ($application->getProvider() && $application->getProvider()->getEmail()) {
+                    $email->to($application->getProvider()->getEmail());
+                    $mailer->send($email);
+                }
+
+                // Send to Employer
+                if ($application->getEmployer() && $application->getEmployer()->getEmail()) {
+                    $email->to($application->getEmployer()->getEmail());
+                    $mailer->send($email);
+                }
+            } catch (\Exception $e) {
+                // Log error but don't fail request
+                // error_log($e->getMessage());
+            }
+        }
+
+        if ($request->isXmlHttpRequest()) {
+            $interviews = $em->getRepository(Interview::class)->findBy(['application' => $application], ['date' => 'ASC']);
+            $payload = array_map(function (Interview $iv) {
+                return [
+                    'id' => (string) $iv->getId(),
+                    'date' => $iv->getDate() ? $iv->getDate()->format('c') : null,
+                    'end_date' => $iv->getEndDate() ? $iv->getEndDate()->format('c') : null,
+                    'platform' => $iv->getMeetingPlatform(),
+                    'url' => $iv->getMeetingUrl(),
+                ];
+            }, $interviews);
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Interview schedule sent successfully.',
+                'interviews' => $payload
+            ]);
+        }
+
         $this->addFlash('success', 'Interview schedule sent successfully.');
+        return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+    }
+
+    #[Route('/{id}/update-interview/{interviewId}', name: 'app_employer_application_updateinterview', methods: ['POST'])]
+    public function updateInterview(
+        Application $application,
+        string $interviewId,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher
+    ): Response {
+        $referer = $request->headers->get('referer');
+        $currentEmployer = $this->getUser()->getEmployer();
+
+        if ($application->getEmployer() !== $currentEmployer) {
+            $this->addFlash('error', "You don't have access to this application.");
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+        }
+
+        $interview = $em->getRepository(Interview::class)->find($interviewId);
+
+        if (!$interview || $interview->getApplication()->getId() !== $application->getId()) {
+            $this->addFlash('error', 'Interview not found.');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+        }
+
+        $singleDate = $request->request->get('interview_date') ?? $request->request->get('meeting_date');
+        $platform = $request->request->get('meeting_platform') ?? $request->request->get('platform') ?? 'Interview';
+        $url = $request->request->get('meeting_url') ?? $request->request->get('link');
+
+        if ($singleDate) {
+            $interview->setDate(new \DateTime($singleDate));
+            $interview->setMeetingUrl($url);
+            $interview->setMeetingPlatform($platform);
+
+            $em->persist($interview);
+            $em->flush();
+
+            if ($request->isXmlHttpRequest()) {
+                $interviews = $em->getRepository(Interview::class)->findBy(['application' => $application], ['date' => 'ASC']);
+                $payload = array_map(function (Interview $iv) {
+                    return [
+                        'id' => (string) $iv->getId(),
+                        'date' => $iv->getDate() ? $iv->getDate()->format('c') : null,
+                        'platform' => $iv->getMeetingPlatform(),
+                        'url' => $iv->getMeetingUrl(),
+                    ];
+                }, $interviews);
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => 'Interview updated successfully.',
+                    'interviews' => $payload
+                ]);
+            }
+
+            $this->addFlash('success', 'Interview updated successfully.');
+        } else {
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Interview date is required.'
+                ]);
+            }
+            $this->addFlash('error', 'Interview date is required.');
+        }
+
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
     }
 
@@ -515,6 +766,10 @@ class ApplicationController extends AbstractController
             if ($application->getEmployer() !== $employer) {
                 continue;
             }
+            // Remove dependent reviews to satisfy FK constraints
+            foreach ($em->getRepository(Review::class)->findBy(['application' => $application]) as $review) {
+                $em->remove($review);
+            }
             $em->remove($application);
             $count++;
         }
@@ -538,10 +793,118 @@ class ApplicationController extends AbstractController
             return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
         }
 
+        // Remove dependent reviews to satisfy FK constraints
+        foreach ($em->getRepository(Review::class)->findBy(['application' => $application]) as $review) {
+            $em->remove($review);
+        }
         $em->remove($application);
         $em->flush();
 
         $this->addFlash('success', 'Application deleted successfully.');
         return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
+    }
+
+    #[Route('/update-rank', name: 'app_employer_update_application_rank', methods: ['POST'])]
+    public function updateRank(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+
+            if (!isset($data['applicationId'], $data['rank'])) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Invalid request data'
+                ], 400);
+            }
+
+            $rank = floatval($data['rank']);
+            if ($rank < 1) $rank = 1;
+            if ($rank > 10) $rank = 10;
+
+            $applicationId = Uuid::fromString($data['applicationId']);
+            $application = $em->getRepository(Application::class)->find($applicationId);
+
+            if (!$application) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            // Verify the application belongs to the current employer
+            $employer = $this->getUser()->getEmployer();
+            if ($application->getJob()->getEmployer()->getId() !== $employer->getId()) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
+
+            // Use raw SQL to properly escape the rank column name (MySQL reserved keyword)
+            // Detach entity first to prevent Doctrine listeners from interfering
+            $em->detach($application);
+
+            $connection = $em->getConnection();
+            $now = (new \DateTime())->format('Y-m-d H:i:s');
+            $idBinary = $applicationId->toBinary();
+            $rankStr = (string)$rank;
+
+            // Get the actual PDO connection from Doctrine's connection wrapper
+            $wrappedConnection = $connection->getWrappedConnection();
+
+            // Handle different connection wrapper types
+            if (method_exists($wrappedConnection, 'getWrappedConnection')) {
+                $pdo = $wrappedConnection->getWrappedConnection();
+            } elseif ($wrappedConnection instanceof \PDO) {
+                $pdo = $wrappedConnection;
+            } else {
+                // Fallback: try to get native connection
+                if (method_exists($connection, 'getNativeConnection')) {
+                    $pdo = $connection->getNativeConnection();
+                } else {
+                    // Last resort: use connection params to create new PDO
+                    $params = $connection->getParams();
+                    $dsn = sprintf(
+                        'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                        $params['host'] ?? 'localhost',
+                        $params['port'] ?? 3306,
+                        $params['dbname'] ?? ''
+                    );
+                    $pdo = new \PDO($dsn, $params['user'] ?? '', $params['password'] ?? '');
+                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                }
+            }
+
+            // Ensure we have a PDO instance
+            if (!$pdo instanceof \PDO) {
+                throw new \RuntimeException('Could not obtain PDO connection');
+            }
+
+            // Execute raw SQL with backticks using PDO directly
+            // Backticks MUST be preserved - this bypasses all Doctrine processing
+            $sql = "UPDATE `b_application` SET `rank` = :rank_val, `updated_at` = :updated_at WHERE `id` = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':rank_val', $rankStr, \PDO::PARAM_STR);
+            $stmt->bindValue(':updated_at', $now, \PDO::PARAM_STR);
+            $stmt->bindValue(':id', $idBinary, \PDO::PARAM_STR);
+            $stmt->execute();
+
+            // Clear the entity manager to ensure fresh data on next fetch
+            $em->clear();
+
+            // Re-fetch the entity to get updated values
+            $application = $em->getRepository(Application::class)->find($applicationId);
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Score updated successfully',
+                'rank' => $application->getRank()
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error updating score: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

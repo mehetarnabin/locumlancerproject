@@ -87,6 +87,65 @@
         }
       }
 
+      var type = (wrapperEl && wrapperEl.getAttribute) ? (wrapperEl.getAttribute('data-todo-type') || '') : '';
+      if (type === 'interview') {
+          var interviewsJson = (wrapperEl && wrapperEl.getAttribute) ? wrapperEl.getAttribute('data-interviews') : '[]';
+          var interviews = [];
+          try { interviews = JSON.parse(interviewsJson); } catch(e){}
+          
+          if (!interviews || !interviews.length) {
+              var d = (wrapperEl && wrapperEl.getAttribute) ? wrapperEl.getAttribute('data-interview-date') : '';
+              if (d) {
+                  interviews.push({
+                      date: d,
+                      url: (wrapperEl && wrapperEl.getAttribute) ? wrapperEl.getAttribute('data-interview-url') : '',
+                      platform: (wrapperEl && wrapperEl.getAttribute) ? wrapperEl.getAttribute('data-interview-platform') : ''
+                  });
+              }
+          }
+          
+          var modalId = 'interviewDetailsModal';
+          var m = document.getElementById(modalId);
+          if (!m) {
+              m = document.createElement('div');
+              m.id = modalId;
+              m.className = 'modal fade';
+              m.setAttribute('tabindex', '-1');
+              m.innerHTML = '<div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Interview Details</h5><button type="button" class="btn-close close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div><div class="modal-body"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button></div></div></div>';
+              document.body.appendChild(m);
+          }
+          
+          var body = m.querySelector('.modal-body');
+          if (body) {
+              if (interviews.length > 0) {
+                  var html = '<ul class="list-group">';
+                  interviews.forEach(function(iv){
+                      var when = iv.date ? new Date(iv.date) : null;
+                      var endWhen = iv.end_date ? new Date(iv.end_date) : null;
+                      var dateStr = when ? when.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' }) : 'TBD';
+                      var timeStr = when ? when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                      var endTimeStr = endWhen ? endWhen.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                      html += '<li class="list-group-item">';
+                      html += '<strong>' + dateStr + '</strong>';
+                      if (timeStr || endTimeStr) {
+                          html += '<br><span class="badge bg-info" style="font-size:13px;">' + (iv.platform || 'Interview') + ' • ' + (timeStr ? ('From ' + timeStr) : 'From Not Set') + (endTimeStr ? (' — To ' + endTimeStr) : ' — To Not Set') + '</span>';
+                      } else if (iv.platform) {
+                          html += '<br><small class="text-muted">' + iv.platform + '</small>';
+                      }
+                      if (iv.url) html += '<br><a href="' + iv.url + '" target="_blank" class="btn btn-sm btn-primary mt-2">Join Meeting</a>';
+                      html += '</li>';
+                  });
+                  html += '</ul>';
+                  body.innerHTML = html;
+              } else {
+                  body.innerHTML = '<p>No interview details available.</p>';
+              }
+          }
+          
+          forceShow(m);
+          return;
+      }
+
       console.log('Open To-Do modal', { appId: appId, jobId: jobId, desiredNames: desiredNames });
       var assignedModalEl = document.getElementById('assignedDocsModal');
       if (!assignedModalEl) {
@@ -631,8 +690,10 @@
                 row.style.padding = '15px';
                 row.style.borderBottom = '1px solid #dee2e6';
                 var when = ev.start ? new Date(ev.start) : null;
+                var endWhen = ev.end ? new Date(ev.end) : null;
                 var dateStr = when ? when.toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' }) : '';
                 var timeStr = when ? when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                var endTimeStr = endWhen ? endWhen.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 var title = document.createElement('div');
                 title.textContent = (ev.jobTitle ? (ev.jobTitle + ' • ') : '') + (ev.title || 'Interview');
                 title.style.fontSize = '16px';
@@ -642,9 +703,14 @@
                 meta.className = 'd-flex align-items-center';
                 meta.style.marginBottom = '10px';
                 var badge = document.createElement('span');
-                badge.className = 'badge bg-info';
-                badge.style.fontSize = '13px';
-                badge.textContent = (ev.platform || 'Platform') + (dateStr ? (' • ' + dateStr) : '') + (timeStr ? (' • ' + timeStr) : '');
+                badge.className = 'badge rounded-pill';
+                badge.style.fontSize = '12px';
+                badge.style.fontWeight = '600';
+                badge.style.background = '#eef2ff';
+                badge.style.color = '#111827';
+                badge.style.border = '1px solid #c7d2fe';
+                badge.style.padding = '4px 8px';
+                badge.textContent = (ev.platform || 'Platform') + (dateStr ? (' • ' + dateStr) : '') + (' • ' + (timeStr ? ('From ' + timeStr) : 'From Not Set') + (endTimeStr ? (' — To ' + endTimeStr) : ' — To Not Set'));
                 meta.appendChild(badge);
                 row.appendChild(title);
                 row.appendChild(meta);
