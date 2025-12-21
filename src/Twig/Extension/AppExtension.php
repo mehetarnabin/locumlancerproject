@@ -23,6 +23,7 @@ class AppExtension extends AbstractExtension
     {
         return [
             new TwigFunction('function_name', [AppExtensionRuntime::class, 'doSomething']),
+            new TwigFunction('file_exists', [AppExtensionRuntime::class, 'fileExists']),
             new TwigFunction('getProfessions', [AppExtensionRuntime::class, 'getProfessions']),
             new TwigFunction('getSpecialities', [AppExtensionRuntime::class, 'getSpecialities']),
             new TwigFunction('getUSStates', [AppExtensionRuntime::class, 'getUSStates']),

@@ -9,12 +9,16 @@ use App\Entity\Speciality;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class AppExtensionRuntime implements RuntimeExtensionInterface
 {
-    public function __construct(private EntityManagerInterface $em, private Security $security)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private Security $security,
+        #[Autowire('%kernel.project_dir%')] private ?string $projectDir = null
+    ) {
         // Inject dependencies if needed
     }
 
@@ -23,16 +27,26 @@ class AppExtensionRuntime implements RuntimeExtensionInterface
         // ...
     }
 
+    public function fileExists(string $path): bool
+    {
+        // Handle stale cache where projectDir might not be injected
+        $rootDir = $this->projectDir ?? dirname(__DIR__, 3);
+
+        // Remove leading slash if present to ensure correct path joining
+        $path = ltrim($path, '/\\');
+        return file_exists($rootDir . '/public/' . $path);
+    }
+
     public function getProfessions()
     {
         return $this->em->getRepository(Profession::class)->findBy([], ['position' => 'ASC']);
     }
 
-    public function getSpecialities($profession=null)
+    public function getSpecialities($profession = null)
     {
-        if(empty($profession)) {
+        if (empty($profession)) {
             return $this->em->getRepository(Speciality::class)->findBy([], ['name' => 'ASC']);
-        }else{
+        } else {
             return $this->em->getRepository(Speciality::class)->findBy(['profession' => $profession], ['name' => 'ASC']);
         }
     }

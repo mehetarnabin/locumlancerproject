@@ -542,15 +542,27 @@
                     </button>
                 </div>
                 <div class="modal-body" style="padding: 0; height: calc(100% - 60px);">
-                    {% set filePath = asset('uploads/' ~ provider.user.id ~ '/' ~ provider.cvFilename) %}
-                    {% if provider.cvFilename ends with '.pdf' %}
-                        <iframe src="{{ filePath }}" width="100%" height="100%" style="border: none;"></iframe>
+                    {% set relativePath = 'uploads/' ~ provider.user.id ~ '/' ~ provider.cvFilename %}
+                    {% set filePath = asset(relativePath) %}
+                    
+                    {% if file_exists(relativePath) %}
+                        {% if provider.cvFilename ends with '.pdf' %}
+                            <iframe src="{{ filePath }}" width="100%" height="100%" style="border: none;"></iframe>
+                        {% else %}
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                                <p style="color: #000000; margin-bottom: 12px; font-size: 16px;"><strong>This file type cannot be previewed directly in the modal.</strong></p>
+                                <a href="{{ filePath }}" class="btn btn-primary" target="_blank" download style="background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-block;">
+                                    <i class="fas fa-download"></i> Download {{ provider.cvFilename }}
+                                </a>
+                            </div>
+                        {% endif %}
                     {% else %}
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-                            <p style="color: #000000; margin-bottom: 12px; font-size: 16px;"><strong>This file type cannot be previewed directly in the modal.</strong></p>
-                            <a href="{{ filePath }}" class="btn btn-primary" target="_blank" download style="background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; display: inline-block;">
-                                <i class="fas fa-download"></i> Download {{ provider.cvFilename }}
-                            </a>
+                            <div style="text-align: center; color: #ef4444; margin-bottom: 16px;">
+                                <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 12px;"></i>
+                                <p style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">File Not Found</p>
+                                <p style="font-size: 14px; color: #666; max-width: 300px;">The requested file "{{ provider.cvFilename }}" could not be found on the server.</p>
+                            </div>
                         </div>
                     {% endif %}
                 </div>

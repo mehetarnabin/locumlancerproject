@@ -113,7 +113,7 @@ class ApplicationController extends AbstractController
                 if (!$path && $doc->getUser() && $doc->getFileName()) {
                     $path = '/uploads/' . $doc->getUser()->getId() . '/' . $doc->getFileName();
                 }
-                
+
                 if ($path && !file_exists($projectDir . '/public' . $path)) {
                     $path = null;
                 }
@@ -801,110 +801,50 @@ class ApplicationController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'Application deleted successfully.');
-        return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
+
+        return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId()]);
     }
 
-    #[Route('/update-rank', name: 'app_employer_update_application_rank', methods: ['POST'])]
+    #[Route('/update-rank', name: 'app_employer_application_update_rank', methods: ['POST'])]
     public function updateRank(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
+        $payload = json_decode($request->getContent(), true);
+        $applicationId = $payload['applicationId'] ?? null;
+        $rankValue = $payload['rank'] ?? null;
 
-            if (!isset($data['applicationId'], $data['rank'])) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Invalid request data'
-                ], 400);
-            }
-
-            $rank = floatval($data['rank']);
-            if ($rank < 1) $rank = 1;
-            if ($rank > 10) $rank = 10;
-
-            $applicationId = Uuid::fromString($data['applicationId']);
-            $application = $em->getRepository(Application::class)->find($applicationId);
-
-            if (!$application) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Application not found'
-                ], 404);
-            }
-
-            // Verify the application belongs to the current employer
-            $employer = $this->getUser()->getEmployer();
-            if ($application->getJob()->getEmployer()->getId() !== $employer->getId()) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-
-            // Use raw SQL to properly escape the rank column name (MySQL reserved keyword)
-            // Detach entity first to prevent Doctrine listeners from interfering
-            $em->detach($application);
-
-            $connection = $em->getConnection();
-            $now = (new \DateTime())->format('Y-m-d H:i:s');
-            $idBinary = $applicationId->toBinary();
-            $rankStr = (string)$rank;
-
-            // Get the actual PDO connection from Doctrine's connection wrapper
-            $wrappedConnection = $connection->getWrappedConnection();
-
-            // Handle different connection wrapper types
-            if (method_exists($wrappedConnection, 'getWrappedConnection')) {
-                $pdo = $wrappedConnection->getWrappedConnection();
-            } elseif ($wrappedConnection instanceof \PDO) {
-                $pdo = $wrappedConnection;
-            } else {
-                // Fallback: try to get native connection
-                if (method_exists($connection, 'getNativeConnection')) {
-                    $pdo = $connection->getNativeConnection();
-                } else {
-                    // Last resort: use connection params to create new PDO
-                    $params = $connection->getParams();
-                    $dsn = sprintf(
-                        'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
-                        $params['host'] ?? 'localhost',
-                        $params['port'] ?? 3306,
-                        $params['dbname'] ?? ''
-                    );
-                    $pdo = new \PDO($dsn, $params['user'] ?? '', $params['password'] ?? '');
-                    $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                }
-            }
-
-            // Ensure we have a PDO instance
-            if (!$pdo instanceof \PDO) {
-                throw new \RuntimeException('Could not obtain PDO connection');
-            }
-
-            // Execute raw SQL with backticks using PDO directly
-            // Backticks MUST be preserved - this bypasses all Doctrine processing
-            $sql = "UPDATE `b_application` SET `rank` = :rank_val, `updated_at` = :updated_at WHERE `id` = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindValue(':rank_val', $rankStr, \PDO::PARAM_STR);
-            $stmt->bindValue(':updated_at', $now, \PDO::PARAM_STR);
-            $stmt->bindValue(':id', $idBinary, \PDO::PARAM_STR);
-            $stmt->execute();
-
-            // Clear the entity manager to ensure fresh data on next fetch
-            $em->clear();
-
-            // Re-fetch the entity to get updated values
-            $application = $em->getRepository(Application::class)->find($applicationId);
-
-            return $this->json([
-                'success' => true,
-                'message' => 'Score updated successfully',
-                'rank' => $application->getRank()
-            ]);
-        } catch (\Exception $e) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Error updating score: ' . $e->getMessage()
-            ], 500);
+        if (!$applicationId) {
+            return $this->json(['success' => false, 'message' => 'Application ID is required'], 400);
         }
+
+        try {
+            $uuid = Uuid::fromString($applicationId);
+        } catch (\Throwable $e) {
+            return $this->json(['success' => false, 'message' => 'Invalid Application ID'], 400);
+        }
+
+        $application = $em->getRepository(Application::class)->find($uuid);
+
+        if (!$application) {
+            return $this->json(['success' => false, 'message' => 'Application not found'], 404);
+        }
+
+        if ($application->getEmployer() !== $this->getUser()->getEmployer()) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Validate rank
+        if (!is_numeric($rankValue)) {
+            return $this->json(['success' => false, 'message' => 'Invalid rank value'], 400);
+        }
+
+        $application->setRank((string)$rankValue);
+        $em->persist($application);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Score updated successfully',
+            'rank' => $rankValue
+        ]);
     }
 }
