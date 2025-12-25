@@ -25,7 +25,7 @@ class Package
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\Column(length: 50)]
@@ -192,7 +192,7 @@ class Package
 
     public function getTypeLabel(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_SILVER => 'Silver',
             self::TYPE_GOLD => 'Gold',
             self::TYPE_DIAMOND => 'Diamond',
@@ -202,7 +202,7 @@ class Package
 
     public function getTargetLabel(): string
     {
-        return match($this->target) {
+        return match ($this->target) {
             self::TARGET_PROVIDER => 'Provider',
             self::TARGET_EMPLOYER => 'Employer',
             self::TARGET_RECRUITER => 'Recruiter',

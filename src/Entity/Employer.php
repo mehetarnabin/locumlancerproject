@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\EmployerRepository;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Uid\Uuid;
@@ -15,7 +16,7 @@ class Employer
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -53,6 +54,9 @@ class Employer
 
     #[ORM\OneToMany(targetEntity: Application::class,  mappedBy: 'employer')]
     private Collection $applications;
+
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    private $notificationPreferences = [];
 
     use TimestampableEntity;
 
@@ -197,5 +201,15 @@ class Employer
     public function getApplications(): Collection
     {
         return $this->applications;
+    }
+
+    public function getNotificationPreferences(): ?array
+    {
+        return $this->notificationPreferences;
+    }
+
+    public function setNotificationPreferences(?array $notificationPreferences): void
+    {
+        $this->notificationPreferences = $notificationPreferences;
     }
 }

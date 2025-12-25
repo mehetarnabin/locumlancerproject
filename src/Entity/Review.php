@@ -14,7 +14,7 @@ class Review
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne]
@@ -25,7 +25,7 @@ class Review
     #[ORM\JoinColumn(nullable: false)]
     private ?Employer $employer = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Application::class, inversedBy: 'reviews')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Application $application = null;
 

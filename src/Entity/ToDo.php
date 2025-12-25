@@ -14,10 +14,10 @@ class ToDo
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Provider::class, inversedBy: 'todos')]
+    #[ORM\ManyToOne(targetEntity: Provider::class)]
     #[ORM\JoinColumn(name: 'provider_id', nullable: false)]
     private ?Provider $provider = null;
 

@@ -25,7 +25,8 @@ class ApplicationRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->join('a.job', 'j')                 // ✅ join related Job
             ->leftJoin('a.documentRequests', 'dr')
-            ->addSelect('dr')
+            ->leftJoin('a.reviews', 'r')
+            ->addSelect('dr', 'r')
             ->where('1 = 1')
             ->addOrderBy('dr.createdAt', 'DESC'); // Explicit ordering to prevent status field access
         // Exclude archived applications
@@ -72,6 +73,36 @@ class ApplicationRepository extends ServiceEntityRepository
                 ->setParameter('date', $date);
         }
 
+        // Job ID filter
+        if (!empty($filters['jobId'])) {
+            try {
+                $jobIdUuid = \Symfony\Component\Uid\Uuid::fromString($filters['jobId']);
+                $qb->andWhere('j.id = :jobId')
+                    ->setParameter('jobId', $jobIdUuid, UuidType::NAME);
+            } catch (\Exception $e) {
+                // If jobId is not a valid UUID, try matching by job ID string
+                $qb->andWhere('j.jobId LIKE :jobId')
+                    ->setParameter('jobId', '%' . $filters['jobId'] . '%');
+            }
+        }
+
+        // Category/Work Type filter
+        if (!empty($filters['category'])) {
+            $category = strtolower($filters['category']);
+            if ($category === 'locums') {
+                $qb->andWhere('j.workType = :workType')
+                    ->setParameter('workType', 'locums');
+            } elseif ($category === 'parttime' || $category === 'part-time') {
+                $qb->andWhere('(j.workType = :workType1 OR j.workType = :workType2)')
+                    ->setParameter('workType1', 'parttime')
+                    ->setParameter('workType2', 'part-time');
+            } elseif ($category === 'fulltime' || $category === 'full-time') {
+                $qb->andWhere('(j.workType = :workType1 OR j.workType = :workType2)')
+                    ->setParameter('workType1', 'fulltime')
+                    ->setParameter('workType2', 'full-time');
+            }
+        }
+
         $qb->orderBy('a.id', 'DESC');
 
         $pagerfanta = new Pagerfanta(new QueryAdapter($qb));
@@ -113,6 +144,7 @@ class ApplicationRepository extends ServiceEntityRepository
             ->andWhere('a.archivedAt IS NULL')
             ->groupBy('a.status')
             ->getQuery()
+            ->setCacheable(false) // Disable cache to ensure fresh counts
             ->getResult();
     }
 

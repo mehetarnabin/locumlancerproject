@@ -540,48 +540,85 @@ class MessageController extends AbstractController
         SluggerInterface $slugger,
         #[Autowire('%messages_attachments_directory%')] string $uploadDirectory
     ): JsonResponse {
-        $user = $this->getUser();
+        try {
+            $user = $this->getUser();
 
-        // Security check
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        $reply = new Message();
-        $reply->setParent($message);
-        $reply->setEmployer($message->getEmployer());
-        $reply->setSender($user);
-
-        // Set receiver - if user is sender, reply goes to original receiver, and vice versa
-        if ($message->getSender()->getId() === $user->getId()) {
-            $reply->setReceiver($message->getReceiver());
-        } else {
-            $reply->setReceiver($message->getSender());
-        }
-
-        $reply->setText($request->request->get('message'));
-
-        if ($file = $request->files->get('attachment')) {
-            $safeFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-            $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
-
-            try {
-                $file->move($uploadDirectory, $newFilename);
-                $reply->setAttachment($newFilename);
-            } catch (FileException $e) {
-                return new JsonResponse(['error' => 'File upload failed.'], 500);
+            // Security check
+            if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+                return new JsonResponse(['success' => false, 'error' => 'Access denied'], 403);
             }
+
+            $messageText = $request->request->get('message');
+            if (empty(trim($messageText))) {
+                return new JsonResponse(['success' => false, 'error' => 'Message is required'], 400);
+            }
+
+            $reply = new Message();
+            $reply->setParent($message);
+            $reply->setEmployer($message->getEmployer());
+            $reply->setSender($user);
+            $reply->setSubject($message->getSubject() ? ('Re: ' . $message->getSubject()) : 'Re: Message');
+            $reply->setIsDraft(false);
+            $reply->setSentAt(new \DateTime());
+            $reply->setSeen(false);
+
+            // Set receiver - if user is sender, reply goes to original receiver, and vice versa
+            if ($message->getSender()->getId() === $user->getId()) {
+                $reply->setReceiver($message->getReceiver());
+            } else {
+                $reply->setReceiver($message->getSender());
+            }
+
+            $reply->setText($messageText);
+
+            if ($file = $request->files->get('attachment')) {
+                $safeFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+                try {
+                    if (!is_dir($uploadDirectory)) {
+                        mkdir($uploadDirectory, 0755, true);
+                    }
+                    $file->move($uploadDirectory, $newFilename);
+                    $reply->setAttachment($newFilename);
+                } catch (FileException $e) {
+                    return new JsonResponse(['success' => false, 'error' => 'File upload failed: ' . $e->getMessage()], 500);
+                }
+            }
+
+            $em->persist($reply);
+            $em->flush();
+
+            // Dispatch event and send email (non-blocking)
+            try {
+                $dispatcher->dispatch(new MessageEvent($reply), MessageEvent::MESSAGE_CREATED);
+            } catch (\Exception $e) {
+                error_log('Error dispatching message event: ' . $e->getMessage());
+            }
+
+            // Try to render reply HTML, fallback to empty string if template doesn't exist
+            $replyHtml = '';
+            try {
+                $replyHtml = $this->renderView('provider/message/_reply_item.html.twig', ['reply' => $reply]);
+            } catch (\Exception $e) {
+                error_log('Error rendering reply template: ' . $e->getMessage());
+                // Return success anyway since message is saved
+            }
+
+            return new JsonResponse([
+                'success' => true,
+                'replyHtml' => $replyHtml,
+                'message_id' => $reply->getId()->toRfc4122()
+            ]);
+        } catch (\Exception $e) {
+            error_log('Error in ajaxReply: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Error sending reply: ' . $e->getMessage()
+            ], 500);
         }
-
-        $em->persist($reply);
-        $em->flush();
-
-        $dispatcher->dispatch(new MessageEvent($reply), MessageEvent::MESSAGE_CREATED);
-
-        return new JsonResponse([
-            'success' => true,
-            'replyHtml' => $this->renderView('provider/message/_reply_item.html.twig', ['reply' => $reply])
-        ]);
     }
 
     #[Route('/message/{id}/delete', name: 'app_provider_message_delete', methods: ['POST', 'DELETE'])]

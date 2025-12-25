@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity;
 
 use App\Repository\ArchiveRepository;
@@ -11,7 +12,7 @@ class Archive
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue('CUSTOM')]
-    #[ORM\CustomIdGenerator(class: \Doctrine\Bundle\DoctrineBundle\IdGenerator\UuidGenerator::class)]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]

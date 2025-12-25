@@ -19,7 +19,7 @@ class Payment
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne(targetEntity: Package::class)]
@@ -139,11 +139,11 @@ class Payment
     public function setStatus(string $status): self
     {
         $this->status = $status;
-        
+
         if ($status === self::STATUS_COMPLETED && !$this->completedAt) {
             $this->completedAt = new \DateTime();
         }
-        
+
         return $this;
     }
 

@@ -19,12 +19,43 @@ final class Version20251216AddDocumentFields extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE b_document ADD application_id BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', ADD provider_id BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid)\', ADD file_path VARCHAR(255) DEFAULT NULL, ADD description LONGTEXT DEFAULT NULL');
-        $this->addSql('ALTER TABLE b_document ADD CONSTRAINT FK_1520DF103E030ACD FOREIGN KEY (application_id) REFERENCES b_application (id) ON DELETE SET NULL');
-        $this->addSql('ALTER TABLE b_document ADD CONSTRAINT FK_6CD4C1FA6DCFD9E FOREIGN KEY (provider_id) REFERENCES b_user (id) ON DELETE SET NULL');
-        $this->addSql('CREATE INDEX IDX_1520DF103E030ACD ON b_document (application_id)');
-        $this->addSql('CREATE INDEX IDX_6CD4C1FA6DCFD9E ON b_document (provider_id)');
+        $connection = $this->connection;
+        $sm = $connection->createSchemaManager();
+        $columns = $sm->listTableColumns('b_document');
+        $columnNames = array_map(fn($col) => $col->getName(), $columns);
+        
+        // Add application_id if it doesn't exist
+        if (!in_array('application_id', $columnNames)) {
+            $this->addSql('ALTER TABLE b_document ADD application_id BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid)\'');
+        }
+        
+        // Add provider_id if it doesn't exist
+        if (!in_array('provider_id', $columnNames)) {
+            $this->addSql('ALTER TABLE b_document ADD provider_id BINARY(16) DEFAULT NULL COMMENT \'(DC2Type:uuid)\'');
+        }
+        
+        // Add file_path if it doesn't exist
+        if (!in_array('file_path', $columnNames)) {
+            $this->addSql('ALTER TABLE b_document ADD file_path VARCHAR(255) DEFAULT NULL');
+        }
+        
+        // Add description if it doesn't exist
+        if (!in_array('description', $columnNames)) {
+            $this->addSql('ALTER TABLE b_document ADD description LONGTEXT DEFAULT NULL');
+        }
+        
+        // Check for indexes
+        $indexes = $sm->listTableIndexes('b_document');
+        $indexNames = array_map(fn($idx) => $idx->getName(), $indexes);
+        
+        // Add indexes if they don't exist (for performance, foreign keys can be added separately if needed)
+        if (in_array('application_id', $columnNames) && !in_array('IDX_1520DF103E030ACD', $indexNames)) {
+            $this->addSql('CREATE INDEX IDX_1520DF103E030ACD ON b_document (application_id)');
+        }
+        
+        if (in_array('provider_id', $columnNames) && !in_array('IDX_6CD4C1FA6DCFD9E', $indexNames)) {
+            $this->addSql('CREATE INDEX IDX_6CD4C1FA6DCFD9E ON b_document (provider_id)');
+        }
     }
 
     public function down(Schema $schema): void

@@ -866,11 +866,19 @@
             const userId = '{{ app.user ? app.user.id : 0 }}';
             if(userId == 0){
                 showToast('error', 'Please login to apply this job. Redirecting to login page..');
+                window.setTimeout(function(){
+                    window.location.href = "{{ path('app_login') }}";
+                }, 1000);
+                return;
             }
-            applyForJob(userId, jobId);
-            window.setTimeout(function(){
-                window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
-            }, 1000);
+            if (confirm('Are you sure you want to apply for this job?')) {
+                applyForJob(userId, jobId).then(() => {
+                    // Redirect after successful apply
+                    window.setTimeout(function(){
+                        window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
+                    }, 1500);
+                });
+            }
         });
         const applyBtnBottom = document.getElementById("apply-button-below");
         if (applyBtnBottom) applyBtnBottom.addEventListener("click", function () {
@@ -883,27 +891,141 @@
                 }, 1000);
                 return;
             }
-            applyForJob(userId, jobId);
-            window.setTimeout(function(){
-                window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
-            }, 1000);
+            if (confirm('Are you sure you want to apply for this job?')) {
+                applyForJob(userId, jobId).then(() => {
+                    // Redirect after successful apply
+                    window.setTimeout(function(){
+                        window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
+                    }, 1500);
+                });
+            }
         });
-        function applyForJob(userId, jobId) {
-            fetch("{{ path('app_job_apply', {'id': jobDetail.id}) }}", {
-                method: "POST",
+        function applyForJob(userId, jobId, redirectRoute = 'app_provider_jobs_applications') {
+            if (!jobId) {
+                showToast('error', 'Job ID is missing');
+                return Promise.reject('Job ID is missing');
+            }
+            
+            // Use the correct route: /provider/jobs/apply/{id}
+            const applyUrl = `/provider/jobs/apply/${jobId}?redirect_route=${redirectRoute}&ajax=1`;
+            
+            return fetch(applyUrl, {
+                method: "GET",
                 headers: {
-                    "Content-Type": "application/json",
                     "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
                 },
-                body: JSON.stringify({userId: userId, jobId: jobId}),
             })
-            .then((response) => response.json())
+            .then((response) => {
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                }
+                // If redirected or HTML response, treat as success
+                if (response.redirected || response.ok) {
+                    return { status: 'success', message: 'Job applied successfully' };
+                }
+                throw new Error('Failed to apply for job');
+            })
             .then((data) => {
-                showToast(data.status, data.message);
+                if (data.status === 'success') {
+                    showToast('success', data.message || 'Applied for job successfully');
+                    // Update button state if it exists
+                    const applyBtn = document.getElementById('apply-button') || document.getElementById('apply-button-below') || document.getElementById('apply-button-ajax');
+                    if (applyBtn) {
+                        applyBtn.disabled = true;
+                        applyBtn.textContent = 'Already Applied';
+                        applyBtn.style.background = '#6b7280';
+                        applyBtn.style.cursor = 'not-allowed';
+                    }
+                    return data;
+                } else {
+                    throw new Error(data.message || 'Failed to apply for job');
+                }
             })
             .catch((error) => {
-                showToast('error', error);
+                console.error('Apply error:', error);
+                showToast('error', error.message || 'An error occurred while applying for the job');
+                throw error;
             });
+        }
+        
+        // Make function globally available
+        window.applyForJob = applyForJob;
+        
+        // Global unified apply button handler
+        window.handleApplyButtonClick = function(event, buttonElement) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const jobId = buttonElement.getAttribute('data-job-id') || buttonElement.dataset.jobId;
+            const userId = '{{ app.user ? app.user.id : 0 }}';
+            const redirectRoute = buttonElement.getAttribute('data-redirect-route') || 'app_provider_jobs_applications';
+            
+            if (!jobId) {
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Job ID is missing');
+                } else {
+                    alert('Job ID is missing');
+                }
+                return;
+            }
+            
+            if (userId == 0) {
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Please login to apply for this job. Redirecting to login page..');
+                }
+                window.setTimeout(function() {
+                    window.location.href = "{{ path('app_login') }}";
+                }, 1000);
+                return;
+            }
+            
+            if (confirm('Are you sure you want to apply for this job?')) {
+                const originalText = buttonElement.innerHTML || buttonElement.textContent;
+                buttonElement.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
+                buttonElement.disabled = true;
+                
+                applyForJob(userId, jobId, redirectRoute)
+                    .then(() => {
+                        // Update button state
+                        buttonElement.disabled = true;
+                        buttonElement.innerHTML = 'Already Applied';
+                        buttonElement.style.background = '#6b7280';
+                        buttonElement.style.cursor = 'not-allowed';
+                        
+                        // Redirect after successful apply
+                        window.setTimeout(function() {
+                            window.location.href = "{{ path('app_provider_jobs_applications') }}?status=applied";
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        // Reset button on error
+                        buttonElement.innerHTML = originalText;
+                        buttonElement.disabled = false;
+                    });
+            }
+        };
+        
+        // Global handler for apply-button-ajax (used in AJAX-loaded content)
+        function setupApplyButtonAjax() {
+            // Use event delegation to handle dynamically loaded buttons
+            document.addEventListener('click', function(e) {
+                const applyBtn = e.target.closest('#apply-button-ajax');
+                if (applyBtn && !applyBtn.disabled) {
+                    window.handleApplyButtonClick(e, applyBtn);
+                }
+            });
+        }
+        
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupApplyButtonAjax);
+        } else {
+            setupApplyButtonAjax();
         }
     </script>
     <script>

@@ -1,109 +1,201 @@
 {% extends 'employer/base.html.twig' %}
 
-{% block title %}Inbox{% endblock %}
+{% block title %}Message{% endblock %}
 
 {% block employer_body %}
-    <div class="container-xl">
-        <h1 class="app-page-title">Inbox</h1>
-        <div class="message-wrapper">
-            <div class="row">
-                <!-- BEGIN INBOX -->
-                <div class="col-md-12">
-                    <div class="grid email">
-                        <div class="grid-body">
-                            <div class="row">
-                                <!-- BEGIN INBOX MENU -->
-                                <div class="col-md-3">
-                                    <div class="sticky">
-                                        <a class="btn btn-primary d-block w-100" href="{{ path('app_employer_messages_new') }}">
-                                            <i class="fa fa-pencil"></i> New Message
-                                        </a>
-
-                                        <div class="card">
-{#                                            <div class="card-header">#}
-{#                                                <strong>Folders</strong>#}
-{#                                            </div>#}
-                                            <div class="list-group">
-                                                <a href="{{ path('app_employer_messages', {'type': 'inbox'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == '' or app.request.get('type') == 'inbox' %}active{% endif %}">
-                                                    <i class="fa fa-inbox"></i>
-                                                    Inbox
-                                                </a>
-                                                <a href="{{ path('app_employer_messages', {'type': 'sent'}) }}" class="list-group-item list-group-item-action {% if app.request.get('type') == 'sent' %}active{% endif %}">
-                                                    <i class="fa fa-mail-forward"></i>
-                                                    Sent
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- END INBOX MENU -->
-
-                                <!-- BEGIN INBOX CONTENT -->
-                                <div class="col-md-9">
-                                    <div class="row">
-                                        <div class="col-md-6 search-form">
-                                            <form action="" class="text-right">
-                                                <div class="input-group">
-                                                    <input type="text" name="keyword" class="form-control input-sm"
-                                                           placeholder="Search">
-                                                    <span class="input-group-btn">
-                                                        <button type="submit" class="btn btn-primary btn-sm search"><i class="fa fa-search"></i></button>
-                                                    </span>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-
-                                    <div class="table-responsive">
-                                        <strong>Sender: {{ message.sender }}</strong>
-                                        <p>{{ message.createdAt|date('m/d/Y') }}</p>
-                                        {{ message.text|raw }}
-
-                                        {% if message.attachment %}
-                                            <p><i class="fa fa-file-alt"></i> <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank">{{ message.attachment }}</a></p>
-                                        {% endif %}
-                                    </div>
-
-                                    <!-- BEGIN REPLY SECTION -->
-                                    <hr>
-                                    <h5>Replies</h5>
-                                    <div id="replies-list" class="mb-4">
-                                        {% for reply in replies %}
-                                            <div class="reply-item border rounded p-2 mb-2">
-                                                <strong>{{ reply.sender }}</strong> replied:<br>
-                                                <p>{{ reply.text|nl2br }}</p>
-                                                {% if reply.attachment %}
-                                                    <a href="/uploads/{{ reply.sender.id }}/{{ reply.attachment }}" target="_blank">
-                                                        <i class="fa fa-paperclip"></i> {{ reply.attachment }}
-                                                    </a>
-                                                {% endif %}
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-
-                                    <h5>Write a Reply</h5>
-                                    <form id="reply-form" enctype="multipart/form-data">
-                                        <div class="mb-3">
-                                            <textarea name="message" class="form-control" placeholder="Your reply..." required></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <input type="file" name="attachment" class="form-control">
-                                        </div>
-                                        <button type="submit" class="btn btn-success">Send Reply</button>
-                                    </form>
-                                    <div id="reply-status" class="mt-2"></div>
-                                    <!-- END REPLY SECTION -->
-
-                                </div>
-                                <!-- END INBOX CONTENT -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END INBOX -->
-            </div>
+<div class="messages-content-body">
+    <div class="message-detail-header" style="margin-bottom: 24px;">
+        <a href="{{ path('app_employer_messages') }}" class="back-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Messages
+        </a>
+        
+        <div class="message-actions">
+            {% if thread_messages is defined and thread_messages|length > 1 %}
+                <a href="{{ path('app_employer_message_forward_thread', {id: root_message.id}) }}" class="forward-btn" title="Forward entire conversation" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward all
+                </a>
+            {% else %}
+                <a href="{{ path('app_employer_message_forward', {id: root_message.id}) }}" class="forward-btn" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward
+                </a>
+            {% endif %}
         </div>
     </div>
+    
+    {% if thread_messages is defined and thread_messages|length > 1 %}
+        <div class="thread-header" style="background: #f8f9fa; padding: 12px 24px; border-bottom: 1px solid #e6eef6; margin-bottom: 0;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #5f6368;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span><strong>{{ thread_messages|length }}</strong> messages in this conversation</span>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Thread Messages - Gmail Style -->
+    {% if thread_messages is defined and thread_messages|length > 1 %}
+        <div class="thread-messages-container gmail-style-thread" style="margin-bottom: 0;">
+            {% for threadMsg in thread_messages %}
+                {% set isRoot = threadMsg.id == root_message.id %}
+                {% set isReply = not isRoot %}
+                <div class="gmail-message-item {% if threadMsg.id == message.id %}active-message{% endif %}" data-message-id="{{ threadMsg.id }}">
+                    <div class="gmail-message-header" {% if isReply %}onclick="toggleMessageCollapse(this)" style="cursor: pointer;"{% endif %}>
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                            {% if isReply %}
+                                <svg class="collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition: transform 0.2s ease; transform: rotate(0deg);">
+                                    <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            {% else %}
+                                <div style="width: 16px;"></div>
+                            {% endif %}
+                            
+                            {% set msgSenderName = threadMsg.sender.name|default(threadMsg.sender.email) %}
+                            {% set msgSenderAvatar = threadMsg.sender.profilePictureFilename ? '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                            
+                            <img src="{{ msgSenderAvatar }}" alt="{{ msgSenderName }}" class="gmail-message-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span class="gmail-sender-name" style="font-weight: 600; font-size: 14px; color: #202124;">{{ msgSenderName }}</span>
+                                    {% if isReply %}
+                                        <span style="font-size: 12px; color: #5f6368;">to me</span>
+                                    {% endif %}
+                                    <span style="font-size: 12px; color: #5f6368; margin-left: auto;">{{ threadMsg.createdAt|date('M j, Y, g:i A') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="gmail-message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 12px;">
+                            {% if isReply %}
+                                <button type="button" class="gmail-action-btn" onclick="event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); window.location.href='{{ path('app_employer_message_forward', {id: threadMsg.id}) }}'; return false;" title="Forward this message">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="gmail-message-content {% if isReply %}collapsible-content{% endif %}" {% if isReply %}style="display: none;"{% endif %}>
+                        <div class="gmail-message-body" style="padding: 12px 0 12px 44px; font-size: 14px; line-height: 1.5; color: #202124;">
+                            {{ threadMsg.text|raw }}
+                        </div>
+                        
+                        {% if threadMsg.attachment %}
+                            <div style="padding: 0 0 12px 44px;">
+                                <a href="{{ '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.attachment }}" target="_blank" class="message-attachment" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; text-decoration: none; color: #1a73e8; font-size: 13px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ threadMsg.attachment }}</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Single Message Detail -->
+        <div class="message-detail-content">
+            <div class="message-header-info">
+                {% set senderName = message.sender.name|default(message.sender.email) %}
+                {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                
+                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
+                <div class="message-header-details">
+                    <div class="message-sender-name">{{ senderName }}</div>
+                    <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
+                </div>
+            </div>
+
+            <div class="message-body">
+                {{ message.text|raw }}
+            </div>
+
+            {% if message.attachment %}
+                <a href="{{ '/uploads/' ~ message.sender.id ~ '/' ~ message.attachment }}" target="_blank" class="message-attachment">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ message.attachment }}</span>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Replies Section -->
+    <div class="replies-section">
+        <h5 class="replies-section-title">Replies</h5>
+        
+        {% if replies is defined and replies|length > 0 %}
+            <div class="replies-list">
+                {% for reply in replies %}
+                    {% set replySenderName = reply.sender.name|default(reply.sender.email) %}
+                    {% set replySenderAvatar = reply.sender.profilePictureFilename ? '/uploads/' ~ reply.sender.id ~ '/' ~ reply.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
+                    
+                    <div class="reply-item">
+                        <div class="reply-header">
+                            <img src="{{ replySenderAvatar }}" alt="{{ replySenderName }}" class="reply-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
+                            <div class="reply-sender">{{ replySenderName }}</div>
+                            <div class="reply-date">{{ reply.createdAt|date('M j, Y g:i A') }}</div>
+                        </div>
+                        <div class="reply-text">{{ reply.text|nl2br }}</div>
+                        {% if reply.attachment %}
+                            <a href="/uploads/{{ reply.sender.id }}/{{ reply.attachment }}" target="_blank" class="reply-attachment">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ reply.attachment }}</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-replies">No replies yet.</div>
+        {% endif %}
+    </div>
+
+    <!-- Reply Form -->
+    <div class="reply-form-section">
+        <h5 class="reply-form-title">Write a Reply</h5>
+        <form id="reply-form" enctype="multipart/form-data" class="reply-form">
+            <textarea name="message" placeholder="Type your reply here..." required></textarea>
+            <div class="file-attachment-wrapper">
+                <input type="file" name="attachment" class="form-control" id="reply-attachment">
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px; justify-content: flex-end;">
+                <a href="{{ path('app_employer_message_forward', {id: root_message.id}) }}" class="email-detail-forward-btn" style="text-decoration: none; padding: 10px 20px; border: 1px solid #e6eef6; border-radius: 8px; color: #5f6368; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#85BB65'; this.style.color='#85BB65';" onmouseout="this.style.borderColor='#e6eef6'; this.style.color='#5f6368';" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Forward
+                </a>
+                <button type="submit" style="background: #85BB65; color: white; border: none; border-radius: 8px; padding: 12px 32px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);" onmouseover="this.style.background='#6fa050'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(133, 187, 101, 0.3)';" onmouseout="this.style.background='#85BB65'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(133, 187, 101, 0.2)';">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Send Reply
+                </button>
+            </div>
+        </form>
+        <div id="reply-status" class="mt-2"></div>
+    </div>
+</div>
 {% endblock %}
 
 {% block footer_scripts %}
@@ -126,7 +218,6 @@
             if (result.success) {
                 document.getElementById('replies-list').insertAdjacentHTML('beforeend', result.replyHtml);
                 form.reset();
-                // statusDiv.innerHTML = '<div class="alert alert-success mt-2">Reply sent successfully!</div>';
                 showToast('success', 'Reply sent successfully')
             } else {
                 statusDiv.innerHTML = `<!--<div class="alert alert-danger mt-2">${result.error || 'An error occurred.'}</div>-->`;

@@ -19,20 +19,28 @@ class Application
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Employer::class, inversedBy: 'applications')]
     private ?Employer $employer = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Provider::class, inversedBy: 'applications')]
     private ?Provider $provider = null;
 
     #[ORM\ManyToOne]
     private ?Job $job = null;
 
+    const STATUS_APPLIED = 'applied';
+    const STATUS_SHORTLISTED = 'shortlisted';
+    const STATUS_INTERVIEWING = 'interviewing';
+    const STATUS_NEGOTIATING = 'negotiating';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_REJECTED = 'rejected';
+
     #[ORM\Column(length: 40)]
-    private ?string $status = 'applied';
+    private ?string $status = self::STATUS_APPLIED;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $appliedAt = null;
@@ -82,10 +90,14 @@ class Application
     #[ORM\OneToMany(mappedBy: 'application', targetEntity: DocumentRequest::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $documentRequests;
 
+    #[ORM\OneToMany(mappedBy: 'application', targetEntity: Review::class, cascade: ['remove'], orphanRemoval: true)]
+    private Collection $reviews;
+
     public function __construct()
     {
         $this->documentRequests = new ArrayCollection();
         $this->interviews = new ArrayCollection();
+        $this->reviews = new ArrayCollection();
     }
 
     public function getId(): ?Uuid
@@ -356,5 +368,14 @@ class Application
         }
 
         return $this;
+    }
+
+
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
+    {
+        return $this->reviews;
     }
 }

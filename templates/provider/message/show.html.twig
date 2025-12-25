@@ -2085,21 +2085,34 @@ document.addEventListener('DOMContentLoaded', function() {
             button.innerHTML = '<span>Sending...</span>';
 
             try {
-            const response = await fetch(`/provider/messages/${messageId}/reply`, {
-                method: 'POST',
-                body: formData
-            });
+                const response = await fetch(`/provider/messages/${messageId}/reply`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-            const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-            if (result.success) {
+                // Check content type before parsing JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response received:', text.substring(0, 200));
+                    throw new Error('Server returned non-JSON response. Please try again.');
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
                     // Reload the page to show the new reply in the thread
                     location.reload();
                 } else {
                     showToast('error', result.error || 'An error occurred.');
                 }
             } catch (error) {
-                showToast('error', 'An error occurred while sending your reply.');
+                console.error('Error sending reply:', error);
+                showToast('error', error.message || 'An error occurred while sending your reply.');
             } finally {
                 button.disabled = false;
                 button.innerHTML = originalButtonText;

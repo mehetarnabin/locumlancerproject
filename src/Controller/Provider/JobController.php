@@ -20,6 +20,7 @@ use App\Repository\DocumentRequestRepository;
 use App\Entity\Message;
 use App\Entity\Notification;
 use App\Service\ApplicationService;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -175,6 +176,16 @@ class JobController extends AbstractController
         $category = $request->query->get('category');
         $days = $request->query->get('days'); // Posted date filter
 
+        // Get applied job IDs to exclude from saved jobs
+        $appliedJobIds = $applicationRepository->createQueryBuilder('a')
+            ->select('j.id')
+            ->join('a.job', 'j')
+            ->where('a.provider = :provider')
+            ->setParameter('provider', $provider->getId(), UuidType::NAME)
+            ->getQuery()
+            ->getResult();
+        $appliedJobIdArray = array_map(fn($row) => $row['id'], $appliedJobIds);
+
         // Apply filters if provided
         if ($location || $salaryMin || $salaryMax || $category || $days) {
             $bookmarks = $bookmarkRepository->findFilteredJobs(
@@ -183,15 +194,23 @@ class JobController extends AbstractController
                 $salaryMin,
                 $salaryMax,
                 $category,
-                $days
+                $days,
+                $appliedJobIdArray
             );
         } else {
-            // No filters - get all bookmarks
-            $bookmarks = $bookmarkRepository->createQueryBuilder('b')
+            // No filters - get all bookmarks excluding applied jobs
+            $qb = $bookmarkRepository->createQueryBuilder('b')
                 ->join('b.job', 'j')
                 ->where('b.user = :user')
-                ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
-                ->orderBy('b.id', 'DESC')
+                ->setParameter('user', $this->getUser()->getId(), UuidType::NAME);
+            
+            // Exclude jobs that have applications
+            if (!empty($appliedJobIdArray)) {
+                $qb->andWhere('j.id NOT IN (:appliedJobIds)')
+                   ->setParameter('appliedJobIds', $appliedJobIdArray);
+            }
+            
+            $bookmarks = $qb->orderBy('b.id', 'DESC')
                 ->getQuery()
                 ->getResult();
         }
@@ -282,6 +301,15 @@ class JobController extends AbstractController
         $statusFilter = $request->query->get('status');
         if (!empty($statusFilter)) {
             $statusFilters = is_array($statusFilter) ? $statusFilter : [$statusFilter];
+
+            // When filtering by 'applied', include both 'applied' and 'shortlisted' statuses
+            // because shortlisted applications should appear in the provider's applied section
+            if (in_array('applied', $statusFilters, true)) {
+                // Remove 'applied' from array and add both 'applied' and 'shortlisted'
+                $statusFilters = array_filter($statusFilters, fn($s) => $s !== 'applied');
+                $statusFilters[] = 'applied';
+                $statusFilters[] = 'shortlisted';
+            }
 
             if (in_array('negotiating', $statusFilters, true) && !in_array('offered', $statusFilters, true)) {
                 $statusFilters[] = 'offered';
@@ -418,12 +446,18 @@ class JobController extends AbstractController
         $user = $this->getUser();
 
         if (!$user || !$job) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Invalid user or job']);
+            // Check if AJAX request
+            if ($request->isXmlHttpRequest() || $request->query->get('ajax')) {
+                return new JsonResponse(['status' => 'error', 'message' => 'Invalid user or job']);
+            }
+            $this->addFlash('error', 'Invalid user or job');
+            return $this->redirectToRoute('app_provider_jobs');
         }
 
         // Get redirect route & id if sent
         $redirectRoute = $request->query->get('redirect_route') ?: 'app_provider_jobs_applications';
         $redirectId = $request->query->get('redirect_id'); // optional
+        $isAjax = $request->isXmlHttpRequest() || $request->query->get('ajax');
 
         // Check if already applied
         $application = $em->getRepository(Application::class)->findOneBy([
@@ -433,6 +467,19 @@ class JobController extends AbstractController
         ]);
 
         if ($application) {
+            // Update status to 'applied' if it's not already 'applied' and not in a final state
+            // Don't change status from 'accepted' or 'completed' as these are final states
+            $currentStatus = $application->getStatus();
+            if ($currentStatus !== 'applied' && $currentStatus !== 'accepted' && $currentStatus !== 'completed') {
+                $application->setStatus('applied');
+                $application->setAppliedAt(new \DateTime());
+                $em->persist($application);
+                $em->flush();
+            }
+            
+            if ($isAjax) {
+                return new JsonResponse(['status' => 'success', 'message' => 'You already applied for this job.']);
+            }
             $this->addFlash('success', 'You already applied for this job.');
 
             // If redirecting to job detail, ID is mandatory
@@ -442,11 +489,37 @@ class JobController extends AbstractController
                 ]);
             }
 
+            // When redirecting to applications page, include status=applied to show the application
+            if ($redirectRoute === 'app_provider_jobs_applications') {
+                return $this->redirectToRoute($redirectRoute, ['status' => 'applied']);
+            }
+
             return $this->redirectToRoute($redirectRoute);
         }
 
-        // Create application
+        // Create application - ensure status is 'applied'
         $applicationService->createApplication($job, $user);
+        
+        // Verify application was created and has correct status
+        $newApplication = $em->getRepository(Application::class)->findOneBy([
+            'provider' => $user->getProvider(),
+            'job' => $job,
+            'employer' => $job->getEmployer()
+        ]);
+        
+        if ($newApplication && $newApplication->getStatus() !== 'applied') {
+            $newApplication->setStatus('applied');
+            $em->persist($newApplication);
+            $em->flush();
+        }
+
+        if ($isAjax) {
+            return new JsonResponse([
+                'status' => 'success', 
+                'message' => 'Job applied successfully.',
+                'application_id' => $newApplication ? $newApplication->getId() : null
+            ]);
+        }
 
         $this->addFlash('success', 'Job applied successfully.');
 
@@ -455,6 +528,11 @@ class JobController extends AbstractController
             return $this->redirectToRoute('app_provider_jobs_detail', [
                 'id' => $redirectId ?: $job->getId()
             ]);
+        }
+
+        // When redirecting to applications page, include status=applied to show the newly created application
+        if ($redirectRoute === 'app_provider_jobs_applications') {
+            return $this->redirectToRoute($redirectRoute, ['status' => 'applied']);
         }
 
         // Normal redirect
@@ -1246,18 +1324,36 @@ class JobController extends AbstractController
     }
 
     #[Route('/jobs/export', name: 'app_provider_jobs_export')]
-    public function exportJobs(Request $request, BookmarkRepository $bookmarkRepository): Response
+    public function exportJobs(Request $request, BookmarkRepository $bookmarkRepository, ApplicationRepository $applicationRepository): Response
     {
         $page = $request->query->get('page'); // e.g., "archived" or null
 
-        // Temporarily removed archived filter to avoid column not found error
+        // Get applied job IDs to exclude from saved jobs
+        $provider = $this->getUser()->getProvider();
+        $appliedJobIds = $applicationRepository->createQueryBuilder('a')
+            ->select('j.id')
+            ->join('a.job', 'j')
+            ->where('a.provider = :provider')
+            ->setParameter('provider', $provider->getId(), UuidType::NAME)
+            ->getQuery()
+            ->getResult();
+        $appliedJobIdArray = array_map(fn($row) => $row['id'], $appliedJobIds);
+
+        // Get bookmarks excluding applied jobs
         $qb = $bookmarkRepository->createQueryBuilder('b')
             ->join('b.job', 'j')
             ->where('b.user = :user')
-            ->setParameter('user', $this->getUser()->getId(), UuidType::NAME)
-            ->orderBy('b.id', 'DESC');
+            ->setParameter('user', $this->getUser()->getId(), UuidType::NAME);
+        
+        // Exclude jobs that have applications
+        if (!empty($appliedJobIdArray)) {
+            $qb->andWhere('j.id NOT IN (:appliedJobIds)')
+               ->setParameter('appliedJobIds', $appliedJobIdArray);
+        }
 
-        $bookmarks = $qb->getQuery()->getResult();
+        $bookmarks = $qb->orderBy('b.id', 'DESC')
+            ->getQuery()
+            ->getResult();
 
         $csv = "Job,Location,Posted on,Expires on,Salary(Hourly),Rank\n";
 
@@ -1293,6 +1389,16 @@ class JobController extends AbstractController
         // Get the page type from query parameter (saved, applications, matching)
         $type = $request->query->get('type', 'all');
 
+        // Get applied job IDs to exclude from saved jobs
+        $appliedJobIds = $em->getRepository(Application::class)->createQueryBuilder('a')
+            ->select('j.id')
+            ->join('a.job', 'j')
+            ->where('a.provider = :provider')
+            ->setParameter('provider', $provider->getId(), UuidType::NAME)
+            ->getQuery()
+            ->getResult();
+        $appliedJobIdArray = array_map(fn($row) => $row['id'], $appliedJobIds);
+
         // Initialize data arrays
         $bookmarks = [];
         $appliedApplications = [];
@@ -1322,15 +1428,23 @@ class JobController extends AbstractController
                         }
 
                         if (!empty($uuidJobIds)) {
-                            // Filter bookmarks by visible job IDs
+                            // Filter bookmarks by visible job IDs, excluding applied jobs
                             $qb = $bookmarkRepository->createQueryBuilder('b')
                                 ->join('b.job', 'j')
                                 ->where('b.user = :user')
                                 ->andWhere('j.id IN (:jobIds)')
                                 ->setParameter('user', $user->getId(), UuidType::NAME)
-                                ->setParameter('jobIds', $uuidJobIds)
-                                ->orderBy('b.id', 'DESC');
-                            $bookmarks = $qb->getQuery()->getResult();
+                                ->setParameter('jobIds', $uuidJobIds);
+                            
+                            // Exclude jobs that have applications
+                            if (!empty($appliedJobIdArray)) {
+                                $qb->andWhere('j.id NOT IN (:appliedJobIds)')
+                                   ->setParameter('appliedJobIds', $appliedJobIdArray);
+                            }
+                            
+                            $bookmarks = $qb->orderBy('b.id', 'DESC')
+                                ->getQuery()
+                                ->getResult();
                         } else {
                             $bookmarks = [];
                         }
@@ -1338,8 +1452,21 @@ class JobController extends AbstractController
                         $bookmarks = [];
                     }
                 } else {
-                    // No filter - get all saved jobs
-                    $bookmarks = $bookmarkRepository->findBy(['user' => $user], ['id' => 'DESC']);
+                    // No filter - get all saved jobs excluding applied jobs
+                    $qb = $bookmarkRepository->createQueryBuilder('b')
+                        ->join('b.job', 'j')
+                        ->where('b.user = :user')
+                        ->setParameter('user', $user->getId(), UuidType::NAME);
+                    
+                    // Exclude jobs that have applications
+                    if (!empty($appliedJobIdArray)) {
+                        $qb->andWhere('j.id NOT IN (:appliedJobIds)')
+                           ->setParameter('appliedJobIds', $appliedJobIdArray);
+                    }
+                    
+                    $bookmarks = $qb->orderBy('b.id', 'DESC')
+                        ->getQuery()
+                        ->getResult();
                 }
                 break;
 
@@ -1348,16 +1475,30 @@ class JobController extends AbstractController
                 $statusFilter = $request->query->get('status', '');
 
                 if ($statusFilter && in_array($statusFilter, ['applied', 'interview', 'completed'])) {
-                    // Only fetch applications with the specific status (for PDF display)
-                    $filteredApplications = $em->getRepository(Application::class)->findBy(
-                        ['provider' => $provider, 'status' => $statusFilter],
-                        ['createdAt' => 'DESC']
-                    );
+                    // For 'applied' status, include both 'applied' and 'shortlisted' statuses
+                    $appRepo = $em->getRepository(Application::class);
+                    if ($statusFilter === 'applied') {
+                        $filteredApplications = $appRepo->createQueryBuilder('a')
+                            ->where('a.provider = :provider')
+                            ->andWhere('a.status IN (:statuses)')
+                            ->setParameter('provider', $provider->getId(), UuidType::NAME)
+                            ->setParameter('statuses', ['applied', 'shortlisted'], Connection::PARAM_STR_ARRAY)
+                            ->orderBy('a.createdAt', 'DESC')
+                            ->getQuery()
+                            ->getResult();
+                    } else {
+                        // Only fetch applications with the specific status (for PDF display)
+                        $filteredApplications = $appRepo->findBy(
+                            ['provider' => $provider, 'status' => $statusFilter],
+                            ['createdAt' => 'DESC']
+                        );
+                    }
 
                     // Group by status (only the filtered status)
                     foreach ($filteredApplications as $application) {
                         switch ($application->getStatus()) {
                             case 'applied':
+                            case 'shortlisted':
                                 $appliedApplications[] = $application;
                                 break;
                             case 'interview':
@@ -1379,6 +1520,7 @@ class JobController extends AbstractController
                     foreach ($allApplications as $application) {
                         switch ($application->getStatus()) {
                             case 'applied':
+                            case 'shortlisted':
                                 $appliedApplications[] = $application;
                                 break;
                             case 'interview':
@@ -1722,11 +1864,21 @@ class JobController extends AbstractController
                     ]);
 
                 if ($existingApplication) {
-                    $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
+                    // Update status to 'applied' if it's not already 'applied' and not in a final state
+                    $currentStatus = $existingApplication->getStatus();
+                    if ($currentStatus !== 'applied' && $currentStatus !== 'accepted' && $currentStatus !== 'completed') {
+                        $existingApplication->setStatus('applied');
+                        $existingApplication->setAppliedAt(new \DateTime());
+                        $entityManager->persist($existingApplication);
+                        $appliedCount++;
+                        $appliedJobIds[] = $jobId;
+                        $debugLog = "✅ Updated existing application status to 'applied' for job: " . $jobId . "\n";
+                    } else {
+                        $debugLog = "ℹ️ Already applied to job: " . $jobId . " - removing bookmark only\n";
+                        $alreadyAppliedCount++;
+                        $alreadyAppliedJobIds[] = $jobId;
+                    }
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);
-
-                    $alreadyAppliedCount++;
-                    $alreadyAppliedJobIds[] = $jobId;
                 } else {
                     $debugLog = "✅ No existing application found, creating new one\n";
                     file_put_contents('C:\\xampp\\htdocs\\locumlancer\\var\\apply_debug.log', $debugLog, FILE_APPEND);

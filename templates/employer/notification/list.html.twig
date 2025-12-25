@@ -3,60 +3,1599 @@
 {% block title %}Notifications{% endblock %}
 
 {% block employer_body %}
-    <div class="container-xl">
+<style>
+/* ============================================
+   NOTIFICATION PAGE - COMPLETE REDESIGN
+   All styles hardcoded - No external dependencies
+   ============================================ */
 
-        <h1 class="app-page-title">Notifications</h1>
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
 
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                {% for notification in notifications %}
-                    {% if notification.notificationType in ['job_applied', 'bookmark_created'] %}
-                        <a href="{{ path('app_employer_job_show', {'id': notification.extraData.job}) }}">
-                    {% elseif notification.notificationType in ['provider_in_review', 'provider_shortlist', 'provider_hired', 'review_request', 'provider_offered', 'one_file_provided', 'document_provided'] %}
-                        <a href="{{ path('app_employer_job_applications', {'id': notification.extraData.job, 'applicationId': notification.extraData.application}) }}">
-                    {% elseif notification.notificationType in ['employer_reviewed'] %}
-                        <a href="{{ path('app_employer_reviews') }}">
-                    {% elseif notification.notificationType in ['message_received'] %}
-                        <a href="{{ path('app_employer_messages') }}">
-                    {% elseif notification.notificationType in ['invoice_created'] %}
-                        <a href="{{ path('app_employer_invoices') }}">
-                    {% elseif notification.notificationType in ['job_posted'] %}
-                            <a href="{{ path('app_employer_jobs') }}">
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
+.app-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+.app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching other pages */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        position: relative !important;
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        position: relative !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
+
+/* NEW: modern hero + background */
+.notification-page {
+    background: transparent;
+    padding: 12px 0 20px 0;
+}
+
+.notification-hero {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e6eef6;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(15, 41, 80, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.hero-summary {
+    flex: 1 1 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hero-tag {
+    padding: 6px 14px;
+    background: #eef4ff;
+    color: #1f3f86;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.notification-hero h1 {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: #121C0C !important;
+    margin-bottom: 4px !important;
+    line-height: 1.3 !important;
+}
+
+.notification-hero p {
+    font-size: 0.9rem !important;
+    color: #6b7280 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.5 !important;
+}
+
+/* Hero Metrics - Compact Cards */
+.hero-metrics {
+    flex: 1 1 360px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+    gap: 14px !important;
+}
+
+.metric-card {
+    background: #fbfcfe !important;
+    border: 1px solid #e6eef6 !important;
+    border-radius: 12px !important;
+    padding: 30px !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+    min-height: 92px !important;
+}
+
+.metric-card:hover {
+    border-color: #85BB65 !important;
+    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.12) !important;
+}
+
+.metric-card span {
+    display: block !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #121C0C !important;
+    margin-bottom: 4px !important;
+    line-height: 1.2 !important;
+}
+
+.metric-card small {
+    display: block !important;
+    font-size: 0.75rem !important;
+    color: #6b7280 !important;
+    font-weight: 400 !important;
+}
+
+/* Toolbar */
+.notification-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 20px !important;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    padding: 12px 14px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(12, 25, 45, 0.04);
+}
+
+.filter-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.filter-pill {
+    border: 1px solid #e2e8f0 !important;
+    background: #fff !important;
+    border-radius: 999px !important;
+    padding: 6px 14px !important;
+    font-size: 0.813rem !important;
+    font-weight: 500 !important;
+    color: #121C0C !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+}
+
+.filter-pill:hover {
+    border-color: #85BB65 !important;
+    background: #F4F9F1 !important;
+}
+
+.filter-pill.active {
+    background: #85BB65 !important;
+    color: #fff !important;
+    border-color: #85BB65 !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+}
+
+.btn-preferences {
+    border-radius: 999px !important;
+    padding: 8px 16px !important;
+    background: #85BB65 !important;
+    color: #fff !important;
+    font-weight: 500 !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.2) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 0.813rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-preferences:hover {
+    background: #6FA050 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-preferences svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* Navigation Cards - Compact Grid */
+.notification-nav {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+}
+
+.notification-nav a {
+    border: 1px dashed #dfe7f2 !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    background: #fff !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    font-size: 0.875rem !important;
+}
+
+.notification-nav a:hover {
+    border-color: #85BB65 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.12) !important;
+    transform: translateY(-1px) !important;
+}
+
+.notification-nav strong {
+    font-size: 0.938rem !important;
+    font-weight: 600 !important;
+    color: #121C0C !important;
+}
+
+.notification-nav small {
+    font-size: 0.813rem !important;
+    color: #6b7280 !important;
+}
+
+.notification-nav .badge {
+    font-size: 0.75rem !important;
+    padding: 4px 8px !important;
+    border-radius: 6px !important;
+    background: #F4F9F1 !important;
+    color: #121C0C !important;
+    font-weight: 500 !important;
+}
+
+/* Notification Sections */
+.notification-section {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    margin-bottom: 20px !important;
+}
+
+.section-header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.section-header h3 {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    color: #121C0C !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.section-header p {
+    font-size: 0.813rem !important;
+    color: #6b7280 !important;
+    margin: 4px 0 0 0 !important;
+    line-height: 1.5 !important;
+}
+
+.section-header .badge {
+    font-size: 0.75rem !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    background: #EAF3E4 !important;
+    color: #121C0C !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+}
+
+/* Section Feed - Compact Cards */
+.section-feed {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+/* Notification Cards - Compact Design */
+.notification-card {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    display: flex !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+    transition: all 0.2s ease !important;
+    background: #fff !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    position: relative !important;
+}
+
+.notification-card:hover {
+    border-color: #85BB65 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.12) !important;
+    transform: translateY(-1px) !important;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.notification-card.unread {
+    border-color: #85BB65 !important;
+    background: #F4F9F1 !important;
+    border-left: 4px solid #85BB65 !important;
+}
+
+/* Icon Holder */
+.notification-card .app-icon-holder {
+    flex-shrink: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: #EAF3E4 !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+}
+
+.notification-card.unread .app-icon-holder {
+    background: #D2E6C6 !important;
+}
+
+.notification-card .app-icon-holder svg {
+    width: 20px !important;
+    height: 20px !important;
+    color: #85BB65 !important;
+}
+
+/* Card Content */
+.notification-card .flex-grow-1 {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.notification-card .d-flex {
+    margin-bottom: 6px !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+.notification-badge {
+    font-size: 0.688rem !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    color: #121C0C !important;
+    background: #EAF3E4 !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    margin-right: 6px !important;
+    border: 1px solid #c7e0b8 !important;
+}
+
+.notification-card strong {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    color: #121C0C !important;
+    line-height: 1.4 !important;
+}
+
+.notification-card p {
+    margin: 0 !important;
+    color: #4b5563 !important;
+    line-height: 1.5 !important;
+    font-size: 0.813rem !important;
+}
+
+.notification-card small.text-muted {
+    font-size: 0.75rem !important;
+    color: #6b7280 !important;
+    white-space: nowrap !important;
+}
+
+/* Empty State */
+.notification-empty {
+    border: 1px dashed #d4ddeb !important;
+    border-radius: 10px !important;
+    padding: 24px !important;
+    background: #f8fafc !important;
+    font-size: 0.875rem !important;
+    text-align: center !important;
+    grid-column: 1 / -1 !important;
+}
+
+.notification-empty p {
+    margin-bottom: 4px !important;
+    color: #6b7280 !important;
+}
+
+.notification-empty p.fw-bold {
+    font-weight: 600 !important;
+    color: #121C0C !important;
+}
+
+.notification-empty p:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Filter Hidden */
+.filter-hidden {
+    display: none !important;
+}
+
+/* Modal Styles - Centered Popup */
+.modal {
+    display: none !important;
+    position: fixed !important;
+    z-index: 99999 !important;
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px) !important;
+}
+
+.modal.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+}
+
+.modal-dialog {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 950px !important;
+    margin: 0 auto !important;
+    pointer-events: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 0 !important;
+}
+
+.modal-dialog-centered {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 950px !important;
+    margin: 0 auto !important;
+    pointer-events: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.modal-lg {
+    max-width: 950px !important;
+}
+
+.modal-content {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-height: 90vh !important;
+    margin: 0 !important;
+    pointer-events: auto !important;
+    background-color: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    outline: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+}
+
+.modal-header {
+    display: flex !important;
+    flex-shrink: 0 !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    padding: 24px 32px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #fff !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.modal-title {
+    margin: 0 0 4px 0 !important;
+    line-height: 1.3 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: #121C0C !important;
+}
+
+.modal-header > div {
+    flex: 1 !important;
+}
+
+.modal-header p {
+    font-size: 0.938rem !important;
+    color: #6b7280 !important;
+    margin: 0 !important;
+    line-height: 1.5 !important;
+}
+
+.btn-close {
+    box-sizing: content-box !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin-left: 20px !important;
+    color: #6b7280 !important;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7280'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/16px auto no-repeat !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    opacity: 0.7 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.btn-close:hover {
+    opacity: 1 !important;
+    background-color: #f3f4f6 !important;
+}
+
+.modal-body {
+    position: relative !important;
+    flex: 1 1 auto !important;
+    padding: 28px 32px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-height: 0 !important;
+    background: #fff !important;
+}
+
+#notificationPrefModal .modal-dialog,
+#notificationPrefModal .modal-dialog-centered,
+#notificationPrefModal .modal-lg {
+    max-width: 720px !important;
+    width: min(720px, 92vw) !important;
+}
+
+#notificationPrefModal .modal-content {
+    max-height: 82vh !important;
+    border-radius: 18px !important;
+}
+
+#notificationPrefModal .modal-body {
+    padding: 20px 24px !important;
+    max-height: calc(82vh - 150px) !important;
+}
+
+#notificationPrefModal .preferences-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+}
+
+.modal-footer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    flex-shrink: 0 !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    padding: 20px 32px !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom-left-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
+    gap: 12px !important;
+    background: #fff !important;
+}
+
+/* Preferences Grid */
+.preferences-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+    gap: 20px !important;
+}
+
+.preference-group {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 20px 22px !important;
+    background: #fff !important;
+    transition: all 0.2s ease !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+.preference-group:hover {
+    border-color: #85BB65 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15) !important;
+    transform: translateY(-2px) !important;
+}
+
+.preference-group h4 {
+    margin: 0 0 6px 0 !important;
+    font-size: 0.938rem !important;
+    color: #121C0C !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.preference-group p {
+    font-size: 0.813rem !important;
+    color: #6b7280 !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.5 !important;
+}
+
+.preference-group .form-check {
+    margin-bottom: 0.5rem !important;
+}
+
+.preference-group .form-check.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.modal-body > div:first-child {
+    padding: 16px 20px !important;
+    background: linear-gradient(135deg, #F4F9F1 0%, #f9fafb 100%) !important;
+    border-radius: 10px !important;
+    margin-bottom: 24px !important;
+    border: 1px solid #EAF3E4 !important;
+    transition: all 0.2s ease !important;
+}
+
+.modal-body > div:first-child:hover {
+    border-color: #85BB65 !important;
+    background: linear-gradient(135deg, #EAF3E4 0%, #F4F9F1 100%) !important;
+    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.1) !important;
+}
+
+.modal-body > div:first-child .fw-semibold {
+    font-size: 0.875rem !important;
+    color: #121C0C !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.form-check {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 1.5rem !important;
+    padding-left: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 8px 4px !important;
+    transition: all 0.15s ease !important;
+    border-radius: 6px !important;
+    margin-left: -4px !important;
+    margin-right: -4px !important;
+}
+
+.form-check:hover {
+    background-color: #f9fafb !important;
+}
+
+.preference-group .form-check:hover {
+    background-color: #f9fafb !important;
+}
+
+.form-check-input {
+    width: 1em !important;
+    height: 1em !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    vertical-align: middle !important;
+    background-color: #fff !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    border: 1px solid #cfd9e3 !important;
+    appearance: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+
+.form-check-input:checked {
+    background-color: #85BB65 !important;
+    border-color: #85BB65 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
+.form-check-input:focus {
+    border-color: #85BB65 !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.2rem rgba(133, 187, 101, 0.25) !important;
+}
+
+.form-check-label {
+    font-size: 0.813rem !important;
+    color: #121C0C !important;
+    cursor: pointer !important;
+    line-height: 1.5 !important;
+    flex: 1 !important;
+    margin-right: 12px !important;
+    user-select: none !important;
+    font-weight: 400 !important;
+}
+
+.form-switch .form-check-input {
+    width: 2em !important;
+    height: 1.125em !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e") !important;
+    background-position: left center !important;
+    border-radius: 1em !important;
+    transition: all 0.2s ease-in-out !important;
+    flex-shrink: 0 !important;
+}
+
+.form-switch .form-check-input:hover {
+    border-color: #85BB65 !important;
+}
+
+.form-switch .form-check-input:checked {
+    background-position: right center !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+    border-color: #85BB65 !important;
+}
+
+.btn {
+    display: inline-block !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    color: #121C0C !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    vertical-align: middle !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-secondary {
+    color: #fff !important;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+.btn-secondary:hover {
+    color: #fff !important;
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .section-feed {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .notification-nav {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .hero-metrics {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .preferences-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .modal.show {
+        padding: 10px !important;
+    }
+    
+    .modal-dialog {
+        max-width: calc(100% - 20px) !important;
+    }
+    
+    .modal-content {
+        max-height: calc(100vh - 20px) !important;
+    }
+    
+    .modal-header {
+        padding: 20px 24px !important;
+    }
+    
+    .modal-title {
+        font-size: 1.25rem !important;
+    }
+    
+    .modal-body {
+        padding: 20px 24px !important;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px !important;
+    }
+    
+    .preferences-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+}
+
+/* Utility Classes */
+.d-none {
+    display: none !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.align-items-start {
+    align-items: flex-start !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+.text-muted {
+    color: #6b7280 !important;
+}
+
+.text-secondary {
+    color: #4b5563 !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem !important;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.fw-bold {
+    font-weight: 700 !important;
+}
+
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.badge {
+    display: inline-block !important;
+    padding: 0.35em 0.65em !important;
+    font-size: 0.75em !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    vertical-align: baseline !important;
+    border-radius: 0.375rem !important;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.text-dark {
+    color: #212529 !important;
+}
+
+/* Pagination - Green Theme Matching Website Design */
+.pagination {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    margin: 24px 0 !important;
+    list-style: none !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.page-item {
+    margin: 0 !important;
+}
+
+.page-link {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+    color: #85BB65 !important;
+    text-decoration: none !important;
+    background-color: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    box-sizing: border-box !important;
+}
+
+.page-link:hover {
+    z-index: 2 !important;
+    color: #6FA050 !important;
+    background-color: #F4F9F1 !important;
+    border-color: #85BB65 !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.15) !important;
+    transform: translateY(-1px) !important;
+}
+
+.page-link:focus {
+    z-index: 3 !important;
+    color: #6FA050 !important;
+    background-color: #F4F9F1 !important;
+    border-color: #85BB65 !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.2rem rgba(133, 187, 101, 0.25) !important;
+}
+
+.page-item:first-child .page-link {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+}
+
+.page-item:last-child .page-link {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+.page-item.active .page-link {
+    z-index: 3 !important;
+    color: #fff !important;
+    background-color: #85BB65 !important;
+    border-color: #85BB65 !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.3) !important;
+    font-weight: 600 !important;
+}
+
+.page-item.active .page-link:hover {
+    background-color: #6FA050 !important;
+    border-color: #6FA050 !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+.page-item.disabled .page-link {
+    color: #9ca3af !important;
+    pointer-events: none !important;
+    cursor: auto !important;
+    background-color: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+    opacity: 0.6 !important;
+}
+
+.page-item.disabled .page-link:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Ellipsis styling */
+.page-item .page-link[aria-label*="ellipsis"],
+.page-item .page-link:not([href]) {
+    color: #6b7280 !important;
+    background-color: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+    cursor: default !important;
+}
+
+.page-item .page-link[aria-label*="ellipsis"]:hover,
+.page-item .page-link:not([href]):hover {
+    color: #6b7280 !important;
+    background-color: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+</style>
+
+<div class="container-xl">
+    <div class="notification-page">
+    <section class="notification-hero">
+        <div class="hero-summary">
+            <div class="hero-title-block">
+                <h1>Notifications</h1>
+                <p>Track every application update, job milestone, and platform notification across dedicated internal pages.</p>
+            </div>
+            <div class="hero-tags">
+                <span class="hero-tag">Job activity</span>
+                <span class="hero-tag">Compliance &amp; docs</span>
+                <span class="hero-tag">Messages &amp; reviews</span>
+            </div>
+        </div>
+        <div class="hero-metrics">
+            <div class="metric-card">
+                <span>{{ notificationStats.unread }}</span>
+                <small>Unread alerts</small>
+            </div>
+            <div class="metric-card">
+                <span>{{ notificationStats.weekly }}</span>
+                <small>New this week</small>
+            </div>
+            <div class="metric-card">
+                <span>{{ notificationStats.total }}</span>
+                <small>Total notifications</small>
+            </div>
+            <div class="metric-card">
+                <span>
+                    {% if notificationStats.lastActivity %}
+                        {{ notificationStats.lastActivity|time_diff }}
                     {% else %}
-                        <a href="#">
+                        —
                     {% endif %}
-                    <div class="app-card app-card-notification shadow-sm mb-4">
-                        <div class="app-card-header px-4 py-3">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-12 col-lg-auto text-center text-lg-start">
-                                    <div class="app-icon-holder">
-                                        {% include 'employer/partials/_notification_icon.html.twig' with {'notificationType': notification.notificationType} %}
-                                    </div>
-                                </div>
+                </span>
+                <small>Last update</small>
+            </div>
+        </div>
+    </section>
 
-                                <div class="col-12 col-lg-auto text-center text-lg-start">
-                                    <h4 class="notification-title mb-1">{{ notification.notificationType | replace({'_': ' '}) | title }}</h4>
-                                    {{ notification.createdAt|time_diff }}
+    <div class="notification-toolbar">
+        <div class="filter-group">
+            <button class="filter-pill active" data-notification-filter="all">All</button>
+            <button class="filter-pill" data-notification-filter="unread">Unread</button>
+            {% for sectionKey, section in preferenceSections %}
+                <button class="filter-pill" data-notification-filter="{{ sectionKey }}">{{ section.title }}</button>
+            {% endfor %}
+        </div>
+            <button class="btn-preferences" type="button" id="openPreferencesBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Edit preferences
+        </button>
+    </div>
+
+    <div class="notification-nav">
+        {% for sectionKey, section in preferenceSections %}
+            <a href="#section-{{ sectionKey }}" data-filter-trigger="{{ sectionKey }}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>{{ section.title }}</strong>
+                    <span class="badge bg-light text-dark">{{ (notificationsBySection[sectionKey] ?? [])|length }} updates</span>
+                </div>
+                <small>{{ section.description }}</small>
+            </a>
+        {% endfor %}
+    </div>
+
+    {% for sectionKey, section in preferenceSections %}
+        <section class="notification-section" id="section-{{ sectionKey }}" data-notification-section="{{ sectionKey }}">
+            <div class="section-header">
+                <div>
+                    <h3 class="mb-1">{{ section.title }}</h3>
+                    <p class="text-muted mb-0">{{ section.description }}</p>
+                </div>
+                <span class="badge bg-light text-dark">{{ (notificationsBySection[sectionKey] ?? [])|length }} updates</span>
+            </div>
+            <div class="section-feed" data-section-feed="{{ sectionKey }}">
+                {% set sectionNotifications = notificationsBySection[sectionKey] ?? [] %}
+                {% if sectionNotifications is not empty %}
+                    {% for notification in sectionNotifications %}
+                        {% set notificationLink = '#' %}
+                        {% if notification.notificationType in ['job_applied', 'bookmark_created'] %}
+                            {% set notificationLink = path('app_employer_job_show', {'id': notification.extraData.job}) %}
+                        {% elseif notification.notificationType in ['provider_in_review', 'provider_shortlist', 'provider_hired', 'review_request', 'provider_offered', 'one_file_provided', 'document_provided'] %}
+                            {% set notificationLink = path('app_employer_job_applications', {'id': notification.extraData.job, 'applicationId': notification.extraData.application}) %}
+                        {% elseif notification.notificationType in ['employer_reviewed'] %}
+                            {% set notificationLink = path('app_employer_reviews') %}
+                        {% elseif notification.notificationType in ['message_received'] %}
+                            {% set notificationLink = path('app_employer_messages') %}
+                        {% elseif notification.notificationType in ['invoice_created', 'invoice_paid', 'invoice_overdue'] %}
+                            {% set notificationLink = path('app_employer_invoices') %}
+                        {% elseif notification.notificationType in ['job_posted'] %}
+                            {% set notificationLink = path('app_employer_jobs') %}
+                        {% elseif notification.notificationType in ['interview_scheduled'] %}
+                            {% set notificationLink = path('app_employer_job_applications', {'id': notification.extraData.job}) ~ '?status=interview' %}
+                        {% endif %}
+                        <a href="{{ notificationLink }}" class="notification-card {{ notification.seen ? '' : 'unread' }}" data-section="{{ sectionKey }}" data-read="{{ notification.seen ? 1 : 0 }}">
+                            <div class="app-icon-holder">
+                                {% include 'employer/partials/_notification_icon.html.twig' with {'notificationType': notification.notificationType} %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <span class="notification-badge">{{ section.title }}</span>
+                                        <strong>{{ notification.notificationType | replace({'_': ' '}) | title }}</strong>
+                                    </div>
+                                    <small class="text-muted">{{ notification.createdAt|time_diff }}</small>
                                 </div>
+                                <p class="mb-0 text-secondary">{{ notification.message }}</p>
                             </div>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="notification-content">
-                                {{ notification.message }}
-                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+                <div class="notification-empty{% if sectionNotifications is not empty %} d-none{% endif %}" data-empty-state>
+                    <p class="mb-1 fw-bold">No {{ section.title|lower }} updates yet.</p>
+                        <p class="text-muted mb-0">We'll surface alerts here as soon as something changes.</p>
+                </div>
+            </div>
+        </section>
+    {% endfor %}
+
+    {% if notificationStats.total > 0 %}
+        <div class="align-self-center">
+            {{ pagerfanta(notificationsPager, 'twitter_bootstrap5') }}
+        </div>
+    {% endif %}
+
+        <!-- Notification Preferences Modal -->
+        <div class="modal" id="notificationPrefModal" tabindex="-1" aria-labelledby="notificationPrefModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="max-width: 760px;">
+            <div class="modal-content" style="border-radius: 18px;">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title" id="notificationPrefModalLabel">Notification Preferences</h5>
+                        <p class="text-muted mb-0">Fine-tune how Locumlancer notifies you across internal pages.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between flex-wrap gap-3 align-items-center mb-3">
+                        <span class="fw-semibold">Toggle entire notification feed</span>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="toggle-all">
+                            <label class="form-check-label fw-semibold" for="toggle-all">Toggle all</label>
                         </div>
                     </div>
-                    </a>
-                {% else %}
-                    <p>Notifications not available at the moment.</p>
-                {% endfor %}
-            </div>
-
-            {% if notifications|length > 0 %}
-                <div class="col-12">
-                    {{ pagerfanta(notifications, 'twitter_bootstrap5') }}
+                    <div class="preferences-grid">
+                        {% for sectionKey, section in preferenceSections %}
+                            <div class="preference-group">
+                                <h4>{{ section.title }}</h4>
+                                <p class="text-muted small mb-3">{{ section.description }}</p>
+                                {% if section.options is not empty %}
+                                    {% for key, label in section.options %}
+                                        <div class="form-check form-switch mb-2">
+                                            <input
+                                                class="form-check-input preference-toggle"
+                                                type="checkbox"
+                                                id="pref-{{ sectionKey }}-{{ key }}"
+                                                data-key="{{ key }}"
+                                                {% if (employer.notificationPreferences[key] ?? false) %}checked{% endif %}>
+                                            <label class="form-check-label" for="pref-{{ sectionKey }}-{{ key }}">{{ label }}</label>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted small mb-0">No granular preferences available yet.</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            {% endif %}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer_scripts %}
+<script>
+// Force apply styles via JavaScript - Run multiple times to ensure it sticks
+function applyNotificationSpacingStyles() {
+    // Reset and apply container-xl styles
+    const container = document.querySelector('.container-xl');
+    if (container) {
+        container.style.setProperty('position', 'relative', 'important');
+        container.style.setProperty('padding-left', '30px', 'important');
+        container.style.setProperty('padding-right', '30px', 'important');
+        container.style.setProperty('margin-left', '0', 'important');
+        container.style.setProperty('margin-right', '0', 'important');
+        container.style.setProperty('transform', 'none', 'important');
+        container.style.setProperty('max-width', '100%', 'important');
+        container.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-content
+    const appContent = document.querySelector('.app-content');
+    if (appContent) {
+        appContent.style.setProperty('position', 'relative', 'important');
+        appContent.style.setProperty('padding-left', '0', 'important');
+        appContent.style.setProperty('padding-right', '0', 'important');
+        appContent.style.setProperty('margin-left', '0', 'important');
+        appContent.style.setProperty('margin-right', '0', 'important');
+        appContent.style.setProperty('max-width', '100%', 'important');
+        appContent.style.setProperty('width', '100%', 'important');
+    }
+    
+    // Reset app-wrapper
+    const appWrapper = document.querySelector('.app-wrapper');
+    if (appWrapper) {
+        appWrapper.style.setProperty('position', 'relative', 'important');
+        if (window.innerWidth >= 1200) {
+            appWrapper.style.setProperty('margin-left', '250px', 'important');
+            appWrapper.style.setProperty('transform', 'translateX(-150px)', 'important');
+            appWrapper.style.setProperty('width', 'calc(100% - 250px + 150px)', 'important');
+        } else {
+            appWrapper.style.setProperty('margin-left', '0', 'important');
+            appWrapper.style.setProperty('transform', 'none', 'important');
+            appWrapper.style.setProperty('width', '100%', 'important');
+        }
+        appWrapper.style.setProperty('margin-right', '0', 'important');
+        appWrapper.style.setProperty('padding-left', '0', 'important');
+        appWrapper.style.setProperty('padding-right', '0', 'important');
+    }
+}
+
+// Run immediately
+document.addEventListener('DOMContentLoaded', applyNotificationSpacingStyles);
+
+// Run after a short delay to override any late-loading styles
+setTimeout(applyNotificationSpacingStyles, 100);
+setTimeout(applyNotificationSpacingStyles, 500);
+
+// Re-apply on window resize to override any responsive changes
+window.addEventListener('resize', function() {
+    setTimeout(applyNotificationSpacingStyles, 50);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Modal functionality - Centered popup
+    const modal = document.getElementById('notificationPrefModal');
+    const openBtn = document.getElementById('openPreferencesBtn');
+    
+    function openModal() {
+        if (modal) {
+            // Ensure modal is visible and centered
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('align-items', 'center', 'important');
+            modal.style.setProperty('justify-content', 'center', 'important');
+            modal.style.setProperty('position', 'fixed', 'important');
+            modal.style.setProperty('top', '0', 'important');
+            modal.style.setProperty('left', '0', 'important');
+            modal.style.setProperty('right', '0', 'important');
+            modal.style.setProperty('bottom', '0', 'important');
+            modal.style.setProperty('z-index', '99999', 'important');
+            modal.classList.add('show');
+            
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = '0';
+            
+            // Force reflow to ensure display
+            void modal.offsetHeight;
+            
+            // Ensure dialog is centered
+            const dialog = modal.querySelector('.modal-dialog');
+            if (dialog) {
+                dialog.style.setProperty('margin', '0 auto', 'important');
+                dialog.style.setProperty('max-width', '900px', 'important');
+                dialog.style.setProperty('width', '100%', 'important');
+                dialog.style.setProperty('position', 'relative', 'important');
+            }
+            
+            // Ensure content is visible
+            const content = modal.querySelector('.modal-content');
+            if (content) {
+                content.style.setProperty('background', '#fff', 'important');
+                content.style.setProperty('display', 'flex', 'important');
+            }
+        }
+    }
+    
+    function closeModal() {
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+    }
+    
+    if (openBtn) {
+        openBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Opening modal...');
+            openModal();
+        });
+    }
+    
+    // Close buttons
+    if (modal) {
+        const closeBtns = modal.querySelectorAll('[data-bs-dismiss="modal"], .btn-close, .btn-secondary');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            });
+        });
+        
+        // Close on backdrop click (only on modal backdrop, not content)
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    }
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+            closeModal();
+        }
+    });
+
+    // Existing functionality
+    const preferenceToggles = document.querySelectorAll('.preference-toggle');
+    const toggleAll = document.getElementById('toggle-all');
+    const filterButtons = document.querySelectorAll('[data-notification-filter]');
+    const filterNavLinks = document.querySelectorAll('[data-filter-trigger]');
+    const notificationCards = document.querySelectorAll('.notification-card');
+    const sectionFeeds = document.querySelectorAll('[data-section-feed]');
+    const notificationSections = document.querySelectorAll('[data-notification-section]');
+
+    function updateEmptyStates() {
+        sectionFeeds.forEach(feed => {
+            const visibleCards = feed.querySelectorAll('.notification-card:not(.filter-hidden)');
+            const emptyState = feed.querySelector('[data-empty-state]');
+            if (emptyState) {
+                emptyState.classList.toggle('d-none', visibleCards.length > 0);
+            }
+        });
+    }
+
+    function updateSectionsVisibility(filter) {
+        notificationSections.forEach(section => {
+            const sectionKey = section.dataset.notificationSection;
+            let showSection = true;
+
+            if (filter === 'unread') {
+                const visibleCards = section.querySelectorAll('.notification-card:not(.filter-hidden)');
+                showSection = visibleCards.length > 0;
+            } else if (filter !== 'all') {
+                showSection = sectionKey === filter;
+            }
+
+            section.classList.toggle('d-none', !showSection);
+        });
+    }
+
+    function updateAllPreferences(state) {
+        preferenceToggles.forEach(toggle => {
+            toggle.checked = state;
+        });
+
+        fetch('{{ path('app_employer_notification_update_preferences_all') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token('update_notification') }}'
+            },
+            body: JSON.stringify({
+                value: state ? 1 : 0
+            })
+        }).catch(error => {
+            console.error('Error updating all preferences:', error);
+        });
+    }
+
+    function applyFilter(filter) {
+        notificationCards.forEach(card => {
+            const cardSection = card.dataset.section;
+            const cardRead = card.dataset.read === '1';
+
+            let isVisible = true;
+            if (filter === 'unread') {
+                isVisible = !cardRead;
+            } else if (filter !== 'all') {
+                isVisible = cardSection === filter;
+            }
+
+            card.classList.toggle('filter-hidden', !isVisible);
+        });
+
+        updateSectionsVisibility(filter);
+        updateEmptyStates();
+    }
+
+    function setActiveFilter(filter) {
+        filterButtons.forEach(btn => {
+            const isActive = btn.dataset.notificationFilter === filter;
+            btn.classList.toggle('active', isActive);
+        });
+        applyFilter(filter);
+    }
+
+    if (toggleAll) {
+        const allChecked = Array.from(preferenceToggles).every(toggle => toggle.checked);
+        toggleAll.checked = allChecked;
+
+        toggleAll.addEventListener('change', function () {
+            updateAllPreferences(this.checked);
+        });
+    }
+
+    preferenceToggles.forEach(function (toggle) {
+        toggle.addEventListener('change', function () {
+            const preferenceKey = this.getAttribute('data-key');
+            const isEnabled = this.checked ? 1 : 0;
+
+            fetch('{{ path('app_employer_notification_update_preferences_single') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token('update_notification') }}'
+                },
+                body: JSON.stringify({
+                    key: preferenceKey,
+                    value: isEnabled
+                })
+            }).catch(error => {
+                console.error('There was a problem updating the preference:', error);
+            });
+        });
+    });
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            setActiveFilter(this.dataset.notificationFilter);
+        });
+    });
+
+    filterNavLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const filter = this.dataset.filterTrigger;
+            setActiveFilter(filter);
+            const targetSection = document.getElementById(`section-${filter}`);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    setActiveFilter('all');
+});
+</script>
 {% endblock %}

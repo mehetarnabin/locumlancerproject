@@ -1,6 +1,387 @@
 {# Job Applications Main Detail Section #}
 {# This file controls the entire main detail layout: Top Action Buttons, Left (Candidates + Search), Right (Application Detail) #}
 
+<style>
+/* CRITICAL: Conditional buttons are hidden by default - STRONGEST OVERRIDE */
+.actions-container .conditional-btn,
+.actions-container #action-request-file-btn,
+.actions-container #action-schedule-interview-btn,
+.actions-container #action-request-documents-btn,
+.actions-container #action-send-offer-btn,
+.actions-container #action-send-contract-btn,
+.actions-container #action-send-credential-btn,
+.actions-container #action-write-review-btn,
+.job-actions-left .conditional-btn,
+.job-actions-left #action-request-file-btn,
+.job-actions-left #action-schedule-interview-btn,
+.job-actions-left #action-request-documents-btn,
+.job-actions-left #action-send-offer-btn,
+.job-actions-left #action-send-contract-btn,
+.job-actions-left #action-send-credential-btn,
+.job-actions-left #action-write-review-btn {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+}
+
+/* Show conditional button ONLY when it has the 'show' class AND display is set to flex */
+.actions-container .conditional-btn.show,
+.actions-container #action-request-file-btn.show,
+.actions-container #action-schedule-interview-btn.show,
+.actions-container #action-request-documents-btn.show,
+.actions-container #action-send-offer-btn.show,
+.actions-container #action-send-contract-btn.show,
+.actions-container #action-send-credential-btn.show,
+.actions-container #action-write-review-btn.show,
+.job-actions-left .conditional-btn.show,
+.job-actions-left #action-request-file-btn.show,
+.job-actions-left #action-schedule-interview-btn.show,
+.job-actions-left #action-request-documents-btn.show,
+.job-actions-left #action-send-offer-btn.show,
+.job-actions-left #action-send-contract-btn.show,
+.job-actions-left #action-send-credential-btn.show,
+.job-actions-left #action-write-review-btn.show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    left: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: 34px !important;
+    padding: 6px 14px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border: 1px solid #D8D8D8 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    color: #333333 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+/* Action Buttons - Consistent 34px height and hover effects */
+.action-btn:not(.conditional-btn),
+.menu-dropdown-btn.dropdown-cstm {
+    height: 34px !important;
+    padding: 6px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    border: 1px solid #D8D8D8 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    color: #333333 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Menu button has special background */
+.menu-dropdown-btn.dropdown-cstm {
+    background: #D9F2D9 !important;
+}
+
+.action-btn svg,
+.menu-dropdown-btn.dropdown-cstm svg {
+    stroke: #000000 !important;
+    transition: stroke 0.2s ease !important;
+}
+
+/* Hover effect - highlight both text and SVG */
+.action-btn:hover,
+.menu-dropdown-btn.dropdown-cstm:hover,
+.conditional-btn.show:hover {
+    color: #85BB65 !important;
+    border-color: #85BB65 !important;
+}
+
+.action-btn:hover svg,
+.menu-dropdown-btn.dropdown-cstm:hover svg,
+.conditional-btn.show:hover svg {
+    stroke: #85BB65 !important;
+}
+
+.action-btn:hover span,
+.menu-dropdown-btn.dropdown-cstm:hover span,
+.action-btn:hover,
+.menu-dropdown-btn.dropdown-cstm:hover,
+.conditional-btn.show:hover span {
+    color: #85BB65 !important;
+}
+
+/* Specific styles for Request Documents button */
+#action-request-documents-btn {
+    width: 85px !important;
+    height: 35px !important;
+    border-radius: 10px !important;
+}
+
+/* Remove black borders from conditional buttons - override all possible sources */
+.conditional-btn,
+.conditional-btn.show,
+.conditional-btn:focus,
+.conditional-btn:active,
+#action-request-file-btn,
+#action-request-file-btn.show,
+#action-request-file-btn:focus,
+#action-request-file-btn:active,
+#action-schedule-interview-btn,
+#action-schedule-interview-btn.show,
+#action-schedule-interview-btn:focus,
+#action-schedule-interview-btn:active,
+#action-request-documents-btn,
+#action-request-documents-btn.show,
+#action-request-documents-btn:focus,
+#action-request-documents-btn:active,
+#action-send-offer-btn,
+#action-send-offer-btn.show,
+#action-send-offer-btn:focus,
+#action-send-offer-btn:active,
+#action-send-contract-btn,
+#action-send-contract-btn.show,
+#action-send-contract-btn:focus,
+#action-send-contract-btn:active,
+#action-send-credential-btn,
+#action-send-credential-btn.show,
+#action-send-credential-btn:focus,
+#action-send-credential-btn:active,
+#action-write-review-btn,
+#action-write-review-btn.show,
+#action-write-review-btn:focus,
+#action-write-review-btn:active {
+    border: 1px solid #D8D8D8 !important;
+    outline: none !important;
+    outline-offset: 0 !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+
+/* Candidate Section Collapse Styles */
+.applications-main-layout.candidate-collapsed {
+    grid-template-columns: 0 1fr !important;
+}
+
+.applications-main-layout.candidate-collapsed .candidate-column {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.candidate-collapse-btn {
+    color: #000000;
+}
+
+.candidate-collapse-btn:hover {
+    background: #F4F9F1 !important;
+    border-color: #85BB65 !important;
+    color: #85BB65;
+}
+
+.candidate-collapse-btn {
+    transition: all 0.3s ease;
+}
+
+.candidate-collapse-btn:hover {
+    background: #F4F9F1 !important;
+    border-color: #85BB65 !important;
+    color: #85BB65;
+}
+
+.candidate-collapse-btn:hover svg {
+    stroke: #85BB65 !important;
+}
+
+/* Arrow rotation - starts pointing right, rotates to point left when collapsed */
+.candidate-collapse-arrow {
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+
+/* When layout is collapsed, rotate the arrow */
+.applications-main-layout.candidate-collapsed ~ .actions-container .candidate-collapse-arrow,
+body:has(.applications-main-layout.candidate-collapsed) .candidate-collapse-arrow {
+    transform: rotate(180deg);
+}
+
+/* When layout is expanded, arrow points right */
+.applications-main-layout:not(.candidate-collapsed) ~ .actions-container .candidate-collapse-arrow,
+body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collapse-arrow {
+    transform: rotate(0deg);
+}
+
+.conditional-btn.show:focus,
+.conditional-btn.show:active,
+#action-request-file-btn.show:focus,
+#action-request-file-btn.show:active,
+#action-schedule-interview-btn.show:focus,
+#action-schedule-interview-btn.show:active,
+#action-request-documents-btn.show:focus,
+#action-request-documents-btn.show:active,
+#action-send-offer-btn.show:focus,
+#action-send-offer-btn.show:active,
+#action-send-contract-btn.show:focus,
+#action-send-contract-btn.show:active,
+#action-send-credential-btn.show:focus,
+#action-send-credential-btn.show:active,
+#action-write-review-btn.show:focus,
+#action-write-review-btn.show:active {
+    border-color: #D8D8D8 !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+/* Ensure all conditional buttons when shown have proper border styling (no black border) */
+.actions-container .conditional-btn.show,
+.actions-container #action-request-file-btn.show,
+.actions-container #action-schedule-interview-btn.show,
+.actions-container #action-request-documents-btn.show,
+.actions-container #action-send-offer-btn.show,
+.actions-container #action-send-contract-btn.show,
+.actions-container #action-send-credential-btn.show,
+.actions-container #action-write-review-btn.show,
+.job-actions-left .conditional-btn.show,
+.job-actions-left #action-request-file-btn.show,
+.job-actions-left #action-schedule-interview-btn.show,
+.job-actions-left #action-request-documents-btn.show,
+.job-actions-left #action-send-offer-btn.show,
+.job-actions-left #action-send-contract-btn.show,
+.job-actions-left #action-send-credential-btn.show,
+.job-actions-left #action-write-review-btn.show {
+    border: 1px solid #D8D8D8 !important;
+    border-color: #D8D8D8 !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    border-radius: 10px !important;
+}
+
+/* Override any default button borders that might be black */
+.conditional-btn,
+.conditional-btn.show,
+#action-request-file-btn,
+#action-schedule-interview-btn,
+#action-request-documents-btn,
+#action-send-offer-btn,
+#action-send-contract-btn,
+#action-send-credential-btn,
+#action-write-review-btn {
+    border: 1px solid #D8D8D8 !important;
+    border-color: #D8D8D8 !important;
+    outline: none !important;
+}
+
+/* Status Switch Button Styling */
+#status-switch-btn {
+    height: 34px !important;
+    padding: 6px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    border: 1px solid #D8D8D8 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    color: #333333 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+#status-switch-btn:hover {
+    color: #85BB65 !important;
+    border-color: #85BB65 !important;
+}
+
+#status-switch-btn:hover svg {
+    stroke: #85BB65 !important;
+}
+
+#status-switch-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Status Dropdown Panel */
+.status-dropdown.custom-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    margin-top: 8px !important;
+    z-index: 9999 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    border: 1px solid #e6eef6 !important;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03) !important;
+    border-radius: 10px !important;
+    padding: 12px !important;
+    min-width: 200px !important;
+}
+
+.status-dropdown.hidden {
+    display: none !important;
+}
+
+.status-change-btn {
+    transition: all 0.2s ease !important;
+}
+
+.status-change-btn:hover {
+    background: #75a855 !important;
+    transform: translateX(2px);
+}
+
+.status-change-btn:active {
+    transform: translateX(4px);
+}
+
+/* Filter Tabs */
+.filter-tab {
+    position: relative;
+}
+
+.filter-tab:hover:not(.active) {
+    background: #f8f9fa;
+    color: #121C0C;
+}
+
+.filter-tab.active {
+    border-bottom-color: #85BB65 !important;
+    color: #85BB65 !important;
+    font-weight: 600 !important;
+}
+</style>
+
 <!-- Status Cards (Light Green Cards Style) -->
 <div class="application mb-3">
     <div class="row g-2">
@@ -17,21 +398,50 @@
 
         {% for status in allStatuses %}
             {% set count = 0 %}
-            {% for application in allApplications|default(applications) %}
-                {% if application.status == status %}
-                    {% set count = count + 1 %}
-                {% endif %}
-            {% endfor %}
+            {# Use statusCountsFormatted from repository if available (more accurate and up-to-date) #}
+            {% if statusCountsFormatted is defined and statusCountsFormatted is not empty %}
+                {% set count = statusCountsFormatted[status]|default(0) %}
+            {% elseif statusCounts is defined and statusCounts is not empty %}
+                {# Fallback to raw statusCounts array #}
+                {% for statusCount in statusCounts %}
+                    {% set dbStatus = statusCount.status|lower %}
+                    {# Map old status names to new ones for counting #}
+                    {% if status == 'shortlisted' and (dbStatus == 'in_review' or dbStatus == 'shortlisted') %}
+                        {% set count = statusCount.count %}
+                    {% elseif status == 'interviewing' and (dbStatus == 'interview' or dbStatus == 'interviewing') %}
+                        {% set count = statusCount.count %}
+                    {% elseif status == 'negotiating' and (dbStatus == 'in_review' or dbStatus == 'offered' or dbStatus == 'negotiating') %}
+                        {% set count = statusCount.count %}
+                    {% elseif status == 'accepted' and (dbStatus == 'hired' or dbStatus == 'accepted') %}
+                        {% set count = statusCount.count %}
+                    {% elseif dbStatus == status|lower %}
+                        {% set count = statusCount.count %}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {# Fallback to manual counting from allApplications #}
+                {% for application in allApplications|default(applications) %}
+                    {% set appStatus = application.status|lower %}
+                    {# Map old status names to new ones for counting #}
+                    {% if status == 'shortlisted' and (appStatus == 'in_review' or appStatus == 'shortlisted') %}
+                        {% set count = count + 1 %}
+                    {% elseif status == 'interviewing' and (appStatus == 'interview' or appStatus == 'interviewing') %}
+                        {% set count = count + 1 %}
+                    {% elseif status == 'negotiating' and (appStatus == 'in_review' or appStatus == 'offered' or appStatus == 'negotiating') %}
+                        {% set count = count + 1 %}
+                    {% elseif status == 'accepted' and (appStatus == 'hired' or appStatus == 'accepted') %}
+                        {% set count = count + 1 %}
+                    {% elseif appStatus == status|lower %}
+                        {% set count = count + 1 %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
             <div class="col">
                 <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}">
                     <div class="card is-card mb-3 is-{{ statusColors[status] }} {% if app.request.get('status') == status %}active{% endif %}">
                         <div class="card-body">
                             <h6 class="card-title">
-                                {% if status == 'in_review' %}
-                                    Negotiating
-                                {% else %}
-                                    {{ status | replace({'_': ' '}) | title }}
-                                {% endif %}
+                                {{ status | title }}
                             </h6>
                             <p class="card-text">{{ count }}</p>
                         </div>
@@ -44,119 +454,179 @@
 
 <!-- Action Buttons (Below Status Cards) -->
 <div class="actions-container" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-    <!-- Left Group: Filter, Email, and Status-based Action Buttons -->
+    <!-- Left Group: Filter, View Candidates, Email, and Status-based Action Buttons -->
     <div class="job-actions-left" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-        <div class="position-relative" style="flex-shrink: 0;">
-            <button id="filter-btn" class="action-btn" title="Filter" onclick="toggleFilterPanel(event)" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
-                    <path d="M3 7H21M7 12H17M10 17H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                Filter
-            </button>
-            <!-- Filter Dropdown Panel -->
-            <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 200px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 16px; display: none;">
-                <form>
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #000000;">Candidate</label>
-                        <select name="status" class="form-control form-select" style="width: 100%; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 6px; font-size: 14px; color: #000000;">
-                            <option value="">All</option>
-                            <option value="applied" {% if app.request.get('status') == 'applied' %}selected{% endif %}>Applied</option>
-                            <option value="in_review" {% if app.request.get('status') == 'in_review' %}selected{% endif %}>Shortlisted</option>
-                            <option value="interview" {% if app.request.get('status') == 'interview' %}selected{% endif %}>Interview</option>
-                            <option value="offered" {% if app.request.get('status') == 'offered' %}selected{% endif %}>Offered</option>
-                            <option value="hired" {% if app.request.get('status') == 'hired' %}selected{% endif %}>Hired</option>
-                            <option value="completed" {% if app.request.get('status') == 'completed' %}selected{% endif %}>Completed</option>
-                        </select>
-                    </div>
-                    <div>
-                        <input type="submit" value="Filter" class="btn btn-sm" style="width: 100%; background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;" />
-                    </div>
-                </form>
-            </div>
-        </div>
+        <!-- Filter Button (moved to first position) -->
+        {% include 'employer/job/_filter_panel.html.twig' %}
         
-        <button id="email-btn" class="action-btn" title="Email" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <!-- View Candidates Button -->
+        <button id="candidate-collapse-btn" class="candidate-collapse-btn action-btn" onclick="toggleCandidateSection()" title="View Candidates" style="background: #fff; border: 1px solid #D8D8D8; border-radius: 10px; padding: 6px 14px; height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.3s ease; font-size: 14px; font-weight: 500; color: #333333; white-space: nowrap;">
+            <span class="candidate-btn-text">View Candidates</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="candidate-collapse-arrow" style="transition: transform 0.3s ease; stroke: #000000;">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        
+        <!-- Status Switch Button -->
+        {% set activeApplication = applicationDetail %}
+        {% if not activeApplication and applications|length > 0 %}
+            {% set activeApplication = applications|first %}
+        {% endif %}
+        
+        {% if activeApplication %}
+            {% set currentStatus = activeApplication.status|lower %}
+            {% set nextPhase = null %}
+            {% set nextTransition = null %}
+            {% set nextPhaseLabel = null %}
+            
+            {# Determine next phase based on current status #}
+            {% if currentStatus == 'applied' %}
+                {% set nextPhase = 'negotiating' %}
+                {% set nextTransition = 'review' %}
+                {% set nextPhaseLabel = 'Negotiating' %}
+            {% elseif currentStatus == 'in_review' or currentStatus == 'shortlisted' %}
+                {% set nextPhase = 'interview' %}
+                {% set nextTransition = 'interview' %}
+                {% set nextPhaseLabel = 'Interview' %}
+            {% elseif currentStatus == 'interview' or currentStatus == 'interviewing' %}
+                {% set nextPhase = 'offered' %}
+                {% set nextTransition = 'offer' %}
+                {% set nextPhaseLabel = 'Offered' %}
+            {% elseif currentStatus == 'offered' or currentStatus == 'negotiating' %}
+                {% set nextPhase = 'hired' %}
+                {% set nextTransition = 'hire' %}
+                {% set nextPhaseLabel = 'Hired' %}
+            {% elseif currentStatus == 'hired' or currentStatus == 'accepted' %}
+                {% set nextPhase = 'completed' %}
+                {% set nextTransition = 'complete' %}
+                {% set nextPhaseLabel = 'Completed' %}
+            {% endif %}
+            
+            {# Format current status for display #}
+            {% set currentStatusLabel = currentStatus|replace({'_': ' '})|title %}
+            {% if currentStatus == 'in_review' or currentStatus == 'shortlisted' %}
+                {% set currentStatusLabel = 'Negotiating' %}
+            {% elseif currentStatus == 'offered' or currentStatus == 'negotiating' %}
+                {% set currentStatusLabel = 'Negotiating' %}
+            {% elseif currentStatus == 'hired' or currentStatus == 'accepted' %}
+                {% set currentStatusLabel = 'Accepted' %}
+            {% endif %}
+            
+            {% if nextPhase %}
+                <div class="position-relative" style="flex-shrink: 0;">
+                    <button id="status-switch-btn" class="action-btn" title="Switch Status" onclick="toggleStatusDropdown(event)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span id="status-switch-text">{{ currentStatusLabel }}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 4px;">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <!-- Status Dropdown Panel -->
+                    <div id="status-dropdown-panel" class="status-dropdown custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 200px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 12px; display: none;">
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Current Status:</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #000000;">{{ currentStatusLabel }}</div>
+                        </div>
+                        <div style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Move to:</div>
+                            <button type="button" onclick="changeApplicationStatus('{{ nextTransition }}', '{{ activeApplication.id }}')" class="status-change-btn" style="width: 100%; padding: 8px 12px; background: #85BB65; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;">
+                                <span>{{ nextPhaseLabel }}</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
+        <button id="email-btn" class="action-btn" title="Email">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Email
+            <span>Email</span>
         </button>
 
         <!-- Status-based Action Buttons (Hidden by default, shown based on application status) -->
-        <button id="action-request-file-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request One File">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-request-file-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request One File">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Request One File
+            <span>Request One File</span>
         </button>
 
-        <button id="action-schedule-interview-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal" title="Schedule Interview">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-schedule-interview-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal" title="Schedule Interview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Schedule Interview
+            <span>Schedule Interview</span>
         </button>
 
-        <button id="action-request-documents-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request Documents">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-request-documents-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#askDocumentModal" title="Request Documents">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Request Documents
+            <span>Request Documents</span>
         </button>
 
-        <button id="action-send-offer-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="offer" title="Send Offer Letter">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-send-offer-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="offer" title="Send Offer Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Send Offer Letter
+            <span>Send Offer Letter</span>
         </button>
 
-        <button id="action-send-contract-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="contract" title="Send Contract Letter">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-send-contract-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#sendOfferModal" data-document-type="contract" title="Send Contract Letter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Send Contract Letter
+            <span>Send Contract Letter</span>
         </button>
 
-        <button id="action-send-credential-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#sendCredentialLinkModal" title="Send Credential Link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-send-credential-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#sendCredentialLinkModal" title="Send Credential Link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Send Credential Link
+            <span>Send Credential Link</span>
         </button>
 
-        <button id="action-write-review-btn" class="action-btn conditional-btn" style="display: none; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" data-bs-toggle="modal" data-bs-target="#writeReviewModal" title="Write Review">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button id="action-write-review-btn" class="action-btn conditional-btn" style="display: none;" data-bs-toggle="modal" data-bs-target="#writeReviewModal" title="Write Review">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Write Review
+            <span>Write Review</span>
         </button>
     </div>
     
     <!-- Right Group: Menu, Search, View Job Details -->
     <div class="job-actions-right" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
         <div class="position-relative" style="flex-shrink: 0;">
-            <button id="search-toggle-btn-top" class="action-btn" title="Search" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" onclick="toggleSearchPanel(event)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+            <button id="search-toggle-btn-top" class="action-btn" title="Search" onclick="toggleSearchPanel(event)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
                     <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                Search
+                <span>Search</span>
             </button>
             <!-- Search Panel -->
             <div id="search-panel" class="search-panel custom-dropdown hidden" style="position: absolute; top: 100%; right: 0; margin-top: 8px; min-width: 300px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 16px; display: none;">
@@ -170,25 +640,25 @@
             </div>
         </div>
 
-        <button type="button" id="view-job-details-btn" onclick="toggleJobDetails()" class="action-btn" title="View Job Details" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #fff; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000;">
+        <button type="button" id="view-job-details-btn" onclick="toggleJobDetails()" class="action-btn" title="View Job Details">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            View Job Details
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000; transition: transform 0.2s ease; margin-left: auto;">
+            <span>View Job Details</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transition: transform 0.2s ease; margin-left: auto;">
                 <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
         
         <!-- Menu Dropdown -->
         <div class="menu-dropdown position-relative">
-            <button type="button" class="menu-dropdown-btn dropdown-cstm" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #e6eef6; background: #D9F2D9; border-radius: 6px; color: #000000; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">
+            <button type="button" class="menu-dropdown-btn dropdown-cstm">
                 <span>Menu</span>
             </button>
             <div class="dropdown-panel menu-panel custom-dropdown hidden" style="position: absolute; top: 110%; right: 0; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 10px; min-width: 160px; z-index: 30;">
                 <!-- Print/Share Button -->
                 <button id="print-share-btn" class="menu-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 0; width: 100%; text-align: left; color: inherit; text-decoration: none; background: none; border: none; cursor: pointer;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #121C0C;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000000;">
                         <path d="M6 9V2H18V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M6 18H4C2.89543 18 2 17.1046 2 16V11C2 9.89543 2.89543 9 4 9H20C21.1046 9 22 9.89543 22 11V16C22 17.1046 21.1046 18 20 18H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M18 14H6V22H18V14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -198,7 +668,7 @@
                 <div class="menu-divider" style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
                 <!-- Hx Button -->
                 <button id="history-btn" class="menu-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 0; width: 100%; text-align: left; color: inherit; text-decoration: none; background: none; border: none; cursor: pointer;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #121C0C;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #000000;">
                         <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                     </svg>
@@ -210,13 +680,12 @@
 </div>
 
 <!-- Main Layout: Left Column (Candidates), Right Column (Application Detail) -->
-<div class="applications-main-layout" style="display: grid; grid-template-columns: 250px 1fr; gap: 20px; align-items: start; margin-top: 10px;">
+<div class="applications-main-layout candidate-collapsed" id="applications-main-layout" style="display: grid; grid-template-columns: 0 1fr; gap: 20px; align-items: start; margin-top: 10px; position: relative; transition: grid-template-columns 0.3s ease;">
     <!-- Left Column: Candidate List -->
-    <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div id="candidate-column" class="candidate-column" style="display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; overflow: hidden;">
         <!-- Candidate Field (Application List) -->
         <div class="candidate-field" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 16px; min-height: 400px;">
-            <label style="display: block; margin-bottom: 16px; margin-left: 0; font-size: 15px; font-weight: 600; color: #000000;">Candidate</label>
-            <div class="job-list-container" id="list-view-container" style="display: block; margin: 0; padding: 0; margin-left: 0;">
+            <div class="job-list-container candidates-content" id="list-view-container" style="display: block; margin: 0; padding: 0; margin-left: 0;">
                 <div class="left-aside" style="margin: 0; padding: 0; margin-left: 0;">
                             {% if applications|length > 0 %}
                             {% for application in applications %}
@@ -235,7 +704,7 @@
                                 {% elseif statusLower == 'accepted' %}
                                     {% set todoTask = 'Request Credentialing Docs' %}
                                 {% elseif statusLower == 'completed' %}
-                                    {% set todoTask = 'See your review' %}
+                                    {% set todoTask = 'Write your review' %}
                                 {% endif %}
                                 {% set sentItems = [] %}
                                 {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
@@ -243,7 +712,7 @@
                                 {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
 
                                 <a href="{{ path('app_employer_job_applications', {'id': job.id, 'applicationId': application.id}) }}" style="text-decoration: none; color: inherit;">
-                                    <div class="card card-v2 {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}active-card{% endif %}" id="{{ application.id }}" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 10px; color: #000; transition: all 0.2s ease; {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}border-color: #85BB65; box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);{% endif %}">
+                                    <div class="card card-v2 {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}active-card{% endif %}" id="{{ application.id }}" data-application-id="{{ application.id }}" data-status="{{ application.status }}" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 10px; color: #000; transition: all 0.2s ease; {% if app.request.get('applicationId') == application.id or app.request.get('applicationId') is empty and loop.index == 1 %}border-color: #85BB65; box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);{% endif %}">
                                         <div class="card-body" style="padding: 0;">
                                             <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px;">
                                                 {% if provider.user.profilePicture %}
@@ -254,11 +723,11 @@
                                                     </div>
                                                 {% endif %}
                                                 <div style="flex: 1; min-width: 0; overflow: hidden;">
-                                                    <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600; color: #000000; line-height: 1.3;">{{ user.name }}</h4>
-                                                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #000000;">
-                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000;"><i class="fa fa-clock" style="width: 14px; color: #000000;"></i> <span style="color: #000000;">{{ application.createdAt|time_diff }}</span></span>
-                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000;"><i class="fa fa-star" style="width: 14px; color: #000000;"></i> <span style="color: #000000;">{{ application.provider.averagePoint ?: 'Not Rated Yet' }}</span></span>
-                                                        <span style="display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000;"><i class="fa fa-map-marked" style="width: 14px; color: #000000;"></i> <span style="overflow: hidden; text-overflow: ellipsis; color: #000000;">{{ provider.country~' '~provider.state~' '~provider.city }}</span></span>
+                                                    <h4 style="margin: 0 0 6px 0; font-size: 16px; font-weight: 600; color: #000000; line-height: 1.3; text-transform: lowercase;">{{ user.name }}</h4>
+                                                    <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #000000; text-transform: lowercase;">
+                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000; text-transform: lowercase;"><i class="fa fa-clock" style="width: 14px; color: #000000;"></i> <span style="color: #000000; text-transform: lowercase;">{{ application.createdAt|time_diff }}</span></span>
+                                                        <span style="display: flex; align-items: center; gap: 4px; color: #000000; text-transform: lowercase;"><i class="fa fa-star" style="width: 14px; color: #000000;"></i> <span style="color: #000000; text-transform: lowercase;">{{ application.provider.averagePoint ?: 'Not Rated Yet' }}</span></span>
+                                                        <span style="display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #000000; text-transform: lowercase;"><i class="fa fa-map-marked" style="width: 14px; color: #000000;"></i> <span style="overflow: hidden; text-overflow: ellipsis; color: #000000; text-transform: lowercase;">{{ provider.country~' '~provider.state~' '~provider.city }}</span></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -293,18 +762,18 @@
                 <!-- View Job Details Panel (Hidden by default, shown when button is clicked) -->
                 <div id="view-job-details-panel" style="display: none; background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
                     <div style="margin-bottom: 16px;">
-                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000;">
-                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none;">{{ job.title }}</a>
+                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000; text-transform: lowercase;">
+                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none; text-transform: lowercase;">{{ job.title }}</a>
                         </h3>
                         <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #000000; margin-bottom: 12px;">
-                            {% if job.workType %}<span>{{ job.workType }}</span>{% endif %}
-                            {% if job.need %}<span>{{ job.need }}</span>{% endif %}
-                            {% if job.schedule %}<span>{{ job.schedule }}</span>{% endif %}
-                            {% if job.state or job.city %}<span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
-                            {% if job.expirationDate %}<span>Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
+                            {% if job.workType %}<span style="text-transform: lowercase;">{{ job.workType }}</span>{% endif %}
+                            {% if job.need %}<span style="text-transform: lowercase;">{{ job.need }}</span>{% endif %}
+                            {% if job.schedule %}<span style="text-transform: lowercase;">{{ job.schedule }}</span>{% endif %}
+                            {% if job.state or job.city %}<span style="text-transform: lowercase;">{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
+                            {% if job.expirationDate %}<span style="text-transform: lowercase;">Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 14px; color: #000000; font-weight: 500;">Status:</span>
+                            <span style="font-size: 14px; color: #000000; font-weight: 600; text-transform: lowercase;">status:</span>
                             {% set jobStatusClass = 'job-status-badge' %}
                             {% if job.status == 'published' %}
                                 {% set jobStatusClass = 'job-status-badge job-status-published' %}
@@ -341,18 +810,18 @@
             <div class="right-aside" style="padding-left: 15px;">
                 <div id="view-job-details-panel" style="display: none; background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
                     <div style="margin-bottom: 16px;">
-                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000;">
-                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none;">{{ job.title }}</a>
+                        <h3 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 600; color: #000000; text-transform: lowercase;">
+                            <a href="{{ path('app_employer_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none; text-transform: lowercase;">{{ job.title }}</a>
                         </h3>
                         <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #000000; margin-bottom: 12px;">
-                            {% if job.workType %}<span>{{ job.workType }}</span>{% endif %}
-                            {% if job.need %}<span>{{ job.need }}</span>{% endif %}
-                            {% if job.schedule %}<span>{{ job.schedule }}</span>{% endif %}
-                            {% if job.state or job.city %}<span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
-                            {% if job.expirationDate %}<span>Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
+                            {% if job.workType %}<span style="text-transform: lowercase;">{{ job.workType }}</span>{% endif %}
+                            {% if job.need %}<span style="text-transform: lowercase;">{{ job.need }}</span>{% endif %}
+                            {% if job.schedule %}<span style="text-transform: lowercase;">{{ job.schedule }}</span>{% endif %}
+                            {% if job.state or job.city %}<span style="text-transform: lowercase;">{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
+                            {% if job.expirationDate %}<span style="text-transform: lowercase;">Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 14px; color: #000000; font-weight: 500;">Status:</span>
+                            <span style="font-size: 14px; color: #000000; font-weight: 600; text-transform: lowercase;">status:</span>
                             {% set jobStatusClass = 'job-status-badge' %}
                             {% if job.status == 'published' %}
                                 {% set jobStatusClass = 'job-status-badge job-status-published' %}
@@ -389,3 +858,281 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+// Filter Panel functionality - following the same pattern as _application_detail.html.twig
+// Use IIFE to prevent duplicate initialization
+(function() {
+    'use strict';
+    
+    // Guard: Only initialize once
+    if (window._filterPanelInitialized) {
+        return;
+    }
+    window._filterPanelInitialized = true;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize filter panel functions (scoped to this callback)
+        function switchFilterTab(tabName, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            // Handle "coming soon" tabs
+            if (tabName === 'recruiter-assigned' || tabName === 'recruiter-applied') {
+                alert('Coming soon');
+                return;
+            }
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+                tab.style.borderBottomColor = 'transparent';
+                tab.style.color = '#6b7280';
+                tab.style.fontWeight = '500';
+            });
+            
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.filter-tab-content');
+            contents.forEach(function(content) {
+                content.style.display = 'none';
+            });
+            
+            // Activate selected tab
+            const activeTab = document.querySelector('[data-tab="' + tabName + '"]');
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.style.borderBottomColor = '#85BB65';
+                activeTab.style.color = '#85BB65';
+                activeTab.style.fontWeight = '600';
+            }
+            
+            // Show selected tab content
+            const activeContent = document.getElementById(tabName + '-content');
+            if (activeContent) {
+                activeContent.style.display = 'block';
+            }
+        }
+        
+        function toggleFilterPanel(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const filterPanelEl = document.getElementById('filter-panel');
+            
+            if (filterPanelEl) {
+                const isHidden = filterPanelEl.classList.contains('hidden');
+                if (isHidden) {
+                    filterPanelEl.classList.remove('hidden');
+                    filterPanelEl.style.display = 'block';
+                } else {
+                    filterPanelEl.classList.add('hidden');
+                    filterPanelEl.style.display = 'none';
+                }
+            }
+        }
+        
+        function applyFilters(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            const form = document.getElementById('filter-form');
+            if (!form) return;
+            
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            // Add all filter values
+            formData.forEach(function(value, key) {
+                if (value && value.trim() !== '') {
+                    params.append(key, value.trim());
+                }
+            });
+            
+            // Preserve job ID and application ID if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id') || window.location.pathname.split('/').pop();
+            const applicationId = urlParams.get('applicationId');
+            
+            // Build new URL
+            const baseUrl = window.location.pathname.split('?')[0];
+            let newUrl = baseUrl;
+            if (jobId) {
+                newUrl = baseUrl.replace(/\/[^\/]+$/, '/' + jobId);
+            }
+            if (params.toString()) {
+                newUrl += '?' + params.toString();
+                if (applicationId) {
+                    newUrl += '&applicationId=' + applicationId;
+                }
+            } else if (applicationId) {
+                newUrl += '?applicationId=' + applicationId;
+            }
+            
+            // Reload page with filters
+            window.location.href = newUrl;
+        }
+        
+        function clearFilters() {
+            // Clear all filter inputs
+            const filterForm = document.getElementById('filter-form');
+            if (filterForm) {
+                filterForm.reset();
+            }
+            
+            // Get current URL without filter params
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id') || window.location.pathname.split('/').pop();
+            const applicationId = urlParams.get('applicationId');
+            
+            // Build new URL with only job ID and application ID if present
+            const baseUrl = window.location.pathname.split('?')[0];
+            let newUrl = baseUrl;
+            if (jobId) {
+                newUrl = baseUrl.replace(/\/[^\/]+$/, '/' + jobId);
+            }
+            if (applicationId) {
+                newUrl += '?applicationId=' + applicationId;
+            }
+            
+            // Reload page without filters
+            window.location.href = newUrl;
+        }
+        
+        // Make functions globally available for onclick handlers (only if not already set)
+        if (!window.toggleFilterPanel) {
+            window.toggleFilterPanel = toggleFilterPanel;
+        }
+        if (!window.applyFilters) {
+            window.applyFilters = applyFilters;
+        }
+        if (!window.clearFilters) {
+            window.clearFilters = clearFilters;
+        }
+        if (!window.switchFilterTab) {
+            window.switchFilterTab = switchFilterTab;
+        }
+        
+        // Close filter panel when clicking outside (only add once)
+        if (!window._filterPanelClickHandlerAdded) {
+            document.addEventListener('click', function(event) {
+                const filterBtnEl = document.getElementById('filter-btn');
+                const filterPanelEl = document.getElementById('filter-panel');
+                
+                if (filterBtnEl && filterPanelEl && !filterBtnEl.contains(event.target) && !filterPanelEl.contains(event.target)) {
+                    filterPanelEl.classList.add('hidden');
+                    filterPanelEl.style.display = 'none';
+                }
+            });
+            window._filterPanelClickHandlerAdded = true;
+        }
+    });
+})();
+
+// Toggle Candidate Section (Hide/Show entire left column)
+function toggleCandidateSection() {
+    const mainLayout = document.getElementById('applications-main-layout');
+    const candidateColumn = document.getElementById('candidate-column');
+    const collapseBtn = document.getElementById('candidate-collapse-btn');
+    const arrow = collapseBtn ? collapseBtn.querySelector('.candidate-collapse-arrow') : null;
+    
+    if (mainLayout && candidateColumn && collapseBtn) {
+        if (mainLayout.classList.contains('candidate-collapsed')) {
+            // Expand - show candidates
+            mainLayout.classList.remove('candidate-collapsed');
+            mainLayout.style.gridTemplateColumns = '250px 1fr';
+            if (arrow) {
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        } else {
+            // Collapse - hide candidates
+            mainLayout.classList.add('candidate-collapsed');
+            mainLayout.style.gridTemplateColumns = '0 1fr';
+            if (arrow) {
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+    }
+}
+
+// Make function available globally
+window.toggleCandidateSection = toggleCandidateSection;
+
+// Toggle Status Dropdown
+function toggleStatusDropdown(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    
+    const statusBtn = document.getElementById('status-switch-btn');
+    const statusPanel = document.getElementById('status-dropdown-panel');
+    
+    if (statusBtn && statusPanel) {
+        const isHidden = statusPanel.classList.contains('hidden');
+        if (isHidden) {
+            statusPanel.classList.remove('hidden');
+            statusPanel.style.display = 'block';
+        } else {
+            statusPanel.classList.add('hidden');
+            statusPanel.style.display = 'none';
+        }
+    }
+}
+
+// Close status dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const statusBtn = document.getElementById('status-switch-btn');
+    const statusPanel = document.getElementById('status-dropdown-panel');
+    
+    if (statusPanel && statusBtn && !statusPanel.contains(event.target) && !statusBtn.contains(event.target)) {
+        statusPanel.classList.add('hidden');
+        statusPanel.style.display = 'none';
+    }
+});
+
+// Change Application Status
+function changeApplicationStatus(transition, applicationId) {
+    if (!transition || !applicationId) {
+        console.error('Missing transition or applicationId');
+        return;
+    }
+    
+    // Build the transition URL using the job ID from the template
+    const jobId = '{{ job.id }}';
+    const baseUrl = '{{ path('app_employer_job_application_transition', {'id': job.id, 'transition': 'PLACEHOLDER_TRANSITION', 'applicationId': 'PLACEHOLDER_APP_ID'}) }}';
+    const transitionUrl = baseUrl
+        .replace('PLACEHOLDER_TRANSITION', transition)
+        .replace('PLACEHOLDER_APP_ID', applicationId);
+    
+    // Show loading state
+    const statusBtn = document.getElementById('status-switch-btn');
+    const statusPanel = document.getElementById('status-dropdown-panel');
+    if (statusBtn) {
+        const statusText = statusBtn.querySelector('#status-switch-text');
+        if (statusText) {
+            statusText.textContent = 'Updating...';
+        }
+        statusBtn.disabled = true;
+        
+        // Close dropdown
+        if (statusPanel) {
+            statusPanel.classList.add('hidden');
+            statusPanel.style.display = 'none';
+        }
+        
+        // Redirect to transition URL
+        window.location.href = transitionUrl;
+    }
+}
+
+// Make functions available globally
+window.toggleStatusDropdown = toggleStatusDropdown;
+window.changeApplicationStatus = changeApplicationStatus;
+</script>

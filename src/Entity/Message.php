@@ -17,7 +17,7 @@ class Message
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne]
@@ -37,6 +37,10 @@ class Message
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: "job_uuid", referencedColumnName: "id", nullable: true)]
     private ?Job $job = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: "application_id", referencedColumnName: "id", nullable: true)]
+    private ?Application $application = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $text = null;
@@ -139,6 +143,17 @@ class Message
     public function setJob(?Job $job): static
     {
         $this->job = $job;
+        return $this;
+    }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(?Application $application): static
+    {
+        $this->application = $application;
         return $this;
     }
 

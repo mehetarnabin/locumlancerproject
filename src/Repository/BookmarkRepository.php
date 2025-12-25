@@ -42,13 +42,18 @@ class BookmarkRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findFilteredJobs($user, $location = null, $salaryMin = null, $salaryMax = null, $category = null, $days = null)
+    public function findFilteredJobs($user, $location = null, $salaryMin = null, $salaryMax = null, $category = null, $days = null, $excludeJobIds = [])
     {
         $qb = $this->createQueryBuilder('b')
             ->join('b.job', 'j')
             ->andWhere('b.user = :user')
-            ->setParameter('user', $user, UuidType::NAME)
-            ->orderBy('b.id', 'DESC');
+            ->setParameter('user', $user, UuidType::NAME);
+
+        // Exclude jobs that have applications (applied jobs)
+        if (!empty($excludeJobIds)) {
+            $qb->andWhere('j.id NOT IN (:excludeJobIds)')
+               ->setParameter('excludeJobIds', $excludeJobIds);
+        }
 
         // Location filter (city or state)
         if ($location) {
@@ -81,7 +86,9 @@ class BookmarkRepository extends ServiceEntityRepository
             ->setParameter('date', $date);
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb->orderBy('b.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
 }

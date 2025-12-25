@@ -21,6 +21,7 @@ use App\Service\JobIdGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +34,34 @@ use Symfony\Component\Workflow\WorkflowInterface;
 #[Route('/employer/jobs')]
 class JobController extends AbstractController
 {
+    /**
+     * Map database status to display name (matching frontend exactly)
+     */
+    private function getStatusDisplayName(string $status): string
+    {
+        // Ensure status is a string, not an array
+        if (!is_string($status)) {
+            $status = is_array($status) ? (string)reset($status) : (string)$status;
+        }
+
+        $statusDisplayMap = [
+            'applied' => 'Applied',
+            'shortlisted' => 'Shortlisted',
+            'interviewing' => 'Interviewing',
+            'negotiating' => 'Negotiating',
+            'accepted' => 'Accepted',
+            'completed' => 'Completed',
+            // Legacy status mappings for backward compatibility
+            'in_review' => 'Shortlisted',
+            'interview' => 'Interviewing',
+            'offered' => 'Negotiating',
+            'hired' => 'Accepted'
+        ];
+
+        $statusKey = strtolower($status);
+        return isset($statusDisplayMap[$statusKey]) ? $statusDisplayMap[$statusKey] : ucfirst($status);
+    }
+
     #[Route('/', name: 'app_employer_jobs', methods: ['GET'])]
     public function index(JobRepository $jobRepository, Request $request, Registry $workflowRegistry): Response
     {
@@ -45,7 +74,7 @@ class JobController extends AbstractController
         $jobs = $jobRepository->getAll($offset, $perPage, $filters);
         $jobsArray = $jobs->getIterator()->getArrayCopy();
 
-        if($jobs->getNbResults() > 0) {
+        if ($jobs->getNbResults() > 0) {
             $workflow = $workflowRegistry->get(reset($jobsArray), 'job_workflow');
         }
 
@@ -75,8 +104,7 @@ class JobController extends AbstractController
         EntityManagerInterface $entityManager,
         EventDispatcherInterface $dispatcher,
         JobIdGenerator $jobIdGenerator
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
         $employer = $user->getEmployer();
 
@@ -107,7 +135,7 @@ class JobController extends AbstractController
     {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
@@ -126,44 +154,49 @@ class JobController extends AbstractController
         EntityManagerInterface $em,
         Registry $workflowRegistry,
         WorkflowInterface $jobApplicationWorkflow
-    ): Response
-    {
+    ): Response {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
 
-        if(!empty($request->get('status'))) {
+        // Priority: Get application by applicationId if provided (most specific)
+        $applicationIdValue = $request->query->get('applicationId');
+        if (!empty($applicationIdValue) && is_string($applicationIdValue)) {
             $application = $em->getRepository(Application::class)->findOneBy([
-                'job' => $job,
-                'employer' => $currentEmployer,
-                'status' => $request->get('status'),
-                'isArchived' => false
-            ], ['id' => 'DESC']);
-        }else{
-            $application = $em->getRepository(Application::class)->findOneBy([
-                'job' => $job,
-                'employer' => $currentEmployer,
-                'isArchived' => false
-            ], ['id' => 'DESC']);
-        }
-
-        if($request->get('applicationId')) {
-            $application = $em->getRepository(Application::class)->findOneBy([
-                'id' => $request->get('applicationId'),
+                'id' => $applicationIdValue,
                 'employer' => $currentEmployer,
                 'isArchived' => false
             ]);
 
-            if($application && $application->getStatus() == 'applied'){
+            if ($application && $application->getStatus() == 'applied') {
                 if ($jobApplicationWorkflow->can($application, 'review')) {
                     $jobApplicationWorkflow->apply($application, 'review');
                     $em->persist($application);
                     $em->flush();
-                    $this->addFlash('success', "Application transitioned to " . ucfirst($application->getStatus()));
+                    $displayStatus = $this->getStatusDisplayName($application->getStatus());
+                    $this->addFlash('success', "Application transitioned to " . $displayStatus);
                 }
+            }
+        } else {
+            $statusValue = $request->query->get('status');
+            if (!empty($statusValue) && is_string($statusValue)) {
+                // If no applicationId, try to get first application with the requested status
+                $application = $em->getRepository(Application::class)->findOneBy([
+                    'job' => $job,
+                    'employer' => $currentEmployer,
+                    'status' => $statusValue,
+                    'isArchived' => false
+                ], ['id' => 'DESC']);
+            } else {
+                // Default: get first application
+                $application = $em->getRepository(Application::class)->findOneBy([
+                    'job' => $job,
+                    'employer' => $currentEmployer,
+                    'isArchived' => false
+                ], ['id' => 'DESC']);
             }
         }
 
@@ -173,15 +206,147 @@ class JobController extends AbstractController
             'isArchived' => false
         ], ['id' => 'DESC']);
 
-        // Get filtered applications for the list display
-        if(!empty($request->get('status'))){
-            $applications = $em->getRepository(Application::class)->findBy([
-                'job' => $job,
-                'status' => $request->get('status'),
-                'isArchived' => false
-            ], ['id' => 'DESC']);
-        }else{
-            $applications = $allApplications;
+        // Get filtered applications for the list display using query builder
+        $qb = $em->getRepository(Application::class)->createQueryBuilder('a')
+            ->join('a.job', 'j')
+            ->where('a.isArchived = false')
+            ->andWhere('a.employer = :employer')
+            ->setParameter('employer', $currentEmployer);
+
+        // If jobId filter is provided, allow filtering across all jobs
+        // Otherwise, restrict to the current job
+        $jobIdValue = $request->query->get('jobId');
+        if (!empty($jobIdValue) && is_string($jobIdValue)) {
+            $jobIdFilter = trim($jobIdValue);
+            $qb->andWhere('j.jobId LIKE :jobId')
+                ->setParameter('jobId', '%' . $jobIdFilter . '%');
+        } else {
+            // No jobId filter, restrict to current job
+            $qb->andWhere('a.job = :job')
+                ->setParameter('job', $job);
+        }
+
+        // Apply status filter with backward compatibility
+        $statusValue = $request->query->get('status');
+        if (!empty($statusValue) && is_string($statusValue)) {
+            $statusFilter = $statusValue;
+
+            // Handle status mapping for backward compatibility
+            if ($statusFilter === 'shortlisted') {
+                $qb->andWhere('a.status IN (:status)')
+                    ->setParameter('status', ['shortlisted', 'in_review'], \Doctrine\DBAL\Connection::PARAM_STR_ARRAY);
+            } elseif ($statusFilter === 'interviewing') {
+                $qb->andWhere('a.status IN (:status)')
+                    ->setParameter('status', ['interviewing', 'interview'], \Doctrine\DBAL\Connection::PARAM_STR_ARRAY);
+            } elseif ($statusFilter === 'negotiating') {
+                $qb->andWhere('a.status IN (:status)')
+                    ->setParameter('status', ['negotiating', 'offered'], \Doctrine\DBAL\Connection::PARAM_STR_ARRAY);
+            } elseif ($statusFilter === 'accepted') {
+                $qb->andWhere('a.status IN (:status)')
+                    ->setParameter('status', ['accepted', 'hired'], \Doctrine\DBAL\Connection::PARAM_STR_ARRAY);
+            } else {
+                $qb->andWhere('a.status = :status')
+                    ->setParameter('status', $statusFilter);
+            }
+        }
+
+        // Apply location filter (city or state)
+        $locationValue = $request->query->get('location');
+        if (!empty($locationValue) && is_string($locationValue)) {
+            $locationFilter = trim($locationValue);
+            $qb->andWhere('(LOWER(j.city) LIKE :location OR LOWER(j.state) LIKE :location)')
+                ->setParameter('location', '%' . strtolower($locationFilter) . '%');
+        }
+
+        // Apply salary range filters
+        $salaryMinValue = $request->query->get('salaryMin');
+        if (!empty($salaryMinValue) && (is_string($salaryMinValue) || is_numeric($salaryMinValue))) {
+            $qb->andWhere('j.payRateHourly >= :salaryMin')
+                ->setParameter('salaryMin', (float)$salaryMinValue);
+        }
+        $salaryMaxValue = $request->query->get('salaryMax');
+        if (!empty($salaryMaxValue) && (is_string($salaryMaxValue) || is_numeric($salaryMaxValue))) {
+            $qb->andWhere('j.payRateHourly <= :salaryMax')
+                ->setParameter('salaryMax', (float)$salaryMaxValue);
+        }
+
+        // Apply category/work type filter
+        $categoryValue = $request->query->get('category');
+        if (!empty($categoryValue) && is_string($categoryValue)) {
+            $category = strtolower(trim($categoryValue));
+            if ($category === 'locums') {
+                $qb->andWhere('j.workType = :workType')
+                    ->setParameter('workType', 'locums');
+            } elseif ($category === 'parttime' || $category === 'part-time') {
+                $qb->andWhere('(j.workType = :workType1 OR j.workType = :workType2)')
+                    ->setParameter('workType1', 'parttime')
+                    ->setParameter('workType2', 'part-time');
+            } elseif ($category === 'fulltime' || $category === 'full-time') {
+                $qb->andWhere('(j.workType = :workType1 OR j.workType = :workType2)')
+                    ->setParameter('workType1', 'fulltime')
+                    ->setParameter('workType2', 'full-time');
+            }
+        }
+
+        // Apply date applied filter (days)
+        $daysValue = $request->query->get('days');
+        if (!empty($daysValue) && (is_string($daysValue) || is_numeric($daysValue))) {
+            $days = (int)$daysValue;
+            $date = new \DateTime();
+            $date->modify('-' . $days . ' days');
+            $qb->andWhere('a.createdAt >= :date')
+                ->setParameter('date', $date);
+        }
+
+        $qb->orderBy('a.id', 'DESC');
+        $applications = $qb->getQuery()->getResult();
+
+        // IMPORTANT: If we have a selected applicationId, ensure it's in the list
+        // This handles cases where status was just updated
+        $applicationIdValue = $request->query->get('applicationId');
+        if (!empty($applicationIdValue) && is_string($applicationIdValue) && $application) {
+            $applicationInList = false;
+            $applicationIdStr = $applicationIdValue;
+
+            foreach ($applications as $app) {
+                if ($app->getId()->toString() === $applicationIdStr) {
+                    $applicationInList = true;
+                    break;
+                }
+            }
+
+            // If the selected application is not in the filtered list, check its actual status
+            if (!$applicationInList) {
+                // Re-fetch the application to ensure we have the latest status from DB
+                $em->clear();
+                $freshApplication = $em->getRepository(Application::class)->findOneBy([
+                    'id' => $applicationIdStr,
+                    'employer' => $currentEmployer,
+                    'isArchived' => false
+                ]);
+
+                if ($freshApplication) {
+                    $statusFilterValue = $request->query->get('status');
+                    $statusFilter = is_string($statusFilterValue) ? $statusFilterValue : null;
+                    // If the fresh application's status matches the filter, add it to the list
+                    if ($statusFilter && $freshApplication->getStatus() === $statusFilter) {
+                        array_unshift($applications, $freshApplication);
+                        $application = $freshApplication;
+                    } elseif (!$statusFilter) {
+                        // No status filter, just add it
+                        array_unshift($applications, $freshApplication);
+                        $application = $freshApplication;
+                    } else {
+                        // Status doesn't match - this means the update didn't work
+                        // Force update the status and add to list
+                        $freshApplication->setStatus($statusFilter);
+                        $em->persist($freshApplication);
+                        $em->flush();
+                        array_unshift($applications, $freshApplication);
+                        $application = $freshApplication;
+                    }
+                }
+            }
         }
 
         // Initialize variables for when there's no application
@@ -194,7 +359,7 @@ class JobController extends AbstractController
         $documentRequests = [];
 
         // Only set these if we have an application
-        if($application){
+        if ($application) {
             $provider = $application->getProvider();
             $user = $provider->getUser();
             $educations = $em->getRepository(Education::class)->findBy(['user' => $user]);
@@ -207,10 +372,10 @@ class JobController extends AbstractController
         // Initialize workflow and transitions
         $workflow = null;
         $jobApplicationTransitions = [];
-        
-        if(count($applications) > 0) {
+
+        if (count($applications) > 0) {
             $workflow = $workflowRegistry->get(reset($applications), 'job_application_workflow');
-            
+
             foreach ($applications as $jobApplication) {
                 try {
                     $jobApplicationTransitions[$jobApplication->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($jobApplication));
@@ -225,7 +390,61 @@ class JobController extends AbstractController
             }
         }
 
+        // Get status counts - clear cache first to ensure fresh data
+        $em->getConfiguration()->getQueryCache()->clear();
         $statusCounts =  $em->getRepository(Application::class)->getJobApplicationStatusCounts($job->getId());
+
+        // Format statusCounts for easier template access - map database statuses to display statuses
+        $statusCountsFormatted = [
+            'applied' => 0,
+            'shortlisted' => 0,
+            'interviewing' => 0,
+            'negotiating' => 0,
+            'accepted' => 0,
+            'completed' => 0
+        ];
+
+        foreach ($statusCounts as $row) {
+            // Safely get status - ensure it's a string, not an array
+            // First check if row is an array and has the 'status' key
+            if (!is_array($row) || !array_key_exists('status', $row)) {
+                continue;
+            }
+
+            $statusValue = $row['status'];
+            // If status is an array, skip this row
+            if (is_array($statusValue)) {
+                continue;
+            }
+
+            $dbStatus = is_string($statusValue) ? strtolower($statusValue) : '';
+            $count = 0;
+
+            // Safely get count
+            if (array_key_exists('count', $row) && !is_array($row['count'])) {
+                $count = (int) $row['count'];
+            }
+
+            // Skip if status is not a valid string
+            if (empty($dbStatus)) {
+                continue;
+            }
+
+            // Map database statuses to display statuses
+            if ($dbStatus === 'applied') {
+                $statusCountsFormatted['applied'] += $count;
+            } elseif ($dbStatus === 'in_review' || $dbStatus === 'shortlisted') {
+                $statusCountsFormatted['shortlisted'] += $count;
+            } elseif ($dbStatus === 'interview' || $dbStatus === 'interviewing') {
+                $statusCountsFormatted['interviewing'] += $count;
+            } elseif ($dbStatus === 'offered' || $dbStatus === 'negotiating') {
+                $statusCountsFormatted['negotiating'] += $count;
+            } elseif ($dbStatus === 'hired' || $dbStatus === 'accepted') {
+                $statusCountsFormatted['accepted'] += $count;
+            } elseif ($dbStatus === 'completed') {
+                $statusCountsFormatted['completed'] += $count;
+            }
+        }
 
         return $this->render('employer/job/applications.html.twig', [
             'job' => $job,
@@ -240,7 +459,8 @@ class JobController extends AbstractController
             'provider' => $provider,
             'review' => $review,
             'jobApplicationTransitions' => $jobApplicationTransitions,
-            'statusCounts' => $statusCounts,
+            'statusCounts' => $statusCounts, // Raw array from repository
+            'statusCountsFormatted' => $statusCountsFormatted, // Formatted array for easy template access
             'healthAssessment' => $provider ? $provider->getHealthAssessment() : null,
             'riskAssessment' => $provider ? $provider->getRiskAssessment() : null,
         ]);
@@ -251,7 +471,7 @@ class JobController extends AbstractController
     {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
@@ -276,7 +496,7 @@ class JobController extends AbstractController
     {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
@@ -287,7 +507,7 @@ class JobController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Job has been deleted.');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->addFlash('error', 'Unable to delete job. This job has applications.');
         }
 
@@ -299,21 +519,21 @@ class JobController extends AbstractController
     {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
 
         if ($jobWorkflow->can($job, $transition)) {
 
-            if($transition == 'close'){
+            if ($transition == 'close') {
                 $job->setExpirationDate(new \DateTime());
             }
 
             $jobWorkflow->apply($job, $transition);
             $em->persist($job);
             $em->flush();
-            $this->addFlash('success', "Job ".$job->getTitle()." transitioned to " . ucfirst($job->getStatus()));
+            $this->addFlash('success', "Job " . $job->getTitle() . " transitioned to " . ucfirst($job->getStatus()));
         } else {
             $this->addFlash('error', "Invalid transition.");
         }
@@ -322,34 +542,224 @@ class JobController extends AbstractController
     }
 
     #[Route('/{id}/transition/{transition}/application/{applicationId}', name: 'app_employer_job_application_transition')]
-    public function transitionJobApplication(Job $job, string $transition, string $applicationId, WorkflowInterface $jobApplicationWorkflow, EntityManagerInterface $em, Request $request): RedirectResponse
+    public function transitionJobApplication(Job $job, string $transition, string $applicationId, WorkflowInterface $jobApplicationWorkflow, EntityManagerInterface $em, Request $request)
     {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
             return $this->redirectToRoute('app_employer_jobs');
         }
 
         $application = $em->getRepository(Application::class)->findOneBy(['id' => $applicationId, 'employer' => $currentEmployer]);
 
-        if ($application && $application->getStatus() === 'negotiating') {
-            $application->setStatus('offered');
-        }
-        if ($application && $application->getStatus() === 'accepted') {
-            $application->setStatus('hired');
+        if (!$application) {
+            $this->addFlash('error', "Application not found.");
+            return $this->redirectToRoute('app_employer_job_applications', ['id' => $job->getId()]);
         }
 
+        // Map legacy statuses to new statuses for backward compatibility
+        $currentStatus = $application->getStatus();
+        // Ensure currentStatus is a string, not an array
+        if (!is_string($currentStatus)) {
+            $currentStatus = is_array($currentStatus) ? (string)reset($currentStatus) : (string)$currentStatus;
+        }
+        $legacyStatusMap = [
+            'in_review' => 'shortlisted',
+            'interview' => 'interviewing',
+            'offered' => 'negotiating',
+            'hired' => 'accepted'
+        ];
+
+        if (is_string($currentStatus) && isset($legacyStatusMap[$currentStatus])) {
+            $application->setStatus($legacyStatusMap[$currentStatus]);
+            $em->persist($application);
+            $em->flush();
+        }
+
+        $oldStatus = $application->getStatus();
+        $newStatus = null;
+        $statusUpdated = false;
+
+        // Use workflow for all transitions
         if ($jobApplicationWorkflow->can($application, $transition)) {
             $jobApplicationWorkflow->apply($application, $transition);
             $em->persist($application);
             $em->flush();
-            $this->addFlash('success', "Application transitioned to " . ucfirst($application->getStatus()));
+            $em->clear();
+            $application = $em->getRepository(Application::class)->findOneBy(['id' => $applicationId, 'employer' => $currentEmployer]);
+            $newStatus = $application ? $application->getStatus() : null;
+            $statusUpdated = true;
+            // Ensure newStatus is a string before passing to getStatusDisplayName
+            $statusForDisplay = is_string($newStatus) ? $newStatus : (is_string($transition) ? $transition : 'unknown');
+            $displayStatus = $this->getStatusDisplayName($statusForDisplay);
+
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => "Application transitioned to " . $displayStatus,
+                    'newStatus' => $newStatus,
+                    'displayStatus' => $displayStatus,
+                    'statusCounts' => $em->getRepository(Application::class)->getEmployerApplicationStatusCounts($job->getEmployer()->getId()),
+                ]);
+            }
+
+            $this->addFlash('success', "Application transitioned to " . $displayStatus);
         } else {
-            $this->addFlash('error', "Invalid transition.");
+            $errorMsg = "Invalid transition '{$transition}' from current status: " . $application->getStatus();
+
+            if ($request->isXmlHttpRequest()) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => $errorMsg
+                ], 400);
+            }
+
+            $this->addFlash('error', $errorMsg);
+            return $this->redirectToRoute('app_employer_job_applications', [
+                'id' => $job->getId(),
+                'applicationId' => $application->getId()
+            ]);
         }
 
-        return $this->redirectToRoute('app_employer_job_applications', ['id' => $job->getId(), 'applicationId' => $application->getId()]);
+        // Get the final status - reload application if needed to verify it was saved
+        $em->clear(); // Clear to ensure fresh data
+        $finalApplication = $em->getRepository(Application::class)->findOneBy([
+            'id' => $applicationId,
+            'employer' => $currentEmployer,
+            'isArchived' => false
+        ]);
+
+        if (!$finalApplication) {
+            $this->addFlash('error', "Application not found after status update.");
+            return $this->redirectToRoute('app_employer_job_applications', [
+                'id' => $job->getId()
+            ]);
+        }
+
+        // Verify the status was actually updated
+        $finalStatus = $finalApplication->getStatus();
+        // Ensure finalStatus is a string, not an array
+        if (!is_string($finalStatus)) {
+            $finalStatus = is_array($finalStatus) ? (string)reset($finalStatus) : (string)$finalStatus;
+        }
+
+        // Double-check: if status doesn't match expected, try to fix it
+        if ($transition === 'hire' && $finalStatus !== 'hired') {
+            $finalApplication->setStatus('hired');
+            $em->persist($finalApplication);
+            $em->flush();
+
+            // Force direct database update
+            $connection = $em->getConnection();
+            $connection->executeStatement(
+                'UPDATE b_application SET status = :status, updated_at = :updated_at WHERE id = :id',
+                [
+                    'status' => 'hired',
+                    'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'id' => $finalApplication->getId()->toBinary()
+                ],
+                [
+                    'status' => \PDO::PARAM_STR,
+                    'updated_at' => \PDO::PARAM_STR,
+                    'id' => \PDO::PARAM_STR
+                ]
+            );
+
+            $em->clear();
+            $finalApplication = $em->getRepository(Application::class)->findOneBy([
+                'id' => $applicationId,
+                'employer' => $currentEmployer,
+                'isArchived' => false
+            ]);
+            $tempStatus = $finalApplication ? $finalApplication->getStatus() : 'hired';
+            // Ensure tempStatus is a string, not an array
+            $finalStatus = is_string($tempStatus) ? $tempStatus : (is_array($tempStatus) ? (string)reset($tempStatus) : 'hired');
+        } elseif ($transition === 'complete' && $finalStatus !== 'completed') {
+            $finalApplication->setStatus('completed');
+            $em->persist($finalApplication);
+            $em->flush();
+
+            // Force direct database update
+            $connection = $em->getConnection();
+            $connection->executeStatement(
+                'UPDATE b_application SET status = :status, updated_at = :updated_at WHERE id = :id',
+                [
+                    'status' => 'completed',
+                    'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+                    'id' => $finalApplication->getId()->toBinary()
+                ],
+                [
+                    'status' => \PDO::PARAM_STR,
+                    'updated_at' => \PDO::PARAM_STR,
+                    'id' => \PDO::PARAM_STR
+                ]
+            );
+
+            $em->clear();
+            $finalApplication = $em->getRepository(Application::class)->findOneBy([
+                'id' => $applicationId,
+                'employer' => $currentEmployer,
+                'isArchived' => false
+            ]);
+            $tempStatus = $finalApplication ? $finalApplication->getStatus() : 'completed';
+            // Ensure tempStatus is a string, not an array
+            $finalStatus = is_string($tempStatus) ? $tempStatus : (is_array($tempStatus) ? (string)reset($tempStatus) : 'completed');
+        }
+
+        // Clear query cache to ensure fresh counts on next page load
+        $em->getConfiguration()->getQueryCache()->clear();
+
+        // If it's an AJAX request, return JSON response
+        if ($request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+            // Get updated status counts for the employer
+            $statusCounts = $em->getRepository(Application::class)->getEmployerApplicationStatusCounts($currentEmployer->getId());
+            $statusCountsFormatted = [];
+            foreach ($statusCounts as $row) {
+                // Safely get status - ensure it's a string, not an array
+                // First check if row is an array and has the 'status' key
+                if (!is_array($row) || !array_key_exists('status', $row)) {
+                    continue;
+                }
+
+                $statusValue = $row['status'];
+                // If status is an array, skip this row
+                if (is_array($statusValue)) {
+                    continue;
+                }
+
+                $status = is_string($statusValue) ? strtolower($statusValue) : '';
+                if (!empty($status)) {
+                    $count = 0;
+                    // Safely get count
+                    if (array_key_exists('count', $row) && !is_array($row['count'])) {
+                        $count = (int) $row['count'];
+                    }
+                    $statusCountsFormatted[$status] = $count;
+                }
+            }
+
+            // Map status to display name (matching frontend exactly)
+            // Ensure finalStatus is a string before passing to getStatusDisplayName
+            $finalStatusForDisplay = is_string($finalStatus) ? $finalStatus : (is_array($finalStatus) ? (string)reset($finalStatus) : 'unknown');
+            $displayStatus = $this->getStatusDisplayName($finalStatusForDisplay);
+            $phaseName = $displayStatus;
+
+            return $this->json([
+                'success' => true,
+                'message' => "Candidate moved to the {$phaseName} phase",
+                'newStatus' => $finalStatus,
+                'displayStatus' => $displayStatus,
+                'statusCounts' => $statusCountsFormatted
+            ]);
+        }
+
+        // Redirect to the appropriate status section based on the new status
+        return $this->redirectToRoute('app_employer_job_applications', [
+            'id' => $job->getId(),
+            'applicationId' => $applicationId,
+            'status' => $finalStatus
+        ]);
     }
 
     #[Route('/{id}/applications/{applicationId}/detail', name: 'app_employer_job_application_detail_ajax', methods: ['GET'])]
@@ -359,11 +769,10 @@ class JobController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         Registry $workflowRegistry
-    ): Response
-    {
+    ): Response {
         $currentEmployer = $this->getUser()->getEmployer();
 
-        if($job->getEmployer() !== $currentEmployer) {
+        if ($job->getEmployer() !== $currentEmployer) {
             return $this->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -379,7 +788,7 @@ class JobController extends AbstractController
             'isArchived' => false
         ]);
 
-        if(!$application) {
+        if (!$application) {
             return $this->json(['error' => 'Application not found'], 404);
         }
 
@@ -391,7 +800,7 @@ class JobController extends AbstractController
         $review = $em->getRepository(Review::class)->findOneBy(['application' => $application, 'provider' => $provider]);
         $documentRequests = $em->getRepository(DocumentRequest::class)->findBy(['provider' => $provider, 'application' => $application]);
 
-        if(count([$application]) > 0) {
+        if (count([$application]) > 0) {
             $workflow = $workflowRegistry->get($application, 'job_application_workflow');
         }
 
@@ -399,10 +808,21 @@ class JobController extends AbstractController
         try {
             $jobApplicationTransitions[$application->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($application));
         } catch (\LogicException $e) {
-            if ($application->getStatus() === 'negotiating') {
-                $application->setStatus('offered');
-            } elseif ($application->getStatus() === 'accepted') {
-                $application->setStatus('hired');
+            // Map legacy statuses to new statuses for backward compatibility
+            $currentStatus = $application->getStatus();
+            // Ensure currentStatus is a string, not an array
+            if (!is_string($currentStatus)) {
+                $currentStatus = is_array($currentStatus) ? (string)reset($currentStatus) : (string)$currentStatus;
+            }
+            $legacyStatusMap = [
+                'in_review' => 'shortlisted',
+                'interview' => 'interviewing',
+                'offered' => 'negotiating',
+                'hired' => 'accepted'
+            ];
+
+            if (is_string($currentStatus) && isset($legacyStatusMap[$currentStatus])) {
+                $application->setStatus($legacyStatusMap[$currentStatus]);
             }
             $jobApplicationTransitions[$application->getId()->toString()] = array_map(fn($t) => $t->getName(), $workflow->getEnabledTransitions($application));
         }

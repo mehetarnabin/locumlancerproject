@@ -202,60 +202,160 @@ div.container-xl,
 .todo-popup {
     position: fixed;
     background: white;
-    color: black;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 13px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: #121C0C;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(133, 187, 101, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 99999;
-    max-width: 300px;
+    min-width: 300px;
+    max-width: 420px;
     display: none;
     pointer-events: none;
-    border: 1px solid #e5e7eb;
+    border: 2px solid #85BB65;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .todo-popup.show {
     display: block;
     pointer-events: auto;
+    animation: todoPopupFadeIn 0.2s ease-out;
+}
+
+@keyframes todoPopupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .todo-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #85BB65;
 }
 
 .todo-popup-title {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
+    color: #121C0C;
+    letter-spacing: -0.01em;
 }
 
 .todo-popup-close {
     background: none;
     border: none;
-    color: black;
+    color: #666;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
     padding: 0;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 4px;
 }
 
 .todo-popup-close:hover {
     opacity: 1;
+    background-color: #f0f9f0;
+    color: #85BB65;
 }
 
 .todo-popup-content {
+    line-height: 1.6;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Todo popup item styles */
+.todo-popup-todos .todo-item,
+.todo-popup-documents .document-item {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #f9fdf9;
+    border: 1px solid #e0f5e0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.todo-popup-todos .todo-item:hover,
+.todo-popup-documents .document-item:hover {
+    background: #f0f9f0;
+    border-color: #85BB65;
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.1);
+}
+
+.todo-popup-todos .todo-item-title,
+.todo-popup-documents .document-item-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #121C0C;
+    margin-bottom: 4px;
+}
+
+.todo-popup-todos .todo-item-action,
+.todo-popup-documents .document-item-name {
+    font-size: 13px;
+    color: #333;
     line-height: 1.5;
+}
+
+.todo-popup-todos .todo-item-meta,
+.todo-popup-documents .document-item-meta {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.todo-popup-todos .todo-item-status,
+.todo-popup-documents .document-item-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.todo-popup-todos .todo-item-status.pending,
+.todo-popup-documents .document-item-status.pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+.todo-popup-todos .todo-item-status.completed,
+.todo-popup-documents .document-item-status.completed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #85BB65;
+}
+
+.todo-popup-todos .section-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #121C0C;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0f5e0;
+}
+
+.todo-popup-todos .section-divider {
+    margin: 16px 0;
+    padding-top: 16px;
+    border-top: 2px solid #e0f5e0;
 }
 
 .todo-icon-wrapper {
@@ -2576,11 +2676,19 @@ window.addEventListener('resize', function() {
                           }]) %}
                       {% endif %}
 
-                      {# Status-based TODOs #}
+                      {# Status-based TODOs - Only showing if no blocking tasks (like docs) #}
+                      {% if todoTasks|length == 0 %}
                       {% if application.status == 'applied' %}
                           {% set todoTasks = todoTasks|merge([{
-                              'action': 'Revisit Alert',
-                              'display': 'Revisit Alert',
+                              'action': 'Open Response from Employer',
+                              'display': 'Open Response from Employer',
+                              'type': 'status',
+                              'icon': 'response'
+                          }]) %}
+                      {% elseif application.status == 'saved' %}
+                           {% set todoTasks = todoTasks|merge([{
+                              'action': 'Revisit Alert/Review Job Details',
+                              'display': 'Revisit Alert/Review Job Details',
                               'type': 'status',
                               'icon': 'alert'
                           }]) %}
@@ -2671,13 +2779,6 @@ window.addEventListener('resize', function() {
                                       'icon': 'credentialing'
                                   }]) %}
                           {% endif %}
-                      {% elseif application.status == 'completed' %}
-                          {% set todoTasks = todoTasks|merge([{
-                              'action': 'See your review',
-                              'display': 'See your review',
-                              'type': 'review',
-                              'icon': 'review'
-                          }]) %}
                       {% endif %}
                       
                       {# Legacy contract check (if not already added) #}
@@ -2697,13 +2798,14 @@ window.addEventListener('resize', function() {
                               }]) %}
                           {% endif %}
                       {% endif %}
+                      {% endif %}
                       
                       {% if todoTasks|length > 0 %}
                           <div class="todo-icons-container">
                               {% for task in todoTasks %}
                                   <div class="todo-icon-wrapper" data-bs-toggle="tooltip" title="{{ task.display }}">
                                       <div class="todo-icon" 
-                                           onclick="handleTodoIconClick(event, this)"
+                                           onclick="return handleTodoIconClick(event, this);"
                                            style="cursor: pointer;"
                                            data-doc-pending="{{ pendingDocNames|join(', ') }}"
                                            data-doc-status="{{ task.display }}"
@@ -2833,6 +2935,21 @@ window.addEventListener('resize', function() {
                                     <span class="split-job-meta-label">Score:</span>
                                     <span class="split-job-meta-value">{{ application.rank is not null ? application.rank : '—' }}</span>
                                 </div>
+                                {% if application.status == 'completed' %}
+                                    {% set reviewExists = false %}
+                                    {% for review in application.reviews %}
+                                        {% if review.reviewedBy == 'PROVIDER' %}
+                                            {% set reviewExists = true %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if not reviewExists %}
+                                        <div class="split-job-summary-item" style="color: #d32f2f;">
+                                            <span class="split-job-meta-label">Action:</span>
+                                            <span class="split-job-meta-value">Write a review</span>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
                                 {% if application.interviews|length > 0 %}
                                 <div class="split-job-summary-item" style="display: block; margin-top: 8px; border-top: 1px solid #f3f4f6; padding-top: 8px;">
                                     <div class="split-job-meta-label" style="width: 100%; margin-bottom: 4px;">Scheduled Interview(s):</div>
@@ -4185,6 +4302,45 @@ window.addEventListener('resize', function() {
     </div>
   </div>
  </div>
+
+<!-- Provider Message Modal (Open Response) -->
+<div class="modal fade" id="providerMessageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="providerMessageModalLabel">Messages from Employer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+        <input type="hidden" id="providerMessageApplicationId" />
+        <div id="providerMessagesList" style="margin-bottom: 20px;">
+          <div class="text-center">
+            <div class="spinner-border spinner-border-sm" role="status"></div> Loading messages...
+          </div>
+        </div>
+        <div id="providerMessageReplySection" style="display: none; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 20px;">
+          <h6 style="margin-bottom: 15px;">Reply:</h6>
+          <form id="providerMessageReplyForm">
+            <input type="hidden" id="providerReplyParentMessageId" />
+            <div class="mb-3">
+              <textarea class="form-control" id="providerReplyMessage" rows="5" placeholder="Type your reply here..." required style="resize: vertical;"></textarea>
+            </div>
+            <div id="providerMessageError" class="alert alert-danger" style="display: none;"></div>
+            <div id="providerMessageSuccess" class="alert alert-success" style="display: none;"></div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" onclick="closeProviderMessageReply()">Cancel</button>
+              <button type="button" class="btn btn-primary" onclick="sendProviderReply()">Send Reply</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
@@ -4254,7 +4410,6 @@ window.addEventListener('resize', function() {
     }
 
     window.handleTodoIconClick = function(e, el){
-      console.log('Todo icon clicked', el);
       try {
         e.preventDefault();
         e.stopPropagation();
@@ -4264,13 +4419,40 @@ window.addEventListener('resize', function() {
         var pending = el.getAttribute('data-doc-pending') || '';
         var action = el.getAttribute('data-todo-action') || 'Task Details';
         var type = el.getAttribute('data-todo-type') || 'status';
+        var iconType = el.getAttribute('data-todo-icon-type') || '';
         
         // Interview data
         var intDate = el.getAttribute('data-interview-date');
         var intUrl = el.getAttribute('data-interview-url');
         var intPlatform = el.getAttribute('data-interview-platform');
-
-        console.log('Type:', type, 'AppId:', appId);
+        
+        // Check for response/Open Response FIRST before documents - MUST be checked before any other handlers
+        var actionLower = (action || '').toLowerCase();
+        var iconTypeLower = (iconType || '').toLowerCase();
+        var isResponseTask = iconTypeLower === 'response' || 
+                            actionLower.includes('open response') || 
+                            actionLower.includes('response from employer') ||
+                            actionLower === 'open response' ||
+                            (type === 'status' && (actionLower.includes('response') || iconTypeLower === 'response'));
+        
+        if (isResponseTask) {
+            e.stopImmediatePropagation(); // Stop all other handlers
+            // Open message modal for provider to view and reply to employer messages
+            if (typeof window.openProviderMessageModal === 'function') {
+                window.openProviderMessageModal(appId);
+            } else {
+                console.error('openProviderMessageModal function not found');
+                // Try again after a short delay in case function is defined later
+                setTimeout(function() {
+                    if (typeof window.openProviderMessageModal === 'function') {
+                        window.openProviderMessageModal(appId);
+                    } else {
+                        alert('Message feature is loading. Please refresh the page and try again.');
+                    }
+                }, 200);
+            }
+            return false;
+        }
 
         var hiddenInput = document.getElementById('providerDocsAppId');
         if(hiddenInput) hiddenInput.value = appId;
@@ -4749,6 +4931,195 @@ window.addEventListener('resize', function() {
           console.error('Error in handleTodoIconClick:', err);
       }
       return false;
+    };
+
+    // Provider Message Modal Functions
+    window.openProviderMessageModal = function(appId) {
+      if (!appId) {
+        console.error('Application ID is required');
+        return;
+      }
+      
+      var modal = document.getElementById('providerMessageModal');
+      if (!modal) {
+        console.error('Modal not found');
+        return;
+      }
+      
+      document.getElementById('providerMessageApplicationId').value = appId;
+      document.getElementById('providerMessagesList').innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div> Loading messages...</div>';
+      document.getElementById('providerMessageReplySection').style.display = 'none';
+      document.getElementById('providerMessageError').style.display = 'none';
+      document.getElementById('providerMessageSuccess').style.display = 'none';
+      
+      // Show modal
+      if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var modalInstance = new bootstrap.Modal(modal);
+        modalInstance.show();
+      } else if (typeof $ !== 'undefined' && $(modal).modal) {
+        $(modal).modal('show');
+      } else {
+        modal.classList.add('show');
+        modal.style.display = 'block';
+      }
+      
+      // Fetch messages
+      fetch('{{ path("app_provider_application_messages", {"id": "PLACEHOLDER_ID"}) }}'.replace('PLACEHOLDER_ID', appId), {
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
+      })
+      .then(function(r) {
+        if (!r.ok) throw new Error('Failed to fetch');
+        return r.json();
+      })
+      .then(function(data) {
+        var messagesList = document.getElementById('providerMessagesList');
+        
+        if (data.success && data.messages && data.messages.length > 0) {
+          var html = '';
+          // Get current user ID as string for comparison
+          var currentUserId = '{{ app.user ? app.user.id.toRfc4122() : "" }}';
+          
+          data.messages.forEach(function(msg) {
+            // Check if message is from employer
+            // If current user is the receiver, then sender is employer
+            // Convert both IDs to strings for comparison
+            var receiverIdStr = msg.receiver_id ? String(msg.receiver_id) : '';
+            var senderIdStr = msg.sender_id ? String(msg.sender_id) : '';
+            var currentUserIdStr = String(currentUserId);
+            
+            // Message is from employer if we (provider) are the receiver
+            var isFromEmployer = receiverIdStr === currentUserIdStr;
+            
+            var msgClass = isFromEmployer ? 'border-primary' : 'border-success';
+            var alignClass = isFromEmployer ? 'text-start' : 'text-end';
+            var bgClass = isFromEmployer ? 'bg-light' : 'bg-primary text-white';
+            var date = new Date(msg.created_at);
+            var dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            html += '<div class="card mb-3 ' + msgClass + '" style="border-left: 4px solid ' + (isFromEmployer ? '#0d6efd' : '#198754') + ';">';
+            html += '<div class="card-body ' + alignClass + ' ' + (isFromEmployer ? '' : bgClass) + '">';
+            html += '<div class="d-flex justify-content-between align-items-start mb-2">';
+            html += '<div><strong>' + (msg.sender_name || 'Unknown') + '</strong></div>';
+            html += '<small class="' + (isFromEmployer ? 'text-muted' : 'text-white-50') + '">' + dateStr + '</small>';
+            html += '</div>';
+            if (msg.subject) {
+              html += '<div class="mb-2"><strong>Subject:</strong> ' + (msg.subject || '') + '</div>';
+            }
+            html += '<div style="white-space: pre-wrap;' + (isFromEmployer ? '' : ' color: white;') + '">' + (msg.text || '') + '</div>';
+            if (isFromEmployer) {
+              html += '<div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick="openProviderReply(\'' + msg.id + '\')">Reply</button></div>';
+            }
+            html += '</div></div>';
+          });
+          messagesList.innerHTML = html;
+        } else {
+          messagesList.innerHTML = '<div class="alert alert-warning text-center"><i class="fa fa-info-circle"></i> No response sent yet. The employer will send you a message here when they respond.</div>';
+        }
+      })
+      .catch(function(e) {
+        console.error('Error fetching messages:', e);
+        document.getElementById('providerMessagesList').innerHTML = '<div class="alert alert-danger">Error loading messages. Please try again.</div>';
+      });
+    };
+
+    window.openProviderReply = function(parentMessageId) {
+      document.getElementById('providerReplyParentMessageId').value = parentMessageId;
+      document.getElementById('providerReplyMessage').value = '';
+      document.getElementById('providerMessageReplySection').style.display = 'block';
+      document.getElementById('providerMessageError').style.display = 'none';
+      document.getElementById('providerMessageSuccess').style.display = 'none';
+      document.getElementById('providerReplyMessage').focus();
+    };
+
+    window.closeProviderMessageReply = function() {
+      document.getElementById('providerMessageReplySection').style.display = 'none';
+      document.getElementById('providerReplyMessage').value = '';
+      document.getElementById('providerReplyParentMessageId').value = '';
+    };
+
+    window.sendProviderReply = function() {
+      var appId = document.getElementById('providerMessageApplicationId').value;
+      var parentMessageId = document.getElementById('providerReplyParentMessageId').value;
+      var messageText = document.getElementById('providerReplyMessage').value.trim();
+      var errorDiv = document.getElementById('providerMessageError');
+      var successDiv = document.getElementById('providerMessageSuccess');
+      
+      if (!messageText) {
+        errorDiv.textContent = 'Please enter a message';
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        return;
+      }
+      
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      
+      var sendBtn = document.querySelector('#providerMessageReplySection .btn-primary');
+      var originalText = sendBtn.textContent;
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+      
+      fetch('{{ path("app_provider_application_reply_message", {"id": "PLACEHOLDER_ID"}) }}'.replace('PLACEHOLDER_ID', appId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          parent_message_id: parentMessageId,
+          message: messageText
+        })
+      })
+      .then(function(r) {
+        // Check if response is OK and is JSON
+        if (!r.ok) {
+          throw new Error('HTTP error! status: ' + r.status);
+        }
+        
+        // Check content type
+        const contentType = r.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          // If not JSON, read as text to see what we got
+          return r.text().then(function(text) {
+            console.error('Non-JSON response received:', text.substring(0, 200));
+            throw new Error('Server returned non-JSON response. Please try again.');
+          });
+        }
+        
+        return r.json();
+      })
+      .then(function(data) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = originalText;
+        
+        if (data.success) {
+          successDiv.textContent = data.message || 'Reply sent successfully!';
+          successDiv.style.display = 'block';
+          errorDiv.style.display = 'none';
+          
+          // Clear the message input
+          document.getElementById('providerReplyMessage').value = '';
+          
+          // Reload messages
+          setTimeout(function() {
+            window.openProviderMessageModal(appId);
+          }, 1000);
+        } else {
+          errorDiv.textContent = data.message || 'Failed to send reply';
+          errorDiv.style.display = 'block';
+          successDiv.style.display = 'none';
+        }
+      })
+      .catch(function(e) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = originalText;
+        console.error('Error sending reply:', e);
+        errorDiv.textContent = 'Error sending reply: ' + (e.message || 'An unexpected error occurred. Please try again.');
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+      });
     };
 
     function uploadDocument(appId, reqId, file, inputEl) {
@@ -5975,13 +6346,13 @@ function initializeRankEditing() {
                     <button class="todo-popup-close" type="button">&times;</button>
                 </div>
                 <div class="todo-popup-content">
-                    <div class="todo-popup-loading" style="text-align: center; padding: 10px;">Loading...</div>
-                    <div class="todo-popup-todos" style="display: none;"></div>
+                    <div class="todo-popup-loading" style="text-align: center; padding: 16px; color: #666; font-size: 14px;">Loading...</div>
+                    <div class="todo-popup-todos" style="display: none; max-height: 320px; overflow-y: auto; padding-right: 4px;"></div>
                     <div class="todo-popup-documents" style="display: none;"></div>
-                                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #666;">No document requests</div>
-                    <div class="todo-popup-action" style="display: none;"></div>
-                    <div class="todo-popup-footer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
-                        <button class="todo-popup-complete-btn" style="width: 100%; padding: 8px 16px; background-color: #85BB65; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px;">Mark as Completed</button>
+                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 16px; color: #666; font-size: 14px; font-style: italic;">No document requests</div>
+                    <div class="todo-popup-action" style="display: none; padding: 10px 0;"></div>
+                    <div class="todo-popup-footer" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 2px solid #e0f5e0;">
+                        <button class="todo-popup-complete-btn" style="width: 100%; padding: 10px 20px; background-color: #85BB65; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);">Mark as Completed</button>
                     </div>
                 </div>
             `;
@@ -6126,52 +6497,110 @@ function initializeRankEditing() {
                                 
                                 // Show all TODOs
                                 if (allTodos.length > 0) {
-                                    html += '<div style="margin-bottom: 12px;"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Pending Actions:</div>';
+                                    html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Pending Actions</div>';
                                     allTodos.forEach((todo, index) => {
                                         html += `
-                                            <div style="padding: 6px 0; ${index < allTodos.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
-                                                <div style="font-size: 12px; color: black;">• ${todo.action}</div>
+                                            <div class="todo-item" style="padding: 10px 12px; margin-bottom: 8px; background: #f9fdf9; border: 1px solid #e0f5e0; border-radius: 6px;">
+                                                <div class="todo-item-action" style="font-size: 13px; color: #333; line-height: 1.5;">• ${todo.action}</div>
                                             </div>
                                         `;
                                     });
-                                    html += '</div>';
                                 }
                                 
                                 // Show document requests if any
                                 if (data.documentRequests && data.documentRequests.length > 0) {
-                                    html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Document Requests:</div>';
+                                    html += '<div class="section-divider" style="margin: 16px 0; padding-top: 16px; border-top: 2px solid #e0f5e0;"></div>';
+                                    html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Document Requests</div>';
                                     html += '<div style="max-height: 200px; overflow-y: auto;">';
                                     data.documentRequests.forEach((req, index) => {
+                                        const statusClass = req.providedAt ? 'completed' : 'pending';
                                         const statusText = req.providedAt ? 
-                                            '<span style="color: #85BB65;">✓ Provided</span>' : 
-                                            '<span style="color: #ffc107;">Pending</span>';
+                                            '<span class="document-item-status ' + statusClass + '" style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-top: 4px; background: #d4edda; color: #155724; border: 1px solid #85BB65;">✓ Provided</span>' : 
+                                            '<span class="document-item-status ' + statusClass + '" style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-top: 4px; background: #fff3cd; color: #856404; border: 1px solid #ffc107;">Pending</span>';
                                         html += `
-                                            <div style="padding: 6px 0; ${index < data.documentRequests.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
-                                                <div style="font-weight: 500; margin-bottom: 2px; color: black; font-size: 12px;">${req.name}</div>
-                                                <div style="font-size: 11px; color: #666;">
+                                            <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #f9fdf9; border: 1px solid #e0f5e0; border-radius: 6px;">
+                                                <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">${req.name}</div>
+                                                <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px;">
                                                     Requested: ${new Date(req.createdAt).toLocaleDateString()}
                                                     ${req.providedAt ? ' | Provided: ' + new Date(req.providedAt).toLocaleDateString() : ''}
                                                 </div>
-                                                <div style="font-size: 11px; margin-top: 2px; color: black;">${statusText}</div>
-                                            </div>
-                                        `;
-                                    });
-                                    html += '</div></div>';
-                                }
-                                
-                                // Show credentialing links if any
-                                if (data.credentialLinks && data.credentialLinks.length > 0) {
-                                    html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);"><div style="font-weight: 600; margin-bottom: 8px; color: black; font-size: 13px;">Credentialing Links:</div>';
-                                    data.credentialLinks.forEach((link, index) => {
-                                        html += `
-                                            <div style="padding: 6px 0; ${index < data.credentialLinks.length - 1 ? 'border-bottom: 1px solid rgba(0,0,0,0.05);' : ''}">
-                                                <div style="font-weight: 500; margin-bottom: 2px; color: black; font-size: 12px;">${link.title || 'Credentialing Link'}</div>
-                                                ${link.description ? '<div style="font-size: 11px; color: #666; margin-bottom: 4px;">' + link.description + '</div>' : ''}
-                                                <a href="${link.url}" target="_blank" style="font-size: 11px; color: #0066cc; text-decoration: underline;">Open Link</a>
+                                                <div style="margin-top: 6px;">${statusText}</div>
                                             </div>
                                         `;
                                     });
                                     html += '</div>';
+                                }
+                                
+                                // Show offer/contract letters if any
+                                if (data.offerLetters && data.offerLetters.length > 0) {
+                                    html += '<div class="section-divider" style="margin: 16px 0; padding-top: 16px; border-top: 2px solid #e0f5e0;"></div>';
+                                    html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Sent Documents</div>';
+                                    data.offerLetters.forEach((letter, index) => {
+                                        html += `
+                                            <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #f9fdf9; border: 1px solid #e0f5e0; border-radius: 6px;">
+                                                <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">${letter.name || letter.category || 'Document'}</div>
+                                                <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px; margin-bottom: 6px;">
+                                                    Sent: ${new Date(letter.createdAt).toLocaleDateString()}
+                                                </div>
+                                                <a href="${letter.filePath}" target="_blank" style="font-size: 12px; color: #85BB65; text-decoration: none; font-weight: 500; border-bottom: 1px solid #85BB65; display: inline-block; margin-top: 4px;">View Document →</a>
+                                            </div>
+                                        `;
+                                    });
+                                    
+                                    // Check which letters have been sent
+                                    const hasOffer = data.offerLetters.some(l => l.category === 'Offer Letter');
+                                    const hasContract = data.offerLetters.some(l => l.category === 'Contract Letter');
+                                    
+                                    // Show options to send missing letters
+                                    if (!hasOffer || !hasContract) {
+                                        html += '<div class="section-divider" style="margin: 16px 0; padding-top: 16px; border-top: 2px solid #e0f5e0;"></div>';
+                                        html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Send Additional Documents</div>';
+                                        if (!hasOffer) {
+                                            html += `
+                                                <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                                                    <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">Offer Letter</div>
+                                                    <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px;">Not sent yet</div>
+                                                </div>
+                                            `;
+                                        }
+                                        if (!hasContract) {
+                                            html += `
+                                                <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                                                    <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">Contract Letter</div>
+                                                    <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px;">Not sent yet</div>
+                                                </div>
+                                            `;
+                                        }
+                                    }
+                                } else {
+                                    // No letters sent yet, show options to send
+                                    html += '<div class="section-divider" style="margin: 16px 0; padding-top: 16px; border-top: 2px solid #e0f5e0;"></div>';
+                                    html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Available Documents</div>';
+                                    html += `
+                                        <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                                            <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">Offer Letter</div>
+                                            <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px;">Not sent yet</div>
+                                        </div>
+                                        <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                                            <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">Contract Letter</div>
+                                            <div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px;">Not sent yet</div>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Show credentialing links if any
+                                if (data.credentialLinks && data.credentialLinks.length > 0) {
+                                    html += '<div class="section-divider" style="margin: 16px 0; padding-top: 16px; border-top: 2px solid #e0f5e0;"></div>';
+                                    html += '<div class="section-title" style="font-weight: 600; font-size: 14px; color: #121C0C; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0f5e0;">Credentialing Links</div>';
+                                    data.credentialLinks.forEach((link, index) => {
+                                        html += `
+                                            <div class="document-item" style="padding: 10px 12px; margin-bottom: 8px; background: #f9fdf9; border: 1px solid #e0f5e0; border-radius: 6px;">
+                                                <div class="document-item-name" style="font-weight: 600; font-size: 13px; color: #121C0C; margin-bottom: 4px;">${link.title || 'Credentialing Link'}</div>
+                                                ${link.description ? '<div class="document-item-meta" style="font-size: 12px; color: #666; margin-top: 4px; margin-bottom: 6px;">' + link.description + '</div>' : ''}
+                                                <a href="${link.url}" target="_blank" style="font-size: 12px; color: #85BB65; text-decoration: none; font-weight: 500; border-bottom: 1px solid #85BB65;">Open Link →</a>
+                                            </div>
+                                        `;
+                                    });
                                 }
                                 
                                 if (html) {
@@ -7325,6 +7754,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     updateToggleButtonPosition();
                 }
             }, 100);
+            
+            // Setup apply button handler for AJAX-loaded content
+            setupApplyButtonHandler();
         })
         .catch(error => {
             console.error('Full error:', error);
@@ -8146,5 +8578,115 @@ document.addEventListener('DOMContentLoaded', function() {
         setupListCollapse();
     }, 100);
 });
+
+// Global apply button handler for AJAX-loaded content
+// Use the unified handler if available, otherwise use local implementation
+function setupApplyButtonHandler() {
+    // If unified handler exists, use it
+    if (typeof window.handleApplyButtonClick === 'function') {
+        document.addEventListener('click', function(e) {
+            const applyBtn = e.target.closest('#apply-button-ajax');
+            if (applyBtn && !applyBtn.disabled) {
+                window.handleApplyButtonClick(e, applyBtn);
+            }
+        });
+        return;
+    }
+    
+    // Fallback: local implementation
+    const applyBtn = document.getElementById('apply-button-ajax');
+    if (applyBtn && !applyBtn.hasAttribute('data-handler-attached')) {
+        applyBtn.setAttribute('data-handler-attached', 'true');
+        applyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const jobId = applyBtn.getAttribute('data-job-id');
+            if (!jobId) {
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Job ID is missing');
+                } else {
+                    alert('Job ID is missing');
+                }
+                return;
+            }
+            
+            if (confirm('Are you sure you want to apply for this job?')) {
+                applyBtn.disabled = true;
+                const originalText = applyBtn.textContent || applyBtn.innerHTML;
+                applyBtn.textContent = 'Applying...';
+                
+                // Use the provider jobs apply route with AJAX flag
+                const applyUrl = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_applications&ajax=1`;
+                
+                fetch(applyUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    redirect: 'follow'
+                })
+                .then(response => {
+                    // Check if response is JSON
+                    const contentType = response.headers.get('content-type') || '';
+                    if (contentType.includes('application/json')) {
+                        return response.json();
+                    }
+                    // If redirected or HTML response, treat as success
+                    if (response.redirected || response.ok) {
+                        return { status: 'success', message: 'Job applied successfully' };
+                    }
+                    throw new Error('Failed to apply for job');
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Success - show message
+                        if (typeof showToast === 'function') {
+                            showToast('success', data.message || 'Applied for job successfully!');
+                        } else {
+                            alert(data.message || 'Applied for job successfully!');
+                        }
+                        
+                        // Update button state
+                        applyBtn.disabled = true;
+                        applyBtn.textContent = 'Already Applied';
+                        applyBtn.style.background = '#6b7280';
+                        applyBtn.style.cursor = 'not-allowed';
+                        
+                        // Redirect to applications page with applied filter
+                        setTimeout(() => {
+                            window.location.href = '/provider/applications?status=applied';
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Failed to apply for job');
+                    }
+                })
+                .catch(error => {
+                    console.error('Apply error:', error);
+                    applyBtn.disabled = false;
+                    applyBtn.textContent = originalText || 'Apply';
+                    if (typeof showToast === 'function') {
+                        showToast('error', error.message || 'Failed to apply for job. Please try again.');
+                    } else {
+                        alert(error.message || 'Failed to apply for job. Please try again.');
+                    }
+                });
+            }
+        });
+    }
+}
+
+// Also setup handler using event delegation for dynamically loaded content
+document.addEventListener('click', function(e) {
+    const applyBtn = e.target.closest('#apply-button-ajax');
+    if (applyBtn && !applyBtn.hasAttribute('data-handler-attached')) {
+        setupApplyButtonHandler();
+        // Trigger click again after handler is attached
+        if (applyBtn === e.target || applyBtn.contains(e.target)) {
+            applyBtn.click();
+        }
+    }
+}, true);
 </script>
 {% endblock %}

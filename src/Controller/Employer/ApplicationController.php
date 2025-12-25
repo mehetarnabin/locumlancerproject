@@ -28,7 +28,9 @@ use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 use App\Entity\Document;
+use App\Entity\Provider;
 
 #[Route('/employer/applications')]
 class ApplicationController extends AbstractController
@@ -40,10 +42,99 @@ class ApplicationController extends AbstractController
         $offset = $request->query->get('page', 1);
         $perPage = $request->get('per_page', 25);
         $filters = $request->query->all();
+
         $filters['employer'] = $employer->getId();
 
+        // Map display status to database status for filtering
+        if (array_key_exists('status', $filters) && !empty($filters['status'])) {
+            $statusFilter = $filters['status'];
+            $statusMapping = [
+                'applied' => ['applied'],  // Only 'applied' status, not 'shortlisted'
+                'shortlisted' => ['shortlisted', 'in_review'],
+                'interviewing' => ['interviewing', 'interview'],
+                'negotiating' => ['negotiating', 'offered'],
+                'accepted' => ['accepted', 'hired'],
+                'completed' => ['completed']
+            ];
+            
+            // If statusFilter is already an array, use it directly (but ensure 'applied' is clean)
+            if (is_array($statusFilter)) {
+                // If array contains 'applied', ensure it's only 'applied' and nothing else
+                if (in_array('applied', $statusFilter, true)) {
+                    $filters['status'] = ['applied'];
+                } else {
+                    $filters['status'] = $statusFilter;
+                }
+            } elseif (is_string($statusFilter) && isset($statusMapping[$statusFilter])) {
+                // Map the string status to array of database statuses
+                $filters['status'] = $statusMapping[$statusFilter];
+            } else {
+                // If status doesn't match any mapping, use it as-is (might be a direct DB status)
+                $filters['status'] = is_string($statusFilter) ? [$statusFilter] : [];
+            }
+        }
+
+        // Handle Job ID filter
+        if (array_key_exists('jobId', $filters) && !empty($filters['jobId']) && !is_array($filters['jobId'])) {
+            $filters['jobId'] = $filters['jobId'];
+        }
+
+        // Location, salary, category, and days filters are already handled by the repository
+        // Just ensure they're passed through
+        if (array_key_exists('location', $filters) && !empty($filters['location']) && !is_array($filters['location'])) {
+            $filters['location'] = $filters['location'];
+        }
+        if (array_key_exists('salaryMin', $filters) && !empty($filters['salaryMin']) && !is_array($filters['salaryMin'])) {
+            $filters['salaryMin'] = (float) $filters['salaryMin'];
+        }
+        if (array_key_exists('salaryMax', $filters) && !empty($filters['salaryMax']) && !is_array($filters['salaryMax'])) {
+            $filters['salaryMax'] = (float) $filters['salaryMax'];
+        }
+        if (array_key_exists('category', $filters) && !empty($filters['category']) && !is_array($filters['category'])) {
+            $filters['category'] = $filters['category'];
+        }
+        if (array_key_exists('days', $filters) && !empty($filters['days']) && !is_array($filters['days'])) {
+            $filters['days'] = (int) $filters['days'];
+        }
+
         $applications = $em->getRepository(Application::class)->getAll($offset, $perPage, $filters);
-        $statusCounts = $em->getRepository(Application::class)->getEmployerApplicationStatusCounts($employer->getId());
+        $rawStatusCounts = $em->getRepository(Application::class)->getEmployerApplicationStatusCounts($employer->getId());
+
+        // Aggregate counts based on display status mapping
+        $statusCounts = [
+            'applied' => 0,
+            'shortlisted' => 0,
+            'interviewing' => 0,
+            'negotiating' => 0,
+            'accepted' => 0,
+            'completed' => 0
+        ];
+
+        // Define mapping for aggregation (reverse of the filter mapping)
+        $dbToDisplayMapping = [
+            'applied' => 'applied',
+            'in_review' => 'shortlisted',
+            'shortlisted' => 'shortlisted',
+            'interview' => 'interviewing',
+            'interviewing' => 'interviewing',
+            'offered' => 'negotiating',
+            'negotiating' => 'negotiating',
+            'hired' => 'accepted',
+            'accepted' => 'accepted',
+            'completed' => 'completed'
+        ];
+
+        foreach ($rawStatusCounts as $row) {
+            $dbStatus = $row['status'];
+            $count = (int)$row['count'];
+
+            if (isset($dbToDisplayMapping[$dbStatus])) {
+                $displayStatus = $dbToDisplayMapping[$dbStatus];
+                if (isset($statusCounts[$displayStatus])) {
+                    $statusCounts[$displayStatus] += $count;
+                }
+            }
+        }
 
         $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a JOIN a.job j WHERE j.employer = :employer")
             ->setParameter('employer', $this->getUser()->getEmployer()->getId(), UuidType::NAME)
@@ -146,10 +237,37 @@ class ApplicationController extends AbstractController
                 }
             }
         }
+
+        // Get offer letters and contract letters sent to provider for this application
+        $offerLetters = $em->getRepository(Document::class)->createQueryBuilder('d')
+            ->where('d.application = :application')
+            ->andWhere('d.category IN (:categories)')
+            ->setParameter('application', $application)
+            ->setParameter('categories', ['Offer Letter', 'Contract Letter'])
+            ->orderBy('d.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $offerLettersData = array_map(function (Document $doc) use ($projectDir) {
+            $path = $doc->getFilePath() ?? '/uploads/' . $doc->getUser()->getId() . '/' . $doc->getFileName();
+            if ($path && !file_exists($projectDir . '/public' . $path)) {
+                $path = null;
+            }
+            return [
+                'id' => (string)$doc->getId(),
+                'name' => $doc->getDisplayName(),
+                'category' => $doc->getCategory(),
+                'fileName' => $doc->getFileName(),
+                'filePath' => $path,
+                'createdAt' => $doc->getCreatedAt()?->format('c'),
+            ];
+        }, $offerLetters);
+
         return $this->json([
             'success' => true,
             'documentRequests' => $data,
-            'contractUrl' => $contractUrl
+            'contractUrl' => $contractUrl,
+            'offerLetters' => $offerLettersData
         ]);
     }
 
@@ -218,7 +336,7 @@ class ApplicationController extends AbstractController
             'interviewing' => 'Confirm interview',
             'negotiating' => 'Sign offer',
             'accepted' => 'Open Credentialing Docs',
-            'completed' => 'See your review',
+            'completed' => 'Write your review',
         ];
 
         $title = null;
@@ -546,6 +664,230 @@ class ApplicationController extends AbstractController
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
     }
 
+    #[Route('/{id}/send-offer', name: 'app_employer_application_sendoffer', methods: ['POST'])]
+    public function sendOffer(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher,
+        SluggerInterface $slugger,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): Response {
+        try {
+            $referer = $request->headers->get('referer');
+            $currentEmployer = $this->getUser()->getEmployer();
+
+            $isAjax = $request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
+
+            if ($application->getEmployer() !== $currentEmployer) {
+                if ($isAjax) {
+                    return $this->json(['success' => false, 'message' => "You don't have access to this application."], 403);
+                }
+                $this->addFlash('error', "You don't have access to this application.");
+                return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+            }
+
+            $documentType = $request->request->get('document_type');
+
+            // Get file from request - try different possible field names
+            $documentFile = $request->files->get('document_file');
+            if (!$documentFile) {
+                $documentFile = $request->files->get('file');
+            }
+            if (!$documentFile) {
+                // Check all files
+                $allFiles = $request->files->all();
+                if (!empty($allFiles)) {
+                    $documentFile = reset($allFiles);
+                }
+            }
+
+            // Validate file upload
+            if (!$documentFile) {
+                if ($isAjax) {
+                    return $this->json(['success' => false, 'message' => 'No file uploaded. Please select a file.'], 400);
+                }
+                $this->addFlash('error', 'No file uploaded.');
+                return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+            }
+
+            // Check if it's a valid UploadedFile instance
+            if (!($documentFile instanceof \Symfony\Component\HttpFoundation\File\UploadedFile)) {
+                if ($isAjax) {
+                    return $this->json(['success' => false, 'message' => 'Invalid file upload. Expected UploadedFile instance.'], 400);
+                }
+                $this->addFlash('error', 'Invalid file upload.');
+                return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+            }
+
+            // Check if file was uploaded successfully (UPLOAD_ERR_OK = 0)
+            $errorCode = $documentFile->getError();
+            if ($errorCode !== UPLOAD_ERR_OK) {
+                $errorMessages = [
+                    UPLOAD_ERR_INI_SIZE => 'The uploaded file exceeds the upload_max_filesize directive.',
+                    UPLOAD_ERR_FORM_SIZE => 'The uploaded file exceeds the MAX_FILE_SIZE directive.',
+                    UPLOAD_ERR_PARTIAL => 'The uploaded file was only partially uploaded.',
+                    UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
+                    UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+                    UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload.',
+                ];
+                $errorMessage = $errorMessages[$errorCode] ?? 'Unknown upload error (code: ' . $errorCode . ')';
+                if ($isAjax) {
+                    return $this->json(['success' => false, 'message' => 'File upload error: ' . $errorMessage], 400);
+                }
+                $this->addFlash('error', 'File upload error: ' . $errorMessage);
+                return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+            }
+
+            $provider = $application->getProvider();
+            if (!$provider || !$provider->getUser()) {
+                if ($isAjax) {
+                    return $this->json(['success' => false, 'message' => 'Provider not found.'], 404);
+                }
+                $this->addFlash('error', 'Provider not found.');
+                return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+            }
+
+            $providerUser = $provider->getUser();
+            $userUploadDir = $uploadDirectory . '/' . $providerUser->getId();
+            if (!file_exists($userUploadDir)) {
+                if (!mkdir($userUploadDir, 0777, true) && !is_dir($userUploadDir)) {
+                    if ($isAjax) {
+                        return $this->json(['success' => false, 'message' => 'Failed to create upload directory.'], 500);
+                    }
+                    $this->addFlash('error', 'Failed to create upload directory.');
+                    return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+                }
+            }
+
+            // Get file extension safely
+            $extension = $documentFile->guessExtension();
+            if (!$extension) {
+                $extension = $documentFile->getClientOriginalExtension() ?: 'bin';
+            }
+
+            $originalFilename = pathinfo($documentFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
+
+            // Try to move the file
+            try {
+                // Get file info before moving (might fail if file is missing)
+                $tempPath = $documentFile->getPathname();
+                $mimeType = $documentFile->getMimeType(); // This might fail if file is missing
+
+                $movedFile = $documentFile->move($userUploadDir, $newFilename);
+            } catch (\Exception $e) {
+                // Fallback: This is common in Windows/XAMPP environments where move() fails due to temp path issues
+                $tempPath = $tempPath ?? $documentFile->getPathname();
+                $finalPath = $userUploadDir . '/' . $newFilename;
+
+                // Try manual copy
+                if (@copy($tempPath, $finalPath)) {
+                    // Success via copy!
+                    // Optionally try to delete temp file, ignore if fails
+                    @unlink($tempPath);
+                    $mimeType = $mimeType ?? mime_content_type($finalPath); // Update mimetype from new file if needed
+                } else {
+                    // Determine error message
+                    if (strpos($e->getMessage(), 'does not exist') !== false || strpos($e->getMessage(), 'not readable') !== false) {
+                        $errorMsg = 'Upload failed: Temp file missing. Please try again.';
+                    } else {
+                        $errorMsg = 'File upload failed: ' . $e->getMessage();
+                    }
+
+                    if ($isAjax) {
+                        return $this->json(['success' => false, 'message' => $errorMsg], 500);
+                    }
+                    $this->addFlash('error', $errorMsg);
+                    return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+                }
+            }
+
+
+            // Create Document entity for offer/contract letter
+            $document = new Document();
+            $document->setUser($providerUser);
+            $document->setApplication($application);
+            $document->setFileName($newFilename);
+            $document->setFilePath('/uploads/' . $providerUser->getId() . '/' . $newFilename);
+            $document->setMimeType($mimeType ?? 'application/octet-stream');
+
+            if ($documentType === 'offer') {
+                $document->setCategory('Offer Letter');
+                $document->setName('Offer Letter');
+            } elseif ($documentType === 'contract') {
+                $document->setCategory('Contract Letter');
+                $document->setName('Contract Letter');
+                $application->setContractFileName($newFilename);
+                $application->setContractSentAt(new \DateTime());
+            } elseif ($documentType === 'both') {
+                // Create two documents - one for offer, one for contract
+                $offerDoc = new Document();
+                $offerDoc->setUser($providerUser);
+                $offerDoc->setApplication($application);
+                $offerDoc->setFileName($newFilename);
+                $offerDoc->setFilePath('/uploads/' . $providerUser->getId() . '/' . $newFilename);
+                $offerDoc->setMimeType($documentFile->getMimeType());
+                $offerDoc->setCategory('Offer Letter');
+                $offerDoc->setName('Offer Letter');
+                $em->persist($offerDoc);
+
+                $contractDoc = new Document();
+                $contractDoc->setUser($providerUser);
+                $contractDoc->setApplication($application);
+                $contractDoc->setFileName($newFilename);
+                $contractDoc->setFilePath('/uploads/' . $providerUser->getId() . '/' . $newFilename);
+                $contractDoc->setMimeType($documentFile->getMimeType());
+                $contractDoc->setCategory('Contract Letter');
+                $contractDoc->setName('Contract Letter');
+                $em->persist($contractDoc);
+
+                $application->setContractFileName($newFilename);
+                $application->setContractSentAt(new \DateTime());
+            } else {
+                $document->setCategory('Offer Letter');
+                $document->setName('Offer Letter');
+            }
+
+            if ($documentType !== 'both') {
+                $em->persist($document);
+            }
+
+            $em->persist($application);
+            $em->flush();
+
+            $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_CONTRACT_SENT);
+
+            if ($isAjax) {
+                return $this->json([
+                    'success' => true,
+                    'message' => ucfirst($documentType ?? 'offer') . ' letter sent to provider successfully.'
+                ]);
+            }
+
+            $this->addFlash('success', ucfirst($documentType ?? 'offer') . ' letter sent to provider successfully.');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            error_log('Error in sendOffer: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
+
+            $isAjax = $request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
+
+            if ($isAjax) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'An error occurred while sending the offer letter: ' . $e->getMessage()
+                ], 500);
+            }
+
+            $this->addFlash('error', 'An error occurred while sending the offer letter.');
+            $referer = $request->headers->get('referer');
+            return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
+        }
+    }
+
     #[Route('/{id}/send-contract', name: 'app_employer_application_sendcontract', methods: ['GET', 'POST'])]
     public function sendContract(
         Application $application,
@@ -845,6 +1187,233 @@ class ApplicationController extends AbstractController
             'success' => true,
             'message' => 'Score updated successfully',
             'rank' => $rankValue
+        ]);
+    }
+
+    #[Route('/send-provider-email', name: 'app_employer_send_provider_email', methods: ['POST'])]
+    public function sendProviderEmail(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true) ?: [];
+
+        $applicationId = $data['application_id'] ?? null;
+        $subject = trim($data['subject'] ?? '');
+        $message = trim($data['message'] ?? '');
+
+        if (!$applicationId || !$subject || !$message) {
+            return $this->json(['success' => false, 'message' => 'Missing required data'], 400);
+        }
+
+        try {
+            // Fetch Application and Provider Email
+            $application = $entityManager->getRepository(Application::class)->find($applicationId);
+            if (!$application) {
+                return $this->json(['success' => false, 'message' => 'Application not found'], 404);
+            }
+
+            $provider = $application->getProvider();
+            if (!$provider) {
+                return $this->json(['success' => false, 'message' => 'Provider not found'], 404);
+            }
+
+            $providerUser = $provider->getUser();
+            if (!$providerUser) {
+                return $this->json(['success' => false, 'message' => 'Provider user not found'], 404);
+            }
+
+            // Provider email
+            $providerEmail = trim($providerUser->getEmail() ?? '');
+            if (!filter_var($providerEmail, FILTER_VALIDATE_EMAIL)) {
+                return $this->json(['success' => false, 'message' => 'Invalid provider email: ' . $providerEmail], 400);
+            }
+
+            // Fetch Employer (logged-in user) Email
+            $user = $this->getUser();
+            $employer = $user?->getEmployer();
+
+            $employerName = $employer?->getName() ?: ($user?->getName() ?: 'Employer');
+            $employerEmail = trim($employer?->getContactEmail() ?: $employer?->getEmail() ?: $user?->getEmail() ?? '');
+
+            // Employer email fallback
+            if (!filter_var($employerEmail, FILTER_VALIDATE_EMAIL)) {
+                $employerEmail = 'notifications@locumlancer.com';
+                $employerName = 'LocumLancer Employer';
+            }
+
+            // Build Email
+            $email = (new Email())
+                ->from($employerEmail)
+                ->to($providerEmail)
+                ->subject($subject)
+                ->html(
+                    $this->renderView('emails/message_notification.html.twig', [
+                        'subject'        => $subject,
+                        'message_text'   => $message,
+                        'sender_name'    => $employerName,
+                        'sender_email'   => $employerEmail,
+                        'has_attachment' => false,
+                        'attachment_name' => null,
+                    ])
+                );
+
+            // Send Email
+            $mailer->send($email);
+
+            return $this->json(['success' => true, 'message' => 'Email sent successfully']);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error sending email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    #[Route('/application/{id}/send-message', name: 'app_employer_application_send_message', methods: ['POST'])]
+    public function sendMessageFromTodo(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em,
+        EventDispatcherInterface $dispatcher,
+        MailerInterface $mailer
+    ): JsonResponse {
+        $user = $this->getUser();
+        $employer = $user?->getEmployer();
+
+        // Security check
+        if ($application->getEmployer() !== $employer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true) ?: [];
+        $subject = trim($data['subject'] ?? '');
+        $messageText = trim($data['message'] ?? '');
+
+        if (empty($subject) || empty($messageText)) {
+            return $this->json(['success' => false, 'message' => 'Subject and message are required'], 400);
+        }
+
+        try {
+            $provider = $application->getProvider();
+            if (!$provider) {
+                return $this->json(['success' => false, 'message' => 'Provider not found'], 404);
+            }
+
+            $providerUser = $provider->getUser();
+            if (!$providerUser) {
+                return $this->json(['success' => false, 'message' => 'Provider user not found'], 404);
+            }
+
+            // Create message
+            $message = new \App\Entity\Message();
+            $message->setSender($user);
+            $message->setReceiver($providerUser);
+            $message->setEmployer($employer);
+            $message->setJob($application->getJob());
+            $message->setApplication($application);
+            $message->setSubject($subject);
+            $message->setText($messageText);
+            $message->setIsDraft(false);
+            $message->setSentAt(new \DateTime());
+            $message->setSeen(false);
+
+            $em->persist($message);
+            $em->flush();
+
+            // Send email notification (non-blocking - don't fail if email fails)
+            try {
+                $dispatcher->dispatch(new \App\Event\MessageEvent($message), \App\Event\MessageEvent::MESSAGE_CREATED);
+                
+                // Send email
+                $providerEmail = $providerUser->getEmail();
+                if ($providerEmail) {
+                    $employerEmail = $employer?->getContactEmail() ?: $employer?->getEmail() ?: $user?->getEmail() ?? 'notifications@locumlancer.com';
+                    $email = (new \Symfony\Component\Mime\Email())
+                        ->from($employerEmail)
+                        ->to($providerEmail)
+                        ->subject($subject . ' - LocumLancer')
+                        ->html(
+                            $this->renderView('emails/message_notification.html.twig', [
+                                'subject' => $subject,
+                                'message_text' => $messageText,
+                                'sender_name' => $employer?->getName() ?: $user->getName(),
+                                'sender_email' => $employerEmail,
+                                'has_attachment' => false,
+                                'attachment_name' => null,
+                            ])
+                        );
+                    $mailer->send($email);
+                }
+            } catch (\Exception $emailException) {
+                // Log email error but don't fail the request since message is already saved
+                // You can log this to a logger if needed
+                error_log('Email sending failed: ' . $emailException->getMessage());
+            }
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Message sent successfully',
+                'message_id' => $message->getId()->toRfc4122()
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error sending message: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    #[Route('/application/{id}/messages', name: 'app_employer_application_messages', methods: ['GET'])]
+    public function getApplicationMessages(
+        Application $application,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $user = $this->getUser();
+        $employer = $user?->getEmployer();
+
+        // Security check
+        if ($application->getEmployer() !== $employer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Get provider info
+        $provider = $application->getProvider();
+        $providerUser = $provider ? $provider->getUser() : null;
+        $providerEmail = $providerUser ? $providerUser->getEmail() : null;
+        $providerName = $providerUser ? $providerUser->getName() : null;
+
+        // Get all messages for this application
+        $messages = $em->getRepository(\App\Entity\Message::class)->createQueryBuilder('m')
+            ->where('m.application = :application')
+            ->andWhere('m.deleted = false')
+            ->andWhere('m.isDraft = false')
+            ->setParameter('application', $application)
+            ->orderBy('m.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $messagesData = [];
+        foreach ($messages as $msg) {
+            $messagesData[] = [
+                'id' => $msg->getId()->toRfc4122(),
+                'sender_id' => $msg->getSender()->getId()->toRfc4122(),
+                'sender_name' => $msg->getSender()->getName(),
+                'sender_email' => $msg->getSender()->getEmail(),
+                'receiver_id' => $msg->getReceiver() ? $msg->getReceiver()->getId()->toRfc4122() : null,
+                'receiver_name' => $msg->getReceiver() ? $msg->getReceiver()->getName() : null,
+                'subject' => $msg->getSubject(),
+                'text' => $msg->getText(),
+                'created_at' => $msg->getCreatedAt()->format('Y-m-d H:i:s'),
+                'is_seen' => $msg->isSeen(),
+            ];
+        }
+
+        return $this->json([
+            'success' => true,
+            'messages' => $messagesData,
+            'provider_email' => $providerEmail,
+            'provider_name' => $providerName
         ]);
     }
 }

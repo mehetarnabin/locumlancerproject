@@ -231,6 +231,17 @@ class DocumentController extends AbstractController
     $credentialingLinks = $em->getRepository(CredentialingLink::class)->findBy(['provider' => $provider, 'isActive' => true], ['createdAt' => 'DESC']);
     $documents = $documentRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
+    // Get offer letters and contract letters sent by employers (documents linked to applications)
+    $offerLetters = $em->getRepository(Document::class)->createQueryBuilder('d')
+        ->leftJoin('d.application', 'a')
+        ->where('a.provider = :provider')
+        ->andWhere('d.category IN (:categories)')
+        ->setParameter('provider', $provider)
+        ->setParameter('categories', ['Offer Letter', 'Contract Letter'])
+        ->orderBy('d.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+
     // Get the latest CV document for initial page load
     $latestCV = $documentRepository->findOneBy(
         ['user' => $user, 'category' => 'CV'],
@@ -242,6 +253,7 @@ class DocumentController extends AbstractController
         'documents' => $documents,
         'documentRequests' => $documentRequests,
         'credentialingLinks' => $credentialingLinks,
+        'offerLetters' => $offerLetters,
         'editMode' => false,
         'uploadDirectory' => '/uploads/' . $user->getId(),
         'latestCV' => $latestCV  // This was missing!
@@ -759,6 +771,27 @@ class DocumentController extends AbstractController
             ];
         }, $requests);
 
+        // Get offer letters and contract letters sent by employer for this application
+        $offerLetters = $em->getRepository(Document::class)->createQueryBuilder('d')
+            ->where('d.application = :application')
+            ->andWhere('d.category IN (:categories)')
+            ->setParameter('application', $application)
+            ->setParameter('categories', ['Offer Letter', 'Contract Letter'])
+            ->orderBy('d.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $offerLettersData = array_map(function (Document $doc) {
+            return [
+                'id' => (string)$doc->getId(),
+                'name' => $doc->getDisplayName(),
+                'category' => $doc->getCategory(),
+                'fileName' => $doc->getFileName(),
+                'filePath' => $doc->getFilePath() ?? '/uploads/' . $doc->getUser()->getId() . '/' . $doc->getFileName(),
+                'createdAt' => $doc->getCreatedAt()?->format('c'),
+            ];
+        }, $offerLetters);
+
         $job = $application->getJob();
         $links = [];
         if ($job) {
@@ -778,7 +811,12 @@ class DocumentController extends AbstractController
             ];
         }, $links);
 
-        return $this->json(['success' => true, 'documentRequests' => $data, 'credentialLinks' => $linksData]);
+        return $this->json([
+            'success' => true,
+            'documentRequests' => $data,
+            'credentialLinks' => $linksData,
+            'offerLetters' => $offerLettersData
+        ]);
     }
 
     #[Route('/applications/{id}/upload-document', name: 'app_provider_application_upload_document', methods: ['POST'])]

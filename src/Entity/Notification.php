@@ -59,10 +59,31 @@ class Notification
         ];
     }
 
+    public static function getAllEmployerNotificationTypes()
+    {
+        return [
+            self::JOB_APPLIED => 'Job Applied',
+            self::PROVIDER_IN_REVIEW => 'Provider In Review',
+            self::PROVIDER_SHORTLIST => 'Provider Shortlist',
+            self::PROVIDER_OFFERED => 'Provider Offered',
+            self::PROVIDER_HIRED => 'Provider Hired',
+            self::REVIEW_REQUEST => 'Review Request',
+            self::EMPLOYER_REVIEWED => 'Employer Reviewed',
+            self::MESSAGE_RECEIVED => 'Message',
+            self::ONE_FILE_PROVIDED => 'One File Provided',
+            self::DOCUMENT_PROVIDED => 'Document Provided',
+            self::INVOICE_CREATED => 'Invoice Created',
+            self::INVOICE_PAID => 'Invoice Paid',
+            self::INVOICE_OVERDUE => 'Invoice Overdue',
+            self::JOB_POSTED => 'Job Posted',
+            self::INTERVIEW_SCHEDULED => 'Interview Scheduled',
+        ];
+    }
+
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne]

@@ -1,0 +1,76 @@
+{% if documents is not empty %}
+<div class="d-flex flex-column gap-2" style="margin-top: 12px; overflow: hidden;">
+    {% for document in documents %}
+    <div class="p-2 rounded-2 border d-flex align-items-center justify-content-between bg-white hover-shadow transition-all" style="border-color: #e5e7eb !important; min-width: 0; overflow: hidden;">
+        <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0; overflow: hidden;">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; background-color: #F4F9F1; color: #000000;">
+                {% if document.mimeType starts with 'image' %}
+                    <i class="fa fa-file-image" style="color: #000000; font-size: 14px;"></i>
+                {% elseif document.mimeType == 'application/pdf' %}
+                    <i class="fa fa-file-pdf" style="color: #000000; font-size: 14px;"></i>
+                {% else %}
+                    <i class="fa fa-file" style="color: #000000; font-size: 14px;"></i>
+                {% endif %}
+            </div>
+            <div class="flex-grow-1" style="min-width: 0; overflow: hidden;">
+                <div class="fw-medium" style="font-size: 0.875rem; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;">{{ document.displayName }}</div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-shrink-0" style="gap: 6px; flex-shrink: 0;">
+            <button type="button" 
+                    class="btn btn-light btn-sm d-flex align-items-center justify-content-center edit-document-btn" 
+                    data-document-id="{{ document.id }}"
+                    data-document-name="{{ document.displayName }}"
+                    title="Edit Document"
+                    style="width: 32px; height: 32px; padding: 0; border: 1px solid #85BB65; background: transparent; color: #85BB65; border-radius: 6px; flex-shrink: 0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+            <a href="/uploads/{{ document.user.id }}/{{ document.fileName }}" 
+               target="_blank"
+               class="btn btn-light btn-sm d-flex align-items-center justify-content-center view-document-btn" 
+               title="View Document"
+               style="width: 32px; height: 32px; padding: 0; border: 1px solid #85BB65; background: transparent; color: #000000; border-radius: 6px; flex-shrink: 0; text-decoration: none;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </a>
+            <button type="button" 
+                    class="btn btn-light btn-sm d-flex align-items-center justify-content-center delete-document-btn" 
+                    data-document-id="{{ document.id }}"
+                    data-document-name="{{ document.displayName }}"
+                    data-csrf-token="{{ csrf_token('delete_document_' ~ document.id) }}"
+                    title="Delete Document"
+                    style="width: 32px; height: 32px; padding: 0; border: 1px solid #dc3545; background: transparent; color: #dc3545; border-radius: 6px; flex-shrink: 0;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<style>
+    .hover-shadow:hover {
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+        border-color: #85BB65 !important;
+        transform: translateY(-1px);
+    }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+    .delete-document-btn:hover,
+    .view-document-btn:hover,
+    .edit-document-btn:hover {
+        transform: scale(1.05);
+    }
+</style>

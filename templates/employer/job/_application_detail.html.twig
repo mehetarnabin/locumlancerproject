@@ -192,27 +192,175 @@
     color: #000000 !important;
 }
 
-/* History Items */
-.app-detail-history {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+/* Timeline Styles - Matching Provider Design */
+.timeline-events {
+    padding: 0;
 }
 
-.app-detail-history-item {
-    padding: 12px;
-    background: #F4F9F1;
-    border-radius: 8px;
-    border: 1px solid #e6eef6;
+.timeline-event {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    margin-bottom: 0;
+    position: relative;
+}
+
+.timeline-event:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-event-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    border: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    color: #000000;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 2;
 }
 
-.app-detail-history-item i {
-    color: #000000;
+.timeline-event-content {
+    flex: 1;
+    background: transparent;
+    border: none !important;
+    border-left: none !important;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.timeline-event-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-detail-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    align-items: center;
+}
+
+.timeline-detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-detail-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.timeline-detail-value {
+    color: #121C0C;
+    font-weight: 500;
+}
+
+.timeline-event-divider {
+    height: 1px;
+    background: #e6eef6;
+    margin: 8px 0;
+}
+
+/* Timeline Panel Styles - Matching Provider Design */
+.timeline-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 400px;
+    max-width: 90vw;
+    background: #fff;
+    border-left: 1px solid #e6eef6;
+    box-shadow: -2px 0 8px rgba(11,22,40,0.06);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 10000;
+    visibility: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
+    pointer-events: none;
+}
+
+.timeline-panel.open {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.timeline-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.timeline-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+.timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e6eef6;
+    font-weight: 600;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.timeline-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #121C0C;
+}
+
+.timeline-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 0;
+}
+
+.timeline-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.timeline-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 /* File Display */
@@ -241,7 +389,79 @@
     object-fit: contain;
 }
 
-/* Document Accordion */
+/* Hover-Sensitive Accordion Styles */
+.app-detail-accordion {
+    margin-bottom: 12px;
+}
+
+.app-detail-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.app-detail-accordion-header:hover {
+    background: #e8f5e9;
+    border-color: #85BB65;
+}
+
+.app-detail-accordion-header h3 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    color: #000000 !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.app-detail-accordion-header h3 i {
+    color: #000000 !important;
+    font-size: 19px;
+}
+
+.app-detail-accordion-toggle {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    color: #000000;
+}
+
+.app-detail-accordion-header.expanded .app-detail-accordion-toggle {
+    transform: rotate(180deg);
+}
+
+.app-detail-accordion-content {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 16px;
+    display: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.app-detail-accordion-content.expanded {
+    display: block;
+}
+
+.app-detail-accordion-content.collapsed {
+    display: none;
+}
+
+/* Document Accordion (Legacy Support) */
 .app-detail-content .card {
     background: #fff;
     border: 1px solid #e6eef6;
@@ -348,9 +568,44 @@
 #application-detail-content .app-detail-item span {
     color: #000000 !important;
 }
+
+/* Hire and Complete button styling */
+#hire-btn, #complete-btn {
+    padding: 6px 16px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    border: none !important;
+    white-space: nowrap !important;
+    transition: all 0.2s ease !important;
+}
+
+#hire-btn {
+    background-color: #85BB65 !important;
+    color: white !important;
+}
+
+#hire-btn:hover {
+    background-color: #6fa050 !important;
+}
+
+#complete-btn {
+    background-color: #85BB65 !important;
+    color: white !important;
+}
+
+#complete-btn:hover {
+    background-color: #6fa050 !important;
+}
+
+#hire-btn:disabled, #complete-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 </style>
 
-<div class="app-detail-content" data-application-id="{{ application.id }}">
+<div class="app-detail-content" data-application-id="{{ application.id }}" data-application-status="{{ application.status }}">
     {# Header Section - Provider Design Style #}
     <div class="app-detail-header">
         <div class="app-detail-logo-container">
@@ -365,16 +620,55 @@
                      class="app-detail-logo">
             {% endif %}
         </div>
-        <div class="app-detail-info">
-            <h1 class="app-detail-title">{{ provider.user.name }}</h1>
-            <div class="app-detail-company">{{ job.title }}</div>
-            <div class="app-detail-location">
-                <i class="fas fa-map-marker-alt"></i>
-                {% if provider.city or provider.state %}
-                    {{ provider.city }}{% if provider.city and provider.state %}, {% endif %}{{ provider.state }}
-                {% else %}
-                    Location not specified
-                {% endif %}
+        <div class="app-detail-info" style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                <div style="flex: 1;">
+                    <h1 class="app-detail-title">{{ provider.user.name }}</h1>
+                    <div class="app-detail-company">{{ job.title }}</div>
+                    <div class="app-detail-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {% if provider.city or provider.state %}
+                            {{ provider.city }}{% if provider.city and provider.state %}, {% endif %}{{ provider.state }}
+                        {% else %}
+                            Location not specified
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="timeline-btn" class="btn btn-sm" onclick="window.openTimelinePanel && window.openTimelinePanel(); return false;" style="padding: 6px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid #D8D8D8; background-color: #fff; color: #333; white-space: nowrap; display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Timeline
+                    </button>
+                    {# Dynamic Next Status Button #}
+                    {% set nextTransition = null %}
+                    {% set nextLabel = null %}
+                    
+                    {% if application.status == 'applied' %}
+                        {% set nextTransition = 'shortlist' %}
+                        {% set nextLabel = 'Shortlist' %}
+                    {% elseif application.status == 'in_review' or application.status == 'shortlisted' %}
+                        {% set nextTransition = 'interview' %}
+                        {% set nextLabel = 'Interview' %}
+                    {% elseif application.status == 'interview' or application.status == 'interviewing' %}
+                        {% set nextTransition = 'negotiate' %}
+                        {% set nextLabel = 'Negotiate' %}
+                    {% elseif application.status == 'offered' or application.status == 'negotiating' %}
+                        {% set nextTransition = 'accept' %}
+                        {% set nextLabel = 'Accept' %}
+                    {% elseif application.status == 'hired' or application.status == 'accepted' %}
+                        {% set nextTransition = 'complete' %}
+                        {% set nextLabel = 'Complete' %}
+                    {% endif %}
+
+                    {% if nextTransition %}
+                        <button id="next-status-btn" class="btn btn-sm" onclick="changeApplicationStatus('{{ nextTransition }}', '{{ application.id }}', '{{ application.job.id }}')" style="padding: 6px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background-color: #85BB65; color: white; white-space: nowrap;">
+                            {{ nextLabel }}
+                        </button>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -458,59 +752,16 @@
                 {% endif %}
             </div>
         </div>
+        {% elseif application.interview and application.interview.date %}
+        <div class="app-detail-meta-item">
+            <div class="app-detail-meta-label">
+                <i class="fas fa-calendar-check"></i> Interview
+            </div>
+            <div class="app-detail-meta-value">{{ application.interview.date|date('m/d/Y H:i') }}</div>
+        </div>
         {% endif %}
     </div>
 
-    {# Action History #}
-    {% if application.oneFileRequestedAt or application.oneFileProvidedAt or application.interview or application.contractSentAt or application.contractSignedAt or review %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-history"></i> Action History
-        </h3>
-        <div class="app-detail-history">
-            {% if application.oneFileRequestedAt %}
-                <div class="app-detail-history-item" style="color: #000000; font-size: 15px;">
-                    <i class="fas fa-folder"></i> <strong style="color: #000000;">One File Requested:</strong> <span style="color: #000000;">{{ application.oneFileRequestedAt|date('m/d/Y') }}</span>
-                </div>
-            {% endif %}
-            {% if application.oneFileProvidedAt %}
-                <div class="app-detail-history-item" style="color: #000000; font-size: 15px;">
-                    <i class="fas fa-check-circle"></i> <strong style="color: #000000;">One File Provided:</strong> <span style="color: #000000;">{{ application.oneFileProvidedAt|date('m/d/Y') }}</span>
-                </div>
-            {% endif %}
-            {% if application.interviews|length > 0 %}
-                {% for interview in application.interviews %}
-                <div class="app-detail-history-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <strong>Interview Scheduled:</strong> {{ interview.date|date('m/d/Y H:i') }}
-                    {% if interview.meetingPlatform %}
-                        <span style="margin-left: 6px; color: #666;">(Via {{ interview.meetingPlatform }})</span>
-                    {% endif %}
-                    {% if interview.meetingUrl %}
-                        <a href="{{ interview.meetingUrl }}" target="_blank" style="margin-left: 8px; color: #2563eb; text-decoration: none; font-weight: 500;">Join</a>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            {% endif %}
-
-            {% if application.contractSentAt is not null %}
-                <div class="app-detail-history-item" style="color: #000000; font-size: 15px;">
-                    <i class="fas fa-file-contract"></i> <strong style="color: #000000;">Contract Sent:</strong> <span style="color: #000000;">{{ application.contractSentAt|date('m/d/Y') }}</span>
-                </div>
-            {% endif %}
-            {% if application.contractSignedAt %}
-                <div class="app-detail-history-item" style="color: #000000; font-size: 15px;">
-                    <i class="fas fa-signature"></i> <strong style="color: #000000;">Contract Signed:</strong> <span style="color: #000000;">{{ application.contractSignedAt|date('m/d/Y') }}</span>
-                </div>
-            {% endif %}
-            {% if review %}
-                <div class="app-detail-history-item" style="color: #000000; font-size: 15px;">
-                    <i class="fas fa-star"></i> <strong style="color: #000000;">Reviewed:</strong> <span style="color: #000000;">{{ review.createdAt|date('m/d/Y') }}</span>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
 
     {# CV #}
     {% if provider.cvFilename %}
@@ -572,170 +823,652 @@
     </div>
     {% endif %}
 
-    {# Document Requests #}
+    {# Document Requests - Hover-Sensitive Accordion #}
     {% if documentRequests|length > 0 %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-file-alt"></i> Documents
-        </h3>
-        <div id="documentRequestsAccordion">
-            {% for documentRequest in documentRequests %}
-                {% set document = documentRequest.document %}
-                <div class="card mb-2">
-                    <div class="card-header" id="heading{{ documentRequest.id }}">
-                        <h5 class="mb-0">
-                            <button class="btn btn-link {% if not loop.first %}collapsed{% endif %}" 
-                                    type="button" 
-                                    data-toggle="collapse" 
-                                    data-target="#collapse{{ documentRequest.id }}" 
-                                    aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
-                                    aria-controls="collapse{{ documentRequest.id }}"
-                                    style="color: #000000; font-size: 15px;">
-                                {{ documentRequest.name }}
+    <div class="app-detail-accordion" data-accordion-section="documents">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-file-alt"></i> Documents
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div id="documentRequestsAccordion">
+                {% for documentRequest in documentRequests %}
+                    {% set document = documentRequest.document %}
+                    <div class="card mb-2">
+                        <div class="card-header" id="heading{{ documentRequest.id }}">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link {% if not loop.first %}collapsed{% endif %}" 
+                                        type="button" 
+                                        data-toggle="collapse" 
+                                        data-target="#collapse{{ documentRequest.id }}" 
+                                        aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
+                                        aria-controls="collapse{{ documentRequest.id }}"
+                                        style="color: #000000; font-size: 15px;">
+                                    {{ documentRequest.name }}
+                                    {% if document %}
+                                        <span class="badge badge-success">Provided</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Pending</span>
+                                    {% endif %}
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse{{ documentRequest.id }}" 
+                             class="collapse {% if loop.first %}show{% endif %}" 
+                             aria-labelledby="heading{{ documentRequest.id }}" 
+                             data-parent="#documentRequestsAccordion">
+                            <div class="card-body" style="color: #000000; font-size: 15px;">
                                 {% if document %}
-                                    <span class="badge badge-success">Provided</span>
+                                    <p style="color: #000000;"><strong style="color: #000000;">Status:</strong> <span style="color: #000000;">Provided on {{ document.createdAt|date('m/d/Y') }}</span></p>
+                                    <a href="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.filename) }}" 
+                                       target="_blank" 
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
                                 {% else %}
-                                    <span class="badge badge-warning">Pending</span>
+                                    <p style="color: #000000;">Document not yet provided.</p>
                                 {% endif %}
-                            </button>
-                        </h5>
-                    </div>
-                    <div id="collapse{{ documentRequest.id }}" 
-                         class="collapse {% if loop.first %}show{% endif %}" 
-                         aria-labelledby="heading{{ documentRequest.id }}" 
-                         data-parent="#documentRequestsAccordion">
-                        <div class="card-body" style="color: #000000; font-size: 15px;">
-                            {% if document %}
-                                <p style="color: #000000;"><strong style="color: #000000;">Status:</strong> <span style="color: #000000;">Provided on {{ document.createdAt|date('m/d/Y') }}</span></p>
-                                <a href="{{ asset('uploads/' ~ document.user.id ~ '/' ~ document.filename) }}" 
-                                   target="_blank" 
-                                   class="btn btn-primary btn-sm">
-                                    <i class="fas fa-download"></i> Download
-                                </a>
-                            {% else %}
-                                <p style="color: #000000;">Document not yet provided.</p>
-                            {% endif %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    {# Education #}
+    {# Education - Hover-Sensitive Accordion #}
     {% if educations is defined and educations|length > 0 %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-graduation-cap"></i> Education
-        </h3>
-        <div class="app-details-grid">
-            {% for education in educations %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>School:</strong> <span style="color: #000000;">{{ education.school }}</span><br>
-                {% if education.degree %}<strong>Degree:</strong> <span style="color: #000000;">{{ education.degree }}</span><br>{% endif %}
-                {% if education.fieldOfStudy %}<strong>Field:</strong> <span style="color: #000000;">{{ education.fieldOfStudy }}</span><br>{% endif %}
-                {% if education.grade %}<strong>Grade:</strong> <span style="color: #000000;">{{ education.grade }}</span><br>{% endif %}
-                {% if education.startDate %}<strong>Start:</strong> <span style="color: #000000;">{{ education.startDate|date('m/d/Y') }}</span><br>{% endif %}
-                {% if education.endDate %}<strong>End:</strong> <span style="color: #000000;">{{ education.endDate|date('m/d/Y') }}</span>{% endif %}
+    <div class="app-detail-accordion" data-accordion-section="education">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-graduation-cap"></i> Education
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
-            {% endfor %}
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div class="app-details-grid">
+                {% for education in educations %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>School:</strong> <span style="color: #000000;">{{ education.school }}</span><br>
+                    {% if education.degree %}<strong>Degree:</strong> <span style="color: #000000;">{{ education.degree }}</span><br>{% endif %}
+                    {% if education.fieldOfStudy %}<strong>Field:</strong> <span style="color: #000000;">{{ education.fieldOfStudy }}</span><br>{% endif %}
+                    {% if education.grade %}<strong>Grade:</strong> <span style="color: #000000;">{{ education.grade }}</span><br>{% endif %}
+                    {% if education.startDate %}<strong>Start:</strong> <span style="color: #000000;">{{ education.startDate|date('m/d/Y') }}</span><br>{% endif %}
+                    {% if education.endDate %}<strong>End:</strong> <span style="color: #000000;">{{ education.endDate|date('m/d/Y') }}</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    {# Experience #}
+    {# Experience - Hover-Sensitive Accordion #}
     {% if experiences is defined and experiences|length > 0 %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-briefcase"></i> Experience
-        </h3>
-        <div class="app-details-grid">
-            {% for experience in experiences %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Title:</strong> <span style="color: #000000;">{{ experience.title }}</span><br>
-                {% if experience.company %}<strong>Company:</strong> <span style="color: #000000;">{{ experience.company }}</span><br>{% endif %}
-                {% if experience.location %}<strong>Location:</strong> <span style="color: #000000;">{{ experience.location }}</span><br>{% endif %}
-                {% if experience.employmentType %}<strong>Type:</strong> <span style="color: #000000;">{{ experience.employmentType }}</span><br>{% endif %}
-                {% if experience.startDate %}<strong>Start:</strong> <span style="color: #000000;">{{ experience.startDate|date('m/d/Y') }}</span><br>{% endif %}
-                {% if experience.endDate %}<strong>End:</strong> <span style="color: #000000;">{{ experience.endDate|date('m/d/Y') }}</span>{% else %}<strong>Current:</strong> <span style="color: #000000;">Yes</span>{% endif %}
+    <div class="app-detail-accordion" data-accordion-section="experience">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-briefcase"></i> Experience
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
-            {% endfor %}
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div class="app-details-grid">
+                {% for experience in experiences %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Title:</strong> <span style="color: #000000;">{{ experience.title }}</span><br>
+                    {% if experience.company %}<strong>Company:</strong> <span style="color: #000000;">{{ experience.company }}</span><br>{% endif %}
+                    {% if experience.location %}<strong>Location:</strong> <span style="color: #000000;">{{ experience.location }}</span><br>{% endif %}
+                    {% if experience.employmentType %}<strong>Type:</strong> <span style="color: #000000;">{{ experience.employmentType }}</span><br>{% endif %}
+                    {% if experience.startDate %}<strong>Start:</strong> <span style="color: #000000;">{{ experience.startDate|date('m/d/Y') }}</span><br>{% endif %}
+                    {% if experience.endDate %}<strong>End:</strong> <span style="color: #000000;">{{ experience.endDate|date('m/d/Y') }}</span>{% else %}<strong>Current:</strong> <span style="color: #000000;">Yes</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    {# Insurance #}
+    {# Insurance - Hover-Sensitive Accordion #}
     {% if insurances is defined and insurances|length > 0 %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-shield-alt"></i> Insurance
-        </h3>
-        <div class="app-details-grid">
-            {% for insurance in insurances %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Carrier:</strong> <span style="color: #000000;">{{ insurance.carrier }}</span><br>
-                {% if insurance.amount %}<strong>Amount:</strong> <span style="color: #000000;">{{ insurance.amount }}</span><br>{% endif %}
-                {% if insurance.effectiveDate %}<strong>Effective Date:</strong> <span style="color: #000000;">{{ insurance.effectiveDate|date('m/d/Y') }}</span><br>{% endif %}
-                {% if insurance.state %}<strong>State:</strong> <span style="color: #000000;">{{ insurance.state }}</span><br>{% endif %}
-                {% if insurance.city %}<strong>City:</strong> <span style="color: #000000;">{{ insurance.city }}</span>{% endif %}
+    <div class="app-detail-accordion" data-accordion-section="insurance">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-shield-alt"></i> Insurance
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
-            {% endfor %}
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div class="app-details-grid">
+                {% for insurance in insurances %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Carrier:</strong> <span style="color: #000000;">{{ insurance.carrier }}</span><br>
+                    {% if insurance.amount %}<strong>Amount:</strong> <span style="color: #000000;">{{ insurance.amount }}</span><br>{% endif %}
+                    {% if insurance.effectiveDate %}<strong>Effective Date:</strong> <span style="color: #000000;">{{ insurance.effectiveDate|date('m/d/Y') }}</span><br>{% endif %}
+                    {% if insurance.state %}<strong>State:</strong> <span style="color: #000000;">{{ insurance.state }}</span><br>{% endif %}
+                    {% if insurance.city %}<strong>City:</strong> <span style="color: #000000;">{{ insurance.city }}</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
 
-    {# Health Assessment #}
+    {# Health Assessment - Hover-Sensitive Accordion #}
     {% if provider.healthAssessment is not empty %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-heartbeat"></i> Health Assessment
-        </h3>
-        <div class="app-details-grid">
-            {% if provider.healthAssessment['substance_abuse'] is defined %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Substance Abuse:</strong> <span style="color: #000000;">{{ provider.healthAssessment['substance_abuse'] }}</span>
+    <div class="app-detail-accordion" data-accordion-section="health-assessment">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-heartbeat"></i> Health Assessment
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
-            {% endif %}
-            {% if provider.healthAssessment['job_related'] is defined %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Job Related:</strong> <span style="color: #000000;">{{ provider.healthAssessment['job_related'] }}</span>
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div class="app-details-grid">
+                {% if provider.healthAssessment['substance_abuse'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Substance Abuse:</strong> <span style="color: #000000;">{{ provider.healthAssessment['substance_abuse'] }}</span>
+                </div>
+                {% endif %}
+                {% if provider.healthAssessment['job_related'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Job Related:</strong> <span style="color: #000000;">{{ provider.healthAssessment['job_related'] }}</span>
+                </div>
+                {% endif %}
+                {% if provider.healthAssessment['travel'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Travel:</strong> <span style="color: #000000;">{{ provider.healthAssessment['travel'] }}</span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            {% if provider.healthAssessment['travel'] is defined %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Travel:</strong> <span style="color: #000000;">{{ provider.healthAssessment['travel'] }}</span>
-            </div>
-            {% endif %}
         </div>
     </div>
     {% endif %}
 
-    {# Risk Assessment #}
+    {# Risk Assessment - Hover-Sensitive Accordion #}
     {% if provider.riskAssessment is not empty %}
-    <div class="app-detail-section">
-        <h3 class="app-detail-section-title">
-            <i class="fas fa-exclamation-triangle"></i> Risk Assessment
-        </h3>
-        <div class="app-details-grid">
-            {% if provider.riskAssessment['substance_abuse'] is defined %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Substance Abuse:</strong> <span style="color: #000000;">{{ provider.riskAssessment['substance_abuse'] }}</span>
+    <div class="app-detail-accordion" data-accordion-section="risk-assessment">
+        <div class="app-detail-accordion-header" data-accordion-toggle>
+            <h3 class="app-detail-section-title">
+                <i class="fas fa-exclamation-triangle"></i> Risk Assessment
+            </h3>
+            <div class="app-detail-accordion-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
-            {% endif %}
-            {% if provider.riskAssessment['job_related'] is defined %}
-            <div class="app-detail-item" style="color: #000000; font-size: 15px;">
-                <strong>Job Related:</strong> <span style="color: #000000;">{{ provider.riskAssessment['job_related'] }}</span>
+        </div>
+        <div class="app-detail-accordion-content collapsed">
+            <div class="app-details-grid">
+                {% if provider.riskAssessment['substance_abuse'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Substance Abuse:</strong> <span style="color: #000000;">{{ provider.riskAssessment['substance_abuse'] }}</span>
+                </div>
+                {% endif %}
+                {% if provider.riskAssessment['job_related'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Job Related:</strong> <span style="color: #000000;">{{ provider.riskAssessment['job_related'] }}</span>
+                </div>
+                {% endif %}
+                {% if provider.riskAssessment['travel'] is defined %}
+                <div class="app-detail-item" style="color: #000000; font-size: 15px;">
+                    <strong>Travel:</strong> <span style="color: #000000;">{{ provider.riskAssessment['travel'] }}</span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            {% if provider.riskAssessment['travel'] is defined %}
-            <div class="app-detail-item">
-                <strong>Travel:</strong> {{ provider.riskAssessment['travel'] }}
-            </div>
-            {% endif %}
         </div>
     </div>
     {% endif %}
 </div>
 
+<!-- Timeline Overlay -->
+<div id="timeline-overlay" class="timeline-overlay" onclick="window.closeTimelinePanel && window.closeTimelinePanel(); return false;"></div>
 
+<!-- Timeline Panel -->
+<aside id="timeline-panel" class="timeline-panel" aria-hidden="true">
+    <div class="timeline-header">
+        <h6 class="timeline-title">Timeline</h6>
+        <button type="button" class="timeline-close" onclick="window.closeTimelinePanel && window.closeTimelinePanel(); return false;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+    </div>
+    <div class="timeline-body" id="timeline-content">
+        {% if application.oneFileRequestedAt or application.oneFileProvidedAt or application.interviews|length > 0 or application.interview or application.contractSentAt or application.contractSignedAt or review %}
+        <div class="timeline-events">
+            {% if application.oneFileRequestedAt %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #f8f9fa;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="14 2 14 8 20 8" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">One File Requested</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ application.oneFileRequestedAt|date('m/d/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if application.oneFileProvidedAt %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #e8f5e9;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 11L12 14L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3.89543 5 5 3.89543 5 3H16" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">One File Provided</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ application.oneFileProvidedAt|date('m/d/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if application.interviews|length > 0 %}
+                {% for interview in application.interviews %}
+                <div class="timeline-event">
+                    <div class="timeline-event-icon" style="background: #f8f9fa;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="#6c757d" stroke-width="1.5"/>
+                            <path d="M16 2V6M8 2V6M3 10H21" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="timeline-event-content">
+                        <h6 class="timeline-event-title">Interview Scheduled</h6>
+                        <div class="timeline-detail-item">
+                            <span class="timeline-detail-label">Date:</span>
+                            <span class="timeline-detail-value">{{ interview.date|date('m/d/Y H:i') }}</span>
+                        </div>
+                        {% if interview.meetingPlatform %}
+                        <div class="timeline-detail-item">
+                            <span class="timeline-detail-label">Platform:</span>
+                            <span class="timeline-detail-value">{{ interview.meetingPlatform }}</span>
+                        </div>
+                        {% endif %}
+                        {% if interview.meetingUrl %}
+                        <div class="timeline-detail-item">
+                            <span class="timeline-detail-label">Meeting Link:</span>
+                            <span class="timeline-detail-value">
+                                <a href="{{ interview.meetingUrl }}" target="_blank" style="color: #2563eb; text-decoration: none; font-weight: 500;">Join Meeting</a>
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% elseif application.interview is not null and application.interview.date is not null %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #f8f9fa;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="#6c757d" stroke-width="1.5"/>
+                        <path d="M16 2V6M8 2V6M3 10H21" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">Interview Scheduled</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ application.interview.date|date('m/d/Y H:i') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if application.contractSentAt is not null %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #f8f9fa;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <polyline points="14 2 14 8 20 8" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="16" y1="13" x2="8" y2="13" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="16" y1="17" x2="8" y2="17" stroke="#6c757d" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">Contract Sent</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ application.contractSentAt|date('m/d/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if application.contractSignedAt %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #e8f5e9;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6L9 17L4 12" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">Contract Signed</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ application.contractSignedAt|date('m/d/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if review %}
+            <div class="timeline-event">
+                <div class="timeline-event-icon" style="background: #e8f5e9;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="#85BB65" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="timeline-event-content">
+                    <h6 class="timeline-event-title">Reviewed</h6>
+                    <div class="timeline-detail-item">
+                        <span class="timeline-detail-label">Date:</span>
+                        <span class="timeline-detail-value">{{ review.createdAt|date('m/d/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px 20px; color: #666;">
+            <p style="margin: 0; font-size: 14px;">No action history available yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</aside>
+
+<script>
+function openTimelinePanel() {
+    const panel = document.getElementById('timeline-panel');
+    const overlay = document.getElementById('timeline-overlay');
+    
+    if (panel && overlay) {
+        panel.classList.add('open');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        panel.setAttribute('aria-hidden', 'false');
+        
+        // Add class to split view container to indicate timeline is open
+        const splitJobDetails = document.getElementById('split-job-details');
+        if (splitJobDetails) {
+            splitJobDetails.classList.add('timeline-open');
+        }
+    }
+}
+
+// Make it globally available
+window.openTimelinePanel = openTimelinePanel;
+
+function closeTimelinePanel() {
+    const panel = document.getElementById('timeline-panel');
+    const overlay = document.getElementById('timeline-overlay');
+    
+    if (panel && overlay) {
+        panel.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+        panel.setAttribute('aria-hidden', 'true');
+        
+        // Remove timeline-open class from split view container
+        const splitJobDetails = document.getElementById('split-job-details');
+        if (splitJobDetails) {
+            splitJobDetails.classList.remove('timeline-open');
+        }
+    }
+}
+
+// Make it globally available
+window.closeTimelinePanel = closeTimelinePanel;
+
+// Close on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeTimelinePanel();
+    }
+});
+
+// Hover-Sensitive Accordion functionality
+// Make initializeAccordions globally available for split view
+window.initializeAccordions = function(container) {
+    if (!container) return;
+    
+    const accordions = container.querySelectorAll('.app-detail-accordion[data-accordion-section]');
+    
+    accordions.forEach(function(accordion) {
+        const header = accordion.querySelector('.app-detail-accordion-header[data-accordion-toggle]');
+        const content = accordion.querySelector('.app-detail-accordion-content');
+        
+        if (!header || !content) return;
+        
+        // Skip if already initialized (check for data attribute)
+        if (accordion.dataset.accordionInitialized === 'true') return;
+        accordion.dataset.accordionInitialized = 'true';
+        
+        let isLocked = false;
+        let hoverTimeout = null;
+        
+        // Expand function
+        function expandAccordion() {
+            header.classList.add('expanded');
+            content.classList.remove('collapsed');
+            content.classList.add('expanded');
+        }
+        
+        // Collapse function
+        function collapseAccordion() {
+            if (!isLocked) {
+                header.classList.remove('expanded');
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+            }
+        }
+        
+        // Click handler - lock/unlock the accordion
+        function handleClick(e) {
+            e.stopPropagation();
+            isLocked = !isLocked;
+            if (isLocked) {
+                expandAccordion();
+            } else {
+                collapseAccordion();
+            }
+        }
+        
+        // Hover handler - expand on hover (if not locked)
+        header.addEventListener('mouseenter', function() {
+            clearTimeout(hoverTimeout);
+            expandAccordion();
+        });
+        
+        // Mouse leave handler - collapse after delay (if not locked)
+        header.addEventListener('mouseleave', function() {
+            if (!isLocked) {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(function() {
+                    collapseAccordion();
+                }, 200);
+            }
+        });
+        
+        // Also handle mouse events on content to keep it open when hovering over it
+        content.addEventListener('mouseenter', function() {
+            if (!isLocked) {
+                clearTimeout(hoverTimeout);
+                expandAccordion();
+            }
+        });
+        
+        content.addEventListener('mouseleave', function() {
+            if (!isLocked) {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(function() {
+                    collapseAccordion();
+                }, 200);
+            }
+        });
+        
+        // Click handlers
+        header.addEventListener('click', handleClick);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize accordions for both main view and split view
+    function initializeAccordionsLocal(container) {
+        if (!container) return;
+        
+        const accordions = container.querySelectorAll('.app-detail-accordion[data-accordion-section]');
+        
+        accordions.forEach(function(accordion) {
+            const header = accordion.querySelector('.app-detail-accordion-header[data-accordion-toggle]');
+            const content = accordion.querySelector('.app-detail-accordion-content');
+            
+            if (!header || !content) return;
+            
+            let isLocked = false;
+            let hoverTimeout = null;
+            
+            // Expand function
+            function expandAccordion() {
+                header.classList.add('expanded');
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+            }
+            
+            // Collapse function
+            function collapseAccordion() {
+                if (!isLocked) {
+                    header.classList.remove('expanded');
+                    content.classList.remove('expanded');
+                    content.classList.add('collapsed');
+                }
+            }
+            
+            // Click handler - lock/unlock the accordion
+            function handleClick(e) {
+                e.stopPropagation();
+                isLocked = !isLocked;
+                if (isLocked) {
+                    expandAccordion();
+                } else {
+                    collapseAccordion();
+                }
+            }
+            
+            // Hover handler - expand on hover (if not locked)
+            header.addEventListener('mouseenter', function() {
+                clearTimeout(hoverTimeout);
+                expandAccordion();
+            });
+            
+            // Mouse leave handler - collapse after delay (if not locked)
+            header.addEventListener('mouseleave', function() {
+                if (!isLocked) {
+                    clearTimeout(hoverTimeout);
+                    hoverTimeout = setTimeout(function() {
+                        collapseAccordion();
+                    }, 200);
+                }
+            });
+            
+            // Also handle mouse events on content to keep it open when hovering over it
+            content.addEventListener('mouseenter', function() {
+                if (!isLocked) {
+                    clearTimeout(hoverTimeout);
+                    expandAccordion();
+                }
+            });
+            
+            content.addEventListener('mouseleave', function() {
+                if (!isLocked) {
+                    clearTimeout(hoverTimeout);
+                    hoverTimeout = setTimeout(function() {
+                        collapseAccordion();
+                    }, 200);
+                }
+            });
+            
+            // Click handlers
+            header.addEventListener('click', handleClick);
+        });
+    }
+    
+    // Initialize for main content
+    const mainContent = document.querySelector('.app-detail-content');
+    if (mainContent) {
+        window.initializeAccordions(mainContent);
+    }
+    
+    // Initialize for split view (if it exists)
+    const splitViewContent = document.querySelector('.split-view-container .app-detail-content');
+    if (splitViewContent) {
+        window.initializeAccordions(splitViewContent);
+    }
+    
+    // Watch for split view creation and initialize accordions there too
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                    const splitContent = node.querySelector ? node.querySelector('.app-detail-content') : null;
+                    if (splitContent) {
+                        window.initializeAccordions(splitContent);
+                    }
+                    // Also check if the node itself is an accordion container
+                    if (node.classList && node.classList.contains('app-detail-content')) {
+                        window.initializeAccordions(node);
+                    }
+                    // Check for accordions directly added
+                    const directAccordions = node.querySelectorAll ? node.querySelectorAll('.app-detail-accordion[data-accordion-section]') : [];
+                    if (directAccordions.length > 0) {
+                        directAccordions.forEach(function(accordion) {
+                            const container = accordion.closest('.app-detail-content') || accordion.parentElement;
+                            if (container) {
+                                window.initializeAccordions(container);
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    });
+    
+    // Observe the document body for new elements
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+});
+</script>

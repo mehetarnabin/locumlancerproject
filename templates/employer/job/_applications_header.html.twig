@@ -122,33 +122,33 @@
     font-weight: 500;
 }
 
-.status-workflow-card.applied,
-.status-workflow-card.offered {
+.status-workflow-card.applied {
     background: #cfe6b2;
     color: #cfe6b2;
 }
 
 .status-workflow-card.applied .status-workflow-card-number,
-.status-workflow-card.applied .status-workflow-card-label,
-.status-workflow-card.offered .status-workflow-card-number,
-.status-workflow-card.offered .status-workflow-card-label {
+.status-workflow-card.applied .status-workflow-card-label {
     color: #000;
 }
 
+.status-workflow-card.shortlisted,
+.status-workflow-card.interviewing,
 .status-workflow-card.negotiating,
-.status-workflow-card.interview,
-.status-workflow-card.hired,
+.status-workflow-card.accepted,
 .status-workflow-card.completed {
     background: #99cc66;
     color: #99cc66;
 }
 
+.status-workflow-card.shortlisted .status-workflow-card-number,
+.status-workflow-card.shortlisted .status-workflow-card-label,
+.status-workflow-card.interviewing .status-workflow-card-number,
+.status-workflow-card.interviewing .status-workflow-card-label,
 .status-workflow-card.negotiating .status-workflow-card-number,
 .status-workflow-card.negotiating .status-workflow-card-label,
-.status-workflow-card.interview .status-workflow-card-number,
-.status-workflow-card.interview .status-workflow-card-label,
-.status-workflow-card.hired .status-workflow-card-number,
-.status-workflow-card.hired .status-workflow-card-label,
+.status-workflow-card.accepted .status-workflow-card-number,
+.status-workflow-card.accepted .status-workflow-card-label,
 .status-workflow-card.completed .status-workflow-card-number,
 .status-workflow-card.completed .status-workflow-card-label {
     color: #000;
@@ -162,33 +162,25 @@
     {% for status in allStatuses %}
         {% set count = 0 %}
         {% for application in applications %}
-            {% if application.status == status %}
+            {% set appStatus = application.status|lower %}
+            {# Map old status names to new ones for counting #}
+            {% if status == 'shortlisted' and (appStatus == 'in_review' or appStatus == 'shortlisted') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'interviewing' and (appStatus == 'interview' or appStatus == 'interviewing') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'negotiating' and (appStatus == 'in_review' or appStatus == 'offered' or appStatus == 'negotiating') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'accepted' and (appStatus == 'hired' or appStatus == 'accepted') %}
+                {% set count = count + 1 %}
+            {% elseif appStatus == status %}
                 {% set count = count + 1 %}
             {% endif %}
         {% endfor %}
         {% set isLast = loop.last %}
-        {% set statusClass = '' %}
-        {% if status == 'applied' %}
-            {% set statusClass = 'applied' %}
-        {% elseif status == 'in_review' %}
-            {% set statusClass = 'negotiating' %}
-        {% elseif status == 'interview' %}
-            {% set statusClass = 'interview' %}
-        {% elseif status == 'offered' %}
-            {% set statusClass = 'offered' %}
-        {% elseif status == 'hired' %}
-            {% set statusClass = 'hired' %}
-        {% elseif status == 'completed' %}
-            {% set statusClass = 'completed' %}
-        {% endif %}
-        <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}" class="status-workflow-card {{ statusClass }}{% if isLast %} last{% endif %}">
+        <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}" class="status-workflow-card {{ status }}{% if isLast %} last{% endif %}">
             <div class="status-workflow-card-number">{{ count }}</div>
             <div class="status-workflow-card-label">
-                {% if status == 'in_review' %}
-                    Negotiating
-                {% else %}
-                    {{ status | replace({'_': ' '}) | title }}
-                {% endif %}
+                {{ status | title }}
             </div>
         </a>
     {% endfor %}

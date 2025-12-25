@@ -2027,11 +2027,12 @@ select.form-select option {
                     {% set documentCompanyGroups = {} %}
                     {% for documentRequest in documentRequests %}
                         {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
-                            {% set companyName = documentRequest.application.employer.companyName %}
+                            {% set companyName = documentRequest.application.employer.name ?? documentRequest.application.employer.companyName ?? 'Unknown Company' %}
                             {% if documentCompanyGroups[companyName] is not defined %}
                                 {% set documentCompanyGroups = documentCompanyGroups|merge({(companyName): {'requests': []}}) %}
                             {% endif %}
-                            {% set documentCompanyGroups = documentCompanyGroups|merge({(companyName): documentCompanyGroups[companyName]|merge({'requests': documentCompanyGroups[companyName].requests|merge([documentRequest])})}) %}
+                            {% set currentRequests = documentCompanyGroups[companyName].requests|default([]) %}
+                            {% set documentCompanyGroups = documentCompanyGroups|merge({(companyName): {'requests': currentRequests|merge([documentRequest])}}) %}
                         {% endif %}
                     {% endfor %}
                     
@@ -2164,27 +2165,29 @@ select.form-select option {
             <div class="tab-content" id="sign-document-requests-tab">
                 <div class="documents-grid-wrapper" id="requests-grid-wrapper-sign">
                     {% set signDocumentCompanyGroups = {} %}
-                    {# Placeholder for sign document requests - can be populated with actual data when available #}
-                    {% for documentRequest in documentRequests %}
-                        {% if documentRequest.providedAt is null and documentRequest.application and documentRequest.application.employer %}
-                            {# Check if this is a sign document request - adjust condition based on your data structure #}
-                            {% set companyName = documentRequest.application.employer.companyName %}
-                            {% if signDocumentCompanyGroups[companyName] is not defined %}
-                                {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'requests': []}}) %}
+                    {# Group offer letters and contract letters by employer/company #}
+                    {% if offerLetters is defined %}
+                        {% for offerLetter in offerLetters %}
+                            {% if offerLetter.application and offerLetter.application.employer %}
+                                {% set companyName = offerLetter.application.employer.name ?? offerLetter.application.employer.companyName ?? 'Unknown Company' %}
+                                {% if signDocumentCompanyGroups[companyName] is not defined %}
+                                    {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'documents': []}}) %}
+                                {% endif %}
+                                {% set currentDocs = signDocumentCompanyGroups[companyName].documents|default([]) %}
+                                {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'documents': currentDocs|merge([offerLetter])}}) %}
                             {% endif %}
-                            {# For now, we'll leave this empty or add a condition to filter sign document requests #}
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    {% endif %}
                     
                     {% if signDocumentCompanyGroups|length > 0 %}
                         {% for companyName, groupData in signDocumentCompanyGroups %}
-                            {% if groupData.requests|length > 0 %}
+                            {% if groupData.documents|length > 0 %}
                             <div class="company-document-group">
                                 <div class="company-group-header" data-accordion-toggle>
                                     <div class="company-name-wrapper">
                                         <h6 class="company-name">{{ companyName }}</h6>
                                         <span class="request-count">
-                                            {{ groupData.requests|length }} document(s) to sign
+                                            {{ groupData.documents|length }} document(s) to sign
                                         </span>
                                     </div>
                                     <button class="accordion-toggle-btn" type="button" aria-expanded="false">
@@ -2194,14 +2197,19 @@ select.form-select option {
                                     </button>
                                 </div>
                                 <div class="requests-grid accordion-content collapsed" style="display: none;">
-                                    {% for request in groupData.requests %}
-                                    <div class="request-card" data-request-id="{{ request.id }}" data-company="{{ companyName }}">
+                                    {% for doc in groupData.documents %}
+                                    <div class="request-card" data-document-id="{{ doc.id }}" data-company="{{ companyName }}">
                                         <div class="request-card-header">
-                                            <div class="request-title">{{ request.name }}</div>
-                                            <div class="request-document-select">
-                                                <button type="button" class="action-btn" style="padding: 6px 12px; font-size: 0.75rem; width: 100%;">
-                                                    Sign Document
-                                                </button>
+                                            <div class="request-title">{{ doc.getDisplayName() }}</div>
+                                            <div class="request-meta" style="font-size: 0.75rem; color: #6B7280; margin-top: 4px;">
+                                                {% if doc.application and doc.application.job %}
+                                                    Job: {{ doc.application.job.title }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="request-document-select" style="margin-top: 12px;">
+                                                <a href="{{ doc.filePath ?? '/uploads/' ~ user.id ~ '/' ~ doc.fileName }}" target="_blank" class="action-btn" style="padding: 6px 12px; font-size: 0.75rem; width: 100%; text-decoration: none; display: inline-block; text-align: center;">
+                                                    View & Sign Document
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

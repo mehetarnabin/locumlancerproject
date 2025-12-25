@@ -1,12 +1,12 @@
 framework:
   workflows:
     job_workflow:
-      type: 'state_machine'
+      type: "state_machine"
       audit_trail:
         enabled: true
       marking_store:
-        type: 'method'
-        property: 'status'
+        type: "method"
+        property: "status"
       supports:
         - App\Entity\Job
       initial_marking: draft
@@ -26,41 +26,44 @@ framework:
           from: paused
           to: published
         close:
-          from: [ draft, published, paused ]
+          from: [draft, published, paused]
           to: closed
 
     job_application_workflow:
-      type: 'state_machine'
+      type: "state_machine"
       marking_store:
-        type: 'method'
-        property: 'status'
+        type: "method"
+        property: "status"
       supports:
         - App\Entity\Application
-      initial_marking: 'applied'
+      initial_marking: "applied"
       places:
         - applied
-        - in_review
-        - interview
-        - offered
-        - rejected
-        - hired
+        - shortlisted
+        - interviewing
+        - negotiating
+        - accepted
         - completed
+        - rejected
       transitions:
-        review:
-          from: applied
-          to: in_review
+        shortlist:
+          from: [applied, interviewing, negotiating, accepted, completed, rejected]
+          to: shortlisted
         interview:
-          from: in_review
-          to: interview
-        offer:
-          from: interview
-          to: offered
-        hire:
-          from: offered
-          to: hired
-        reject:
-          from: [ applied, in_review, interview, offered ]
-          to: rejected
+          from: [applied, shortlisted, negotiating, accepted, completed, rejected]
+          to: interviewing
+        negotiate:
+          from: [applied, shortlisted, interviewing, accepted, completed, rejected]
+          to: negotiating
+        accept:
+          from: [applied, shortlisted, interviewing, negotiating, completed, rejected]
+          to: accepted
         complete:
-          from: hired
+          from: [applied, shortlisted, interviewing, negotiating, accepted, rejected]
           to: completed
+        reject:
+          from: [applied, shortlisted, interviewing, negotiating, accepted, completed]
+          to: rejected
+        move_to_applied:
+          from: [shortlisted, interviewing, negotiating, accepted, completed, rejected]
+          to: applied

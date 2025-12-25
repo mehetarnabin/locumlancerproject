@@ -16,7 +16,7 @@ class Bookmark
     #[ORM\Id]
     #[ORM\Column(type: 'uuid', unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator(class: \Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator::class)]
     private ?Uuid $id = null;
 
     #[ORM\ManyToOne]
@@ -67,14 +67,13 @@ class Bookmark
     }
 
 
-public function getMatchPercentage(): float
-{
-    // Adjust according to your actual matching logic
-    if ($this->rank && $this->rankMax) {
-        return round(($this->rank / $this->rankMax) * 100, 1);
+    public function getMatchPercentage(): float
+    {
+        // Adjust according to your actual matching logic
+        if ($this->rank && $this->rankMax) {
+            return round(($this->rank / $this->rankMax) * 100, 1);
+        }
+
+        return 0;
     }
-
-    return 0;
-}
-
 }

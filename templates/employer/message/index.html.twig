@@ -3618,7 +3618,7 @@ async function deleteSelectedMessages() {
                     const formData = new FormData();
                     formData.append('_token', '{{ csrf_token('delete') }}');
                     
-                    response = await fetch(`/employer/message/${messageId}/delete`, {
+                    response = await fetch(`/employer/messages/${messageId}/delete`, {
                         method: 'POST',
                         body: formData
                     });
@@ -3748,7 +3748,7 @@ async function deleteMessage(messageId, button) {
         const formData = new FormData();
         formData.append('_token', csrfToken);
 
-        const response = await fetch(`/provider/message/${messageId}/delete`, {
+        const response = await fetch(`/employer/messages/${messageId}/delete`, {
             method: 'POST',
             body: formData
         });
@@ -4290,7 +4290,7 @@ window.loadMessageInPanel = async function(messageId) {
     
     try {
         // Fetch message details using the show route
-        const response = await fetch(`/employer/message/${messageId}/show`);
+        const response = await fetch(`/employer/messages/${messageId}/show`);
         const html = await response.text();
         
         if (response.ok) {
@@ -4798,11 +4798,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toggle message expansion inline (dropdown style)
 window.toggleMessageExpansion = async function(messageId) {
+    console.log('toggleMessageExpansion called with messageId:', messageId);
     const messageThread = document.querySelector(`[data-message-id="${messageId}"].message-thread`);
-    if (!messageThread) return;
+    if (!messageThread) {
+        console.error('Message thread not found for messageId:', messageId);
+        return;
+    }
     
     const expandedContent = messageThread.querySelector('.message-item-expanded');
-    if (!expandedContent) return;
+    if (!expandedContent) {
+        console.error('Expanded content not found for messageId:', messageId);
+        return;
+    }
     
     const isExpanded = messageThread.classList.contains('expanded');
     
@@ -4814,17 +4821,53 @@ window.toggleMessageExpansion = async function(messageId) {
         messageThread.classList.add('expanded');
         
         const contentDiv = expandedContent.querySelector('.message-item-expanded-content');
-        if (contentDiv && contentDiv.innerHTML.includes('Loading message')) {
+        if (!contentDiv) {
+            console.error('Content div not found for messageId:', messageId);
+            return;
+        }
+        
+        // Always load if content is empty, contains "Loading message", or hasn't been loaded yet
+        const shouldLoad = contentDiv.innerHTML.trim() === '' || 
+                          contentDiv.innerHTML.includes('Loading message') || 
+                          contentDiv.innerHTML.trim() === '<div class="email-detail-loading">Loading message...</div>';
+        
+        if (shouldLoad) {
             try {
-                const response = await fetch(`/employer/message/${messageId}/show`);
-                const html = await response.text();
+                console.log('Loading message content for messageId:', messageId);
+                // Show loading state
+                contentDiv.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
                 
-                if (response.ok) {
+                console.log('Fetching from:', `/employer/messages/${messageId}/show`);
+                const response = await fetch(`/employer/messages/${messageId}/show`);
+                
+                console.log('Response status:', response.status, response.ok);
+                
+                if (!response.ok) {
+                    console.error('HTTP error! status:', response.status);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const html = await response.text();
+                console.log('Response HTML length:', html ? html.length : 0);
+                
+                if (!html || html.trim() === '') {
+                    console.error('Empty response from server');
+                    throw new Error('Empty response from server');
+                }
+                
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const contentContainer = doc.querySelector('.messages-content-body');
                     
-                    if (contentContainer) {
+                if (!contentContainer) {
+                    console.error('Could not find .messages-content-body in response. HTML preview:', html.substring(0, 500));
+                    contentDiv.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+                    return;
+                }
+                
+                console.log('Content container found, processing...');
+                
+                {
                         const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container, .gmail-style-thread');
                         const messageDetailContent = contentContainer.querySelector('.message-detail-content');
                         const replyForm = contentContainer.querySelector('.reply-form-section');
@@ -4957,12 +5000,16 @@ window.toggleMessageExpansion = async function(messageId) {
                                 });
                             }
                         }, 100);
-                    }
                 }
             } catch (error) {
                 console.error('Error loading message:', error);
-                contentDiv.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
+                console.error('Error details:', error.message, error.stack);
+                if (contentDiv) {
+                    contentDiv.innerHTML = '<div class="email-detail-loading">Error loading message: ' + error.message + '. Please try again.</div>';
             }
+            }
+        } else {
+            console.log('Content already loaded, skipping fetch');
         }
     }
 };

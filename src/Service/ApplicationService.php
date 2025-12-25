@@ -26,6 +26,10 @@ class ApplicationService
         $application->setJob($job);
         $application->setProvider($user->getProvider());
         $application->setEmployer($job->getEmployer());
+        // Explicitly set status to 'applied' to ensure it's correct
+        $application->setStatus('applied');
+        // Set appliedAt timestamp
+        $application->setAppliedAt(new \DateTime());
 
         $this->em->persist($application);
         $this->em->flush();

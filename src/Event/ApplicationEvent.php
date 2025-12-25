@@ -17,7 +17,7 @@ class ApplicationEvent
     public const APPLICATION_INTERVIEW_SCHEDULED = 'application.interview_scheduled';
     public const DOCUMENT_UPLOADED = 'document.uploaded';
 
-    public function __construct(private Application $application){}
+    public function __construct(private Application $application) {}
 
     public function getApplication(): Application
     {

@@ -738,6 +738,253 @@ class ApplicationController extends AbstractController
         return $this->redirectToRoute('app_provider_jobs_saved');
     }
 
+    #[Route('/{id}/messages', name: 'app_provider_application_messages', methods: ['GET'])]
+    public function getApplicationMessages(
+        Application $application,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $user = $this->getUser();
+        $provider = $user?->getProvider();
 
+        // Security check
+        if ($application->getProvider() !== $provider) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        // Get all messages for this application
+        // Use raw SQL with UNHEX for proper UUID comparison (primary strategy)
+        $job = $application->getJob();
+        $providerUser = $provider->getUser();
+        
+        $applicationIdStr = $application->getId()->toRfc4122();
+        $jobIdStr = $job->getId()->toRfc4122();
+        $providerUserIdStr = $providerUser->getId()->toRfc4122();
+        
+        $messages = [];
+        $conn = $em->getConnection();
+        
+        // Use UNHEX to convert UUID strings to binary for MySQL comparison
+        $sql = "
+            SELECT m.id FROM b_message m 
+            WHERE m.deleted = 0 
+            AND m.is_draft = 0 
+            AND (
+                m.application_id = UNHEX(REPLACE(:applicationId, '-', '')) 
+                OR (
+                    m.job_uuid = UNHEX(REPLACE(:jobId, '-', '')) 
+                    AND (
+                        m.receiver_id = UNHEX(REPLACE(:receiverId, '-', '')) 
+                        OR m.sender_id = UNHEX(REPLACE(:senderId, '-', ''))
+                    )
+                )
+            )
+            ORDER BY m.created_at ASC
+        ";
+        
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeQuery([
+            'applicationId' => $applicationIdStr,
+            'jobId' => $jobIdStr,
+            'receiverId' => $providerUserIdStr,
+            'senderId' => $providerUserIdStr
+        ]);
+        
+        $rawMessageIds = $result->fetchFirstColumn();
+        
+        // Convert binary UUIDs to Uuid objects and load entities
+        if (!empty($rawMessageIds)) {
+            foreach ($rawMessageIds as $binaryId) {
+                try {
+                    // Convert binary UUID to Uuid object
+                    $uuid = \Symfony\Component\Uid\Uuid::fromBinary($binaryId);
+                    $msg = $em->getRepository(\App\Entity\Message::class)->find($uuid);
+                    if ($msg) {
+                        $messages[] = $msg;
+                    }
+                } catch (\Exception $e) {
+                    // Skip invalid UUIDs
+                    continue;
+                }
+            }
+        }
+        
+        // Fallback: Try Doctrine query if raw SQL didn't work
+        if (empty($messages)) {
+            $messages = $em->getRepository(\App\Entity\Message::class)->createQueryBuilder('m')
+                ->where('m.deleted = false')
+                ->andWhere('m.isDraft = false')
+                ->andWhere('m.application = :application')
+                ->setParameter('application', $application)
+                ->orderBy('m.createdAt', 'ASC')
+                ->getQuery()
+                ->getResult();
+        }
+
+        $messagesData = [];
+        foreach ($messages as $msg) {
+            // Only include messages where provider is the receiver (messages FROM employer TO provider)
+            // or messages where provider is the sender (replies FROM provider TO employer)
+            $isProviderReceiver = $msg->getReceiver() && $msg->getReceiver()->getId()->equals($providerUser->getId());
+            $isProviderSender = $msg->getSender() && $msg->getSender()->getId()->equals($providerUser->getId());
+            
+            // Include the message if provider is involved (either as sender or receiver)
+            if ($isProviderReceiver || $isProviderSender) {
+                $messagesData[] = [
+                    'id' => $msg->getId()->toRfc4122(),
+                    'sender_id' => $msg->getSender()->getId()->toRfc4122(),
+                    'sender_name' => $msg->getSender()->getName(),
+                    'sender_email' => $msg->getSender()->getEmail(),
+                    'receiver_id' => $msg->getReceiver() ? $msg->getReceiver()->getId()->toRfc4122() : null,
+                    'receiver_name' => $msg->getReceiver() ? $msg->getReceiver()->getName() : null,
+                    'subject' => $msg->getSubject(),
+                    'text' => $msg->getText(),
+                    'created_at' => $msg->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'is_seen' => $msg->isSeen(),
+                ];
+            }
+        }
+
+        // Mark messages as seen
+        foreach ($messages as $msg) {
+            if ($msg->getReceiver() && $msg->getReceiver()->getId()->equals($user->getId()) && !$msg->isSeen()) {
+                $msg->setSeen(true);
+                $em->persist($msg);
+            }
+        }
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'messages' => $messagesData
+        ]);
+    }
+
+    #[Route('/{id}/reply-message', name: 'app_provider_application_reply_message', methods: ['POST'])]
+    public function replyToMessage(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em,
+        \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher,
+        \Symfony\Component\Mailer\MailerInterface $mailer
+    ): JsonResponse {
+        $user = $this->getUser();
+        $provider = $user?->getProvider();
+
+        // Security check
+        if ($application->getProvider() !== $provider) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true) ?: [];
+        $parentMessageId = $data['parent_message_id'] ?? null;
+        $messageText = trim($data['message'] ?? '');
+
+        if (empty($messageText)) {
+            return $this->json(['success' => false, 'message' => 'Message is required'], 400);
+        }
+
+        try {
+            // Get parent message
+            $parentMessage = null;
+            if ($parentMessageId) {
+                $parentMessage = $em->getRepository(\App\Entity\Message::class)->find($parentMessageId);
+                if (!$parentMessage || $parentMessage->getApplication() !== $application) {
+                    return $this->json(['success' => false, 'message' => 'Parent message not found'], 404);
+                }
+            }
+
+            // Get employer user
+            $employer = $application->getEmployer();
+            if (!$employer) {
+                return $this->json(['success' => false, 'message' => 'Employer not found'], 404);
+            }
+
+            $employerUser = $employer->getUser();
+            if (!$employerUser) {
+                return $this->json(['success' => false, 'message' => 'Employer user not found'], 404);
+            }
+
+            // Create reply message
+            $reply = new \App\Entity\Message();
+            $reply->setSender($user);
+            $reply->setReceiver($employerUser);
+            $reply->setEmployer($employer);
+            $reply->setJob($application->getJob());
+            $reply->setApplication($application);
+            $reply->setParent($parentMessage);
+            $reply->setSubject($parentMessage ? ('Re: ' . $parentMessage->getSubject()) : 'Re: Message');
+            $reply->setText($messageText);
+            $reply->setIsDraft(false);
+            $reply->setSentAt(new \DateTime());
+            $reply->setSeen(false);
+
+            $em->persist($reply);
+            $em->flush();
+
+            // Send email notification (non-blocking - don't fail if email fails)
+            try {
+                $dispatcher->dispatch(new \App\Event\MessageEvent($reply), \App\Event\MessageEvent::MESSAGE_CREATED);
+                
+                // Send email
+                $employerEmail = $employerUser->getEmail();
+                if ($employerEmail) {
+                    $providerEmail = $user->getEmail() ?? 'notifications@locumlancer.com';
+                    $senderName = $user->getName() ?: $user->getEmail() ?: 'Provider';
+                    
+                    // Try to use template, fallback to simple HTML if template doesn't exist
+                    $emailBody = '';
+                    try {
+                        $emailBody = $this->renderView('emails/message_notification.html.twig', [
+                            'subject' => $reply->getSubject(),
+                            'message_text' => $messageText,
+                            'sender_name' => $senderName,
+                            'sender_email' => $providerEmail,
+                            'has_attachment' => false,
+                            'attachment_name' => null,
+                        ]);
+                    } catch (\Exception $templateException) {
+                        // Fallback to simple HTML email if template doesn't exist
+                        $emailBody = "
+                            <html>
+                            <body>
+                                <h2>{$reply->getSubject()}</h2>
+                                <p><strong>From:</strong> {$senderName} ({$providerEmail})</p>
+                                <div style='padding: 15px; background: #f5f5f5; border-radius: 5px; margin: 15px 0;'>
+                                    {$messageText}
+                                </div>
+                                <p><small>This message was sent via LocumLancer Platform</small></p>
+                            </body>
+                            </html>
+                        ";
+                    }
+                    
+                    $email = (new \Symfony\Component\Mime\Email())
+                        ->from($providerEmail)
+                        ->to($employerEmail)
+                        ->subject($reply->getSubject() . ' - LocumLancer')
+                        ->html($emailBody);
+                    $mailer->send($email);
+                }
+            } catch (\Exception $emailException) {
+                // Log email error but don't fail the request since message is already saved
+                error_log('Email sending failed: ' . $emailException->getMessage());
+            }
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Reply sent successfully',
+                'message_id' => $reply->getId()->toRfc4122()
+            ]);
+        } catch (\Exception $e) {
+            // Ensure we always return JSON, even for unexpected errors
+            error_log('Error in replyToMessage: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            
+            return $this->json([
+                'success' => false,
+                'message' => 'Error sending reply: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 }

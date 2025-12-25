@@ -823,60 +823,81 @@ div.container-xl,
 .todo-popup {
     position: fixed;
     background: white;
-    color: black;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 13px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: #121C0C;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+    box-shadow: 0 4px 20px rgba(133, 187, 101, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 99999;
-    max-width: 250px;
+    min-width: 300px;
+    max-width: 420px;
     display: none;
     pointer-events: none;
-    border: 1px solid #e5e7eb;
+    border: 2px solid #85BB65;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .todo-popup.show {
     display: block;
     pointer-events: auto;
+    animation: todoPopupFadeIn 0.2s ease-out;
+}
+
+@keyframes todoPopupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .todo-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #85BB65;
 }
 
 .todo-popup-title {
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
+    color: #121C0C;
+    letter-spacing: -0.01em;
 }
 
 .todo-popup-close {
     background: none;
     border: none;
-    color: black;
+    color: #666;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
     padding: 0;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 4px;
 }
 
 .todo-popup-close:hover {
     opacity: 1;
+    background-color: #f0f9f0;
+    color: #85BB65;
 }
 
 .todo-popup-content {
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #333;
 }
 
 .todo-icon-wrapper {
@@ -3405,7 +3426,7 @@ function applyToJob(jobId, element = null) {
         if (confirmApplyBtn) {
             const handleConfirm = () => {
                 // Redirect to apply page
-                window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
+                window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved&ajax=1`;
                 bsModal.hide();
                 confirmApplyBtn.removeEventListener('click', handleConfirm);
             };
@@ -4164,7 +4185,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Single job: redirect to apply page
                     const jobId = selectedIds[0];
                     // Corrected URL to match route: /provider/jobs/apply/{id}
-                    window.location.href = '/provider/jobs/apply/' + jobId + '?redirect_route=app_provider_jobs_saved';
+                    window.location.href = '/provider/jobs/apply/' + jobId + '?redirect_route=app_provider_jobs_saved&ajax=1';
             } else {
                 // Multiple jobs: use batch apply
                 // Hide all action buttons when confirm is shown
@@ -5906,8 +5927,8 @@ function showToast(message, type = 'info') {
             applyBtn.disabled = true;
         }
         
-        //window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved`;
-        window.location.href = '/provider/jobs/' + jobId + '/apply?redirect_route=app_provider_jobs_saved';
+        // Use the correct route format: /provider/jobs/apply/{id}
+        window.location.href = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved&ajax=1`;
     }
 }
 
@@ -6967,31 +6988,81 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function applyToJob(jobId) {
+    if (!jobId) {
+        alert('Job ID is missing');
+        return;
+    }
+    
     if (confirm('Are you sure you want to apply to this job?')) {
         // Show loading state on button
-        const applyBtn = document.querySelector('.btn-apply');
+        const applyBtn = document.querySelector('.btn-apply') || document.querySelector(`[data-job-id="${jobId}"]`)?.closest('.job-row')?.querySelector('.btn-apply');
         if (applyBtn) {
-            const originalText = applyBtn.innerHTML;
+            const originalText = applyBtn.innerHTML || applyBtn.textContent;
             applyBtn.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Applying...';
             applyBtn.disabled = true;
         }
         
-        // Use the correct Symfony route with POST method
-        fetch(`/provider/jobs/apply/${jobId}`, {
-            method: 'POST',
+        // Use GET method with query parameters (as the route expects)
+        const applyUrl = `/provider/jobs/apply/${jobId}?redirect_route=app_provider_jobs_saved&ajax=1`;
+        
+        fetch(applyUrl, {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                redirect_route: 'app_provider_jobs_saved'
-            })
+            redirect: 'follow'
         })
         .then(response => {
-            if (response.redirected) {
-                // If Symfony redirects, follow the redirect
-                window.location.href = response.url;
-            } else if (response.ok) {
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            }
+            // If redirected or HTML response, treat as success
+            if (response.redirected || response.ok) {
+                return { status: 'success', message: 'Job applied successfully' };
+            }
+            throw new Error('Failed to apply for job');
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                if (typeof showToast === 'function') {
+                    showToast('success', data.message || 'Applied for job successfully!');
+                } else {
+                    alert(data.message || 'Applied for job successfully!');
+                }
+                
+                // Update button state
+                if (applyBtn) {
+                    applyBtn.disabled = true;
+                    applyBtn.innerHTML = 'Already Applied';
+                    applyBtn.style.background = '#6b7280';
+                    applyBtn.style.cursor = 'not-allowed';
+                }
+                
+                // Reload page after a short delay to show updated list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Failed to apply for job');
+            }
+        })
+        .catch(error => {
+            console.error('Apply error:', error);
+            if (applyBtn) {
+                applyBtn.disabled = false;
+                applyBtn.innerHTML = originalText || 'Apply';
+            }
+            if (typeof showToast === 'function') {
+                showToast('error', error.message || 'Failed to apply for job. Please try again.');
+            } else {
+                alert(error.message || 'Failed to apply for job. Please try again.');
+            }
+        });
+    }
+}
                 // If it's a successful response without redirect
                 return response.json().then(data => {
                     if (data.success) {
@@ -7186,10 +7257,10 @@ function startSavedJobsTour() {
                     <button class="todo-popup-close" type="button">&times;</button>
                 </div>
                 <div class="todo-popup-content">
-                    <div class="todo-popup-loading" style="text-align: center; padding: 10px;">Loading...</div>
+                    <div class="todo-popup-loading" style="text-align: center; padding: 16px; color: #666; font-size: 14px;">Loading...</div>
                     <div class="todo-popup-documents" style="display: none;"></div>
-                                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 10px; color: #666;">No document requests</div>
-                    <div class="todo-popup-action" style="display: none;"></div>
+                    <div class="todo-popup-no-documents" style="display: none; text-align: center; padding: 16px; color: #666; font-size: 14px; font-style: italic;">No document requests</div>
+                    <div class="todo-popup-action" style="display: none; padding: 10px 0;"></div>
                 </div>
             `;
             if (document.body) {
