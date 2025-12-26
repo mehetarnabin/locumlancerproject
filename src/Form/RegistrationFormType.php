@@ -21,7 +21,11 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('userType', ChoiceType::class, [
                 'label' => ' ',
-                'choices' => ["I'm a Provider" => User::TYPE_PROVIDER, "I'm an Employer" => User::TYPE_EMPLOYER],
+                'choices' => [
+                    "I'm a Provider" => User::TYPE_PROVIDER,
+                    "I'm an Employer" => User::TYPE_EMPLOYER,
+                    "I'm a Recruiter" => User::TYPE_RECRUITER
+                ],
                 'expanded' => true,
                 'multiple' => false
             ])
@@ -36,15 +40,14 @@ class RegistrationFormType extends AbstractType
                 ],
             ])
             ->add('plainPassword', RepeatedType::class, [
-                'mapped'=> false,
+                'mapped' => false,
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
                 'options' => ['attr' => ['class' => 'password-field']],
                 'required' => true,
                 'first_options'  => ['label' => 'Password'],
                 'second_options' => ['label' => 'Confirm Password'],
-            ]);
-        ;
+            ]);;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

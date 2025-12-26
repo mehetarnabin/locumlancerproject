@@ -48,6 +48,11 @@ class ApplicationRepository extends ServiceEntityRepository
                 ->setParameter('employer', $filters['employer'], UuidType::NAME);
         }
 
+        if (!empty($filters['recruiter'])) {
+            $qb->andWhere('a.recruiter = :recruiter')
+                ->setParameter('recruiter', $filters['recruiter'], UuidType::NAME);
+        }
+
         // Location filter (city or state)
         if (!empty($filters['location'])) {
             $qb->andWhere('LOWER(j.city) LIKE :location OR LOWER(j.state) LIKE :location')
@@ -130,6 +135,17 @@ class ApplicationRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select('a.status, COUNT(a.id) as count')
             ->where('a.employer = :employer')->setParameter('employer', $employer, UuidType::NAME)
+            ->andWhere('a.archivedAt IS NULL')
+            ->groupBy('a.status')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getRecruiterApplicationStatusCounts($recruiter): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.status, COUNT(a.id) as count')
+            ->where('a.recruiter = :recruiter')->setParameter('recruiter', $recruiter, UuidType::NAME)
             ->andWhere('a.archivedAt IS NULL')
             ->groupBy('a.status')
             ->getQuery()

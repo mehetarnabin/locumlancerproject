@@ -24,6 +24,10 @@ class DocumentRequest
     #[ORM\ManyToOne]
     private ?Provider $provider = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'requested_by_id', referencedColumnName: 'id', nullable: true)]
+    private ?Recruiter $requestedBy = null;
+
     #[ORM\ManyToOne(inversedBy: 'documentRequests')]
     #[ORM\JoinColumn(onDelete: 'CASCADE', nullable: true)]
     private ?Application $application = null;
@@ -61,6 +65,16 @@ class DocumentRequest
     public function setProvider(?Provider $provider): void
     {
         $this->provider = $provider;
+    }
+
+    public function getRequestedBy(): ?Recruiter
+    {
+        return $this->requestedBy;
+    }
+
+    public function setRequestedBy(?Recruiter $requestedBy): void
+    {
+        $this->requestedBy = $requestedBy;
     }
 
     public function getApplication(): ?Application

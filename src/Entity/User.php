@@ -20,6 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     const TYPE_ADMIN = 'ADMIN';
     const TYPE_EMPLOYER = 'EMPLOYER';
     const TYPE_PROVIDER = 'PROVIDER';
+    const TYPE_RECRUITER = 'RECRUITER';
 
     public const ADMIN_ROLES = [
         'Superadmin' => 'ROLE_SUPER_ADMIN',
@@ -39,6 +40,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: Provider::class)]
     private ?Provider $provider = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: Recruiter::class, cascade: ['persist', 'remove'])]
+    private ?Recruiter $recruiter = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
@@ -132,6 +136,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProvider(?Provider $provider): void
     {
         $this->provider = $provider;
+    }
+
+    public function getRecruiter(): ?Recruiter
+    {
+        return $this->recruiter;
+    }
+
+    public function setRecruiter(?Recruiter $recruiter): void
+    {
+        $this->recruiter = $recruiter;
+    }
+
+    #[ORM\ManyToOne(targetEntity: Recruiter::class)]
+    #[ORM\JoinColumn(name: 'recruiter_id', referencedColumnName: 'id', nullable: true)]
+    private ?Recruiter $managedByRecruiter = null;
+
+    public function getManagedByRecruiter(): ?Recruiter
+    {
+        return $this->managedByRecruiter;
+    }
+
+    public function setManagedByRecruiter(?Recruiter $managedByRecruiter): static
+    {
+        $this->managedByRecruiter = $managedByRecruiter;
+
+        return $this;
     }
 
     public function getName(): ?string

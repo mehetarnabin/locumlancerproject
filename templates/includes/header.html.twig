@@ -15,7 +15,13 @@
                     <li {% if app.request.get('_route') == 'app_for_employers' %}class="active"{% endif %}>
                         <a href="{{ path('app_for_employers') }}">Employers</a>
                     </li>
-                    <li><a href="#">Recruiters</a></li>
+                    <li>
+                        {% if app.user is not null and (app.user.userType == 'RECRUITER' or app.user.userType == 'Recruiter') %}
+                            <a href="{{ path('app_recruiter_dashboard') }}" {% if app.request.get('_route') starts with 'app_recruiter_' %}class="active"{% endif %}>Recruiters</a>
+                        {% else %}
+                            <a href="#">Recruiters</a>
+                        {% endif %}
+                    </li>
                     <li><a href="#">Lounge</a></li>
                 </ul>
             </nav>
@@ -34,6 +40,9 @@
             {% elseif app.user is not null and app.user.userType == 'EMPLOYER' %}
                 {% set dashboard_url = 'app_employer_dashboard' %}
                 {% set profile_url = 'app_employer_profile' %}
+            {% elseif app.user is not null and (app.user.userType == 'RECRUITER' or app.user.userType == 'Recruiter') %}
+                {% set dashboard_url = 'app_recruiter_dashboard' %}
+                {% set profile_url = 'app_recruiter_profile' %}
             {% elseif app.user is not null and app.user.userType == 'ADMIN' %}
                 {% set dashboard_url = 'app_admin_dashboard' %}
                 {% set profile_url = 'app_admin_profile' %}

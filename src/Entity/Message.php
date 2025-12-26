@@ -35,6 +35,9 @@ class Message
     private ?Employer $employer = null;
 
     #[ORM\ManyToOne]
+    private ?Recruiter $recruiter = null;
+
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: "job_uuid", referencedColumnName: "id", nullable: true)]
     private ?Job $job = null;
 
@@ -132,6 +135,17 @@ class Message
     public function setEmployer(?Employer $employer): static
     {
         $this->employer = $employer;
+        return $this;
+    }
+
+    public function getRecruiter(): ?Recruiter
+    {
+        return $this->recruiter;
+    }
+
+    public function setRecruiter(?Recruiter $recruiter): static
+    {
+        $this->recruiter = $recruiter;
         return $this;
     }
 

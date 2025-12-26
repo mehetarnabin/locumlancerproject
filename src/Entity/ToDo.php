@@ -25,6 +25,10 @@ class ToDo
     #[ORM\JoinColumn(name: 'employer_id', nullable: true)]
     private ?Employer $employer = null;
 
+    #[ORM\ManyToOne(targetEntity: Recruiter::class)]
+    #[ORM\JoinColumn(name: 'recruiter_id', nullable: true)]
+    private ?Recruiter $recruiter = null;
+
     #[ORM\ManyToOne(targetEntity: Bookmark::class)]
     #[ORM\JoinColumn(name: 'bookmark_id', nullable: true)]
     private ?Bookmark $bookmark = null;
@@ -86,6 +90,17 @@ class ToDo
     public function setEmployer(?Employer $employer): static
     {
         $this->employer = $employer;
+        return $this;
+    }
+
+    public function getRecruiter(): ?Recruiter
+    {
+        return $this->recruiter;
+    }
+
+    public function setRecruiter(?Recruiter $recruiter): static
+    {
+        $this->recruiter = $recruiter;
         return $this;
     }
 

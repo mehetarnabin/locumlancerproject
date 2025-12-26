@@ -2435,14 +2435,47 @@ div[style*="text-align:center"][class*="col-job"] {
                 </div>
 
                 {% if applicationDetail %}
-                <form action="{{ path('app_employer_application_askfordocument', {'id': applicationDetail.id}) }}" method="POST"> <!-- Change action URL as needed -->
+                <form action="{{ path('app_employer_application_askfordocument', {'id': applicationDetail.id}) }}" method="POST" id="askDocumentForm">
                 {% else %}
-                <form action="#" method="POST">
+                <form action="#" method="POST" id="askDocumentForm">
                 {% endif %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="documentName" class="form-label">Document Name</label>
-                            <input type="text" class="form-control" id="documentName" name="document_name" required>
+                            <label class="form-label" style="font-weight: 600; margin-bottom: 10px; display: block;">Select Documents</label>
+                            <div class="document-checklist" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="One File (Credentialing Packet)" id="doc_onefile">
+                                    <label class="form-check-label" for="doc_onefile">One File (Credentialing Packet)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="State License" id="doc_license">
+                                    <label class="form-check-label" for="doc_license">State License</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="DEA Registration" id="doc_dea">
+                                    <label class="form-check-label" for="doc_dea">DEA Registration</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="Board Certification" id="doc_board">
+                                    <label class="form-check-label" for="doc_board">Board Certification</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="Malpractice Insurance" id="doc_insurance">
+                                    <label class="form-check-label" for="doc_insurance">Malpractice Insurance</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="document_names[]" value="CV/Resume" id="doc_cv">
+                                    <label class="form-check-label" for="doc_cv">CV/Resume</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_other_toggle">
+                                    <label class="form-check-label" for="doc_other_toggle">Other</label>
+                                </div>
+                            </div>
+                            <div class="mt-3" id="other_document_container" style="display:none;">
+                                <label for="other_document_name" class="form-label" style="font-size: 13px;">Document Name</label>
+                                <input type="text" class="form-control" name="document_name" id="other_document_name" placeholder="Enter document name">
+                            </div>
                         </div>
                     </div>
 
@@ -2454,6 +2487,66 @@ div[style*="text-align:center"][class*="col-job"] {
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle "Other" input
+        const otherToggle = document.getElementById('doc_other_toggle');
+        const otherContainer = document.getElementById('other_document_container');
+        const otherInput = document.getElementById('other_document_name');
+
+        if (otherToggle && otherContainer) {
+            otherToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    otherContainer.style.display = 'block';
+                    if (otherInput) otherInput.focus();
+                } else {
+                    otherContainer.style.display = 'none';
+                    if (otherInput) otherInput.value = '';
+                }
+            });
+        }
+
+        // Handle Modal Opening for "One File" or generic
+        // Using jQuery if available for BS events, or native event if BS5
+        const askDocumentModal = document.getElementById('askDocumentModal');
+        if (askDocumentModal) {
+            // Check if jQuery is available (likely used in this project)
+            if (typeof $ !== 'undefined') {
+                $(askDocumentModal).on('show.bs.modal', function (event) {
+                    const button = $(event.relatedTarget);
+                    const isOneFile = button.attr('id') === 'action-request-file-btn' || button.attr('title') === 'Request One File';
+                    
+                    // Reset details
+                    const form = this.querySelector('form');
+                    if (form) form.reset();
+                    if (otherContainer) otherContainer.style.display = 'none';
+                    
+                    // Pre-select if One File
+                    const oneFileCheckbox = document.getElementById('doc_onefile');
+                    if (oneFileCheckbox && isOneFile) {
+                        oneFileCheckbox.checked = true;
+                    }
+                });
+            } else {
+                // Native Logic (Fallback)
+                askDocumentModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const isOneFile = button.id === 'action-request-file-btn' || button.title === 'Request One File';
+                     
+                    const form = this.querySelector('form');
+                    if (form) form.reset();
+                     if (otherContainer) otherContainer.style.display = 'none';
+                    
+                    const oneFileCheckbox = document.getElementById('doc_onefile');
+                    if (oneFileCheckbox && isOneFile) {
+                        oneFileCheckbox.checked = true;
+                    }
+                });
+            }
+        }
+    });
+    </script>
 
     <!-- Schedule Interview Modal -->
     <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewLabel" aria-hidden="true">
@@ -2478,6 +2571,14 @@ div[style*="text-align:center"][class*="col-job"] {
                         <div class="mb-3">
                             <label for="meeting_date" class="form-label">Meeting Date</label>
                             <input type="text" class="form-control js-datepicker" id="meeting_date" name="meeting_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="meeting_duration" class="form-label">Duration</label>
+                            <select class="form-control" id="meeting_duration" name="meeting_duration" required>
+                                <option value="30">30 Minutes</option>
+                                <option value="45">45 Minutes</option>
+                                <option value="60" selected>60 Minutes</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="meeting_platform" class="form-label">Meeting Platform</label>

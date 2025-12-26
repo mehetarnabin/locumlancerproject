@@ -38,7 +38,9 @@ class ApplicationController extends AbstractController
     #[Route('/', name: 'app_employer_applications')]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         $offset = $request->query->get('page', 1);
         $perPage = $request->get('per_page', 25);
         $filters = $request->query->all();
@@ -56,7 +58,7 @@ class ApplicationController extends AbstractController
                 'accepted' => ['accepted', 'hired'],
                 'completed' => ['completed']
             ];
-            
+
             // If statusFilter is already an array, use it directly (but ensure 'applied' is clean)
             if (is_array($statusFilter)) {
                 // If array contains 'applied', ensure it's only 'applied' and nothing else
@@ -69,7 +71,7 @@ class ApplicationController extends AbstractController
                 // Map the string status to array of database statuses
                 $filters['status'] = $statusMapping[$statusFilter];
             } else {
-                // If status doesn't match any mapping, use it as-is (might be a direct DB status)
+                // If it's a direct status update request searching for specific status
                 $filters['status'] = is_string($statusFilter) ? [$statusFilter] : [];
             }
         }
@@ -137,7 +139,7 @@ class ApplicationController extends AbstractController
         }
 
         $totalApplications = $em->createQuery("SELECT count(a.id) as total_applications FROM App\Entity\Application a JOIN a.job j WHERE j.employer = :employer")
-            ->setParameter('employer', $this->getUser()->getEmployer()->getId(), UuidType::NAME)
+            ->setParameter('employer', $employer->getId(), UuidType::NAME)
             ->getSingleScalarResult();
 
         return $this->render('employer/application/index.html.twig', [
@@ -152,7 +154,9 @@ class ApplicationController extends AbstractController
         Application $application,
         EntityManagerInterface $em
     ): JsonResponse {
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         $provider = $application->getProvider();
 
         $existingReview = $em->getRepository(Review::class)->findOneBy([
@@ -186,7 +190,9 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/document-requests', name: 'app_employer_application_document_requests', methods: ['GET'])]
     public function applicationDocumentRequests(Application $application, EntityManagerInterface $em, Request $request): JsonResponse
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
         if ($application->getEmployer() !== $currentEmployer) {
             return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
@@ -274,7 +280,9 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/interview-details', name: 'app_employer_application_interview_details', methods: ['GET'])]
     public function getInterviewDetails(Application $application, EntityManagerInterface $em): JsonResponse
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
         if ($application->getEmployer() !== $currentEmployer) {
             return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
@@ -320,7 +328,9 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/todo/create', name: 'app_employer_application_createtodo', methods: ['POST'])]
     public function createTodoForApplication(Application $application, Request $request, EntityManagerInterface $em): Response
     {
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         if ($application->getEmployer() !== $employer) {
             return $this->json(['success' => false, 'message' => 'Permission denied'], 403);
         }
@@ -375,45 +385,65 @@ class ApplicationController extends AbstractController
     public function askForDocument(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
         $referer = $request->headers->get('referer');
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
             return $this->redirect($referer ?? $this->generateUrl('app_employer_applications'));
         }
 
-        $documentName = $request->get('document_name');
+        $documentNames = $request->get('document_names');
+        $singleDocumentName = $request->get('document_name');
 
-        if (empty($documentName)) {
-            $this->addFlash('error', 'Document name is required.');
+        if (empty($documentNames) && empty($singleDocumentName)) {
+            $this->addFlash('error', 'Please select at least one document.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
         }
 
-        $documentRequest = new DocumentRequest();
-        $documentRequest->setName($documentName);
-        $documentRequest->setProvider($application->getProvider());
-        $documentRequest->setApplication($application);
+        $namesToRequest = [];
+        if (!empty($documentNames) && is_array($documentNames)) {
+            $namesToRequest = $documentNames;
+        }
+        if (!empty($singleDocumentName)) {
+            $namesToRequest[] = $singleDocumentName;
+        }
 
-        $em->persist($documentRequest);
-        $em->flush();
+        // Remove duplicates and filter empty
+        $namesToRequest = array_unique(array_filter($namesToRequest));
 
-        // Create ToDo for provider - ENHANCED VERSION
-        $todo = new \App\Entity\ToDo();
-        $todo->setProvider($application->getProvider());
-        $todo->setEmployer($currentEmployer); // Store employer name as string
-        $todo->setDocumentRequest($documentRequest);
-        $todo->setTitle('📄 Document Required: ' . $documentName);
-        $todo->setDescription($documentName); // This will show as the specific document name in notification
-        $todo->setType('document_request');
-        $todo->setCreatedAt(new \DateTimeImmutable());
-        $todo->setIsCompleted(false);
+        foreach ($namesToRequest as $name) {
+            $documentRequest = new DocumentRequest();
+            $documentRequest->setName($name);
+            $documentRequest->setProvider($application->getProvider());
+            $documentRequest->setApplication($application);
 
-        $em->persist($todo);
+            $em->persist($documentRequest);
+
+            // Create ToDo for provider - ENHANCED VERSION
+            $todo = new \App\Entity\ToDo();
+            $todo->setProvider($application->getProvider());
+            $todo->setEmployer($currentEmployer);
+            $todo->setDocumentRequest($documentRequest);
+            $todo->setTitle('📄 Document Required: ' . $name);
+            $todo->setDescription($name);
+            $todo->setType('document_request');
+            $todo->setCreatedAt(new \DateTimeImmutable());
+            $todo->setIsCompleted(false);
+
+            $em->persist($todo);
+        }
+
         $em->flush();
 
         $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_DOCUMENT_REQUESTED);
 
-        $this->addFlash('success', 'Document "' . $documentName . '" requested from provider successfully.');
+        $flashMessage = count($namesToRequest) > 1
+            ? 'Documents requested from provider successfully.'
+            : 'Document "' . $namesToRequest[0] . '" requested from provider successfully.';
+
+        $this->addFlash('success', $flashMessage);
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
     }
 
@@ -422,7 +452,9 @@ class ApplicationController extends AbstractController
     public function scheduleInterview(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher, MailerInterface $mailer): Response
     {
         $referer = $request->headers->get('referer');
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
@@ -478,7 +510,13 @@ class ApplicationController extends AbstractController
             }
         } elseif ($singleDate) {
             $interview = new Interview();
-            $interview->setDate(new \DateTime($singleDate));
+            $duration = (int) ($request->request->get('meeting_duration') ?? 60);
+            $date = new \DateTime($singleDate);
+            $interview->setDate($date);
+
+            $endDate = clone $date;
+            $endDate->modify(sprintf('+%d minutes', $duration));
+            $interview->setEndDate($endDate);
             $interview->setMeetingUrl($url);
             $interview->setMeetingPlatform($platform);
             $interview->setApplication($application);
@@ -496,8 +534,9 @@ class ApplicationController extends AbstractController
             // Do NOT automatically set the first interview as confirmed
             // $application->setInterview($firstInterview);
 
-            if ($application->getStatus() !== 'interview') {
-                $application->setStatus('interview');
+            if ($application->getStatus() !== Application::STATUS_INTERVIEWING) {
+                // Automatic switch to Interviewing when proposal sent
+                $application->setStatus(Application::STATUS_INTERVIEWING);
             }
         }
 
@@ -528,8 +567,8 @@ class ApplicationController extends AbstractController
                     ]);
 
                 // Send to Provider
-                if ($application->getProvider() && $application->getProvider()->getEmail()) {
-                    $email->to($application->getProvider()->getEmail());
+                if ($application->getProvider() && $application->getProvider()->getUser() && $application->getProvider()->getUser()->getEmail()) {
+                    $email->to($application->getProvider()->getUser()->getEmail());
                     $mailer->send($email);
                 }
 
@@ -575,7 +614,9 @@ class ApplicationController extends AbstractController
         EventDispatcherInterface $dispatcher
     ): Response {
         $referer = $request->headers->get('referer');
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
@@ -636,7 +677,9 @@ class ApplicationController extends AbstractController
     public function askForOneFile(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
         $referer = $request->headers->get('referer');
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
@@ -675,7 +718,9 @@ class ApplicationController extends AbstractController
     ): Response {
         try {
             $referer = $request->headers->get('referer');
-            $currentEmployer = $this->getUser()->getEmployer();
+            /** @var \App\Entity\User $user */
+            $user = $this->getUser();
+            $currentEmployer = $user->getEmployer();
 
             $isAjax = $request->isXmlHttpRequest() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
 
@@ -860,6 +905,13 @@ class ApplicationController extends AbstractController
 
             $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_CONTRACT_SENT);
 
+            // Automatic switch to Negotiating when offer letter sent
+            if ($documentType === 'offer' || $documentType === 'both') {
+                $application->setStatus(Application::STATUS_NEGOTIATING);
+                $em->persist($application);
+                $em->flush();
+            }
+
             if ($isAjax) {
                 return $this->json([
                     'success' => true,
@@ -898,7 +950,9 @@ class ApplicationController extends AbstractController
         #[Autowire('%kernel.project_dir%/public/uploads/contracts')] string $uploadDirectory
     ): Response {
         $referer = $request->headers->get('referer');
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
@@ -949,7 +1003,9 @@ class ApplicationController extends AbstractController
         EntityManagerInterface $em,
         EventDispatcherInterface $dispatcher,
     ): Response {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($application->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this application.");
@@ -1026,6 +1082,15 @@ class ApplicationController extends AbstractController
                 $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::PROVIDER_REVIEWED);
 
                 $this->addFlash('success', 'Review added for provider successfully.');
+                $this->addFlash('success', 'Review added for provider successfully.');
+
+                // Automatic switch to Completed when review is added (if not already)
+                if ($application->getStatus() !== Application::STATUS_COMPLETED) {
+                    $application->setStatus(Application::STATUS_COMPLETED);
+                    $em->persist($application);
+                    $em->flush();
+                }
+
                 return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
             } else {
                 $this->addFlash('error', 'Unable to create review. Please fill in all required fields.');
@@ -1049,7 +1114,9 @@ class ApplicationController extends AbstractController
             $this->addFlash('error', 'No applications selected for archive.');
             return $this->redirectToRoute('app_employer_applications');
         }
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         $count = 0;
         foreach ($applicationIds as $id) {
             try {
@@ -1093,7 +1160,9 @@ class ApplicationController extends AbstractController
             $this->addFlash('error', 'No applications selected for deletion.');
             return $this->redirectToRoute('app_employer_applications');
         }
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         $count = 0;
         foreach ($applicationIds as $id) {
             try {
@@ -1130,7 +1199,9 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/delete', name: 'app_employer_application_delete', methods: ['GET'])]
     public function delete(Application $application, EntityManagerInterface $em, EventDispatcherInterface $dispatcher): Response
     {
-        if ($this->getUser()->getEmployer() != $application->getEmployer()) {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if ($user->getEmployer() != $application->getEmployer()) {
             $this->addFlash('error', 'You are not allowed to delete this application.');
             return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
         }
@@ -1170,7 +1241,9 @@ class ApplicationController extends AbstractController
             return $this->json(['success' => false, 'message' => 'Application not found'], 404);
         }
 
-        if ($application->getEmployer() !== $this->getUser()->getEmployer()) {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        if ($application->getEmployer() !== $user->getEmployer()) {
             return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -1230,6 +1303,7 @@ class ApplicationController extends AbstractController
             }
 
             // Fetch Employer (logged-in user) Email
+            /** @var \App\Entity\User $user */
             $user = $this->getUser();
             $employer = $user?->getEmployer();
 
@@ -1278,6 +1352,7 @@ class ApplicationController extends AbstractController
         EventDispatcherInterface $dispatcher,
         MailerInterface $mailer
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $employer = $user?->getEmployer();
 
@@ -1324,7 +1399,7 @@ class ApplicationController extends AbstractController
             // Send email notification (non-blocking - don't fail if email fails)
             try {
                 $dispatcher->dispatch(new \App\Event\MessageEvent($message), \App\Event\MessageEvent::MESSAGE_CREATED);
-                
+
                 // Send email
                 $providerEmail = $providerUser->getEmail();
                 if ($providerEmail) {
@@ -1369,6 +1444,7 @@ class ApplicationController extends AbstractController
         Application $application,
         EntityManagerInterface $em
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $employer = $user?->getEmployer();
 
@@ -1414,6 +1490,53 @@ class ApplicationController extends AbstractController
             'messages' => $messagesData,
             'provider_email' => $providerEmail,
             'provider_name' => $providerName
+        ]);
+    }
+
+    #[Route('/{id}/update-status', name: 'app_employer_application_update_status', methods: ['POST'])]
+    public function updateStatus(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
+
+        if ($application->getEmployer() !== $employer) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $newStatus = $request->request->get('status');
+
+        $validStatuses = [
+            Application::STATUS_APPLIED,
+            Application::STATUS_SHORTLISTED,
+            Application::STATUS_INTERVIEWING,
+            Application::STATUS_NEGOTIATING,
+            Application::STATUS_ACCEPTED,
+            Application::STATUS_COMPLETED,
+            Application::STATUS_REJECTED
+        ];
+
+        if (!in_array($newStatus, $validStatuses)) {
+            return $this->json(['success' => false, 'message' => 'Invalid status'], 400);
+        }
+
+        $application->setStatus($newStatus);
+
+        // Handle specific actions based on status if needed
+        if ($newStatus === Application::STATUS_COMPLETED) {
+            $application->setHiredAt(new \DateTime());
+        }
+
+        $em->persist($application);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'status' => $newStatus
         ]);
     }
 }

@@ -1,0 +1,5076 @@
+{% extends 'recruiter/base.html.twig' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block employer_body %}
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Override parent container padding */
+.app-content {
+    padding: 32px 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* Override any container padding */
+.container-xl,
+.container-fluid,
+.container,
+.app-wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 100% !important;
+}
+
+/* Main wrapper - centered in viewport */
+.email-app-wrapper {
+    height: calc(100vh - 60px);
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    background: #fff;
+    width: calc(100% - 48px);
+    max-width: 1400px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #e6eef6;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+}
+
+.email-app-container {
+    width: 100%;
+    display: flex;
+    gap: 0;
+    height: 100%;
+    align-items: stretch;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden;
+    min-width: 0;
+    background: #fff;
+    border-radius: 16px;
+}
+
+/* Right Sidebar */
+.right-sidebar {
+    width: 88px;
+    background: #fff;
+    border-radius: 0 16px 16px 0;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    box-shadow: none;
+    flex-shrink: 0;
+    position: relative;
+    order: 2;
+    border-left: 1px solid #e6eef6;
+    height: 100%;
+    overflow: visible;
+    z-index: 10;
+    padding-top: 12px;
+    margin-top: 70px; /* Shift toolbar down */
+}
+
+.sidebar-icon {
+    width: 56px;    
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    text-decoration: none;
+    background: transparent;
+}
+
+.sidebar-icon:hover {
+    background: #f4f9f1;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.15);
+}
+
+.sidebar-icon:hover svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+/* Tooltip styling */
+.sidebar-icon {
+    position: relative;
+}
+
+.sidebar-icon::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #3c4043;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 10000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-icon:hover::before {
+    opacity: 1;
+}
+
+.sidebar-icon::after {
+    content: '';
+    position: absolute;
+    right: calc(100% + 4px);
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: #3c4043;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 10001;
+}
+
+.sidebar-icon:hover::after {
+    opacity: 1;
+}
+
+.sidebar-icon:active {
+    transform: scale(0.95);
+}
+
+.sidebar-icon.active {
+    background: #e8f5e9;
+    animation: iconActivePulse 2s ease-in-out infinite;
+}
+
+.sidebar-icon.active svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.sidebar-icon.active::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 32px;
+    background: #85BB65;
+    border-radius: 2px 0 0 2px;
+    animation: activeIndicatorPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconActivePulse {
+    0%, 100% {
+        background: #e8f5e9;
+        box-shadow: 0 0 0 rgba(133, 187, 101, 0);
+    }
+    50% {
+        background: #d4edda;
+        box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.1);
+    }
+}
+
+@keyframes activeIndicatorPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(-50%) scaleY(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-50%) scaleY(1.1);
+    }
+}
+
+.sidebar-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.sidebar-icon.calendar svg,
+.sidebar-icon.interview svg,
+.sidebar-icon.document svg {
+    color: #000000;
+    stroke: #000000;
+    fill: none;
+}
+
+
+/* Messages Page */
+.messages-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+    border: none;
+    border-right: 1px solid #e6eef6;
+    order: 1;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+}
+
+.messages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e6eef6;
+    border-top: 1px solid #e6eef6;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.messages-header h6 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.messages-container {
+    display: flex;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.messages-sidebar {
+    background: #fff;
+    border-right: 1px solid #e6eef6;
+    padding: 24px 20px;
+    width: 240px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.messages-sidebar .new-message-btn {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);
+    cursor: pointer;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.messages-sidebar .new-message-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.messages-sidebar .new-message-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.messages-sidebar .new-message-btn:hover {
+    background: #6fa050;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4);
+    transform: translateY(-2px);
+}
+
+.messages-sidebar .new-message-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);
+}
+
+.messages-sidebar .new-message-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.messages-sidebar .folder-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.messages-sidebar .folder-item {
+    margin-bottom: 4px;
+}
+
+.messages-sidebar .folder-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 16px;
+    border-radius: 0 24px 24px 0;
+    text-decoration: none;
+    color: #5f6368;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 8px;
+    position: relative;
+}
+
+.messages-sidebar .folder-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    background: #85BB65;
+    border-radius: 0 4px 4px 0;
+    transition: width 0.2s ease, height 0.2s ease;
+}
+
+.messages-sidebar .folder-link:hover {
+    background: #f1f3f4;
+    color: #000000;
+    text-decoration: none;
+    transform: translateX(4px);
+}
+
+.messages-sidebar .folder-link:hover::before {
+    width: 3px;
+    height: 60%;
+}
+
+.messages-sidebar .folder-link.active {
+    background: #e8f5e9;
+    color: #85BB65;
+    font-weight: 600;
+    animation: folderLinkActive 0.3s ease-out;
+}
+
+.messages-sidebar .folder-link.active::before {
+    width: 3px;
+    height: 60%;
+    animation: activeIndicatorSlide 0.3s ease-out;
+}
+
+.messages-sidebar .folder-link.active:hover {
+    background: #d4edda;
+    color: #6fa050;
+    transform: translateX(4px);
+}
+
+@keyframes folderLinkActive {
+    from {
+        background: #fff;
+        transform: translateX(0);
+    }
+    to {
+        background: #e8f5e9;
+        transform: translateX(2px);
+    }
+}
+
+@keyframes activeIndicatorSlide {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 3px;
+        opacity: 1;
+    }
+}
+
+.messages-sidebar .folder-link svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.messages-sidebar .folder-link .badge {
+    margin-left: auto;
+    background: #85BB65;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 0 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    width: auto;
+    height: 18px;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 18px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+    transform-origin: center center;
+    box-shadow: 0 1px 3px rgba(133, 187, 101, 0.2);
+    flex-shrink: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    position: relative;
+    box-sizing: border-box;
+    vertical-align: baseline;
+}
+
+.messages-sidebar .folder-link .badge::before {
+    content: '';
+    display: none;
+}
+
+.messages-sidebar .folder-link .badge > *,
+.messages-sidebar .folder-link .badge span {
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    height: auto !important;
+    align-self: center !important;
+}
+
+.messages-sidebar .folder-link:hover .badge {
+    transform: scale(1.1);
+    transform-origin: center center;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.3);
+    background: #6fa050;
+}
+
+.messages-sidebar .folder-link.active .badge {
+    background: #6fa050;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+        transform-origin: center center;
+        box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        transform-origin: center center;
+        box-shadow: 0 3px 8px rgba(133, 187, 101, 0.5);
+    }
+}
+
+.messages-content {
+    flex: 1;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    border-top: none; /* Remove border-top, let search handle it */
+    border-bottom: 1px solid #e6eef6;
+}
+
+.messages-content-header {
+    padding: 12px 20px;
+    border-top: 1px solid #e6eef6; /* Match top border */
+    border-bottom: 1px solid #e6eef6; /* Match other borders */
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.messages-content-header .select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.messages-content-header .select-all input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #85BB65;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.messages-content-header .select-all input[type="checkbox"]:checked {
+    background-color: #85BB65;
+    border-color: #85BB65;
+}
+
+.messages-content-header .select-all input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+}
+
+.messages-content-header .select-all label {
+    margin: 0;
+    font-size: 14px;
+    color: #5f6368;
+    cursor: pointer;
+}
+
+.messages-content-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    background: #fff;
+}
+
+.messages-search {
+    padding: 12px 20px;
+    border-top: 1px solid #e6eef6; /* Match top border */
+    border-bottom: 1px solid #e6eef6; /* Match other borders */
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.messages-search .input-group {
+    display: flex;
+    gap: 0; /* Remove gap to join elements */
+    align-items: center;
+    background: #f1f3f4;
+    border-radius: 24px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid transparent; /* Add border for uniformity */
+}
+
+.messages-search .input-group:focus-within {
+    background: #fff;
+    border-color: #85BB65; /* Green border on focus */
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.2);
+}
+
+.messages-search .input-group svg {
+    width: 20px;
+    height: 20px;
+    color: #5f6368;
+    flex-shrink: 0;
+    margin-right: 8px; /* Add margin instead of gap */
+}
+
+.messages-search input {
+    flex: 1;
+    padding: 4px 8px;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    font-size: 14px;
+    color: #000000;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.messages-search input:focus {
+    outline: none;
+}
+
+.messages-search button {
+    background: transparent;
+    color: #5f6368;
+    border: none;
+    padding: 4px 8px; /* Increase padding for better alignment */
+    margin-left: 8px; /* Add margin instead of gap */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Make it circular */
+    width: 24px;
+    height: 24px;
+}
+
+.messages-search button:hover {
+    color: #000000;
+    background: rgba(0, 0, 0, 0.05); /* Subtle hover background */
+}
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.message-item {
+    background: #fff;
+    border-bottom: 1px solid #f1f3f4;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.message-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: #85BB65;
+    transition: width 0.2s ease;
+}
+
+.message-item:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transform: translateX(2px);
+}
+
+.message-item:hover::before {
+    width: 3px;
+}
+
+.message-item:active {
+    transform: translateX(0);
+}
+
+.message-item.read {
+    background: #fff;
+}
+
+.message-item.read .message-sender {
+    font-weight: 400;
+    color: #5f6368;
+}
+
+.message-item.unread {
+    background: #fff;
+}
+
+.message-item.unread .message-sender {
+    font-weight: 600;
+    color: #000000;
+}
+
+/* Special message item types */
+.message-item.draft-item {
+    background: #f8f9fa !important;
+    border-left: 3px solid #85BB65;
+}
+
+.message-item.draft-item:hover {
+    background: #e8f5e9 !important;
+}
+
+.message-item.draft-item .message-sender {
+    color: #85BB65 !important;
+    font-weight: 600;
+}
+
+.message-item.draft-item .message-text {
+    color: #5f6368 !important;
+}
+
+.message-item .message-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: #85BB65;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    transition: all 0.2s ease;
+    z-index: 20;
+    pointer-events: auto;
+}
+
+.message-item .message-checkbox:checked {
+    background-color: #85BB65;
+    border-color: #85BB65;
+}
+
+.message-item .message-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+}
+
+.message-item > a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 16px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.message-item > a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* When message-item is itself a link */
+a.message-item {
+    text-decoration: none;
+    color: inherit;
+}
+
+a.message-item:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.message-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.message-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.message-sender {
+    font-weight: 600;
+    font-size: 14px;
+    color: #000000;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.message-text {
+    font-size: 14px;
+    color: #5f6368;
+    line-height: 1.5;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%;
+    text-overflow: ellipsis;
+}
+
+.message-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 100px;
+}
+
+/* Forward button removed from tiles - now only in toolbar */
+.message-forward-btn-toolbar {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #000000;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-forward-btn-toolbar:hover:not(:disabled) {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+    opacity: 1;
+}
+
+.message-forward-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.message-forward-btn-toolbar svg {
+    width: 14px;
+    height: 14px;
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.message-forward-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.message-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.message-badge {
+    background: #85BB65;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.btn-new-message {
+    background-color: #00FFFF;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: default;
+    display: inline-block;
+    flex-shrink: 0;
+    margin-left: 12px;
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.4;
+}
+
+.draft-badge {
+    background: #85BB65 !important;
+}
+
+.message-time {
+    font-size: 12px;
+    color: #5f6368;
+    white-space: nowrap;
+    font-weight: 400;
+}
+
+.message-delete-btn {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-delete-btn:hover {
+    opacity: 1;
+    background: transparent;
+    color: #000000;
+    transform: scale(1.1);
+}
+
+.message-delete-btn:active {
+    transform: scale(0.95);
+}
+
+.message-delete-btn svg {
+    color: #000000;
+    stroke: #000000;
+}
+
+.empty-messages {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+.empty-messages-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    opacity: 0.3;
+}
+
+.pagination-wrapper {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Trash specific styles */
+.trash-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 8px;
+}
+
+#trash-actions-toolbar {
+    flex: 0 0 auto;
+}
+
+.messages-content-header .trash-actions:not(#trash-actions-toolbar) {
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.restore-btn-toolbar {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #000000;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.restore-btn-toolbar:hover:not(:disabled) {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+}
+
+.restore-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.restore-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.restore-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.permanent-delete-btn-toolbar {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #000000;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.permanent-delete-btn-toolbar:hover:not(:disabled) {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+    opacity: 1;
+}
+
+.permanent-delete-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.permanent-delete-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.permanent-delete-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.message-actions-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.message-delete-btn-toolbar {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #000000;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-delete-btn-toolbar:hover:not(:disabled) {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+    opacity: 1;
+}
+
+.message-delete-btn-toolbar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.message-delete-btn-toolbar svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.message-delete-btn-toolbar:hover:not(:disabled) svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.empty-trash-btn {
+    background: transparent;
+    color: #000000;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.empty-trash-btn:hover {
+    background: transparent;
+    border-color: #85BB65;
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.empty-trash-btn:active {
+    transform: translateY(0);
+}
+
+.empty-trash-btn svg {
+    color: #000000;
+    stroke: #000000;
+    transition: all 0.2s ease;
+}
+
+.empty-trash-btn:hover svg {
+    color: #85BB65;
+    stroke: #85BB65;
+}
+
+.permanent-delete-btn {
+    background: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.permanent-delete-btn:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.restore-btn {
+    background: transparent;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.restore-btn:hover {
+    background: #85BB65;
+    color: white;
+}
+
+/* File attachment display styles */
+.file-attachment-display {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #f8f9fa;
+    display: none;
+    flex-shrink: 0;
+}
+
+.file-attachment-display.visible {
+    display: block;
+}
+
+.file-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.file-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e6eef6;
+    font-size: 14px;
+}
+
+.file-attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-attachment-icon {
+    width: 16px;
+    height: 16px;
+    color: #5f6368;
+    flex-shrink: 0;
+}
+
+.file-attachment-name {
+    color: #000000;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-attachment-size {
+    color: #6b7280;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.file-attachment-remove {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.file-attachment-remove:hover {
+    background: #fee;
+    transform: scale(1.1);
+}
+
+.file-attachment-remove:active {
+    transform: scale(0.95);
+}
+
+/* Attachment button active state */
+.compose-toolbar-btn.has-attachment {
+    background: #e8f5e9;
+    color: #85BB65;
+}
+
+.compose-toolbar-btn.has-attachment:hover {
+    background: #d4edda;
+}
+
+/* Compose Modal Styles */
+.compose-modal {
+    position: fixed;
+    bottom: 0;
+    right: 40px;
+    width: 600px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e6eef6;
+    border-bottom: none;
+    animation: slideUp 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.compose-modal.hidden {
+    display: none;
+}
+
+.compose-modal.minimized {
+    height: 48px;
+    max-height: 48px;
+}
+
+.compose-modal-header {
+    background: #85BB65;
+    color: #000;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+    cursor: move;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.compose-modal-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+.compose-modal-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.compose-modal-btn {
+    background: transparent;
+    border: none;
+    color: #000;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.compose-modal-btn:hover {
+    background: rgba(0,0,0,0.1);
+    transform: scale(1.1);
+}
+
+.compose-modal-btn:active {
+    transform: scale(0.95);
+}
+
+.compose-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 400px;
+    background: #fff;
+}
+
+.compose-field {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.compose-field input,
+.compose-field select {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 6px 0;
+    color: #000000;
+    background: transparent;
+    font-family: inherit;
+}
+
+.compose-field input:focus,
+.compose-field select:focus {
+    outline: none;
+}
+
+.compose-field input::placeholder {
+    color: #9aa0a6;
+}
+
+.compose-select {
+    cursor: pointer;
+}
+
+.compose-select option {
+    padding: 8px;
+}
+
+.compose-editor {
+    flex: 1;
+    padding: 16px;
+    overflow: visible;
+    min-height: 200px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.compose-editor textarea {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    overflow-y: auto;
+    flex: 1;
+    color: #000000;
+    line-height: 1.6;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.compose-editor textarea::placeholder {
+    color: #9aa0a6;
+}
+
+.compose-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.compose-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-send-btn {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(133, 187, 101, 0.2);
+}
+
+.compose-send-btn:hover {
+    background: #6fa050;
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.3);
+}
+
+.compose-save-draft-btn {
+    background: transparent;
+    color: #5f6368;
+    border: 1px solid #e6eef6;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.compose-save-draft-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    color: #85BB65;
+}
+
+.compose-footer-right {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.compose-toolbar-btn {
+    background: transparent;
+    border: none;
+    color: #5f6368;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.compose-toolbar-btn:hover {
+    background: #f1f3f4;
+    color: #000000;
+    transform: scale(1.1);
+}
+
+.compose-toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+/* Draft indicator */
+.compose-draft-indicator {
+    background: #e8f5e9;
+    border-left: 3px solid #85BB65;
+    padding: 8px 12px;
+    margin: 0 16px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #2e7d32;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-draft-indicator.visible {
+    display: flex;
+}
+
+/* Templates Dropdown Styling */
+.templates-dropdown-wrapper {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e6eef6;
+}
+
+.templates-dropdown-container {
+    position: relative;
+    z-index: 10;
+}
+
+.templates-dropdown-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-radius: 0 24px 24px 0;
+    transition: all 0.2s ease;
+    margin-right: 8px;
+}
+
+.templates-dropdown-btn:hover {
+    background: #f1f3f4;
+    color: #000000;
+}
+
+.templates-dropdown-btn.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.templates-dropdown-menu {
+    position: fixed;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    padding: 6px;
+    z-index: 10000;
+    list-style: none;
+    margin: 0;
+    min-width: 200px;
+    max-width: 220px;
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.templates-dropdown-menu * {
+    border: none !important;
+    outline: none !important;
+}
+
+.templates-dropdown-menu li {
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    outline: none !important;
+}
+
+.templates-dropdown-menu .template-item {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-bottom: 2px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.templates-dropdown-menu .template-item > div {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.templates-dropdown-menu .template-item > div {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.templates-dropdown-menu .template-item:hover {
+    background: #F4F9F1;
+    color: #000000;
+}
+
+.templates-dropdown-menu .template-item:active {
+    background: #e8f5e9;
+}
+
+/* Scrollbar for dropdown */
+.templates-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.templates-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.templates-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Toast notifications */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-left: 4px solid #85BB65;
+    z-index: 10000;
+    max-width: 300px;
+    animation: slideIn 0.3s ease;
+}
+
+.toast-error { border-left-color: #dc3545; }
+.toast-success { border-left-color: #85BB65; }
+.toast-warning { border-left-color: #ffc107; }
+
+.toast-content {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: #000000;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 10px;
+    color: #6b7280;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 6px;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.page-item {
+    margin: 0;
+}
+
+.page-link {
+    display: block;
+    padding: 8px 12px;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #85BB65;
+    background: white;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+.page-link:hover {
+    background: #85BB65;
+    color: white;
+    border-color: #85BB65;
+}
+
+.page-item.active .page-link {
+    background: #85BB65;
+    color: white;
+    border-color: #85BB65;
+}
+
+.page-item.disabled .page-link {
+    color: #9ca3af;
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    text-align: center;
+    margin-top: 10px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* Email Detail Panel */
+.email-detail-panel {
+    display: none;
+    background: #fff;
+    border-left: 1px solid #e6eef6;
+    overflow: hidden;
+    min-width: 0;
+    flex-direction: column;
+    height: 100%;
+}
+
+.email-detail-panel.active {
+    display: flex;
+}
+
+.email-detail-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #e6eef6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+.email-detail-header h6 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.email-detail-back {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.email-detail-back:hover {
+    background: #f1f3f4;
+    color: #85BB65;
+}
+
+.email-detail-close {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.email-detail-close:hover {
+    background: #f1f3f4;
+    opacity: 0.7;
+}
+
+.email-detail-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.email-detail-message-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.email-detail-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+    flex-shrink: 0;
+}
+
+.email-detail-sender-info {
+    flex: 1;
+}
+
+.email-detail-sender-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.email-detail-date {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.email-detail-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-bottom: 24px;
+}
+
+.email-detail-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #000000;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+}
+
+.email-detail-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.email-detail-replies {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e6eef6;
+}
+
+.email-detail-replies-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 16px;
+}
+
+.email-detail-reply-item {
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.email-detail-reply-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.email-detail-reply-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.email-detail-reply-sender {
+    font-weight: 600;
+    font-size: 14px;
+    color: #000000;
+}
+
+.email-detail-reply-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-left: auto;
+}
+
+.email-detail-reply-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.email-detail-reply-form {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e6eef6;
+}
+
+.email-detail-reply-form textarea {
+    width: 100%;
+    padding: 16px;
+    border: 2px solid #85BB65; /* Green border - match show.html.twig */
+    border-radius: 12px; /* Match inbox border-radius */
+    font-size: 14px;
+    color: #121C0C;
+    resize: vertical;
+    min-height: 220px; /* Longer textarea - match show.html.twig */
+    font-family: inherit;
+    margin-bottom: 16px;
+    background: #fff;
+    line-height: 1.6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.email-detail-reply-form textarea::placeholder {
+    color: #9ca3af;
+}
+
+.email-detail-reply-form textarea:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.15);
+}
+
+.email-detail-reply-form button {
+    background: #85BB65;
+    color: #fff;
+    border: none;
+    border-radius: 12px; /* Match inbox border-radius */
+    padding: 12px 32px; /* Match show.html.twig */
+    font-weight: 600;
+    font-size: 15px; /* Match show.html.twig */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);
+}
+
+.email-detail-reply-form button:hover {
+    background: #6fa050;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(133, 187, 101, 0.3);
+}
+
+.email-detail-reply-form button:active {
+    transform: translateY(0);
+}
+
+/* File attachment styling for inline reply form */
+.email-detail-reply-form input[type="file"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e6eef6;
+    border-radius: 12px; /* Match inbox border-radius */
+    font-size: 14px;
+    color: #121C0C;
+    margin-bottom: 16px;
+    background: #F4F9F1; /* Light green background */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.email-detail-reply-form input[type="file"]:hover {
+    border-color: #85BB65;
+    background: #f0f7ec;
+}
+
+.email-detail-reply-form input[type="file"]:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+    background: #fff;
+}
+
+.email-detail-reply-form input[type="file"]::file-selector-button {
+    padding: 8px 16px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #85BB65;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.email-detail-reply-form input[type="file"]::file-selector-button:hover {
+    background: #6fa050;
+}
+
+.email-detail-reply-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.email-detail-forward-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    color: #5f6368;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.email-detail-forward-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    color: #85BB65;
+    text-decoration: none;
+}
+
+.email-detail-forward-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.email-detail-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6b7280;
+}
+
+/* Adjust messages list when detail panel is active */
+.messages-list-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+    transition: all 0.3s ease;
+}
+
+.messages-container.has-detail .messages-list-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 0;
+}
+
+.messages-container.has-detail .messages-content-header {
+    display: none;
+}
+
+.messages-container.has-detail .messages-search {
+    display: none;
+}
+
+/* Message list always 100% width - inline expansion */
+.messages-container.has-detail .messages-content {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.messages-container.has-detail .email-detail-panel {
+    display: none !important;
+}
+
+/* Inline message expansion */
+.message-item-expanded {
+    display: none;
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border-top: 1px solid #e6eef6;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.message-thread.expanded .message-item-expanded {
+    display: block;
+}
+
+.message-item-expanded-content {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Gmail-style thread messages */
+.gmail-style-thread {
+    border-top: 1px solid #e6eef6;
+}
+
+.gmail-message-item {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.1s ease;
+}
+
+.gmail-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.gmail-message-item.active-message {
+    background-color: #f1f3f4;
+}
+
+.gmail-message-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    min-height: 48px;
+}
+
+.gmail-message-avatar {
+    flex-shrink: 0;
+}
+
+.gmail-sender-name {
+    font-weight: 600;
+    color: #202124;
+}
+
+.gmail-message-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 1; /* Always visible */
+    transition: none; /* No animation */
+    visibility: visible; /* Always visible */
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.gmail-message-item:hover .gmail-message-actions {
+    opacity: 1;
+}
+
+.gmail-action-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: color 0.2s ease; /* Only transition color */
+    opacity: 1; /* Always visible */
+    visibility: visible; /* Always visible */
+}
+
+.gmail-action-btn:hover {
+    background-color: #e8eaed;
+    color: #85BB65; /* Green on hover */
+}
+
+.gmail-message-content {
+    padding: 0 16px 12px 16px;
+}
+
+.gmail-message-content.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.gmail-message-item.collapsed .gmail-message-content.collapsible-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.gmail-message-item.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+    color: #5f6368;
+}
+
+/* Thread-based message styles */
+.message-thread {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.2s ease;
+}
+
+.message-thread:hover {
+    background-color: #f8f9fa;
+}
+
+.message-thread-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.thread-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #5f6368;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.thread-count-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.message-thread.expanded .thread-indicator svg {
+    transform: rotate(90deg);
+}
+
+.thread-messages {
+    display: none;
+    padding-left: 24px;
+    border-left: 2px solid #e6eef6;
+    margin-left: 16px;
+}
+
+.message-thread.expanded .thread-messages {
+    display: block;
+}
+
+.thread-message-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.thread-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.thread-message-item:last-child {
+    border-bottom: none;
+}
+
+/* Job Header and Job Row Spacing - Prevent overlap on hover */
+/* Job rows have margin: 2px 0, so spacing between rows = 2px (bottom) + 2px (top) = 4px total */
+/* Match this exact spacing between header and first row */
+.job-header {
+    margin-bottom: 2px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* First job row margin-top: 4px to shift it down */
+/* Using multiple selectors to ensure it applies and overrides any conflicting rules */
+.job-list-container .job-lists:first-child .job-row,
+.job-list-container > .job-lists:first-of-type .job-row,
+.table-responsive-wrapper .job-lists:first-child .job-row,
+.job-lists:first-child .job-row,
+.job-lists:first-of-type .job-row,
+.job-list-container .job-row:first-child,
+.table-responsive-wrapper .job-row:first-child,
+.job-list-container .job-lists .job-row:first-child {
+    margin-top: 4px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+</style>
+
+<div class="email-app-wrapper">
+    <div class="email-app-container">
+        <!-- Messages Page -->
+        <div class="messages-page">
+            <div class="messages-header">
+                <h6>
+                    {% if current_type == 'drafts' %}
+                        Drafts ({{ draft_count }})
+                    {% elseif current_type == 'sent' %}
+                        Sent Messages
+                    {% elseif current_type == 'trash' %}
+                        Trash ({{ trash_count }})
+                    {% else %}
+                        Inbox
+                    {% endif %}
+                </h6>
+                
+            </div>
+
+            <div class="messages-container">
+                <!-- Sidebar -->
+                <div class="messages-sidebar">
+                    <button type="button" class="new-message-btn" onclick="openComposeModal()">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Compose</span>
+                    </button>
+                    
+                    <ul class="folder-list">
+                        <li class="folder-item">
+                            <a href="{{ path('app_recruiter_messages', {'type': 'inbox'}) }}" 
+                            class="folder-link {% if current_type == 'inbox' or current_type is empty %}active{% endif %}">
+                                <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g id="style=stroke">
+                                    <g id="email">
+                                    <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="currentColor"/>
+                                    <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="currentcolor"/>
+                                    </g>
+                                    </g>
+                                </svg>
+                                <span>Inbox</span>
+                            </a>
+                        </li>
+                        <li class="folder-item">
+                            <a href="{{ path('app_recruiter_messages', {'type': 'sent'}) }}" 
+                               class="folder-link {% if current_type == 'sent' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Sent</span>
+                            </a>
+                        </li>
+                        <li class="folder-item">
+                            <a href="{{ path('app_recruiter_messages', {'type': 'drafts'}) }}" 
+                               class="folder-link {% if current_type == 'drafts' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Drafts</span>
+                                {% if draft_count > 0 %}
+                                    <span class="badge draft-badge" id="drafts-count">{{ draft_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="folder-item">
+                            <a href="{{ path('app_recruiter_messages', {'type': 'trash'}) }}" 
+                               class="folder-link {% if current_type == 'trash' %}active{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Trash</span>
+                                {% if trash_count > 0 %}
+                                    <span class="badge trash-badge" id="trash-count">{{ trash_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Email Templates Dropdown -->
+                    <div class="templates-dropdown-wrapper">
+                        <div class="templates-dropdown-container">
+                            <button class="folder-link templates-dropdown-btn" type="button" id="templatesDropdownBtn">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 20px; height: 20px;">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span>Email Templates</span>
+                                </div>
+                                <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px; margin-left: auto; transition: transform 0.2s ease;">
+                                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <ul class="templates-dropdown-menu" id="templatesDropdownMenu" style="display: none; border: none !important; outline: none !important;">
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="request">
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Quick Check-in</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Follow up on opportunity</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="thank">
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Thank You</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Thank for conversation</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="follow">
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Follow Up</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Following up on role</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="details">
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Request Details</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Request additional info</div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="template-item" href="javascript:void(0);" data-template="review">
+                                        <div style="font-weight: 500; color: #000000; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Feedback</div>
+                                        <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Share process feedback</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Content -->
+                <div class="messages-content">
+                    <!-- Search - Hide for trash -->
+                    {% if current_type != 'trash' %}
+                    <div class="messages-search">
+                        <form action="" method="get" class="input-group">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <input type="text" name="keyword" class="form-control" 
+                                   placeholder="Search in messages" 
+                                   value="{{ app.request.get('keyword') }}">
+                            {% if current_type %}
+                                <input type="hidden" name="type" value="{{ current_type }}">
+                            {% endif %}
+                            <button type="submit" class="btn">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Content Header - Show different actions for trash -->
+                    <div class="messages-content-header">
+                        {% if current_type == 'trash' %}
+                            <div class="select-all">
+                                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
+                                <label for="select-all-checkbox">Select all</label>
+                            </div>
+                            <div class="trash-actions" id="trash-actions-toolbar" style="display: none;">
+                                <button type="button" class="restore-btn-toolbar" onclick="restoreSelectedMessages()" id="restore-selected-btn" disabled title="Restore Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="permanent-delete-btn-toolbar" onclick="permanentlyDeleteSelectedMessages()" id="delete-selected-btn" disabled title="Delete Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            {% if messages|length > 0 %}
+                            <div class="trash-actions">
+                                <button type="button" class="empty-trash-btn" onclick="emptyTrash()">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Empty Trash
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="select-all">
+                                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)">
+                                <label for="select-all-checkbox">Select all</label>
+                            </div>
+                            <div class="message-actions-toolbar" id="message-actions-toolbar" style="display: none;">
+                                <button type="button" class="message-forward-btn-toolbar" onclick="forwardSelectedMessage()" id="forward-selected-message-btn" disabled title="Forward Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button type="button" class="message-delete-btn-toolbar" onclick="deleteSelectedMessages()" id="delete-selected-messages-btn" disabled title="Delete Selected">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Messages List -->
+                    <div class="messages-content-body">
+                        <div class="messages-list-container">
+                        {% if messages|length > 0 %}
+                            <div class="messages-list">
+                                {% if message_threads is defined and message_threads|length > 0 and current_type != 'drafts' %}
+                                    {# Thread-based view for inbox and sent #}
+                                    {% for thread in message_threads %}
+                                        {% set message = thread.root %}
+                                        {% set hasReplies = thread.has_replies %}
+                                        {% set replyCount = thread.reply_count %}
+                                        {% set latestReply = thread.latest_reply %}
+                                        
+                                        <div class="message-thread {% if hasReplies %}has-replies{% endif %}" data-thread-id="{{ message.id }}" data-message-id="{{ message.id }}">
+                                            <div class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                    {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                                    {% set senderAvatar = current_type == 'sent' 
+                                                        ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                                        : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                                    {% set isRead = message.seen|default(false) %}
+                                                    {% set messageText = message.text|striptags|slice(0, 100) %}
+                                                    
+                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                    <div class="message-content" style="flex: 1;">
+                                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                                            <div class="message-sender">{{ senderName }}</div>
+                                                            {% if hasReplies %}
+                                                                <span class="thread-count-badge">{{ replyCount }} {{ replyCount == 1 ? 'reply' : 'replies' }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                        {% if latestReply %}
+                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                                                                Latest: {{ latestReply.sender.name|default(latestReply.sender.email) }} - {{ latestReply.createdAt|time_diff }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        {% if not isRead and current_type != 'sent' %}
+                                                            <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
+                                                        {% endif %}
+                                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                                <div class="message-item-expanded-content">
+                                                    <div class="email-detail-loading">Loading message...</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    {# Regular message view for drafts and fallback #}
+                                    {% for message in messages %}
+                                        {% if current_type == 'drafts' %}
+                                            {# Draft item template #}
+                                            {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
+                                            {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
+                                            
+                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}" data-message-id="{{ message.id }}">
+                                                <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                                <div class="draft-item-content" style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;">
+                                                    <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
+                                                    <div class="message-content" style="flex: 1;">
+                                                        <div class="message-sender">To: {{ receiverName }}</div>
+                                                        <div class="message-text">{{ message.subject ?: '(No subject)' }}</div>
+                                                        {% if message.text %}
+                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ message.text|striptags|slice(0, 80) }}{% if message.text|striptags|length > 80 %}...{% endif %}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="message-meta">
+                                                        <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    {% elseif current_type == 'trash' %}
+                                        {# Trash item template with restore and permanent delete options #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-thread" data-message-id="{{ message.id }}">
+                                        <div class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
+                                                <button type="button" class="permanent-delete-btn" onclick="event.stopPropagation(); event.preventDefault(); permanentlyDeleteMessage({{ message.id }}, this);" title="Permanently Delete">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                            <div class="message-item-expanded-content">
+                                                <div class="email-detail-loading">Loading message...</div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    {% else %}
+                                        {# Regular message item template #}
+                                        {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                        {% set senderAvatar = current_type == 'sent' 
+                                            ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                            : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                        {% set isRead = message.seen|default(false) %}
+                                        {% set messageText = message.text|striptags|slice(0, 100) %}
+                                        
+                                        <div class="message-thread" data-message-id="{{ message.id }}">
+                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
+                                                <div class="message-content">
+                                                    <div class="message-sender">{{ senderName }}</div>
+                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
+                                                </div>
+                                                <div class="message-meta">
+                                                    {% if not isRead and current_type != 'sent' %}
+                                                        <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
+                                                    {% endif %}
+                                                    <div class="message-time">{{ message.createdAt|time_diff }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="message-item-expanded" id="expanded-{{ message.id }}">
+                                            <div class="message-item-expanded-content">
+                                                <div class="email-detail-loading">Loading message...</div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Pagination -->
+                            {% if pagination.total_pages > 1 %}
+                                <div class="pagination-wrapper">
+                                    <nav aria-label="Message pagination">
+                                        <ul class="pagination">
+                                            {# Previous page #}
+                                            <li class="page-item {% if not pagination.has_previous %}disabled{% endif %}">
+                                                <a class="page-link" 
+                                                   href="{% if pagination.has_previous %}{{ path('app_recruiter_messages', app.request.query.all|merge({page: pagination.previous_page})) }}{% else %}#{% endif %}"
+                                                   aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+
+                                            {# Page numbers #}
+                                            {% for i in 1..pagination.total_pages %}
+                                                <li class="page-item {% if i == pagination.current_page %}active{% endif %}">
+                                                    <a class="page-link" 
+                                                       href="{{ path('app_recruiter_messages', app.request.query.all|merge({page: i})) }}">
+                                                        {{ i }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+
+                                            {# Next page #}
+                                            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                                <a class="page-link" 
+                                                   href="{% if pagination.has_next %}{{ path('app_recruiter_messages', app.request.query.all|merge({page: pagination.next_page})) }}{% else %}#{% endif %}"
+                                                   aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    
+                                    {# Optional: Show page info #}
+                                    <div class="pagination-info">
+                                        Page {{ pagination.current_page }} of {{ pagination.total_pages }} 
+                                        ({{ pagination.total_items }} total messages)
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="empty-messages">
+                                <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {% if current_type == 'drafts' %}
+                                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% elseif current_type == 'trash' %}
+                                        <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% else %}
+                                        <path d="M3 13H21L20 7H4L3 13ZM3 13L2 19H22L21 13M9 17H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    {% endif %}
+                                </svg>
+                                <p>
+                                    {% if current_type == 'drafts' %}
+                                        No drafts found.
+                                    {% elseif current_type == 'sent' %}
+                                        No sent messages found.
+                                    {% elseif current_type == 'trash' %}
+                                        Trash is empty.
+                                    {% else %}
+                                        No messages found.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        {% endif %}
+                        </div>
+                </div>
+                
+                <!-- Email Detail Panel -->
+                <div id="email-detail-panel" class="email-detail-panel">
+                    <div class="email-detail-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <h6>Message</h6>
+                        </div>
+                        <button type="button" class="email-detail-close" onclick="closeEmailDetailPanel()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="email-detail-content" class="email-detail-content">
+                        <div class="email-detail-loading">Select a message to view</div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Right Sidebar -->
+                <div class="right-sidebar">
+                    <a href="{{ path('app_recruiter_jobs') }}" 
+                       class="sidebar-icon calendar {% if app.request.get('_route') == 'app_recruiter_jobs' %}active{% endif %}" 
+                       data-tooltip="Jobs"
+                       onmouseover="this.setAttribute('title', '');"
+                       onmouseout="this.setAttribute('title', 'Jobs');">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                    <a href="{{ path('app_recruiter_applications') }}?status=interview" 
+                       class="sidebar-icon interview {% if app.request.get('status') == 'interview' %}active{% endif %}" 
+                       data-tooltip="Applications"
+                       onmouseover="this.setAttribute('title', '');"
+                       onmouseout="this.setAttribute('title', 'Applications');">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 15.2386 14.7614 13 12 13C9.23858 13 7 15.2386 7 18V20M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    {# Document Center link removed - route does not exist in employer end #}
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPOSE MODAL -->
+        <div id="compose-modal" class="compose-modal hidden">
+            <div class="compose-modal-header">
+                <span class="compose-modal-title">New Message</span>
+                <div class="compose-modal-actions">
+                    <button type="button" class="compose-modal-btn" onclick="minimizeComposeModal()" title="Minimize">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button type="button" class="compose-modal-btn" onclick="closeComposeModal()" title="Close">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <form id="compose-form" action="{{ path('app_recruiter_messages_new') }}" method="post" enctype="multipart/form-data" class="compose-modal-body">
+                <input type="hidden" name="draft_id" id="compose-draft-id">
+                <div class="compose-draft-indicator" id="draft-indicator">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Editing draft</span>
+                </div>
+                <div class="compose-field">
+                    <select name="receiver" id="compose-receiver" class="compose-select" required>
+                        <option value="">-- Select provider --</option>
+                        {% for provider in providers %}
+                            <option value="{{ provider.id }}">{{ provider.name }} {% if provider.email %}[{{ provider.email }}]{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="compose-field">
+                    <input type="text" name="subject" id="compose-subject" placeholder="Subject">
+                </div>
+                <div class="compose-editor">
+                    <textarea name="message" id="compose-message" placeholder="Compose your message..." required></textarea>
+                </div>
+                
+                <!-- File Attachment Display -->
+                <div class="file-attachment-display" id="file-attachment-display">
+                    <ul class="file-attachment-list" id="file-attachment-list">
+                        <!-- Files will be dynamically added here -->
+                    </ul>
+                </div>
+                
+                <div class="compose-footer">
+                    <div class="compose-footer-left">
+                        <button type="button" id="save-draft-btn" class="compose-save-draft-btn" onclick="saveAsDraft()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Save Draft
+                        </button>
+                        <button type="submit" class="compose-send-btn" id="send-message-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Send
+                        </button>
+                    </div>
+                    <div class="compose-footer-right">
+                        <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files" id="attachment-btn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <input type="file" id="compose-attachment" name="attachment" style="display: none;" multiple>
+                        <button type="button" class="compose-toolbar-btn" title="More options">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="compose-toolbar-btn" onclick="deleteCurrentDraft()" title="Delete draft">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer_scripts %}
+<script>
+// ============================================================================
+// MESSAGES SYSTEM - TRASH MANAGEMENT
+// ============================================================================
+
+// Draft functionality
+let currentDraftId = null;
+
+// File attachment management
+let selectedFiles = [];
+
+// Make loadDraftFromServer globally accessible
+window.loadDraftFromServer = async function(draftId) {
+    console.log('Loading draft:', draftId);
+    
+    try {
+        const response = await fetch(`/employer/messages/draft/${draftId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const draft = result.draft;
+            console.log('Draft loaded:', draft);
+            
+            // Get form elements
+            const receiverSelect = document.getElementById('compose-receiver');
+            const subjectInput = document.getElementById('compose-subject');
+            const messageTextarea = document.getElementById('compose-message');
+            const draftIdInput = document.getElementById('compose-draft-id');
+            const draftIndicator = document.getElementById('draft-indicator');
+            
+            if (!receiverSelect || !subjectInput || !messageTextarea || !draftIdInput) {
+                console.error('Compose form elements not found');
+                showToast('error', 'Compose form not found');
+                return;
+            }
+            
+            // Clear form first
+            receiverSelect.value = '';
+            subjectInput.value = '';
+            messageTextarea.value = '';
+            draftIdInput.value = '';
+            currentDraftId = null;
+            if (draftIndicator) {
+                draftIndicator.classList.remove('visible');
+            }
+            
+            // Set draft values
+            receiverSelect.value = draft.receiver_id || '';
+            subjectInput.value = draft.subject || '';
+            messageTextarea.value = draft.message || '';
+            draftIdInput.value = draftId;
+            currentDraftId = draftId;
+            
+            // Show draft indicator badge
+            if (draftIndicator) {
+                draftIndicator.classList.add('visible');
+                console.log('Draft indicator badge shown');
+            } else {
+                console.warn('Draft indicator element not found');
+            }
+            
+            // Clear any existing files first
+            selectedFiles = [];
+            
+            // Handle attachment if exists
+            if (draft.attachment && draft.attachment_info) {
+                console.log('Loading draft with attachment:', draft.attachment_info);
+                
+                // Create a mock file object with the attachment info
+                const mockFile = {
+                    name: draft.attachment_info.original_filename,
+                    size: draft.attachment_info.file_exists ? draft.attachment_info.file_size || 0 : 0,
+                    type: getFileType(draft.attachment_info.original_filename),
+                    draftFile: true,
+                    actualFilename: draft.attachment // Store the actual filename for later use
+                };
+                
+                selectedFiles = [mockFile];
+                
+                // Update file display
+                updateFileDisplay();
+                updateAttachmentButton();
+                
+                showToast('info', `Loaded draft with attachment: ${draft.attachment_info.original_filename}`);
+            } else {
+                // No attachment, ensure display is cleared
+                updateFileDisplay();
+                updateAttachmentButton();
+            }
+            
+            // Open compose modal - do this after setting all values
+            openComposeModal();
+            
+            // Ensure draft indicator is visible after modal opens
+            setTimeout(() => {
+                if (draftIndicator) {
+                    draftIndicator.classList.add('visible');
+                }
+            }, 100);
+            
+            // Auto-resize textarea after a short delay to ensure modal is visible
+            setTimeout(() => {
+                if (messageTextarea) {
+                    autoResizeTextarea(messageTextarea);
+                }
+            }, 200);
+            
+            console.log('Draft loaded successfully');
+        } else {
+            console.error('Failed to load draft:', result.error);
+            showToast('error', result.error || 'Error loading draft');
+        }
+    } catch (error) {
+        console.error('Error loading draft:', error);
+        showToast('error', 'Error loading draft: ' + error.message);
+    }
+};
+
+// Email Templates Configuration
+const emailTemplates = {
+    request: {
+        subject: () => 'Quick check-in on this opportunity',
+        message: () => `Hi there,\n\nI hope you're doing well. I'm reaching out to check in on this opportunity. I'm still very interested and would be happy to provide any additional information you might need from me.\n\nThanks so much for your time!\n\nBest,\n[YOUR NAME]`
+    },
+    thank: {
+        subject: () => 'Thank you for the conversation',
+        message: () => `Hi there,\n\nThank you again for the time you spent discussing this position. I appreciated the conversation and learning more about the team.\n\nIf there's anything else you need from me, please let me know—I'm excited about the opportunity.\n\nWarm regards,\n[YOUR NAME]`
+    },
+    follow: {
+        subject: () => 'Following up on this opportunity',
+        message: () => `Hi there,\n\nI wanted to follow up regarding this role. I'm still very enthusiastic about the opportunity and happy to share any additional information that would be helpful.\n\nThanks again for your time and consideration.\n\nBest,\n[YOUR NAME]`
+    },
+    details: {
+        subject: () => 'Request for additional details',
+        message: () => `Hi there,\n\nThanks for the update on this role. Could you share any additional details or next steps so I can prepare accordingly?\n\nI appreciate the guidance and look forward to hearing from you.\n\nBest regards,\n[YOUR NAME]`
+    },
+    review: {
+        subject: () => 'Feedback on the process',
+        message: () => `Hi there,\n\nI wanted to share feedback on the recent process. Below are a few notes that might be helpful. Please feel free to edit or add your own comments.\n\n[Add your review or feedback here]\n\nThank you for the experience!\n\nBest,\n[YOUR NAME]`
+    }
+};
+
+// ============================================================================
+// FILE ATTACHMENT MANAGEMENT
+// ============================================================================
+
+// Initialize file attachment handling
+function initializeFileAttachments() {
+    const fileInput = document.getElementById('compose-attachment');
+    const attachmentBtn = document.getElementById('attachment-btn');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleFileSelection(e.target.files);
+        });
+    }
+}
+
+// Handle file selection
+function handleFileSelection(files) {
+    if (!files || files.length === 0) return;
+
+    // Convert FileList to array and add to selectedFiles
+    const newFiles = Array.from(files);
+    selectedFiles = [...selectedFiles, ...newFiles];
+    
+    updateFileDisplay();
+    updateAttachmentButton();
+}
+
+// Update file display UI
+function updateFileDisplay() {
+    const attachmentDisplay = document.getElementById('file-attachment-display');
+    const attachmentList = document.getElementById('file-attachment-list');
+    
+    if (!attachmentDisplay || !attachmentList) return;
+
+    // Clear current list
+    attachmentList.innerHTML = '';
+
+    if (selectedFiles.length === 0) {
+        attachmentDisplay.classList.remove('visible');
+        return;
+    }
+
+    // Add each file to the display
+    selectedFiles.forEach((file, index) => {
+        // Check if this is a draft file (has draftFile property)
+        const isDraftFile = file.draftFile || false;
+        const fileSize = file.size > 0 ? formatFileSize(file.size) : 'Unknown size';
+        
+        const listItem = document.createElement('li');
+        listItem.className = 'file-attachment-item';
+        listItem.innerHTML = `
+            <div class="file-attachment-info">
+                <svg class="file-attachment-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="file-attachment-name" title="${file.name}">${file.name}</span>
+                <span class="file-attachment-size">${fileSize}</span>
+                ${isDraftFile ? '<span class="badge" style="background: #85BB65; margin-left: 8px; font-size: 10px;">From Draft</span>' : ''}
+            </div>
+            <button type="button" class="file-attachment-remove" data-index="${index}" title="Remove file">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        `;
+        attachmentList.appendChild(listItem);
+        
+        // Add click handler to remove button
+        const removeBtn = listItem.querySelector('.file-attachment-remove');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                removeSelectedFile(index);
+            });
+        }
+    });
+
+    attachmentDisplay.classList.add('visible');
+}
+
+// Update attachment button state
+function updateAttachmentButton() {
+    const attachmentBtn = document.getElementById('attachment-btn');
+    if (attachmentBtn) {
+        if (selectedFiles.length > 0) {
+            attachmentBtn.classList.add('has-attachment');
+            attachmentBtn.title = `${selectedFiles.length} file(s) attached`;
+        } else {
+            attachmentBtn.classList.remove('has-attachment');
+            attachmentBtn.title = 'Attach files';
+        }
+    }
+}
+
+// Remove selected file
+function removeSelectedFile(index) {
+    if (index >= 0 && index < selectedFiles.length) {
+        selectedFiles.splice(index, 1);
+        updateFileDisplay();
+        updateAttachmentButton();
+        updateFileInput();
+    }
+}
+
+// Update the actual file input (since we can't directly set files for security reasons)
+function updateFileInput() {
+    const fileInput = document.getElementById('compose-attachment');
+    if (!fileInput) return;
+
+    // Clear the file input
+    fileInput.value = '';
+    
+    // Note: We can't programmatically set files due to browser security
+    // The files are stored in selectedFiles array and will be handled during form submission
+}
+
+// Format file size to human readable format
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Helper function to get file type from filename
+function getFileType(filename) {
+    const extension = filename.split('.').pop().toLowerCase();
+    const typeMap = {
+        'pdf': 'application/pdf',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'txt': 'text/plain',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif'
+    };
+    return typeMap[extension] || 'application/octet-stream';
+}
+
+// Clear all attachments when modal closes
+function clearAttachments() {
+    selectedFiles = [];
+    updateFileDisplay();
+    updateAttachmentButton();
+    
+    const fileInput = document.getElementById('compose-attachment');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+// ============================================================================
+// TRASH MANAGEMENT FUNCTIONS
+// ============================================================================
+
+// Restore message from trash
+async function restoreMessage(messageId, button) {
+    if (!confirm('Are you sure you want to restore this message?')) return;
+
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span>';
+
+    try {
+        const response = await fetch(`/employer/messages/restore/${messageId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove the message item from UI
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                messageItem.remove();
+                updateTrashCount();
+                showToast('success', result.message || 'Message restored successfully');
+                
+                // If no more messages, show empty state
+                if (document.querySelectorAll('.message-item').length === 0) {
+                    showEmptyState();
+                }
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to restore message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error restoring message:', error);
+        showToast('error', 'An error occurred while restoring the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
+
+// Permanently delete message from trash
+async function permanentlyDeleteMessage(messageId, button) {
+    if (!confirm('Are you sure you want to permanently delete this message? This action cannot be undone.')) return;
+
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span>';
+
+    try {
+        const response = await fetch(`/employer/messages/permanent-delete/${messageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove the message item from UI
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(20px)';
+            
+            setTimeout(() => {
+                messageItem.remove();
+                updateTrashCount();
+                showToast('success', result.message || 'Message permanently deleted');
+                
+                // If no more messages, show empty state
+                if (document.querySelectorAll('.message-item').length === 0) {
+                    showEmptyState();
+                }
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to delete message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error permanently deleting message:', error);
+        showToast('error', 'An error occurred while deleting the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
+
+// Empty entire trash
+async function emptyTrash() {
+    if (!confirm('Are you sure you want to empty the entire trash? This action cannot be undone.')) return;
+
+    try {
+        const response = await fetch('/employer/messages/empty-trash', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove all message items from UI
+            const messageItems = document.querySelectorAll('.message-item');
+            messageItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s ease';
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(20px)';
+                    
+                    setTimeout(() => item.remove(), 300);
+                }, index * 100);
+            });
+
+            // Show empty state after animation
+            setTimeout(() => {
+                updateTrashCount();
+                showEmptyState();
+                showToast('success', `Trash emptied successfully (${result.deleted_count || 0} messages deleted)`);
+            }, (messageItems.length * 100) + 300);
+        } else {
+            showToast('error', result.message || 'Failed to empty trash');
+        }
+    } catch (error) {
+        console.error('Error emptying trash:', error);
+        showToast('error', 'An error occurred while emptying trash');
+    }
+}
+
+// Restore selected messages
+async function restoreSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    if (selectedIds.length === 0) return;
+
+    if (!confirm(`Are you sure you want to restore ${selectedIds.length} selected message(s)?`)) return;
+
+    try {
+        const restoreBtn = document.getElementById('restore-selected-btn');
+        const originalContent = restoreBtn.innerHTML;
+        restoreBtn.disabled = true;
+        restoreBtn.innerHTML = '<span class="loading-spinner"></span> Restoring...';
+
+        // Restore each selected message
+        const promises = selectedIds.map(id => 
+            fetch(`/employer/messages/restore/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+        );
+
+        const results = await Promise.all(promises);
+        const successCount = results.filter(result => result.success).length;
+
+        // Remove successfully restored messages from UI
+        selectedIds.forEach(id => {
+            const messageItem = document.querySelector(`[data-message-id="${id}"]`);
+            if (messageItem) {
+                messageItem.style.transition = 'all 0.3s ease';
+                messageItem.style.opacity = '0';
+                messageItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => messageItem.remove(), 300);
+            }
+        });
+
+        // Update UI
+        setTimeout(() => {
+            updateTrashCount();
+            updateTrashActionButtons();
+            
+            if (document.querySelectorAll('.message-item').length === 0) {
+                showEmptyState();
+            }
+            
+            showToast('success', `${successCount} message(s) restored successfully`);
+        }, 300);
+
+    } catch (error) {
+        console.error('Error restoring selected messages:', error);
+        showToast('error', 'An error occurred while restoring messages');
+    }
+}
+
+// Permanently delete selected messages
+async function permanentlyDeleteSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    if (selectedIds.length === 0) return;
+
+    if (!confirm(`Are you sure you want to permanently delete ${selectedIds.length} selected message(s)? This action cannot be undone.`)) return;
+
+    try {
+        const deleteBtn = document.getElementById('delete-selected-btn');
+        const originalContent = deleteBtn.innerHTML;
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<span class="loading-spinner"></span> Deleting...';
+
+        // Delete each selected message
+        const promises = selectedIds.map(id => 
+            fetch(`/employer/messages/permanent-delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(response => response.json())
+        );
+
+        const results = await Promise.all(promises);
+        const successCount = results.filter(result => result.success).length;
+
+        // Remove successfully deleted messages from UI
+        selectedIds.forEach(id => {
+            const messageItem = document.querySelector(`[data-message-id="${id}"]`);
+            if (messageItem) {
+                messageItem.style.transition = 'all 0.3s ease';
+                messageItem.style.opacity = '0';
+                messageItem.style.transform = 'translateX(20px)';
+                setTimeout(() => messageItem.remove(), 300);
+            }
+        });
+
+        // Update UI
+        setTimeout(() => {
+            updateTrashCount();
+            updateTrashActionButtons();
+            
+            if (document.querySelectorAll('.message-item').length === 0) {
+                showEmptyState();
+            }
+            
+            showToast('success', `${successCount} message(s) permanently deleted`);
+        }, 300);
+
+    } catch (error) {
+        console.error('Error deleting selected messages:', error);
+        showToast('error', 'An error occurred while deleting messages');
+    }
+}
+
+// Get selected message IDs
+function getSelectedMessageIds() {
+    const checkboxes = document.querySelectorAll('.message-checkbox:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.getAttribute('data-message-id'));
+}
+
+// Toggle select all checkboxes
+function toggleSelectAll(selectAllCheckbox) {
+    const checkboxes = document.querySelectorAll('.message-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+    updateTrashActionButtons();
+    updateMessageActionsToolbar();
+    handleCheckboxChange();
+}
+
+// Update trash action buttons state
+function updateTrashActionButtons() {
+    const selectedCount = getSelectedMessageIds().length;
+    const toolbar = document.getElementById('trash-actions-toolbar');
+    const restoreBtn = document.getElementById('restore-selected-btn');
+    const deleteBtn = document.getElementById('delete-selected-btn');
+    
+    // Show/hide toolbar based on selection
+    if (toolbar) {
+        if (selectedCount > 0) {
+            toolbar.style.display = 'flex';
+        } else {
+            toolbar.style.display = 'none';
+        }
+    }
+    
+    if (restoreBtn) {
+        restoreBtn.disabled = selectedCount === 0;
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.disabled = selectedCount === 0;
+    }
+    
+    // Also handle forward button visibility
+    handleCheckboxChange();
+}
+
+// Handle checkbox change - forward button is now in toolbar, not on tiles
+function handleCheckboxChange() {
+    // No longer needed - forward button is in toolbar
+}
+
+// Update message actions toolbar visibility and state
+function updateMessageActionsToolbar() {
+    const selectedCount = getSelectedMessageIds().length;
+    const toolbar = document.getElementById('message-actions-toolbar');
+    const deleteBtn = document.getElementById('delete-selected-messages-btn');
+    const forwardBtn = document.getElementById('forward-selected-message-btn');
+    
+    if (toolbar) {
+        if (selectedCount > 0) {
+            toolbar.style.display = 'flex';
+        } else {
+            toolbar.style.display = 'none';
+        }
+    }
+    
+    if (deleteBtn) {
+        deleteBtn.disabled = selectedCount === 0;
+    }
+    
+    if (forwardBtn) {
+        // Forward button only works with single message selection
+        forwardBtn.disabled = selectedCount !== 1;
+    }
+    
+    // Also handle forward button visibility
+    handleCheckboxChange();
+}
+
+// Delete selected messages (for inbox/sent/drafts)
+async function deleteSelectedMessages() {
+    const selectedIds = getSelectedMessageIds();
+    
+    if (selectedIds.length === 0) {
+        showToast('error', 'Please select at least one message to delete');
+        return;
+    }
+    
+    const isDrafts = '{{ current_type }}' === 'drafts';
+    const confirmMessage = isDrafts 
+        ? `Are you sure you want to delete ${selectedIds.length} selected draft(s)? It will be moved to trash.`
+        : `Are you sure you want to delete ${selectedIds.length} selected message(s)?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    const deleteBtn = document.getElementById('delete-selected-messages-btn');
+    const originalContent = deleteBtn.innerHTML;
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<span class="loading-spinner"></span> Deleting...';
+    
+    try {
+        let successCount = 0;
+        let failCount = 0;
+        
+        // Delete each selected message/draft
+        for (const messageId of selectedIds) {
+            try {
+                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`) || 
+                                   document.querySelector(`[data-draft-id="${messageId}"]`);
+                
+                let response;
+                let result;
+                
+                if (isDrafts) {
+                    // Delete draft using DELETE method - Now moves to trash
+                    response = await fetch(`/provider/messages/draft/${messageId}`, {
+                        method: 'DELETE'
+                    });
+                    result = await response.json();
+                } else {
+                    // Delete message using POST with CSRF token
+                    const formData = new FormData();
+                    formData.append('_token', '{{ csrf_token('delete') }}');
+                    
+                    response = await fetch(`/employer/messages/${messageId}/delete`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    result = await response.json();
+                }
+                
+                if (result.success) {
+                    successCount++;
+                    // Remove the message item with animation
+                    if (messageItem) {
+                        messageItem.style.transition = 'all 0.3s ease';
+                        messageItem.style.opacity = '0';
+                        messageItem.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            messageItem.remove();
+                        }, 300);
+                    }
+                } else {
+                    failCount++;
+                }
+            } catch (error) {
+                console.error(`Error deleting message ${messageId}:`, error);
+                failCount++;
+            }
+        }
+        
+        // Update UI
+        updateMessageActionsToolbar();
+        updateTrashCount();
+        if (isDrafts) {
+            updateDraftsCount();
+        }
+        
+        if (successCount > 0) {
+            const successMessage = isDrafts 
+                ? `Successfully moved ${successCount} draft(s) to trash`
+                : `Successfully deleted ${successCount} message(s)`;
+            showToast('success', successMessage);
+        }
+        if (failCount > 0) {
+            const failMessage = isDrafts 
+                ? `Failed to delete ${failCount} draft(s)`
+                : `Failed to delete ${failCount} message(s)`;
+            showToast('error', failMessage);
+        }
+        
+        // Check if we need to show empty state
+        setTimeout(() => {
+            const messagesList = document.querySelector('.messages-list');
+            if (messagesList && messagesList.children.length === 0) {
+                showEmptyState();
+            }
+        }, 350);
+        
+    } catch (error) {
+        console.error('Error deleting messages:', error);
+        showToast('error', 'An error occurred while deleting messages');
+    } finally {
+        deleteBtn.innerHTML = originalContent;
+        deleteBtn.disabled = false;
+    }
+}
+
+// Show empty state when no messages
+function showEmptyState() {
+    const messagesList = document.querySelector('.messages-list');
+    const messagesContentBody = document.querySelector('.messages-content-body');
+    
+    if (messagesList && messagesContentBody && messagesList.children.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-messages';
+        emptyState.innerHTML = `
+            <svg class="empty-messages-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>Trash is empty.</p>
+        `;
+        messagesContentBody.appendChild(emptyState);
+    }
+}
+
+// Update trash count badge
+async function updateTrashCount() {
+    try {
+        const response = await fetch('{{ path('app_recruiter_trash_count') }}');
+        const result = await response.json();
+        
+        const trashBadge = document.getElementById('trash-count');
+        if (trashBadge && result.count > 0) {
+            // Wrap text in span to maintain flexbox alignment
+            trashBadge.innerHTML = '<span>' + result.count + '</span>';
+            // Ensure flexbox properties are maintained - don't override
+            trashBadge.style.display = '';
+            trashBadge.style.alignItems = '';
+            trashBadge.style.justifyContent = '';
+        } else if (trashBadge && result.count === 0) {
+            trashBadge.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error updating trash count:', error);
+    }
+}
+
+// ============================================================================
+// EXISTING MESSAGE FUNCTIONS (with trash support)
+// ============================================================================
+
+// Single message delete function (AJAX) - moves to trash
+async function deleteMessage(messageId, button) {
+    if (!confirm('Are you sure you want to delete this message?')) {
+        return;
+    }
+
+    const originalContent = button.innerHTML;
+    const csrfToken = button.getAttribute('data-csrf');
+    
+    // Show loading state
+    button.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="spinner">
+            <path d="M12 2V6M12 18V22M6 12H2M22 12H18M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M19.07 19.07L16.24 16.24M7.76 7.76L4.93 4.93" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    `;
+    button.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('_token', csrfToken);
+
+        const response = await fetch(`/employer/messages/${messageId}/delete`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Find the message item and remove it with animation
+            const messageItem = button.closest('.message-item');
+            messageItem.style.transition = 'all 0.3s ease';
+            messageItem.style.opacity = '0';
+            messageItem.style.transform = 'translateX(-20px)';
+            
+            // Remove from DOM after animation
+            setTimeout(() => {
+                messageItem.remove();
+                showToast('success', result.message || 'Message moved to trash successfully');
+                updateTrashCount();
+            }, 300);
+        } else {
+            showToast('error', result.message || 'Failed to delete message');
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        showToast('error', 'An error occurred while deleting the message');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+}
+
+// Save as draft explicitly - ONLY when button is clicked
+function saveAsDraft() {
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
+    
+    // Don't save if no content
+    if (!message.trim() && !receiver && !subject.trim()) {
+        showToast('error', 'Cannot save empty draft');
+        return;
+    }
+    
+    const form = document.getElementById('compose-form');
+    const draftInput = document.createElement('input');
+    draftInput.type = 'hidden';
+    draftInput.name = 'save_as_draft';
+    draftInput.value = '1';
+    form.appendChild(draftInput);
+    
+    // Show loading state
+    const button = document.getElementById('save-draft-btn');
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span> Saving...';
+    
+    // Submit the form
+    form.submit();
+}
+
+// Duplicate removed - function is defined above in global scope
+
+// Forward selected message - loads message data into compose modal
+async function forwardSelectedMessage() {
+    const selectedIds = getSelectedMessageIds();
+    
+    if (selectedIds.length !== 1) {
+        showToast('error', 'Please select exactly one message to forward');
+        return;
+    }
+    
+    const messageId = selectedIds[0];
+    
+    try {
+        // Fetch message data from JSON endpoint
+        const response = await fetch(`/employer/messages/${messageId}/forward-data`);
+        const result = await response.json();
+        
+        if (!result.success || !result.message) {
+            showToast('error', result.error || 'Error loading message data');
+            return;
+        }
+        
+        const msg = result.message;
+        
+        // Build forward message content
+        const forwardContent = `---------- Forwarded message ----------\n` +
+            `From: ${msg.sender_name}\n` +
+            `Date: ${msg.created_at}\n` +
+            `Subject: ${msg.subject}\n\n` +
+            `${msg.text}\n\n`;
+        
+        // Clear compose form
+        document.getElementById('compose-receiver').value = '';
+        document.getElementById('compose-subject').value = `Fwd: ${msg.subject}`;
+        document.getElementById('compose-message').value = forwardContent;
+        document.getElementById('compose-draft-id').value = '';
+        currentDraftId = null;
+        document.getElementById('draft-indicator').classList.remove('visible');
+        
+        // Clear attachments
+        selectedFiles = [];
+        updateFileDisplay();
+        updateAttachmentButton();
+        
+        // Open compose modal
+        openComposeModal();
+        
+        // Auto-resize textarea
+        setTimeout(() => {
+            autoResizeTextarea(document.getElementById('compose-message'));
+        }, 100);
+        
+        // Uncheck the message
+        const checkbox = document.querySelector(`.message-checkbox[data-message-id="${messageId}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+            updateMessageActionsToolbar();
+        }
+        
+    } catch (error) {
+        console.error('Error loading message for forward:', error);
+        showToast('error', 'Error loading message for forwarding');
+    }
+}
+
+// Delete draft from server - Now moves to trash
+async function deleteDraftFromServer(draftId) {
+    if (!confirm('Are you sure you want to delete this draft? It will be moved to trash.')) return;
+    
+    try {
+        const response = await fetch(`/employer/messages/draft/${draftId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Remove the draft item from UI
+            const draftItem = document.querySelector(`[data-draft-id="${draftId}"]`);
+            if (draftItem) {
+                draftItem.style.transition = 'all 0.3s ease';
+                draftItem.style.opacity = '0';
+                draftItem.style.transform = 'translateX(-20px)';
+                setTimeout(() => draftItem.remove(), 300);
+            }
+            
+            updateTrashCount(); // Update trash count since draft was moved there
+            updateDraftsCount();
+            showToast('success', 'Draft moved to trash successfully');
+        } else {
+            showToast('error', 'Error moving draft to trash');
+        }
+    } catch (error) {
+        console.error('Error deleting draft:', error);
+        showToast('error', 'Error moving draft to trash');
+    }
+}
+
+// Update drafts count
+async function updateDraftsCount() {
+    try {
+        const response = await fetch('{{ path('app_recruiter_drafts_count') }}');
+        const result = await response.json();
+        
+        const draftsBadge = document.getElementById('drafts-count');
+        if (draftsBadge && result.count > 0) {
+            // Wrap text in span to maintain flexbox alignment
+            draftsBadge.innerHTML = '<span>' + result.count + '</span>';
+            // Ensure flexbox properties are maintained - don't override
+            draftsBadge.style.display = '';
+            draftsBadge.style.alignItems = '';
+            draftsBadge.style.justifyContent = '';
+        } else if (draftsBadge && result.count === 0) {
+            draftsBadge.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error updating drafts count:', error);
+    }
+}
+
+// ============================================================================
+// MODAL AND UI FUNCTIONS
+// ============================================================================
+
+// Modal functionality
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+
+const composeModal = document.getElementById('compose-modal');
+const composeHeader = composeModal?.querySelector('.compose-modal-header');
+
+// Helper function to auto-resize textarea
+function autoResizeTextarea(textarea) {
+    if (!textarea) return;
+    
+    // Reset height to auto to get accurate scrollHeight
+    textarea.style.height = 'auto';
+    
+    // Calculate new height based on content
+    const scrollHeight = textarea.scrollHeight;
+    const minHeight = 200;
+    const maxHeight = window.innerHeight * 0.5;
+    const newHeight = Math.min(Math.max(scrollHeight + 10, minHeight), maxHeight);
+    
+    // Set new height
+    textarea.style.height = newHeight + 'px';
+    
+    // Scroll to top to show the beginning
+    textarea.scrollTop = 0;
+}
+
+function openComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    if (!modal) {
+        console.error('Compose modal not found');
+        return;
+    }
+    
+    modal.classList.remove('hidden');
+    modal.classList.remove('minimized');
+    
+    // Reset position
+    xOffset = 0;
+    yOffset = 0;
+    modal.style.transform = 'translate(0, 0)';
+    
+    // Ensure body is visible
+    const body = modal.querySelector('.compose-modal-body');
+    if (body) {
+        body.style.display = 'flex';
+    }
+    
+    // Load providers
+    loadEmployers();
+    
+    // Initialize file attachments
+    initializeFileAttachments();
+    
+    // Auto-resize textarea if it has content
+    const messageTextarea = document.getElementById('compose-message');
+    if (messageTextarea && messageTextarea.value) {
+        setTimeout(() => {
+            autoResizeTextarea(messageTextarea);
+        }, 50);
+    }
+    
+    console.log('Compose modal opened successfully');
+}
+
+async function closeComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    const form = document.getElementById('compose-form');
+    
+    // Check if there's any content in the form
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
+    const hasAttachments = selectedFiles && selectedFiles.length > 0;
+    const hasContent = receiver || subject.trim() || message.trim() || hasAttachments;
+    
+    // If there's content, show SweetAlert confirmation
+    if (hasContent) {
+        const result = await Swal.fire({
+            ...SwalConfig,
+            icon: 'question',
+            title: 'Save as Draft?',
+            text: 'This message will be saved as draft. Do you want to continue?',
+            showCancelButton: true,
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        });
+        
+        // If user confirms, save as draft
+        if (result.isConfirmed) {
+            // Trigger the draft saving logic
+            const receiver = document.getElementById('compose-receiver')?.value || '';
+            const subject = document.getElementById('compose-subject')?.value || '';
+            const message = document.getElementById('compose-message')?.value || '';
+            
+            // Don't save if no content (shouldn't happen, but safety check)
+            if (!message.trim() && !receiver && !subject.trim() && !hasAttachments) {
+                // Just close if no content
+                modal.classList.add('hidden');
+                if (form) {
+                    form.reset();
+                }
+                clearAttachments();
+                currentDraftId = null;
+                document.getElementById('compose-draft-id').value = '';
+                document.getElementById('draft-indicator').classList.remove('visible');
+                return;
+            }
+            
+            // Save as draft using the existing logic
+            const draftInput = document.createElement('input');
+            draftInput.type = 'hidden';
+            draftInput.name = 'save_as_draft';
+            draftInput.value = '1';
+            form.appendChild(draftInput);
+            
+            // Submit the form to save as draft
+            form.submit();
+            return; // Don't close modal here, let the form submission handle it
+        } else {
+            // User cancelled, just close the modal without saving
+            modal.classList.add('hidden');
+            if (form) {
+                form.reset();
+            }
+            clearAttachments();
+            currentDraftId = null;
+            document.getElementById('compose-draft-id').value = '';
+            document.getElementById('draft-indicator').classList.remove('visible');
+            return;
+        }
+    }
+    
+    // No content, just close normally
+    modal.classList.add('hidden');
+    
+    // Reset form and state
+    if (form) {
+        form.reset();
+    }
+    
+    // Clear attachments
+    clearAttachments();
+    
+    currentDraftId = null;
+    document.getElementById('compose-draft-id').value = '';
+    document.getElementById('draft-indicator').classList.remove('visible');
+}
+
+function minimizeComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    modal.classList.toggle('minimized');
+    if (modal.classList.contains('minimized')) {
+        modal.querySelector('.compose-modal-body').style.display = 'none';
+    } else {
+        modal.querySelector('.compose-modal-body').style.display = 'flex';
+    }
+}
+
+// Make modal draggable
+if (composeHeader) {
+    composeHeader.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+}
+
+function dragStart(e) {
+    if (e.target.closest('.compose-modal-btn')) {
+        return;
+    }
+    
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === composeHeader || composeHeader.contains(e.target)) {
+        isDragging = true;
+    }
+}
+
+function drag(e) {
+    if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, composeModal);
+    }
+}
+
+function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+}
+
+function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+}
+
+// Load providers when modal opens
+async function loadProviders() {
+    try {
+        const response = await fetch('{{ path('app_recruiter_messages_new') }}');
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const select = doc.querySelector('select[name="receiver"]');
+        
+        if (select) {
+            const composeSelect = document.getElementById('compose-receiver');
+            composeSelect.innerHTML = select.innerHTML;
+        }
+    } catch (error) {
+        console.error('Error loading providers:', error);
+    }
+}
+
+// Delete current draft
+function deleteCurrentDraft() {
+    const receiver = document.getElementById('compose-receiver')?.value || '';
+    const subject = document.getElementById('compose-subject')?.value || '';
+    const message = document.getElementById('compose-message')?.value || '';
+    
+    if (receiver || subject || message) {
+        if (confirm('Move this draft to trash?')) {
+            // Move draft to trash
+            if (currentDraftId) {
+                deleteDraftFromServer(currentDraftId);
+            }
+            closeComposeModal();
+        }
+    } else {
+        closeComposeModal();
+    }
+}
+
+// Handle form submission
+document.getElementById('compose-form')?.addEventListener('submit', function(e) {
+    const button = this.querySelector('.compose-send-btn');
+    const originalText = button.innerHTML;
+    
+    // Check if this is a draft save or send action
+    const formData = new FormData(this);
+    const isDraftAction = formData.get('save_as_draft') === '1';
+    
+    if (!isDraftAction) {
+        // For sending, validate required fields
+        const receiver = document.getElementById('compose-receiver')?.value;
+        const message = document.getElementById('compose-message')?.value;
+        
+        if (!receiver || !message.trim()) {
+            e.preventDefault();
+            showToast('error', 'Receiver and message are required to send');
+            return;
+        }
+        
+        // CRITICAL FIX: Handle file attachments for form submission
+        console.log('=== FORM SUBMISSION DEBUG ===');
+        console.log('Selected files:', selectedFiles);
+        
+        if (selectedFiles.length > 0) {
+            const fileInput = document.getElementById('compose-attachment');
+            
+            // Separate draft files from new files
+            const draftFiles = selectedFiles.filter(file => file.draftFile);
+            const newFiles = selectedFiles.filter(file => !file.draftFile);
+            
+            console.log('Draft files (already on server):', draftFiles.length);
+            console.log('New files to upload:', newFiles.length);
+            
+            if (newFiles.length > 0) {
+                // For new files, add them to the file input
+                const dt = new DataTransfer();
+                newFiles.forEach(file => {
+                    console.log('Adding new file to form:', file.name, file.size, file.type);
+                    dt.items.add(file);
+                });
+                fileInput.files = dt.files;
+            }
+            // Draft files are already stored on the server, so they'll be handled by the draft_id
+        } else {
+            console.log('No files to attach');
+        }
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="loading-spinner"></span> Sending...';
+    }
+});
+
+// Toast notification function
+function showToast(type, message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <span class="toast-message">${message}</span>
+            <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+// ============================================================================
+// TEMPLATES DROPDOWN FUNCTIONALITY
+// ============================================================================
+
+// Handle template dropdown toggle
+// Load message in detail panel - make it globally accessible (define before DOMContentLoaded)
+window.loadMessageInPanel = async function(messageId) {
+    const panel = document.getElementById('email-detail-panel');
+    const content = document.getElementById('email-detail-content');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    if (!panel || !content) {
+        return;
+    }
+    
+    // Helper function to escape HTML to prevent XSS and syntax errors
+    const escapeHtml = (str) => {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+    
+    // Show loading state
+    content.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
+    panel.classList.add('active');
+    if (messagesContainer) {
+        messagesContainer.classList.add('has-detail');
+    }
+    
+    try {
+        // Fetch message details using the show route
+        const response = await fetch(`/employer/messages/${messageId}/show`);
+        const html = await response.text();
+        
+        if (response.ok) {
+            // Parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Find the messages-content-body container (where all message content is)
+            const contentContainer = doc.querySelector('.messages-content-body');
+            
+            if (!contentContainer) {
+                console.error('Could not find .messages-content-body in response');
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+                return;
+            }
+            
+            // Extract the entire content from messages-content-body
+            const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+            const threadHeader = contentContainer.querySelector('.thread-header');
+            const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container, .gmail-style-thread');
+            const messageDetailContent = contentContainer.querySelector('.message-detail-content');
+            const repliesSection = contentContainer.querySelector('.replies-section');
+            const replyForm = contentContainer.querySelector('.reply-form-section');
+            
+            // Build the content HTML
+            let contentHTML = '';
+            
+            // Note: Header will be extracted in the expanded content section below
+            
+            // If thread messages container exists, use it (thread view - Gmail style)
+            if (threadMessagesContainer) {
+                // Add thread header if it exists
+                if (threadHeader) {
+                    contentHTML += threadHeader.outerHTML;
+                }
+                // Add thread messages (Gmail style)
+                let threadHTML = threadMessagesContainer.outerHTML;
+                // Remove any window.open calls from forward buttons in thread messages
+                threadHTML = threadHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                threadHTML = threadHTML.replace(/onclick='[^']*window\.open[^']*'/gi, '');
+                // Replace window.open with window.location.href for forward buttons
+                threadHTML = threadHTML.replace(/window\.open\(([^,]+),\s*['"]_blank['"]\)/gi, 'window.location.href=$1');
+                contentHTML += threadHTML;
+                
+                // Re-initialize collapsible functionality
+                setTimeout(() => {
+                    document.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                        if (header.onclick) return; // Already has handler
+                        header.addEventListener('click', function(e) {
+                            if (e.target.closest('.gmail-action-btn')) return; // Don't collapse on button click
+                            toggleMessageCollapse(this);
+                        });
+                    });
+                }, 100);
+            } else if (messageDetailContent) {
+                // Otherwise use single message view
+                const messageHeader = messageDetailContent.querySelector('.message-header-info');
+                const messageBody = messageDetailContent.querySelector('.message-body');
+                const attachment = messageDetailContent.querySelector('.message-attachment');
+                
+                if (messageHeader) {
+                    const avatarImg = messageHeader.querySelector('img.message-sender-avatar, img');
+                    const avatar = avatarImg ? (avatarImg.getAttribute('src') || avatarImg.src) : '';
+                    const senderNameEl = messageHeader.querySelector('.message-sender-name');
+                    const senderName = senderNameEl ? senderNameEl.textContent.trim() : '';
+                    const dateEl = messageHeader.querySelector('.message-date');
+                    const date = dateEl ? dateEl.textContent.trim() : '';
+                    
+                    const safeAvatar = escapeHtml(avatar);
+                    const safeSenderName = escapeHtml(senderName);
+                    const safeDate = escapeHtml(date);
+                    
+                    contentHTML += `
+                        <div class="email-detail-message-header">
+                            <img src="${safeAvatar}" alt="${safeSenderName}" class="email-detail-avatar">
+                            <div class="email-detail-sender-info">
+                                <div class="email-detail-sender-name">${safeSenderName}</div>
+                                <div class="email-detail-date">${safeDate}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (messageBody) {
+                    const bodyText = messageBody.innerHTML || messageBody.textContent || '';
+                    if (bodyText.trim()) {
+                        contentHTML += `<div class="email-detail-body">${bodyText}</div>`;
+                    }
+                }
+                
+                if (attachment) {
+                    let attachmentHTML = attachment.outerHTML;
+                    attachmentHTML = attachmentHTML.replace(/message-attachment/g, 'email-detail-attachment');
+                    contentHTML += attachmentHTML;
+                }
+            }
+            
+            // Add replies section (only if not using thread view)
+            if (!threadMessagesContainer) {
+                if (repliesSection) {
+                    const repliesTitle = repliesSection.querySelector('.replies-section-title');
+                    const repliesTitleText = repliesTitle ? repliesTitle.textContent.trim() : 'Replies';
+                    const repliesList = repliesSection.querySelector('.replies-list');
+                    
+                    const safeRepliesTitleText = escapeHtml(repliesTitleText);
+                    
+                    contentHTML += `
+                        <div class="email-detail-replies">
+                            <div class="email-detail-replies-title">${safeRepliesTitleText}</div>
+                    `;
+                    
+                    if (repliesList && repliesList.children.length > 0) {
+                        Array.from(repliesList.children).forEach(replyItem => {
+                            let replyHTML = replyItem.outerHTML;
+                            replyHTML = replyHTML.replace(/reply-item/g, 'email-detail-reply-item')
+                                .replace(/reply-header/g, 'email-detail-reply-header')
+                                .replace(/reply-avatar/g, 'email-detail-reply-avatar')
+                                .replace(/reply-sender/g, 'email-detail-reply-sender')
+                                .replace(/reply-date/g, 'email-detail-reply-date')
+                                .replace(/reply-text/g, 'email-detail-reply-text')
+                                .replace(/reply-attachment/g, 'email-detail-attachment');
+                            contentHTML += replyHTML;
+                        });
+                    } else {
+                        contentHTML += '<div class="empty-replies">No replies yet.</div>';
+                    }
+                    
+                    contentHTML += '</div>';
+                }
+            }
+            
+            // Add reply form
+            if (replyForm) {
+                let formHTML = replyForm.outerHTML;
+                formHTML = formHTML.replace(/reply-form-section/g, 'email-detail-reply-form')
+                    .replace(/id="reply-form"/g, 'id="email-detail-reply-form"')
+                    .replace(/reply-form(?![^<]*>)/g, 'email-detail-reply-form');
+                
+                // Add forward button next to the reply button
+                // Create a temporary DOM element to manipulate the form
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = formHTML;
+                const form = tempDiv.querySelector('form');
+                
+                if (form) {
+                    const submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        // Create actions container
+                        const actionsContainer = document.createElement('div');
+                        actionsContainer.className = 'email-detail-reply-form-actions';
+                        
+                        // Create forward button
+                        const forwardBtn = document.createElement('a');
+                        forwardBtn.href = `/employer/messages/${messageId}/forward-message`;
+                        forwardBtn.className = 'email-detail-forward-btn';
+                        forwardBtn.style.textDecoration = 'none';
+                        forwardBtn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            window.location.href = this.href;
+                            return false;
+                        };
+                        forwardBtn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Forward
+                        `;
+                        
+                        // Add forward button and submit button to actions container
+                        actionsContainer.appendChild(forwardBtn);
+                        const clonedSubmitBtn = submitButton.cloneNode(true);
+                        clonedSubmitBtn.style.marginLeft = 'auto';
+                        actionsContainer.appendChild(clonedSubmitBtn);
+                        
+                        // Replace submit button with actions container
+                        submitButton.parentNode.replaceChild(actionsContainer, submitButton);
+                    }
+                    
+                    formHTML = tempDiv.innerHTML;
+                }
+                
+                contentHTML += formHTML;
+                
+                // Re-initialize reply form handler
+                setTimeout(() => {
+                    const replyFormElement = document.querySelector('#email-detail-content #email-detail-reply-form, #email-detail-content .email-detail-reply-form form');
+                    if (replyFormElement) {
+                        // Remove any existing listeners by cloning
+                        const newForm = replyFormElement.cloneNode(true);
+                        replyFormElement.parentNode.replaceChild(newForm, replyFormElement);
+                        
+                        newForm.addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            const formData = new FormData(this);
+                            
+                            // Find the submit button - it might be in the actions container now
+                            const actionsContainer = this.querySelector('.email-detail-reply-form-actions');
+                            const button = actionsContainer ? actionsContainer.querySelector('button[type="submit"]') : this.querySelector('button[type="submit"]');
+                            
+                            if (!button) {
+                                console.error('Submit button not found');
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'Submit button not found. Please refresh the page.');
+                                }
+                                return;
+                            }
+                            
+                            const originalButtonText = button.innerHTML;
+                            
+                            button.disabled = true;
+                            button.innerHTML = '<span>Sending...</span>';
+                            
+                            try {
+                                const response = await fetch(`/employer/messages/${messageId}/reply`, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                
+                                if (result.success) {
+                                    this.reset();
+                                    if (typeof showToast === 'function') {
+                                        showToast('success', 'Reply sent successfully');
+                                    }
+                                    // Reload the message to show the new reply
+                                    window.loadMessageInPanel(messageId);
+                                } else {
+                                    if (typeof showToast === 'function') {
+                                        showToast('error', result.error || 'An error occurred.');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error sending reply:', error);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', 'An error occurred while sending your reply.');
+                                }
+                            } finally {
+                                button.disabled = false;
+                                button.innerHTML = originalButtonText;
+                            }
+                        });
+                    }
+                }, 100);
+            }
+            
+            if (contentHTML.trim() === '') {
+                content.innerHTML = '<div class="email-detail-loading">Error: Could not extract message content. Please try again.</div>';
+            } else {
+                content.innerHTML = contentHTML;
+                
+                // Re-initialize collapsible messages if Gmail style
+                setTimeout(() => {
+                    if (typeof toggleMessageCollapse === 'function') {
+                        document.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                            if (!header.hasAttribute('data-initialized')) {
+                                header.setAttribute('data-initialized', 'true');
+                                header.addEventListener('click', function(e) {
+                                    if (e.target.closest('.gmail-action-btn')) return;
+                                    toggleMessageCollapse(this);
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Fix forward buttons to navigate in same window (not open new window)
+                    // This is for the old panel view, but we'll keep it for compatibility
+                    document.querySelectorAll('#email-detail-content .forward-btn, #email-detail-content .gmail-action-btn').forEach(function(btn) {
+                        if (btn.href) {
+                            btn.onclick = null; // Remove existing
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.stopImmediatePropagation();
+                                window.location.href = this.href;
+                            }, true);
+                        }
+                    });
+                    
+                    // Fix back button to close expanded section instead of navigating
+                    const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                    if (expandedContentArea) {
+                        const backBtn = expandedContentArea.querySelector('.back-button');
+                        if (backBtn) {
+                            backBtn.href = 'javascript:void(0);';
+                            backBtn.onclick = function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (typeof window.toggleMessageExpansion === 'function') {
+                                    window.toggleMessageExpansion(messageId);
+                                }
+                                return false;
+                            };
+                        }
+                    }
+                }, 100);
+                
+                // Mark message as read
+                const messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageItem) {
+                    messageItem.classList.remove('unread');
+                    messageItem.classList.add('read');
+                    const newBadge = messageItem.querySelector('.btn-new-message');
+                    if (newBadge) {
+                        newBadge.remove();
+                    }
+                }
+            }
+        } else {
+            content.innerHTML = '<div class="email-detail-loading">Error loading message (Status: ' + response.status + '). Please try again.</div>';
+        }
+    } catch (error) {
+        console.error('Error loading message:', error);
+        content.innerHTML = '<div class="email-detail-loading">Error loading message. Please try again.</div>';
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownBtn = document.getElementById('templatesDropdownBtn');
+    const dropdownMenu = document.getElementById('templatesDropdownMenu');
+    const dropdownContainer = document.querySelector('.templates-dropdown-container');
+    
+    if (dropdownBtn && dropdownMenu && dropdownContainer) {
+        // Function to position dropdown
+        function positionDropdown() {
+            const rect = dropdownBtn.getBoundingClientRect();
+            const containerRect = dropdownContainer.getBoundingClientRect();
+            
+            // Center the dropdown horizontally within the container
+            const dropdownWidth = 220; // max-width from CSS
+            const leftOffset = (rect.width - dropdownWidth) / 2;
+            
+            dropdownMenu.style.top = (rect.bottom + 4) + 'px';
+            dropdownMenu.style.left = (containerRect.left + leftOffset) + 'px';
+            dropdownMenu.style.width = dropdownWidth + 'px';
+            dropdownMenu.style.border = 'none';
+            dropdownMenu.style.outline = 'none';
+            dropdownMenu.style.boxShadow = 'none';
+        }
+        
+        // Toggle dropdown
+        dropdownBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = dropdownMenu.style.display === 'block';
+            
+            if (!isOpen) {
+                positionDropdown();
+                dropdownMenu.style.display = 'block';
+                dropdownMenu.style.border = 'none';
+                dropdownMenu.style.outline = 'none';
+                dropdownMenu.style.boxShadow = 'none';
+                dropdownBtn.classList.add('active');
+            } else {
+                dropdownMenu.style.display = 'none';
+                dropdownBtn.classList.remove('active');
+            }
+        });
+        
+        // Reposition on scroll/resize
+        window.addEventListener('scroll', function() {
+            if (dropdownMenu.style.display === 'block') {
+                positionDropdown();
+            }
+        }, true);
+        
+        window.addEventListener('resize', function() {
+            if (dropdownMenu.style.display === 'block') {
+                positionDropdown();
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.style.display = 'none';
+                dropdownBtn.classList.remove('active');
+            }
+        });
+        
+        // Handle template selection
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const templateType = this.dataset.template;
+                const template = emailTemplates[templateType];
+                
+                if (!template) return;
+                
+                // Close dropdown
+                dropdownMenu.style.display = 'none';
+                dropdownBtn.classList.remove('active');
+                
+                // Open compose modal
+                openComposeModal();
+                
+                // Populate with template data
+                setTimeout(() => {
+                    const subjectInput = document.getElementById('compose-subject');
+                    const messageTextarea = document.getElementById('compose-message');
+                    
+                    if (subjectInput) {
+                        subjectInput.value = template.subject();
+                    }
+                    
+                    if (messageTextarea) {
+                        const templateMessage = template.message();
+                        messageTextarea.value = templateMessage;
+                        
+                        // Auto-resize textarea to fit content
+                        setTimeout(() => {
+                            autoResizeTextarea(messageTextarea);
+                        }, 150);
+                    }
+                }, 100);
+            });
+        });
+    }
+
+    // Auto-resize textarea on input
+    const messageTextarea = document.getElementById('compose-message');
+    if (messageTextarea) {
+        messageTextarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+    }
+
+    // Initialize counts
+    updateDraftsCount();
+    
+    // Initialize message actions toolbar
+    updateMessageActionsToolbar();
+    updateTrashCount();
+    handleCheckboxChange();
+    
+    // Initialize trash action buttons if in trash view
+    if (window.location.href.includes('type=trash')) {
+        updateTrashActionButtons();
+    } else {
+        // Initialize message actions toolbar for non-trash views
+        updateMessageActionsToolbar();
+    }
+    
+    // Handle draft item clicks - load draft in compose modal
+    document.addEventListener('click', function(e) {
+        // Check if clicking on draft item (but not checkbox)
+        const draftItem = e.target.closest('.draft-item');
+        if (draftItem && !e.target.closest('input[type="checkbox"]')) {
+            const draftId = draftItem.getAttribute('data-draft-id');
+            if (draftId && typeof loadDraftFromServer === 'function') {
+                e.preventDefault();
+                e.stopPropagation();
+                loadDraftFromServer(draftId);
+                return;
+            }
+        }
+    }, true); // Use capture phase to catch events early
+    
+    // Handle message item clicks - open message when clicking on tile, select when clicking checkbox
+    document.addEventListener('click', function(e) {
+        // Don't intercept if clicking on checkbox, button, or other interactive elements
+        if (e.target.type === 'checkbox' || 
+            e.target.closest('input[type="checkbox"]') || 
+            e.target.closest('button') || 
+            e.target.tagName === 'BUTTON' ||
+            e.target.closest('.message-forward-btn') ||
+            e.target.closest('.btn-new-message') ||
+            e.target.closest('.permanent-delete-btn') ||
+            e.target.closest('.restore-btn') ||
+            e.target.closest('a[href*="forward"]')) {
+            return;
+        }
+        
+        // Don't intercept draft items - they have their own click handler above
+        const draftItem = e.target.closest('.draft-item');
+        if (draftItem) {
+            return;
+        }
+        
+        // Handle message item clicks - open/expand message
+        const messageItem = e.target.closest('.message-item');
+        if (messageItem) {
+            // Get the message ID from the checkbox or message item
+            const checkbox = messageItem.querySelector('.message-checkbox');
+            const messageId = checkbox ? checkbox.getAttribute('data-message-id') : messageItem.getAttribute('data-message-id');
+            
+            if (messageId) {
+                // Open/expand the message
+                if (typeof window.toggleMessageExpansion === 'function') {
+                    window.toggleMessageExpansion(messageId);
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+        }
+    }, true); // Use capture phase to catch events early
+});
+
+// Toggle message expansion inline (dropdown style)
+window.toggleMessageExpansion = async function(messageId) {
+    console.log('toggleMessageExpansion called with messageId:', messageId);
+    const messageThread = document.querySelector(`[data-message-id="${messageId}"].message-thread`);
+    if (!messageThread) {
+        console.error('Message thread not found for messageId:', messageId);
+        return;
+    }
+    
+    const expandedContent = messageThread.querySelector('.message-item-expanded');
+    if (!expandedContent) {
+        console.error('Expanded content not found for messageId:', messageId);
+        return;
+    }
+    
+    const isExpanded = messageThread.classList.contains('expanded');
+    
+    if (isExpanded) {
+        // Collapse
+        messageThread.classList.remove('expanded');
+    } else {
+        // Expand - load message content
+        messageThread.classList.add('expanded');
+        
+        const contentDiv = expandedContent.querySelector('.message-item-expanded-content');
+        if (!contentDiv) {
+            console.error('Content div not found for messageId:', messageId);
+            return;
+        }
+        
+        // Always load if content is empty, contains "Loading message", or hasn't been loaded yet
+        const shouldLoad = contentDiv.innerHTML.trim() === '' || 
+                          contentDiv.innerHTML.includes('Loading message') || 
+                          contentDiv.innerHTML.trim() === '<div class="email-detail-loading">Loading message...</div>';
+        
+        if (shouldLoad) {
+            try {
+                console.log('Loading message content for messageId:', messageId);
+                // Show loading state
+                contentDiv.innerHTML = '<div class="email-detail-loading">Loading message...</div>';
+                
+                console.log('Fetching from:', `/employer/messages/${messageId}/show`);
+                const response = await fetch(`/employer/messages/${messageId}/show`);
+                
+                console.log('Response status:', response.status, response.ok);
+                
+                if (!response.ok) {
+                    console.error('HTTP error! status:', response.status);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const html = await response.text();
+                console.log('Response HTML length:', html ? html.length : 0);
+                
+                if (!html || html.trim() === '') {
+                    console.error('Empty response from server');
+                    throw new Error('Empty response from server');
+                }
+                
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const contentContainer = doc.querySelector('.messages-content-body');
+                    
+                if (!contentContainer) {
+                    console.error('Could not find .messages-content-body in response. HTML preview:', html.substring(0, 500));
+                    contentDiv.innerHTML = '<div class="email-detail-loading">Error: Could not find message content. Please try again.</div>';
+                    return;
+                }
+                
+                console.log('Content container found, processing...');
+                
+                {
+                        const threadMessagesContainer = contentContainer.querySelector('.thread-messages-container, .gmail-style-thread');
+                        const messageDetailContent = contentContainer.querySelector('.message-detail-content');
+                        const replyForm = contentContainer.querySelector('.reply-form-section');
+                        
+                        let contentHTML = '';
+                        
+                        // Extract header with forward button first (always show forward button)
+                        const backButtonHeader = contentContainer.querySelector('.message-detail-header');
+                        if (backButtonHeader) {
+                            let headerHTML = backButtonHeader.outerHTML;
+                            // Remove any window.open calls from forward buttons
+                            headerHTML = headerHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                            headerHTML = headerHTML.replace(/onclick='[^']*window\.open[^']*'/gi, '');
+                            // Make back button close expanded section instead of navigating
+                            headerHTML = headerHTML.replace(/href="[^"]*app_recruiter_messages[^"]*"/gi, `href="javascript:void(0);" onclick="if(typeof window.toggleMessageExpansion === 'function') { window.toggleMessageExpansion('${messageId}'); } return false;"`);
+                            // Ensure forward button has proper onclick - add if not present
+                            if (!headerHTML.includes('onclick=') || !headerHTML.match(/class="forward-btn"[^>]*onclick=/)) {
+                                headerHTML = headerHTML.replace(/(<a[^>]*class="forward-btn"[^>]*)(>)/g, '$1 onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;"$2');
+                            }
+                            contentHTML += headerHTML;
+                        }
+                        
+                        // Extract thread messages or single message
+                        if (threadMessagesContainer) {
+                            const threadHeader = contentContainer.querySelector('.thread-header');
+                            if (threadHeader) {
+                                contentHTML += threadHeader.outerHTML;
+                            }
+                            contentHTML += threadMessagesContainer.outerHTML;
+                        } else if (messageDetailContent) {
+                            contentHTML += messageDetailContent.outerHTML;
+                        }
+                        
+                        // Add reply form
+                        if (replyForm) {
+                            contentHTML += replyForm.outerHTML;
+                        }
+                        
+                        contentHTML = contentHTML.replace(/onclick="[^"]*window\.open[^"]*"/gi, '');
+                        contentHTML = contentHTML.replace(/window\.open\(([^,]+),\s*['"]_blank['"]\)/gi, 'window.location.href=$1');
+                        
+                        contentDiv.innerHTML = contentHTML;
+                        
+                        // Re-initialize collapsible messages
+                        setTimeout(() => {
+                            if (typeof window.toggleMessageCollapse === 'function') {
+                                // Find all gmail message headers within the expanded content
+                                const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                                if (expandedContentArea) {
+                                    expandedContentArea.querySelectorAll('.gmail-message-header').forEach(function(header) {
+                                        // Remove any existing listeners by cloning
+                                        const newHeader = header.cloneNode(true);
+                                        header.parentNode.replaceChild(newHeader, header);
+                                        
+                                        // Add click handler to the header
+                                        newHeader.addEventListener('click', function(e) {
+                                            // Don't collapse if clicking on action buttons
+                                            if (e.target.closest('.gmail-action-btn')) return;
+                                            // Don't collapse if clicking on forward button
+                                            if (e.target.closest('button') && e.target.closest('button').classList.contains('gmail-action-btn')) return;
+                                            // Don't collapse if clicking on collapse icon (handled separately)
+                                            if (e.target.closest('.collapse-icon')) return;
+                                            
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            window.toggleMessageCollapse(this);
+                                        });
+                                        
+                                        // Also make the collapse icon clickable - only collapse individual message, not entire section
+                                        const collapseIcon = newHeader.querySelector('.collapse-icon');
+                                        if (collapseIcon) {
+                                            collapseIcon.style.cursor = 'pointer';
+                                            collapseIcon.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                // Just collapse/expand this individual message
+                                                window.toggleMessageCollapse(newHeader);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+                            
+                            // Fix forward buttons in expanded content
+                            const expandedContentArea = messageThread.querySelector('.message-item-expanded-content');
+                            if (expandedContentArea) {
+                                // Fix forward buttons in header (Forward all / Forward button)
+                                expandedContentArea.querySelectorAll('.forward-btn').forEach(function(btn) {
+                                    if (btn.href) {
+                                        // Remove existing onclick
+                                        btn.onclick = null;
+                                        btn.removeAttribute('onclick');
+                                        btn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            e.stopImmediatePropagation();
+                                            window.location.href = this.href;
+                                        }, true); // Use capture phase
+                                    }
+                                });
+                                
+                                // Fix forward buttons on individual messages (gmail-action-btn)
+                                expandedContentArea.querySelectorAll('.gmail-action-btn').forEach(function(btn) {
+                                    // Get the onclick attribute value (from Twig template)
+                                    const onclickAttr = btn.getAttribute('onclick');
+                                    if (onclickAttr && onclickAttr.includes('window.location.href')) {
+                                        // Extract the href from onclick attribute
+                                        const hrefMatch = onclickAttr.match(/window\.location\.href=['"]([^'"]+)['"]/);
+                                        if (hrefMatch && hrefMatch[1]) {
+                                            const forwardHref = hrefMatch[1];
+                                            // Remove existing onclick and add proper event listener with capture phase
+                                            btn.removeAttribute('onclick');
+                                            btn.onclick = null;
+                                            btn.addEventListener('click', function(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                e.stopImmediatePropagation();
+                                                window.location.href = forwardHref;
+                                            }, true); // Use capture phase to ensure it fires first
+                                        }
+                                    } else if (btn.href) {
+                                        btn.onclick = null;
+                                        btn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            e.stopImmediatePropagation();
+                                            window.location.href = this.href;
+                                        }, true);
+                                    }
+                                });
+                            }
+                        }, 100);
+                }
+            } catch (error) {
+                console.error('Error loading message:', error);
+                console.error('Error details:', error.message, error.stack);
+                if (contentDiv) {
+                    contentDiv.innerHTML = '<div class="email-detail-loading">Error loading message: ' + error.message + '. Please try again.</div>';
+            }
+            }
+        } else {
+            console.log('Content already loaded, skipping fetch');
+        }
+    }
+};
+
+// Toggle message collapse (Gmail-style) - make globally accessible
+window.toggleMessageCollapse = function(headerElement) {
+    const messageItem = headerElement.closest('.gmail-message-item');
+    if (messageItem) {
+        messageItem.classList.toggle('collapsed');
+        const content = messageItem.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            if (messageItem.classList.contains('collapsed')) {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        }
+    }
+};
+
+// Ensure forward buttons always work - global handler
+document.addEventListener('click', function(e) {
+    // Handle forward buttons
+    const forwardBtn = e.target.closest('.message-forward-btn, .forward-btn, .gmail-action-btn, a[href*="forward"]');
+    if (forwardBtn) {
+        // Check if it's a button with onclick
+        if (forwardBtn.onclick || forwardBtn.getAttribute('onclick')) {
+            const onclickAttr = forwardBtn.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.includes('window.location.href')) {
+                const hrefMatch = onclickAttr.match(/window\.location\.href=['"]([^'"]+)['"]/);
+                if (hrefMatch && hrefMatch[1]) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    window.location.href = hrefMatch[1];
+                    return false;
+                }
+            }
+        } else if (forwardBtn.href && forwardBtn.href !== 'javascript:void(0);' && !forwardBtn.href.includes('#')) {
+            // Regular link with href
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            window.location.href = forwardBtn.href;
+            return false;
+        }
+    }
+}, true); // Use capture phase to catch early
+
+// Close email detail panel
+function closeEmailDetailPanel() {
+    const panel = document.getElementById('email-detail-panel');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    if (panel) {
+        panel.classList.remove('active');
+    }
+    if (messagesContainer) {
+        messagesContainer.classList.remove('has-detail');
+    }
+}
+
+</script>
+{% endblock %}

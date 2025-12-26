@@ -571,6 +571,7 @@
                                            data-edit-url="{{ path('app_employer_job_edit', {'id': job.id}) }}"
                                            data-applications-url="{{ path('app_employer_job_applications', {'id': job.id, 'splitView': 'true'}) }}"
                                            data-delete-url="{{ path('app_employer_job_delete', {'id': job.id}) }}"
+                                           data-is-mediated="{{ job.jobRecruiters|length > 0 ? 'true' : 'false' }}"
                                            {% for transition in jobTransitions[job.id.toString()] %}
                                                data-{{ transition }}-url="{{ path('app_employer_job_transition', {id: job.id, transition: transition}) }}"
                                            {% endfor %}
@@ -589,6 +590,9 @@
                                         </a>
                                         <div class="job-meta small" style="font-size: 11px; color: #666666; margin-top: 2px; text-align: left;">
                                             ID: {{ job.jobId }}
+                                            {% if job.jobRecruiters|length > 0 %}
+                                                <span class="badge bg-info text-white ms-2" style="font-size: 9px; padding: 2px 5px;">Recruiter Mediated</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -660,7 +664,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Enable/disable buttons based on selection
-        actionButtons.edit.disabled = !singleSelection;
+        // Disable edit if job is mediated
+        const isMediated = selectedJob ? selectedJob.dataset.isMediated === 'true' : false;
+        
+        actionButtons.edit.disabled = !singleSelection || isMediated;
         actionButtons.applications.disabled = !singleSelection;
         actionButtons.delete.disabled = !hasSelection;
 

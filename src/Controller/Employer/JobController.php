@@ -11,6 +11,7 @@ use App\Entity\Experience;
 use App\Entity\Insurance;
 use App\Entity\Invoice;
 use App\Entity\Job;
+use App\Entity\JobRecruiter;
 use App\Entity\Review;
 use App\Event\JobEvent;
 use App\Form\JobType;
@@ -65,7 +66,9 @@ class JobController extends AbstractController
     #[Route('/', name: 'app_employer_jobs', methods: ['GET'])]
     public function index(JobRepository $jobRepository, Request $request, Registry $workflowRegistry): Response
     {
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         $offset = $request->query->get('page', 1);
         $perPage = $request->get('per_page', 25);
         $filters = $request->query->all();
@@ -92,7 +95,9 @@ class JobController extends AbstractController
     #[Route('/past-jobs', name: 'app_employer_jobs_past', methods: ['GET'])]
     public function pastJobs(JobRepository $jobRepository, EmployerRepository $employerRepository): Response
     {
-        $employer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $employer = $user->getEmployer();
         return $this->render('employer/job/past-jobs.html.twig', [
             'jobs' => $jobRepository->getEmployerPastJobs($employer->getId()),
         ]);
@@ -105,6 +110,7 @@ class JobController extends AbstractController
         EventDispatcherInterface $dispatcher,
         JobIdGenerator $jobIdGenerator
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $employer = $user->getEmployer();
 
@@ -113,10 +119,28 @@ class JobController extends AbstractController
         $form = $this->createForm(JobType::class, $job);
         $form->handleRequest($request);
 
+        // Handle "Recruiter Mediated" default selection if Recruiter ID is passed in URL?
+        // (Optional: Future enhancement)
+
         if ($form->isSubmitted() && $form->isValid()) {
             $job->setUser($user);
             $job->setEmployer($employer);
             $entityManager->persist($job);
+
+            // Handle Recruiter Assignment
+            $postingType = $form->get('postingType')->getData();
+            $recruiter = $form->get('recruiter')->getData();
+            $commissionRate = $form->get('commissionRate')->getData();
+
+            if ($postingType === 'recruiter' && $recruiter) {
+                $jobRecruiter = new JobRecruiter();
+                $jobRecruiter->setJob($job);
+                $jobRecruiter->setRecruiter($recruiter);
+                $jobRecruiter->setStatus('Assigned');
+                $jobRecruiter->setCommissionRate($commissionRate ? (float)$commissionRate : 20.00); // Default 20% if not set
+                $entityManager->persist($jobRecruiter);
+            }
+
             $entityManager->flush();
 
             $dispatcher->dispatch(new JobEvent($job), JobEvent::JOB_CREATED);
@@ -133,7 +157,9 @@ class JobController extends AbstractController
     #[Route('/{id}', name: 'app_employer_job_show', methods: ['GET'])]
     public function show(Job $job, ApplicationRepository $applicationRepository): Response
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -155,7 +181,9 @@ class JobController extends AbstractController
         Registry $workflowRegistry,
         WorkflowInterface $jobApplicationWorkflow
     ): Response {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -469,7 +497,9 @@ class JobController extends AbstractController
     #[Route('/{id}/edit', name: 'app_employer_job_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Job $job, EntityManagerInterface $entityManager): Response
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -477,9 +507,58 @@ class JobController extends AbstractController
         }
 
         $form = $this->createForm(JobType::class, $job);
+
+        // Pre-fill Recruiter data
+        $jobRecruiter = $entityManager->getRepository(JobRecruiter::class)->findOneBy(['job' => $job]);
+        if ($jobRecruiter) {
+            $form->get('postingType')->setData('recruiter');
+            $form->get('recruiter')->setData($jobRecruiter->getRecruiter());
+            $form->get('commissionRate')->setData($jobRecruiter->getCommissionRate());
+        }
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // Handle Recruiter Assignment Updates
+            $postingType = $form->get('postingType')->getData();
+            $recruiter = $form->get('recruiter')->getData();
+            $commissionRate = $form->get('commissionRate')->getData();
+
+            if ($postingType === 'recruiter' && $recruiter) {
+                if (!$jobRecruiter) {
+                    $jobRecruiter = new JobRecruiter();
+                    $jobRecruiter->setJob($job);
+                    $jobRecruiter->setRecruiter($recruiter);
+                    $jobRecruiter->setStatus('Assigned');
+                    $jobRecruiter->setCommissionRate($commissionRate ? (float)$commissionRate : 20.00); // Default 20%
+                    $entityManager->persist($jobRecruiter);
+                } else {
+                    // Update existing recruiter if changed or commission changed
+                    if ($jobRecruiter->getRecruiter() !== $recruiter) {
+                        $jobRecruiter->setRecruiter($recruiter);
+                    }
+
+                    // Always update commission rate if provided, regardless of recruiter change
+                    if ($commissionRate !== null) {
+                        $jobRecruiter->setCommissionRate((float)$commissionRate);
+                    } else if ($jobRecruiter->getRecruiter() !== $recruiter) {
+                        // If recruiter changed but no rate provided, maybe reset?
+                        // But if form field was empty, current logic sends null.
+                        // Let's keep existing rate if logic is ambiguous, or default to 20 if new recruiter?
+                        // User prompt says default to 20 if left blank.
+                        // If user clears the field, we should probably set to 20.
+                        $jobRecruiter->setCommissionRate(20.00);
+                    }
+
+                    $entityManager->persist($jobRecruiter);
+                }
+            } elseif ($postingType === 'direct' && $jobRecruiter) {
+                // If switched to Direct, remove linkage? Or keep history?
+                // For now, let's remove the assignment to reflect "Direct" status active
+                $entityManager->remove($jobRecruiter);
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_employer_jobs', [], Response::HTTP_SEE_OTHER);
@@ -494,7 +573,9 @@ class JobController extends AbstractController
     #[Route('/{id}/delete', name: 'app_employer_job_delete', methods: ['GET'])]
     public function delete(Job $job, EntityManagerInterface $entityManager): Response
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -517,7 +598,9 @@ class JobController extends AbstractController
     #[Route('/{id}/transition/{transition}', name: 'app_employer_job_transition')]
     public function transitionJob(Job $job, string $transition, WorkflowInterface $jobWorkflow, EntityManagerInterface $em): RedirectResponse
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -544,7 +627,9 @@ class JobController extends AbstractController
     #[Route('/{id}/transition/{transition}/application/{applicationId}', name: 'app_employer_job_application_transition')]
     public function transitionJobApplication(Job $job, string $transition, string $applicationId, WorkflowInterface $jobApplicationWorkflow, EntityManagerInterface $em, Request $request)
     {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             $this->addFlash('error', "You don't have access to this job.");
@@ -770,7 +855,9 @@ class JobController extends AbstractController
         EntityManagerInterface $em,
         Registry $workflowRegistry
     ): Response {
-        $currentEmployer = $this->getUser()->getEmployer();
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $currentEmployer = $user->getEmployer();
 
         if ($job->getEmployer() !== $currentEmployer) {
             return $this->json(['error' => 'Unauthorized'], 403);

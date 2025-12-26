@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\JobRepository;
+use App\Entity\JobRecruiter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -30,6 +31,9 @@ class Job
     #[ORM\ManyToOne]
     private ?Employer $employer = null;
 
+    #[ORM\OneToMany(mappedBy: 'job', targetEntity: JobRecruiter::class, cascade: ['persist', 'remove'])]
+    private $jobRecruiters;
+
     #[ORM\ManyToOne]
     private ?Profession $profession = null;
 
@@ -54,6 +58,11 @@ class Job
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $city = null;
+
+    public function __construct()
+    {
+        $this->jobRecruiters = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $streetAddress = null;
@@ -565,5 +574,35 @@ class Job
             return '—';
         }
         return '$' . number_format($hourlyRate, 2) . '/hour';
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\Collection<int, JobRecruiter>
+     */
+    public function getJobRecruiters(): \Doctrine\Common\Collections\Collection
+    {
+        return $this->jobRecruiters;
+    }
+
+    public function addJobRecruiter(JobRecruiter $jobRecruiter): static
+    {
+        if (!$this->jobRecruiters->contains($jobRecruiter)) {
+            $this->jobRecruiters->add($jobRecruiter);
+            $jobRecruiter->setJob($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobRecruiter(JobRecruiter $jobRecruiter): static
+    {
+        if ($this->jobRecruiters->removeElement($jobRecruiter)) {
+            // set the owning side to null (unless already changed)
+            if ($jobRecruiter->getJob() === $this) {
+                // $jobRecruiter->setJob(null); // nullable=false
+            }
+        }
+
+        return $this;
     }
 }

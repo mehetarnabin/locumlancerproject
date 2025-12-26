@@ -64,8 +64,25 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->andWhere('u.userType = :userType')
             ->setParameter('userType', User::TYPE_PROVIDER)
             ->andWhere('a.employer = :employerId')
-            ->setParameter('employerId', $employerId, UuidType::NAME);
-        ;
+            ->setParameter('employerId', $employerId, UuidType::NAME);;
+
+        $qb->orderBy('u.id', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getProvidersForRecruiter($recruiterId)
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->distinct() // Important to avoid duplicates
+            ->join('u.provider', 'p')
+            ->join('p.applications', 'a')
+            ->join('a.job', 'j')
+            ->join('j.jobRecruiters', 'jr')
+            ->andWhere('u.userType = :userType')
+            ->setParameter('userType', User::TYPE_PROVIDER)
+            ->andWhere('jr.recruiter = :recruiterId')
+            ->setParameter('recruiterId', $recruiterId, UuidType::NAME);
 
         $qb->orderBy('u.id', 'DESC');
 
@@ -81,8 +98,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->andWhere('u.userType = :userType')
             ->setParameter('userType', User::TYPE_EMPLOYER)
             ->andWhere('a.provider = :providerId')
-            ->setParameter('providerId', $providerId, UuidType::NAME);
-        ;
+            ->setParameter('providerId', $providerId, UuidType::NAME);;
 
         $qb->orderBy('u.id', 'DESC');
 
@@ -94,8 +110,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $qb = $this->createQueryBuilder('u')
             ->where('1 = 1')
             ->andWhere('u.blocked = :blocked')
-            ->setParameter('blocked', false)
-        ;
+            ->setParameter('blocked', false);
 
         $qb->orderBy('u.name', 'ASC');
 

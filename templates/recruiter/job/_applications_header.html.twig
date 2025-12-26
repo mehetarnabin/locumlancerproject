@@ -1,0 +1,187 @@
+{# Job Applications Header Section #}
+{# This file controls the job header card and status workflow section #}
+
+<!-- Job Header Card -->
+<div class="job-header-card mb-4" style="background: #fff; border: 1px solid #e6eef6; border-radius: 10px; padding: 20px; position: relative;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 600; color: #121C0C;">
+                <a href="{{ path('app_recruiter_job_show', {'id': job.id}) }}" style="color: #85BB65; text-decoration: none;">{{ job.title }}</a>
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #666;">
+                {% if job.workType %}<span>{{ job.workType }}</span>{% endif %}
+                {% if job.need %}<span>{{ job.need }}</span>{% endif %}
+                {% if job.schedule %}<span>{{ job.schedule }}</span>{% endif %}
+                {% if job.state or job.city %}<span>{{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}</span>{% endif %}
+                {% if job.expirationDate %}<span>Expires in {{ job.expirationDate|date('m/d/Y')|ago }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="status" style="position: absolute; top: 20px; right: 20px;">
+            {% set jobStatusClass = 'job-status-badge' %}
+            {% if job.status == 'published' %}
+                {% set jobStatusClass = 'job-status-badge job-status-published' %}
+            {% elseif job.status == 'draft' %}
+                {% set jobStatusClass = 'job-status-badge job-status-draft' %}
+            {% elseif job.status == 'paused' %}
+                {% set jobStatusClass = 'job-status-badge job-status-paused' %}
+            {% elseif job.status == 'closed' %}
+                {% set jobStatusClass = 'job-status-badge job-status-closed' %}
+            {% endif %}
+            <span class="badge badge-pill {{ jobStatusClass }}" style="font-size: 11px; padding: 4px 8px; background: {% if job.status == 'published' %}#85BB65{% elseif job.status == 'draft' %}#6b7280{% elseif job.status == 'paused' %}#f59e0b{% elseif job.status == 'closed' %}#ef4444{% else %}#6b7280{% endif %}; color: #fff; border: none;">{{ job.status|capitalize }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Status Workflow Cards (Horizontal Progress Indicator) -->
+<style>
+.status-workflow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow: visible;
+    height: 60px;
+}
+
+.status-workflow-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 24px;
+    min-width: 90px;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s;
+    height: 100%;
+}
+
+.status-workflow-card:hover {
+    opacity: 0.85;
+}
+
+.status-workflow-card.first {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.status-workflow-card.last {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* Chevron divider - white chevron pointing right */
+.status-workflow-card:not(.last)::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-top: 30px solid transparent;
+    border-bottom: 30px solid transparent;
+    border-left: 20px solid currentColor;
+    z-index: 1;
+}
+
+.status-workflow-card:not(.last)::before {
+    content: '';
+    position: absolute;
+    right: -19px;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-top: 29px solid transparent;
+    border-bottom: 29px solid transparent;
+    border-left: 19px solid #fff;
+    z-index: 2;
+}
+
+.status-workflow-card-number {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.status-workflow-card-label {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+/* Color schemes - exact match from image */
+.status-workflow-card.all {
+    background: #7cb641;
+    color: #7cb641;
+}
+
+.status-workflow-card.all .status-workflow-card-label {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-workflow-card.applied {
+    background: #cfe6b2;
+    color: #cfe6b2;
+}
+
+.status-workflow-card.applied .status-workflow-card-number,
+.status-workflow-card.applied .status-workflow-card-label {
+    color: #000;
+}
+
+.status-workflow-card.shortlisted,
+.status-workflow-card.interviewing,
+.status-workflow-card.negotiating,
+.status-workflow-card.accepted,
+.status-workflow-card.completed {
+    background: #99cc66;
+    color: #99cc66;
+}
+
+.status-workflow-card.shortlisted .status-workflow-card-number,
+.status-workflow-card.shortlisted .status-workflow-card-label,
+.status-workflow-card.interviewing .status-workflow-card-number,
+.status-workflow-card.interviewing .status-workflow-card-label,
+.status-workflow-card.negotiating .status-workflow-card-number,
+.status-workflow-card.negotiating .status-workflow-card-label,
+.status-workflow-card.accepted .status-workflow-card-number,
+.status-workflow-card.accepted .status-workflow-card-label,
+.status-workflow-card.completed .status-workflow-card-number,
+.status-workflow-card.completed .status-workflow-card-label {
+    color: #000;
+}
+</style>
+
+<div class="status-workflow mb-4">
+    <a href="{{ path('app_recruiter_job_applications', {'id': job.id}) }}" class="status-workflow-card all first">
+        <div class="status-workflow-card-label">All</div>
+    </a>
+    {% for status in allStatuses %}
+        {% set count = 0 %}
+        {% for application in applications %}
+            {% set appStatus = application.status|lower %}
+            {# Map old status names to new ones for counting #}
+            {% if status == 'shortlisted' and (appStatus == 'in_review' or appStatus == 'shortlisted') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'interviewing' and (appStatus == 'interview' or appStatus == 'interviewing') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'negotiating' and (appStatus == 'in_review' or appStatus == 'offered' or appStatus == 'negotiating') %}
+                {% set count = count + 1 %}
+            {% elseif status == 'accepted' and (appStatus == 'hired' or appStatus == 'accepted') %}
+                {% set count = count + 1 %}
+            {% elseif appStatus == status %}
+                {% set count = count + 1 %}
+            {% endif %}
+        {% endfor %}
+        {% set isLast = loop.last %}
+        <a href="{{ path('app_recruiter_job_applications', {'id': job.id, 'status': status}) }}" class="status-workflow-card {{ status }}{% if isLast %} last{% endif %}">
+            <div class="status-workflow-card-number">{{ count }}</div>
+            <div class="status-workflow-card-label">
+                {{ status | title }}
+            </div>
+        </a>
+    {% endfor %}
+</div>

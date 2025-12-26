@@ -1,0 +1,1168 @@
+{% extends 'recruiter/base.html.twig' %}
+
+{% block title %}Profile Analytics | Locumlancer{% endblock %}
+
+{% block employer_body %}
+<style>
+/* COMPLETE RESET - Remove ALL conflicting styles and apply clean spacing to match other pages */
+
+/* Reset app-wrapper - remove all custom.css overrides */
+body.app .app-wrapper,
+.app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Shift app-wrapper to the left to eliminate gap */
+@media (min-width: 1200px) {
+    body.app .app-wrapper,
+    .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+
+/* Reset app-content - remove all custom.css overrides */
+body.app .app-wrapper .app-content,
+.app-wrapper .app-content,
+.app-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 20px !important;
+    padding-bottom: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Override custom.css width constraints at 1200px breakpoint */
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content,
+    .app-wrapper .app-content,
+    .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Reset container-xl - apply clean spacing matching other pages */
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Override ALL media queries from custom.css */
+@media (min-width: 576px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 992px) {
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.app .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+    
+    body.app .app-wrapper .app-content .container-xl,
+    .app-wrapper .app-content .container-xl,
+    .app-content .container-xl,
+    body .app-content .container-xl,
+    div.container-xl,
+    [class*="container-xl"],
+    .container-xl {
+        position: relative !important;
+        padding-left: 0 !important;
+        padding-right: 30px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
+
+/* Ensure rows fill the container width */
+.container-xl .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Remove left padding from first column only - keep gaps between columns */
+.container-xl .row > [class*="col-"]:first-child {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+}
+
+/* Analytics Page Styling - Proper Alignment and Spacing */
+.analytics-metric-card,
+.analytics-chart-card {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.analytics-metric-card:nth-child(1) { animation-delay: 0.1s; }
+.analytics-metric-card:nth-child(2) { animation-delay: 0.2s; }
+.analytics-metric-card:nth-child(3) { animation-delay: 0.3s; }
+.analytics-metric-card:nth-child(4) { animation-delay: 0.4s; }
+
+.analytics-chart-card:nth-child(1) { animation-delay: 0.2s; }
+.analytics-chart-card:nth-child(2) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.analytics-metric-card:hover,
+.analytics-chart-card:hover {
+    box-shadow: 0 8px 24px rgba(133, 187, 101, 0.15) !important;
+    transform: translateY(-4px) !important;
+    border-color: #85BB65 !important;
+}
+
+/* Consistent card padding and spacing - improved */
+.analytics-metric-card {
+    padding: 16px !important;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 0 !important;
+    width: 100%;
+}
+
+/* Ensure metric cards row stays in one line on desktop */
+.row.g-4.mb-5:first-of-type {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 20px !important;
+}
+
+.row.g-4.mb-5:first-of-type > [class*="col-"] {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 991.98px) {
+    .row.g-4.mb-5:first-of-type {
+        flex-wrap: wrap !important;
+    }
+    
+    .row.g-4.mb-5:first-of-type > [class*="col-"] {
+        flex: 0 0 calc(50% - 10px) !important;
+        max-width: calc(50% - 10px) !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .row.g-4.mb-5:first-of-type > [class*="col-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Ensure metric cards row stays in one line on desktop */
+.container-xl > .row.g-4.mb-5:first-of-type {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 20px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.container-xl > .row.g-4.mb-5:first-of-type > [class*="col-"] {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+@media (max-width: 991.98px) {
+    .container-xl > .row.g-4.mb-5:first-of-type {
+        flex-wrap: wrap !important;
+        gap: 12px !important;
+    }
+    
+    .container-xl > .row.g-4.mb-5:first-of-type > [class*="col-"] {
+        flex: 0 0 calc(50% - 6px) !important;
+        max-width: calc(50% - 6px) !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .container-xl > .row.g-4.mb-5:first-of-type > [class*="col-"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+}
+
+.analytics-chart-card {
+    padding: 20px !important;
+    min-height: 420px;
+    margin-bottom: 0 !important;
+}
+
+/* Metric card content alignment */
+.analytics-metric-card .metric-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.analytics-metric-card .metric-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #121C0C;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.analytics-metric-card .metric-icon {
+    flex-shrink: 0;
+    width: 28px !important;
+    height: 28px !important;
+    background: #EAF3E4;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.analytics-metric-card .metric-icon svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+.analytics-metric-card .metric-change {
+    font-size: 12px;
+    font-weight: 500;
+    color: #85BB65;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Chart card headers */
+.analytics-chart-card h6 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #121C0C;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.analytics-chart-card .form-select-sm {
+    font-size: 13px;
+    padding: 6px 12px;
+    padding-right: 12px !important;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    color: #121C0C;
+    background-image: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Chart container alignment */
+.analytics-chart-card .chart-container {
+    height: 300px;
+    position: relative;
+    margin-top: 8px;
+}
+
+/* Stats grid alignment - improved spacing */
+.stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-grid .stat-item {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInScale 0.5s ease-out forwards;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.stats-grid .stat-item:nth-child(1) { animation-delay: 0.1s; }
+.stats-grid .stat-item:nth-child(2) { animation-delay: 0.2s; }
+.stats-grid .stat-item:nth-child(3) { animation-delay: 0.3s; }
+.stats-grid .stat-item:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInScale {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.stats-grid .stat-item:hover {
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.12) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    border-color: #85BB65 !important;
+}
+
+.stats-grid .stat-item:hover > div > div:last-child {
+    background: #85BB65 !important;
+    transform: scale(1.1) rotate(5deg);
+}
+
+.stats-grid .stat-item:hover > div > div:last-child svg path {
+    fill: #fff !important;
+}
+
+.stats-grid .stat-item .text-muted {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.stats-grid .stat-item .fw-bold {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #121C0C;
+    line-height: 1.2;
+}
+
+.stats-grid .row.g-2 {
+    margin-top: 20px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    --bs-gutter-x: 0.75rem !important;
+    --bs-gutter-y: 0.75rem !important;
+    gap: 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+.stats-grid .row.g-2 > [class*="col-"] {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    margin-bottom: 0.75rem !important;
+    flex: 0 0 48% !important;
+    max-width: 48% !important;
+}
+
+.stats-grid .row.g-2 > [class*="col-"]:nth-child(odd) {
+    padding-left: 0 !important;
+    padding-right: 6px !important;
+}
+
+.stats-grid .row.g-2 > [class*="col-"]:nth-child(even) {
+    padding-right: 0 !important;
+    padding-left: 6px !important;
+}
+
+.stats-grid .stat-item.text-center {
+    text-align: center;
+}
+
+.stats-grid .stat-item.text-center .fw-bold {
+    font-size: 1.25rem;
+}
+
+/* Performance metrics alignment - improved spacing */
+.performance-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.performance-metrics .metric-bar {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    animation: fadeInLeft 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.performance-metrics .metric-bar:nth-child(1) { animation-delay: 0.1s; }
+.performance-metrics .metric-bar:nth-child(2) { animation-delay: 0.2s; }
+.performance-metrics .metric-bar:nth-child(3) { animation-delay: 0.3s; }
+.performance-metrics .metric-bar:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInLeft {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.performance-metrics .metric-bar .fw-medium {
+    font-size: 14px;
+    font-weight: 500;
+    color: #121C0C;
+    line-height: 1.4;
+}
+
+.performance-metrics .metric-bar .fw-bold {
+    font-size: 14px;
+    font-weight: 700;
+    color: #85BB65;
+    line-height: 1.4;
+}
+
+.performance-metrics .progress {
+    height: 10px;
+    background-color: #F4F9F1;
+    border-radius: 5px;
+    margin-top: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.performance-metrics .progress-bar {
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    animation: progressBarFill 1.2s ease-out forwards;
+}
+
+@keyframes progressBarFill {
+    from {
+        width: 0 !important;
+    }
+}
+
+/* Skills list alignment */
+.skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skills-list .skill-item {
+    margin-bottom: 0;
+}
+
+.skills-list .skill-item .fw-medium {
+    font-size: 14px;
+    font-weight: 500;
+    color: #121C0C;
+    line-height: 1.4;
+}
+
+.skills-list .skill-item .text-muted {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.skills-list .skill-item .progress {
+    height: 8px;
+    background-color: #F4F9F1;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* Row spacing consistency - improved gap spacing */
+.container-xl .row.g-4 {
+    --bs-gutter-x: 1.5rem !important;
+    --bs-gutter-y: 1.5rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+.container-xl .row.g-4 > [class*="col-"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* Remove left padding from first column in each row */
+.container-xl .row.g-4 > [class*="col-"]:first-child {
+    padding-left: 0 !important;
+}
+
+/* Add margin bottom to last row items */
+.container-xl .row.g-4:last-child > [class*="col-"] {
+    margin-bottom: 0 !important;
+}
+
+/* Ensure bottom cards are side by side */
+.container-xl .row.g-4:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+}
+
+.container-xl .row.g-4:last-child > [class*="col-lg-6"] {
+    flex: 0 0 calc(50% - 0.75rem) !important;
+    max-width: calc(50% - 0.75rem) !important;
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 991.98px) {
+    .container-xl .row.g-4:last-child > [class*="col-lg-6"] {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+/* Page title alignment */
+.app-card-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #121C0C;
+    margin-bottom: 32px;
+    line-height: 1.3;
+    padding-left: 0 !important;
+    animation: fadeInDown 0.6s ease-out forwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure consistent card heights */
+.h-100 {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.analytics-chart-card.h-100 {
+    display: flex;
+    flex-direction: column;
+}
+
+.analytics-chart-card.h-100 .chart-container,
+.analytics-chart-card.h-100 .skills-list,
+.analytics-chart-card.h-100 .stats-grid,
+.analytics-chart-card.h-100 .performance-metrics {
+    flex: 1;
+}
+</style>
+
+<div class="container-xl">
+    <h6 class="app-card-title mb-4">Profile Analytics</h6>
+    
+   
+    <!-- Key Metrics Row -->
+    <div class="row g-4 mb-5">
+        <!-- Total Jobs Posted Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="metric-label text-muted small mb-1">Total Jobs Posted</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ totalJobs }}</div>
+                    </div>
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.72-2.92 0-1.21-.49-2.19-3.55-2.68z" fill="#85BB65"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Applications Received Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="metric-label text-muted small mb-1">Total Applications Received</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ totalApplications }}</div>
+                    </div>
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="#85BB65"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Job Views Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="metric-label text-muted small mb-1">Job Views</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ impressions }}</div>
+                    </div>
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="#85BB65"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Response Rate Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="analytics-metric-card shadow-sm rounded-3 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="metric-label text-muted small mb-1">Response Rate</div>
+                        <div class="metric-value fw-bold" style="font-size: 1.25rem; color: #121C0C;">{{ responseRate }}%</div>
+                    </div>
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#85BB65"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    {% set pendingApplications = totalApplications - statusCounts.applied - statusCounts.interview %}
+    {% if pendingApplications < 0 %}
+        {% set pendingApplications = 0 %}
+    {% endif %}
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-5">
+        <!-- Application to Interview Ratio -->
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-semibold">Application to Interview Ratio</h6>
+                    <select class="form-select form-select-sm" style="width: auto; max-width: 260px;" id="ratioMode">
+                        <option value="app_to_interview">Application to Interview Ratio</option>
+                        <option value="interview_to_application">Interview to Application Ratio</option>
+                    </select>
+                </div>
+                <div class="chart-container" style="height: 300px; position: relative; display: flex; align-items: center; justify-content: center;">
+                    <canvas id="ratioChart" style="position: relative;"></canvas>
+                    <div id="ratioChartCenter" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; max-width: 120px; width: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        <div style="font-size: 12px; font-weight: 700; color: #121C0C; line-height: 1.4; text-align: center;" id="ratioChartValue">Applied=0<br>Interview=0<br>Pending=0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Application Status Distribution -->
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-semibold">Application Status Distribution</h6>
+                </div>
+                <div class="chart-container" style="height: 300px; position: relative;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Trends -->
+    <div class="row g-4 mb-5">
+        <!-- Monthly Job Posting Trends -->
+        <div class="col-12">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h6 class="mb-0 fw-semibold">Monthly Job Posting Trends</h6>
+                    <form method="get" class="d-inline">
+                        <select class="form-select form-select-sm" 
+                                style="width: auto; max-width: 150px;" 
+                                name="trend_timeframe" 
+                                onchange="this.form.submit()">
+                            <option value="6" {% if currentTimeframe == 6 %}selected{% endif %}>Last 6 Months</option>
+                            <option value="12" {% if currentTimeframe == 12 %}selected{% endif %}>Last 12 Months</option>
+                            <option value="24" {% if currentTimeframe == 24 %}selected{% endif %}>Last 2 Years</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="chart-container" style="height: 300px; position: relative;">
+                    <canvas id="trendChart" style="max-height: 300px;"></canvas>
+                    {% set totalCount = 0 %}
+                    {% for month in monthlyData %}
+                        {% set totalCount = totalCount + month.count %}
+                    {% endfor %}
+                    {% if monthlyData is empty or totalCount == 0 %}
+                        <div class="text-center text-muted" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;">
+                            <p style="margin: 0; color: #6b7280; font-size: 14px;">No job posting data available for the selected period.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Statistics Row -->
+    <div class="row g-4 mb-4">
+        <!-- Application Statistics -->
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <h6 class="mb-4 fw-semibold">Application Statistics</h6>
+                <div class="stats-grid">
+                    <div class="stat-item p-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small mb-1">Total Applications</div>
+                                <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalApplications }}</div>
+                            </div>
+                            <div style="width: 28px !important; height: 28px !important; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="#85BB65"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-item p-3 rounded" style="background: #F4F9F1; border: 1px solid #e6eef6;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small mb-1">Total Jobs Posted</div>
+                                <div class="fw-bold" style="font-size: 1.5rem; color: #121C0C;">{{ totalJobs }}</div>
+                            </div>
+                            <div style="width: 28px !important; height: 28px !important; background: #EAF3E4; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" fill="#85BB65"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Applied</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.applied }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Interview</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.interview }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Pending</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ pendingApplications }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item p-2 rounded text-center" style="background: #F4F9F1; border: 1px solid #e6eef6; min-height: auto; height: auto; padding: 0.5rem 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div class="text-muted" style="font-size: 0.75rem; margin-bottom: 0.25rem; text-align: center; width: 100%;">Completed</div>
+                                <div class="fw-bold" style="font-size: 1rem; color: #121C0C; text-align: center; width: 100%;">{{ statusCounts.completed }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Metrics -->
+        <div class="col-12 col-lg-6">
+            <div class="analytics-chart-card shadow-sm rounded-3 p-4 h-100">
+                <h6 class="mb-4 fw-semibold">Performance Metrics</h6>
+        <div class="performance-metrics">
+            <!-- Profile Completion - ACTUAL DATA -->
+            <div class="metric-bar mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Profile Completion</span>
+                    <span class="fw-bold" style="color: #85BB65;">{{ profileCompleteness }}%</span>
+                </div>
+                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {{ profileCompleteness }}%; background-color: #85BB65; border-radius: 5px;" 
+                         aria-valuenow="{{ profileCompleteness }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            
+            <!-- Response Rate - ACTUAL DATA -->
+            <div class="metric-bar mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Response Rate</span>
+                    <span class="fw-bold" style="color: #85BB65;">{{ responseRate }}%</span>
+                </div>
+                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {{ responseRate }}%; background-color: #06b6d4; border-radius: 5px;" 
+                         aria-valuenow="{{ responseRate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            
+            <!-- Interview Success Rate - ACTUAL DATA -->
+            <div class="metric-bar mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Interview Success Rate</span>
+                    <span class="fw-bold" style="color: #85BB65;">{{ ratio }}%</span>
+                </div>
+                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {{ ratio }}%; background-color: #85BB65; border-radius: 5px;" 
+                         aria-valuenow="{{ ratio }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            
+            <!-- Application to Interview Ratio - ACTUAL DATA -->
+            <div class="metric-bar mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-medium" style="font-size: 14px; color: #121C0C;">Application to Interview</span>
+                    <span class="fw-bold" style="color: #85BB65;">
+                        {% if totalApplications > 0 %}
+                            {{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="progress" style="height: 10px; background-color: #F4F9F1; border-radius: 5px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {% if totalApplications > 0 %}{{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}{% else %}0{% endif %}%; background-color: #10b981; border-radius: 5px;" 
+                         aria-valuenow="{% if totalApplications > 0 %}{{ ((statusCounts.interview / totalApplications) * 100)|round(1) }}{% else %}0{% endif %}" 
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratioConfigs = {
+        "app_to_interview": {
+            labels: ['Interviews', 'Applied', 'Pending'],
+            data: [{{ statusCounts.interview }}, {{ statusCounts.applied }}, {{ pendingApplications }}],
+            colors: ['#85BB65', '#06b6d4', '#e6eef6']
+        },
+        "interview_to_application": {
+            labels: ['Applied', 'Interviews', 'Pending'],
+            data: [{{ statusCounts.applied }}, {{ statusCounts.interview }}, {{ pendingApplications }}],
+            colors: ['#06b6d4', '#85BB65', '#e6eef6']
+        }
+    };
+
+    const ratioSelect = document.getElementById('ratioMode');
+    const ratioCanvas = document.getElementById('ratioChart');
+    const ratioCtx = ratioCanvas ? ratioCanvas.getContext('2d') : null;
+    let ratioChartInstance = null;
+
+    const ratioChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        family: 'Urbanist',
+                        size: 12
+                    },
+                    color: '#121C0C'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: {
+                    family: 'Lexend',
+                    size: 14
+                },
+                bodyFont: {
+                    family: 'Urbanist',
+                    size: 12
+                }
+            }
+        },
+        cutout: '70%'
+    };
+
+    function renderRatioChart(mode) {
+        if (!ratioCtx) {
+            return;
+        }
+        const config = ratioConfigs[mode] || ratioConfigs['app_to_interview'];
+        if (!config) {
+            return;
+        }
+
+        // Get the actual counts for center display
+        let applied, interviews, pending;
+        if (mode === 'app_to_interview') {
+            // Data order: Interviews, Applied, Pending
+            interviews = config.data[0];
+            applied = config.data[1];
+            pending = config.data[2];
+        } else {
+            // Data order: Applied, Interviews, Pending
+            applied = config.data[0];
+            interviews = config.data[1];
+            pending = config.data[2];
+        }
+        
+        // Update center text with actual counts
+        const centerValue = document.getElementById('ratioChartValue');
+        if (centerValue) {
+            centerValue.innerHTML = `Applied=${applied}<br>Interview=${interviews}<br>Pending=${pending}`;
+        }
+
+        if (!ratioChartInstance) {
+            ratioChartInstance = new Chart(ratioCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: config.labels,
+                    datasets: [{
+                        data: config.data,
+                        backgroundColor: config.colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: ratioChartOptions
+            });
+        } else {
+            ratioChartInstance.data.labels = config.labels;
+            ratioChartInstance.data.datasets[0].data = config.data;
+            ratioChartInstance.data.datasets[0].backgroundColor = config.colors;
+            ratioChartInstance.update();
+        }
+    }
+
+    if (ratioSelect) {
+        ratioSelect.addEventListener('change', (event) => {
+            renderRatioChart(event.target.value);
+        });
+        renderRatioChart(ratioSelect.value);
+    } else {
+        renderRatioChart('app_to_interview');
+    }
+    
+    // Application Status Distribution - Pie Chart
+    const statusCanvas = document.getElementById('statusChart');
+    if (!statusCanvas) {
+        console.error('Status chart canvas not found');
+    } else {
+        const statusCtx = statusCanvas.getContext('2d');
+        const statusChart = new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Applied', 'Interview', 'Negotiating', 'Accepted', 'Completed', 'Rejected'],
+            datasets: [{
+                data: [
+                    {{ statusCounts.applied }},
+                    {{ statusCounts.interview }},
+                    {{ statusCounts.negotiating }},
+                    {{ statusCounts.accepted }},
+                    {{ statusCounts.completed }},
+                    {{ statusCounts.rejected }}
+                ],
+                backgroundColor: [
+                    '#06b6d4',
+                    '#85BB65',
+                    '#ffa500',
+                    '#10b981',
+                    '#22c55e',
+                    '#ef4444'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            family: 'Urbanist',
+                            size: 12
+                        },
+                        color: '#121C0C'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        family: 'Lexend',
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: 'Urbanist',
+                        size: 12
+                    }
+                }
+            }
+        }
+        });
+    }
+    
+    // Monthly Job Posting Trends - Line Chart
+const trendCtx = document.getElementById('trendChart');
+if (trendCtx) {
+    const ctx = trendCtx.getContext('2d');
+    const monthlyLabels = {{ monthlyData|map(m => m.month)|json_encode|raw }};
+    const monthlyCounts = {{ monthlyData|map(m => m.count)|json_encode|raw }};
+
+    // Ensure we have valid arrays
+    const labels = Array.isArray(monthlyLabels) ? monthlyLabels : [];
+    const counts = Array.isArray(monthlyCounts) ? monthlyCounts : [];
+
+    // Check if we have data
+    const hasData = counts.length > 0 && counts.some(count => count > 0);
+    const maxValue = hasData ? Math.max(...counts) : 1;
+
+    const trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jobs Posted',
+                data: counts,
+                borderColor: '#85BB65',
+                backgroundColor: hasData ? 'rgba(133, 187, 101, 0.1)' : 'rgba(133, 187, 101, 0.05)',
+                borderWidth: hasData ? 3 : 1,
+                fill: true,
+                tension: 0.4,
+                pointRadius: hasData ? 5 : 0,
+                pointHoverRadius: hasData ? 7 : 0,
+                pointBackgroundColor: '#85BB65',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        family: 'Lexend',
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: 'Urbanist',
+                        size: 12
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return 'Jobs Posted: ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        precision: 0,
+                        font: {
+                            family: 'Urbanist',
+                            size: 12
+                        },
+                        color: '#6b7280',
+                        callback: function(value) {
+                            if (Number.isInteger(value)) {
+                                return value;
+                            }
+                            return '';
+                        }
+                    },
+                    grid: {
+                        color: '#e6eef6'
+                    },
+                    max: hasData ? Math.ceil(maxValue * 1.1) : 5
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            family: 'Urbanist',
+                            size: 12
+                        },
+                        color: '#6b7280'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+});
+</script>
+{% endblock %}

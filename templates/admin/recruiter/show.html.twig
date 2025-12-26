@@ -1,0 +1,77 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Recruiter Detail: {{ user.name }}{% endblock %}
+
+{% block admin_body %}
+<div class="container-xl">
+
+    <h1 class="app-page-title">Recruiter Detail</h1>
+
+    <div class="mb-4">
+        {% if user.isBlocked == false %}
+            <a href="{{ path('app_admin_recruiter_block', {'id': user.id}) }}" title="Block" onclick="return confirm('Do you want to block this recruiter?')">
+                <img src="{{ asset('assets/icons/sign.png') }}" class="icon-image" />
+            </a>
+        {% else %}
+            <a href="{{ path('app_admin_recruiter_block', {'id': user.id}) }}" title="Unblock" onclick="return confirm('Do you want to unblock this recruiter?')">
+                <img src="{{ asset('assets/icons/unlocked.png') }}" class="icon-image" />
+            </a>
+        {% endif %}
+    </div>
+
+    <h5>Personal Information</h5>
+    <div class="table-row">
+        <div class="job-row">
+            <div class="job-label">Name</div>
+            <div class="job-value">{{ user.name }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Email</div>
+            <div class="job-value">{{ user.email }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Address</div>
+            <div class="job-value">{{ user.address }}</div>
+        </div>
+         <div class="job-row">
+            <div class="job-label">Verified</div>
+            <div class="job-value">{{ user.isVerified ? 'Yes' : 'No' }}</div>
+        </div>
+         <div class="job-row">
+            <div class="job-label">Created At</div>
+            <div class="job-value">{{ user.createdAt|date('F j, Y, g:i a') }}</div>
+        </div>
+    </div>
+
+    <div class="mb-4"></div>
+
+    <h5>Company Information</h5>
+    <div class="table-row">
+        <div class="job-row">
+            <div class="job-label">Company Name</div>
+            <div class="job-value">{{ recruiter.companyName }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Speciality</div>
+            <div class="job-value">{{ recruiter.speciality }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Membership Level</div>
+            <div class="job-value">{{ recruiter.membershipLevel }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Rating</div>
+            <div class="job-value">{{ recruiter.rating }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Phone 1</div>
+            <div class="job-value">{{ user.phone1 }}</div>
+        </div>
+        <div class="job-row">
+            <div class="job-label">Phone 2</div>
+            <div class="job-value">{{ user.phone2 }}</div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller\Provider;
+
 use App\Entity\Application;
 use App\Form\ProviderApplicationCertificationType;
 use App\Form\ProviderReleaseAuthorizationType;
@@ -11,7 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Uid\Uuid;
+
 use App\Entity\Bookmark;
+use App\Entity\Document;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Event\ApplicationEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[Route('/provider/application')]
 class ApplicationController extends AbstractController
@@ -21,7 +30,7 @@ class ApplicationController extends AbstractController
     {
         $provider = $this->getUser()->getProvider();
 
-        if($request->getMethod() === 'POST') {
+        if ($request->getMethod() === 'POST') {
             $data = $request->request->all();
             $provider->setRiskAssessment($data);
 
@@ -37,7 +46,7 @@ class ApplicationController extends AbstractController
             }
             $this->addFlash('success', 'Risk assessment updated successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_application_certification');
             }
 
@@ -55,7 +64,7 @@ class ApplicationController extends AbstractController
     {
         $provider = $this->getUser()->getProvider();
 
-        if($request->getMethod() === 'POST') {
+        if ($request->getMethod() === 'POST') {
             $data = $request->request->all();
             $provider->setHealthAssessment($data);
 
@@ -71,7 +80,7 @@ class ApplicationController extends AbstractController
             }
             $this->addFlash('success', 'Health assessment updated successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_risk_assessment');
             }
 
@@ -100,7 +109,7 @@ class ApplicationController extends AbstractController
             }
             $this->addFlash('success', 'Application certification updated successfully.');
 
-            if($request->get('save_continue') == 1){
+            if ($request->get('save_continue') == 1) {
                 return $this->redirectToRoute('app_provider_release_authorization');
             }
 
@@ -164,16 +173,16 @@ class ApplicationController extends AbstractController
             // Use raw SQL to properly escape the rank column name (MySQL reserved keyword)
             // Detach entity first to prevent Doctrine listeners from interfering
             $em->detach($application);
-            
+
             $connection = $em->getConnection();
             $now = (new \DateTime())->format('Y-m-d H:i:s');
             $idBinary = $applicationId->toBinary();
             $rankStr = (string)$rank;
-            
+
             // Get the actual PDO connection from Doctrine's connection wrapper
             // We need to go through multiple layers to get the raw PDO instance
             $wrappedConnection = $connection->getWrappedConnection();
-            
+
             // Handle different connection wrapper types
             if (method_exists($wrappedConnection, 'getWrappedConnection')) {
                 $pdo = $wrappedConnection->getWrappedConnection();
@@ -196,12 +205,12 @@ class ApplicationController extends AbstractController
                     $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 }
             }
-            
+
             // Ensure we have a PDO instance
             if (!$pdo instanceof \PDO) {
                 throw new \RuntimeException('Could not obtain PDO connection');
             }
-            
+
             // Execute raw SQL with backticks using PDO directly
             // Backticks MUST be preserved - this bypasses all Doctrine processing
             $sql = "UPDATE `b_application` SET `rank` = :rank_val, `updated_at` = :updated_at WHERE `id` = :id";
@@ -210,10 +219,10 @@ class ApplicationController extends AbstractController
             $stmt->bindValue(':updated_at', $now, \PDO::PARAM_STR);
             $stmt->bindValue(':id', $idBinary, \PDO::PARAM_STR);
             $stmt->execute();
-            
+
             // Clear the entity manager to ensure fresh data on next fetch
             $em->clear();
-            
+
             // Re-fetch the entity to get updated values
             $application = $em->getRepository(Application::class)->find($applicationId);
 
@@ -230,7 +239,7 @@ class ApplicationController extends AbstractController
             ], 500);
         }
     }
-    
+
 
     #[Route('/archive/bulk', name: 'app_provider_application_archive_bulk', methods: ['POST'])]
     public function archiveApplicationsJobsBulk(Request $request, EntityManagerInterface $em): JsonResponse
@@ -252,7 +261,7 @@ class ApplicationController extends AbstractController
                     'message' => 'User not authenticated.'
                 ], 401);
             }
-            
+
             $provider = $user->getProvider();
             if (!$provider) {
                 return $this->json([
@@ -260,7 +269,7 @@ class ApplicationController extends AbstractController
                     'message' => 'Provider not found.'
                 ], 400);
             }
-            
+
             $archivedCount = 0;
             $skippedCount = 0;
             $applicationRepo = $em->getRepository(Application::class);
@@ -291,7 +300,7 @@ class ApplicationController extends AbstractController
                         // Already archived, skip
                         $skippedCount++;
                     }
-                    
+
                     // Also ensure bookmark exists and is removed (if it exists)
                     // This ensures consistency with saved section behavior
                     $job = $application->getJob();
@@ -300,7 +309,7 @@ class ApplicationController extends AbstractController
                             'job' => $job,
                             'user' => $user
                         ]);
-                        
+
                         if ($bookmark) {
                             // Remove bookmark since it's now archived via application
                             $em->remove($bookmark);
@@ -344,7 +353,7 @@ class ApplicationController extends AbstractController
 
     #[Route('/delete', name: 'app_provider_applications_delete', methods: ['POST'])]
     public function deleteApplications(
-        Request $request, 
+        Request $request,
         EntityManagerInterface $em
     ): Response {
         $debugLog = "=== DELETE APPLICATIONS DEBUG ===\n";
@@ -352,7 +361,7 @@ class ApplicationController extends AbstractController
 
         $applicationIdsJson = $request->request->get('application_ids');
         $debugLog .= "Raw application_ids: " . $applicationIdsJson . "\n";
-        
+
         $applicationIds = json_decode($applicationIdsJson, true);
         $debugLog .= "Decoded application IDs: " . print_r($applicationIds, true) . "\n";
 
@@ -366,11 +375,11 @@ class ApplicationController extends AbstractController
         try {
             $user = $this->getUser();
             $provider = $user->getProvider();
-            
+
             if (!$provider) {
                 $debugLog .= "ERROR: Provider not found for user\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-                
+
                 if ($request->isXmlHttpRequest()) {
                     return new JsonResponse(['success' => false, 'message' => 'Provider not found.'], 401);
                 }
@@ -379,7 +388,7 @@ class ApplicationController extends AbstractController
             }
 
             // Convert string UUIDs to binary format
-            $uuidBinaries = array_map(function($id) {
+            $uuidBinaries = array_map(function ($id) {
                 return Uuid::fromString($id)->toBinary();
             }, $applicationIds);
 
@@ -396,7 +405,7 @@ class ApplicationController extends AbstractController
             if (empty($applications)) {
                 $debugLog .= "ERROR: No applications found with provider filter\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-                
+
                 if ($request->isXmlHttpRequest()) {
                     return new JsonResponse(['success' => false, 'message' => 'No applications found to delete or you do not have permission to delete them.'], 404);
                 }
@@ -407,10 +416,10 @@ class ApplicationController extends AbstractController
             $count = 0;
             foreach ($applications as $application) {
                 $debugLog .= "Processing application ID: " . $application->getId()->toRfc4122() . "\n";
-                
+
                 // Delete ALL related records from ALL dependent tables
                 $this->deleteAllApplicationDependencies($application, $em, $debugLog);
-                
+
                 $debugLog .= " - Deleting application\n";
                 $em->remove($application);
                 $count++;
@@ -420,25 +429,24 @@ class ApplicationController extends AbstractController
 
             $debugLog .= "SUCCESS: Deleted $count applications\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
                     'success' => true,
                     'message' => sprintf('Successfully removed %d application(s) from your list.', $count)
                 ]);
             }
-            
-            $this->addFlash('success', sprintf('Successfully removed %d application(s) from your list.', $count));
 
+            $this->addFlash('success', sprintf('Successfully removed %d application(s) from your list.', $count));
         } catch (\Exception $e) {
             $debugLog .= "EXCEPTION: " . $e->getMessage() . "\n";
             $debugLog .= "TRACE: " . $e->getTraceAsString() . "\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['success' => false, 'message' => 'An error occurred while deleting applications.'], 500);
             }
-            
+
             $this->addFlash('error', 'An error occurred while deleting applications.');
         }
 
@@ -449,14 +457,14 @@ class ApplicationController extends AbstractController
     {
         $connection = $em->getConnection();
         $applicationId = $application->getId()->toBinary();
-        
+
         // ALL tables that reference b_application (from your SQL query)
         $dependentTables = [
             'b_document_request',
-            'b_interview', 
+            'b_interview',
             'b_review'
         ];
-        
+
         // First handle Interview through Doctrine (since it's a OneToOne relationship)
         $interview = $application->getInterview();
         if ($interview) {
@@ -465,14 +473,14 @@ class ApplicationController extends AbstractController
             $em->remove($interview);
             $em->flush(); // Flush immediately
         }
-        
+
         // Delete from ALL other tables using raw SQL
         foreach ($dependentTables as $table) {
             // Skip interview if already handled via Doctrine
             if ($table === 'b_interview' && $interview) {
                 continue;
             }
-            
+
             try {
                 $deleteCount = $connection->executeStatement(
                     "DELETE FROM $table WHERE application_id = ?",
@@ -492,7 +500,7 @@ class ApplicationController extends AbstractController
     public function archiveBookmarks(Request $request, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
-        
+
         if (!$user) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['success' => false, 'message' => 'User not found.'], 401);
@@ -514,7 +522,7 @@ class ApplicationController extends AbstractController
 
         try {
             // Convert string UUIDs to binary format
-            $uuidBinaries = array_map(function($id) {
+            $uuidBinaries = array_map(function ($id) {
                 return Uuid::fromString($id)->toBinary();
             }, $bookmarkIds);
 
@@ -538,7 +546,7 @@ class ApplicationController extends AbstractController
             $applicationRepo = $em->getRepository(Application::class);
             $provider = $user->getProvider();
             $archivedCount = 0;
-            
+
             foreach ($bookmarks as $bookmark) {
                 $job = $bookmark->getJob();
                 if ($job) {
@@ -547,7 +555,7 @@ class ApplicationController extends AbstractController
                         'job' => $job,
                         'provider' => $provider
                     ]);
-                    
+
                     if ($application) {
                         // Archive existing application if not already archived
                         if (!$application->isArchived()) {
@@ -564,14 +572,14 @@ class ApplicationController extends AbstractController
                         $application->setEmployer($job->getEmployer());
                         $application->setStatus('saved');
                         $application->setRank($bookmark->getRank()); // Preserve the rank if any
-                        
+
                         // Immediately archive it
                         $application->archive();
                         $em->persist($application);
                         $archivedCount++;
                     }
                 }
-                
+
                 // Remove the bookmark (it will appear in archived jobs via the archived application)
                 $em->remove($bookmark);
             }
@@ -580,7 +588,7 @@ class ApplicationController extends AbstractController
 
             $count = count($bookmarks);
             $message = "$count job(s) archived successfully. They will appear in your archived jobs section.";
-                
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
                     'success' => true,
@@ -590,7 +598,6 @@ class ApplicationController extends AbstractController
 
             $this->addFlash('success', $message);
             return $this->redirectToRoute('app_provider_jobs_saved');
-
         } catch (\Exception $e) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
@@ -651,7 +658,7 @@ class ApplicationController extends AbstractController
         if (empty($bookmarkIds)) {
             $debugLog .= "ERROR: No bookmarks selected for deletion\n";
             file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
-            
+
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['success' => false, 'message' => 'No saved jobs selected for deletion.'], 400);
             }
@@ -661,7 +668,7 @@ class ApplicationController extends AbstractController
 
         try {
             $user = $this->getUser();
-            
+
             if (!$user) {
                 $debugLog .= "ERROR: User not found\n";
                 file_put_contents('delete_debug.log', $debugLog, FILE_APPEND);
@@ -673,7 +680,7 @@ class ApplicationController extends AbstractController
             }
 
             // Convert string UUIDs to binary format
-            $uuidBinaries = array_map(function($id) use (&$debugLog) {
+            $uuidBinaries = array_map(function ($id) use (&$debugLog) {
                 $uuid = Uuid::fromString($id);
                 $binary = $uuid->toBinary();
                 $debugLog .= "Converted: $id -> " . bin2hex($binary) . "\n";
@@ -721,7 +728,6 @@ class ApplicationController extends AbstractController
             }
 
             $this->addFlash('success', sprintf('Successfully removed %d saved job(s) from your list.', $count));
-
         } catch (\Exception $e) {
             $debugLog .= "EXCEPTION: " . $e->getMessage() . "\n";
             $debugLog .= "TRACE: " . $e->getTraceAsString() . "\n";
@@ -755,14 +761,14 @@ class ApplicationController extends AbstractController
         // Use raw SQL with UNHEX for proper UUID comparison (primary strategy)
         $job = $application->getJob();
         $providerUser = $provider->getUser();
-        
+
         $applicationIdStr = $application->getId()->toRfc4122();
         $jobIdStr = $job->getId()->toRfc4122();
         $providerUserIdStr = $providerUser->getId()->toRfc4122();
-        
+
         $messages = [];
         $conn = $em->getConnection();
-        
+
         // Use UNHEX to convert UUID strings to binary for MySQL comparison
         $sql = "
             SELECT m.id FROM b_message m 
@@ -780,7 +786,7 @@ class ApplicationController extends AbstractController
             )
             ORDER BY m.created_at ASC
         ";
-        
+
         $stmt = $conn->prepare($sql);
         $result = $stmt->executeQuery([
             'applicationId' => $applicationIdStr,
@@ -788,9 +794,9 @@ class ApplicationController extends AbstractController
             'receiverId' => $providerUserIdStr,
             'senderId' => $providerUserIdStr
         ]);
-        
+
         $rawMessageIds = $result->fetchFirstColumn();
-        
+
         // Convert binary UUIDs to Uuid objects and load entities
         if (!empty($rawMessageIds)) {
             foreach ($rawMessageIds as $binaryId) {
@@ -807,7 +813,7 @@ class ApplicationController extends AbstractController
                 }
             }
         }
-        
+
         // Fallback: Try Doctrine query if raw SQL didn't work
         if (empty($messages)) {
             $messages = $em->getRepository(\App\Entity\Message::class)->createQueryBuilder('m')
@@ -826,7 +832,7 @@ class ApplicationController extends AbstractController
             // or messages where provider is the sender (replies FROM provider TO employer)
             $isProviderReceiver = $msg->getReceiver() && $msg->getReceiver()->getId()->equals($providerUser->getId());
             $isProviderSender = $msg->getSender() && $msg->getSender()->getId()->equals($providerUser->getId());
-            
+
             // Include the message if provider is involved (either as sender or receiver)
             if ($isProviderReceiver || $isProviderSender) {
                 $messagesData[] = [
@@ -924,13 +930,13 @@ class ApplicationController extends AbstractController
             // Send email notification (non-blocking - don't fail if email fails)
             try {
                 $dispatcher->dispatch(new \App\Event\MessageEvent($reply), \App\Event\MessageEvent::MESSAGE_CREATED);
-                
+
                 // Send email
                 $employerEmail = $employerUser->getEmail();
                 if ($employerEmail) {
                     $providerEmail = $user->getEmail() ?? 'notifications@locumlancer.com';
                     $senderName = $user->getName() ?: $user->getEmail() ?: 'Provider';
-                    
+
                     // Try to use template, fallback to simple HTML if template doesn't exist
                     $emailBody = '';
                     try {
@@ -957,7 +963,7 @@ class ApplicationController extends AbstractController
                             </html>
                         ";
                     }
-                    
+
                     $email = (new \Symfony\Component\Mime\Email())
                         ->from($providerEmail)
                         ->to($employerEmail)
@@ -979,7 +985,7 @@ class ApplicationController extends AbstractController
             // Ensure we always return JSON, even for unexpected errors
             error_log('Error in replyToMessage: ' . $e->getMessage());
             error_log('Stack trace: ' . $e->getTraceAsString());
-            
+
             return $this->json([
                 'success' => false,
                 'message' => 'Error sending reply: ' . $e->getMessage()
@@ -987,4 +993,100 @@ class ApplicationController extends AbstractController
         }
     }
 
+
+
+
+    #[Route('/{id}/notify-hire', name: 'app_provider_application_notify_hire', methods: ['POST'])]
+    public function notifyHire(
+        Application $application,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $user = $this->getUser();
+        $provider = $user?->getProvider();
+
+        if (!$provider || $application->getProvider() !== $provider) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        if ($application->getStatus() !== Application::STATUS_ACCEPTED) {
+            $application->setStatus(Application::STATUS_ACCEPTED);
+            $em->persist($application);
+            $em->flush();
+        }
+
+        return $this->json(['success' => true, 'message' => 'Employer notified of acceptance.']);
+    }
+
+    #[Route('/{id}/upload-signed-contract', name: 'app_provider_application_upload_signed_contract', methods: ['POST'])]
+    public function uploadSignedContract(
+        Application $application,
+        Request $request,
+        EntityManagerInterface $em,
+        SluggerInterface $slugger,
+        EventDispatcherInterface $dispatcher,
+        #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
+    ): JsonResponse {
+        $user = $this->getUser();
+        $provider = $user?->getProvider();
+
+        if (!$provider || $application->getProvider() !== $provider) {
+            return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+
+        if (!$file instanceof UploadedFile) {
+            return $this->json(['success' => false, 'message' => 'No file uploaded'], 400);
+        }
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($originalFilename);
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+        try {
+            $userUploadDir = $uploadDirectory . '/' . $user->getId();
+            if (!file_exists($userUploadDir)) {
+                mkdir($userUploadDir, 0777, true);
+            }
+            $file->move($userUploadDir, $newFilename);
+        } catch (FileException $e) {
+            return $this->json(['success' => false, 'message' => 'File upload failed'], 500);
+        }
+
+        // Create Document for Signed Contract
+        $document = new Document();
+        $document->setUser($user);
+        $document->setApplication($application); // Link to application
+        $document->setFileName($newFilename);
+        $document->setMimeType($file->getClientMimeType());
+        $document->setCategory('Contract Letter'); // Use same category or specific 'Signed Contract'? 
+        // User request said: "candidate sends the signed offer letter back"
+        // Usually we distinguish signed from sent. But logic effectively is the same category, just different sender?
+        // Let's use 'Signed Contract' to be clear, or just 'Contract Letter' but it's from provider.
+        // The employer controller checks for 'Contract Letter' to show sent contracts.
+        // Let's call it 'Signed Contract' OR just rely on the fact it's uploaded by provider.
+        $document->setName('Signed Contract');
+        $document->setCategory('Signed Contract');
+
+        $em->persist($document);
+
+        // Update Application
+        $application->setContractSignedFileName($newFilename);
+        $application->setContractSignedAt(new \DateTime());
+
+        // Automatic trigger: Switch to Accepted
+        $application->setStatus(Application::STATUS_ACCEPTED);
+
+        $em->persist($application);
+        $em->flush();
+
+        // Dispatch event if needed
+        // $dispatcher->dispatch(new ApplicationEvent($application), ...);
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Signed contract uploaded and accepted.'
+        ]);
+    }
 }

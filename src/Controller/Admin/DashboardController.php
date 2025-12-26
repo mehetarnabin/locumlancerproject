@@ -21,6 +21,7 @@ class DashboardController extends AbstractController
         $totalProviders = $em->createQuery("SELECT count(p.id) as totalProviders FROM App\Entity\Provider p")->getSingleScalarResult();
         $totalEmployers = $em->createQuery("SELECT count(e.id) as totalEmployers FROM App\Entity\Employer e")->getSingleScalarResult();
         $totalJobs = $em->createQuery("SELECT count(j.id) as totalJobs FROM App\Entity\Job j")->getSingleScalarResult();
+        $totalRecruiters = $em->createQuery("SELECT count(r.id) as totalRecruiters FROM App\Entity\Recruiter r")->getSingleScalarResult();
         $totalApplications = $em->createQuery("SELECT count(a.id) as totalApplications FROM App\Entity\Application a")->getSingleScalarResult();
         $notifications = $em->getRepository(Notification::class)->findBy(['userType' => User::TYPE_ADMIN], ['id' => 'DESC'], 5);
 
@@ -28,6 +29,7 @@ class DashboardController extends AbstractController
             'totalProviders' => $totalProviders,
             'totalEmployers' => $totalEmployers,
             'totalJobs' => $totalJobs,
+            'totalRecruiters' => $totalRecruiters,
             'totalApplications' => $totalApplications,
             'notifications' => $notifications,
         ]);

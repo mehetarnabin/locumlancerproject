@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Recruiter;
 use App\Entity\Employer;
 use App\Entity\Provider;
 use App\Entity\User;
@@ -25,9 +26,7 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
+    public function __construct(private EmailVerifier $emailVerifier) {}
 
     #[Route('/register', name: 'app_register')]
     public function register(
@@ -36,8 +35,7 @@ class RegistrationController extends AbstractController
         Security $security,
         EntityManagerInterface $entityManager,
         MessageBusInterface $bus
-    ): Response
-    {
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -46,7 +44,7 @@ class RegistrationController extends AbstractController
             $userType = $user->getUserType();
             $user->setUserType($userType);
 
-            if($userType == User::TYPE_PROVIDER) {
+            if ($userType == User::TYPE_PROVIDER) {
                 $user->setRoles(['ROLE_PROVIDER']);
 
                 $provider = new Provider();
@@ -58,7 +56,19 @@ class RegistrationController extends AbstractController
                 $user->setProvider($provider);
             }
 
-            if($userType == User::TYPE_EMPLOYER) {
+            if ($userType == User::TYPE_RECRUITER) {
+                $user->setRoles(['ROLE_RECRUITER']);
+
+                $recruiter = new Recruiter();
+                $recruiter->setCompanyName($user->getName() . ' Agency'); // Default company name
+                $recruiter->setUser($user);
+
+                $entityManager->persist($recruiter);
+
+                $user->setRecruiter($recruiter);
+            }
+
+            if ($userType == User::TYPE_EMPLOYER) {
                 $user->setRoles(['ROLE_EMPLOYER']);
 
                 $employer = new Employer();
@@ -82,9 +92,9 @@ class RegistrationController extends AbstractController
 
             $bus->dispatch(new SendVerificationMessage($user->getId()));
 
-//            return $security->login($user, AppUserAuthenticator::class, 'main');
+            return $security->login($user, AppUserAuthenticator::class, 'main');
 
-            return $this->redirectToRoute('app_register_check_email');
+            //            return $this->redirectToRoute('app_register_check_email');
         }
 
         return $this->render('registration/register.html.twig', [

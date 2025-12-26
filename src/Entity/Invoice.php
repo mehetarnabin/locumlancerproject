@@ -24,6 +24,9 @@ class Invoice
     #[ORM\ManyToOne]
     private ?Employer $employer = null;
 
+    #[ORM\ManyToOne(inversedBy: 'invoices')]
+    private ?Recruiter $recruiter = null;
+
     #[ORM\ManyToOne]
     private ?Provider $provider = null;
 
@@ -57,6 +60,16 @@ class Invoice
     public function setEmployer(?Employer $employer): void
     {
         $this->employer = $employer;
+    }
+
+    public function getRecruiter(): ?Recruiter
+    {
+        return $this->recruiter;
+    }
+
+    public function setRecruiter(?Recruiter $recruiter): void
+    {
+        $this->recruiter = $recruiter;
     }
 
     public function getProvider(): ?Provider

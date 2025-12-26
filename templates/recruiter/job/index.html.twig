@@ -1,0 +1,757 @@
+{% extends 'recruiter/base.html.twig' %}
+
+{% block title %}Jobs{% endblock %}
+
+{% block employer_body %}
+<style>
+/* Override parent container padding */
+.app-content {
+    padding: 32px 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
+/* Override any container padding */
+.container-xl,
+.container-fluid,
+.container,
+.app-wrapper {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 100% !important;
+}
+
+@media (max-width: 1199.98px) {
+    .app-content {
+        padding: 24px 0 !important;
+    }
+    
+    .container-xl,
+    .container-fluid,
+    .container,
+    .app-wrapper {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+}
+
+/* Job table styling matching invoice table design */
+.job-section {
+    background-color: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+.job-header, .job-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sticky-header-container {
+    position: sticky !important;
+    top: 0 !important;
+    background-color: #fff !important;
+    z-index: 100 !important;
+    overflow: visible !important;
+    width: 100% !important;
+}
+
+.job-header {
+    padding: 12px 14px;
+    color: #121C0C;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    height: 40px;
+    margin-bottom: 8px !important;
+    font-size: 13px;
+    font-weight: 600;
+    position: relative !important;
+    background-color: #f5f5f5 !important;
+}
+
+.job-row {
+    border: 1px solid #e0e0e0;
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 6px 0;
+    font-size: 12px;
+    border-radius: 8px;
+    background: #f5f5f5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    min-height: 50px;
+    height: auto;
+    transition: all 0.2s ease;
+}
+
+.job-row:nth-child(even) {
+    background: #f5f5f5;
+}
+
+.job-row:hover {
+    background-color: #eeeeee;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.job-header > div,
+.job-row > div {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+/* Ensure consistent vertical alignment */
+.job-header {
+    min-height: 40px;
+    height: 40px;
+}
+
+.job-header > div {
+    min-height: 40px;
+    height: 40px;
+}
+
+.job-row > div {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+.col-job,
+.col-location,
+.col-schedule,
+.col-expiry,
+.col-start,
+.col-action {
+    flex: 1;
+    min-width: 130px;
+}
+.col-job {
+    flex: 2;
+}
+
+.truncate-text {
+    display: inline-block;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.job-section {
+    background-color: #fff;
+}
+
+.table-responsive-wrapper {
+    margin-bottom: 0 !important;
+    margin-top: 16px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.job-list-container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding: 0 1rem 1rem 1rem;
+    padding-right: 1rem !important;
+}
+
+.job-list-container .job-lists:first-child .job-row,
+.job-list-container > .job-lists:first-of-type .job-row,
+.job-list-container .job-lists:first-child {
+    margin-top: 0 !important;
+}
+
+/* Checkbox styling */
+.col-check input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cfd9e3;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.col-check input[type="checkbox"]:hover {
+    border-color: #85BB65;
+    background-color: #f7fef4;
+}
+
+.col-check input[type="checkbox"]:checked {
+    background-color: #85BB65;
+    border-color: #85BB65;
+}
+
+.col-check input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%) rotate(45deg);
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    box-sizing: border-box;
+}
+
+.col-check {
+    width: 30px !important;
+    flex-shrink: 0 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.col-center {
+    text-align: center;
+}
+
+.job-title {
+    color: #000000;
+}
+
+.job-meta {
+    color: #666666;
+}
+
+.icon-image {
+    width: 25px;
+}
+
+.icon-jobsearch path {
+    fill: #121C0C;
+}
+
+.app-utility-item a:hover .icon-jobsearch path {
+    fill: #85BB65;
+}
+
+.app-utility-item a {
+    padding: 2px 3px;
+    border-radius: 8px;
+}
+
+.app-utility-item a:hover {
+    background: #f7fef4;
+}
+
+.badge.badge-pill {
+    background: none;
+    animation: colorChange 1s infinite alternate;
+    font-weight: 400 !important;
+}
+
+@keyframes colorChange {
+    0% {
+        color: #0096B8;
+    }
+    100% {
+        color: #33DAFF;
+    }
+}
+
+.app-page-title {
+    color: #000000;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 32px 4px;
+}
+
+/* Action button styles - match application index */
+.action-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #121C0C;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.action-btn:hover {
+    color: #85BB65;
+    border-color: #85BB65;
+    background: #F4F9F1;
+}
+
+.action-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+
+.action-btn .icon-image {
+    width: 18px;
+    height: 18px;
+}
+
+/* Actions container styles */
+.actions-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+    padding-left: 15px;
+    padding-right: 15px;
+    white-space: nowrap;
+    overflow-y: visible !important;
+    overflow-x: visible;
+    position: relative;
+    z-index: 100 !important;
+    flex-wrap: wrap;
+    pointer-events: auto !important;
+    width: 100%;
+}
+
+.job-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.job-actions-middle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 0 auto;
+}
+
+.job-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+/* Create new button - primary style */
+.create-new-btn {
+    background: #85BB65;
+    border: 1px solid #85BB65;
+    color: #fff;
+    font-weight: 500;
+}
+
+.create-new-btn:hover {
+    background: #6fa852;
+    border-color: #6fa852;
+    color: #fff;
+}
+
+.create-new-btn svg,
+.create-new-btn .icon-image {
+    stroke: #fff;
+    fill: #fff;
+}
+
+/* Table responsive wrapper */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 0;
+    padding: 0 1rem 1rem 1rem !important;
+}
+
+/* Checkbox column styling */
+.col-check {
+    width: 30px !important;
+    flex-shrink: 0 !important;
+    padding: 0 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.job-check {
+    margin-right: 0;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #85BB65;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.job-check:checked {
+    background-color: #85BB65;
+    border-color: #85BB65;
+}
+
+.job-check:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.job-check:hover {
+    border-color: #85BB65;
+}
+
+/* Action buttons that work on selected items */
+.action-btn:disabled,
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Hide action buttons by default - show only when job is selected */
+.job-actions-left,
+.job-actions-middle,
+.job-actions-right {
+    display: none;
+}
+
+.job-actions-left.has-selection,
+.job-actions-middle.has-selection,
+.job-actions-right.has-selection {
+    display: flex;
+}
+</style>
+
+    {% set statusColors = {
+        'draft': 'applied',
+        'published': 'interview',
+        'paused': 'review',
+        'closed': 'rejected'
+    } %}
+
+    {% set transitionColors = {
+        'publish': 'success',
+        'resume': 'success',
+        'pause': 'warning',
+        'close': 'danger'
+    } %}
+
+    <div class="container-xl">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="app-page-title">Jobs</h1>
+            <a href="{{ path('app_recruiter_job_new') }}" class="action-btn create-new-btn" title="Create New Job">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Create New Job
+            </a>
+        </div>
+
+        <div class="job-section">
+            <div class="job-list-container bg-light rounded-3" style="padding: 0 1rem 1rem 1rem;">
+                <div class="actions-container">
+                    <!-- Left Group: 2 buttons -->
+                    <div class="job-actions-left">
+                        <button type="button" class="action-btn" id="edit-job-btn" title="Edit" disabled onclick="handleEditSelected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Edit
+                        </button>
+                        <button type="button" class="action-btn" id="applications-btn" title="View Applications" disabled onclick="handleViewApplications()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Applications
+                        </button>
+                    </div>
+                    
+                    <!-- Middle Group: 2 buttons -->
+                    <div class="job-actions-middle">
+                        <button type="button" class="action-btn" id="pause-job-btn" title="Pause" disabled onclick="handlePauseSelected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="6" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="14" y="4" width="4" height="16" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Pause
+                        </button>
+                        <button type="button" class="action-btn" id="publish-job-btn" title="Publish" disabled onclick="handlePublishSelected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Publish
+                        </button>
+                    </div>
+                    
+                    <!-- Right Group: 2 buttons -->
+                    <div class="job-actions-right">
+                        <button type="button" class="action-btn" id="close-job-btn" title="Close" disabled onclick="handleCloseSelected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 7h18M7 3v4M17 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Close
+                        </button>
+                        <button type="button" class="action-btn" id="delete-job-btn" title="Delete" disabled onclick="handleDeleteSelected()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+                {% if jobs|length > 0 %}
+                <div class="table-responsive-wrapper" style="overflow-x: auto; width: 100%; margin-top: 16px; margin-bottom: 0; padding: 0 1rem 0 1rem !important;">
+                    <div class="d-flex align-items-center job-lists">
+                        <div class="d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0;">
+                            <div class="job-header d-flex align-items-center fw-semibold py-2 flex-grow-1" style="width: 100%; min-width: 0; gap: 0; padding: 2px 14px 2px 0 !important; box-sizing: border-box !important;">
+                                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">
+                                </div>
+                                <div class="col-job" style="flex: 2; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; color: #121C0C; font-weight: 600;">Job</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; color: #121C0C; font-weight: 600;">Profession</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; text-align: left; color: #121C0C; font-weight: 600;">Speciality</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; color: #121C0C; font-weight: 600;">Status</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; color: #121C0C; font-weight: 600;">Verified</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; color: #121C0C; font-weight: 600;">Created At</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="job-list-container bg-light rounded-3" style="margin-top: 0 !important; padding-top: 0 !important; padding: 0 1rem 1rem 1rem; padding-right: 1rem !important;">
+                    {% for job in jobs %}
+                        <div class="d-flex align-items-center job-lists">
+                            <div class="job-row d-flex align-items-center flex-grow-1" style="width: 100%; min-width: 0; gap: 0; box-sizing: border-box !important;">
+                                <div class="col-check" style="width: 30px; flex-shrink: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center;">
+                                    <input type="checkbox" class="job-check job-checkbox" 
+                                           data-job-id="{{ job.id }}" 
+                                           data-job-status="{{ job.status }}"
+                                           data-edit-url="{{ path('app_recruiter_job_edit', {'id': job.id}) }}"
+                                           data-applications-url="{{ path('app_recruiter_job_applications', {'id': job.id, 'splitView': 'true'}) }}"
+                                           data-delete-url="{{ path('app_recruiter_job_delete', {'id': job.id}) }}"
+                                           {% for transition in jobTransitions[job.id.toString()] %}
+                                               data-{{ transition }}-url="{{ path('app_recruiter_job_transition', {id: job.id, transition: transition}) }}"
+                                           {% endfor %}
+                                    />
+                                </div>
+                                <div class="col-job d-flex align-items-center gap-2" style="flex: 2; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">
+                                    <img src="{{ job.companyLogo|default(asset('assets/icons/job.png')) }}"
+                                         alt="Logo"
+                                         style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0;"
+                                         onerror="this.src='{{ asset('assets/icons/job.png') }}'" />
+                                    <div style="min-width: 0; overflow: hidden; text-align: left;">
+                                        <a class="job-title truncate-text d-block fw-semibold text-decoration-none"
+                                           href="{{ path('app_recruiter_job_show', {'id': job.id}) }}"
+                                           style="color: #121C0C; text-decoration: none; font-weight: 500;">
+                                            {{ job.title }}
+                                        </a>
+                                        <div class="job-meta small" style="font-size: 11px; color: #666666; margin-top: 2px; text-align: left;">
+                                            ID: {{ job.jobId }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">{{ job.profession }}</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; font-size: 12px;">{{ job.speciality }}</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                    <span class="badge badge-pill is-{{ statusColors[job.status] ?? 'dark' }}">
+                                        {{ job.status|capitalize }}
+                                    </span>
+                                </div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.verified ? 'YES' : 'NO' }}</div>
+                                <div class="col-start" style="flex: 1; min-width: 0; padding: 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px;">{{ job.createdAt ? job.createdAt|date('m/d/Y') : '—' }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <div class="d-flex align-items-center job-lists">
+                        <div class="job-row d-flex align-items-center flex-grow-1">
+                            <div class="col-12 text-center py-4">
+                                <p class="text-muted mb-0">No records found</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if jobs.nbPages is defined and jobs.nbPages > 1 %}
+            <div class="col-12 mt-4">
+                {{ pagerfanta(jobs, 'twitter_bootstrap5') }}
+            </div>
+        {% endif %}
+
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.job-checkbox');
+    const actionButtons = {
+        edit: document.getElementById('edit-job-btn'),
+        applications: document.getElementById('applications-btn'),
+        pause: document.getElementById('pause-job-btn'),
+        publish: document.getElementById('publish-job-btn'),
+        close: document.getElementById('close-job-btn'),
+        delete: document.getElementById('delete-job-btn')
+    };
+
+    function updateActionButtons() {
+        const selectedJobs = Array.from(checkboxes).filter(cb => cb.checked);
+        const hasSelection = selectedJobs.length > 0;
+        const singleSelection = selectedJobs.length === 1;
+        const selectedJob = singleSelection ? selectedJobs[0] : null;
+        const selectedStatus = selectedJob ? selectedJob.dataset.jobStatus : null;
+
+        // Show/hide button groups based on selection
+        const leftGroup = document.querySelector('.job-actions-left');
+        const middleGroup = document.querySelector('.job-actions-middle');
+        const rightGroup = document.querySelector('.job-actions-right');
+
+        if (hasSelection) {
+            leftGroup.classList.add('has-selection');
+            middleGroup.classList.add('has-selection');
+            rightGroup.classList.add('has-selection');
+        } else {
+            leftGroup.classList.remove('has-selection');
+            middleGroup.classList.remove('has-selection');
+            rightGroup.classList.remove('has-selection');
+        }
+
+        // Enable/disable buttons based on selection
+        actionButtons.edit.disabled = !singleSelection;
+        actionButtons.applications.disabled = !singleSelection;
+        actionButtons.delete.disabled = !hasSelection;
+
+        // Status-specific buttons
+        if (singleSelection && selectedStatus) {
+            actionButtons.pause.disabled = selectedStatus !== 'published';
+            actionButtons.publish.disabled = selectedStatus !== 'draft' && selectedStatus !== 'paused';
+            actionButtons.close.disabled = selectedStatus === 'closed';
+        } else {
+            actionButtons.pause.disabled = true;
+            actionButtons.publish.disabled = true;
+            actionButtons.close.disabled = true;
+        }
+    }
+
+    // Add event listeners to checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateActionButtons);
+    });
+
+    // Select all checkbox functionality (if needed)
+    const selectAllCheckbox = document.querySelector('.select-all-checkbox');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateActionButtons();
+        });
+    }
+
+    // Initialize button states
+    updateActionButtons();
+});
+
+function getSelectedJobIds() {
+    return Array.from(document.querySelectorAll('.job-checkbox:checked')).map(cb => cb.dataset.jobId);
+}
+
+function handleEditSelected() {
+    const selected = document.querySelector('.job-checkbox:checked');
+    if (selected && selected.dataset.editUrl) {
+        window.location.href = selected.dataset.editUrl;
+    }
+}
+
+function handleViewApplications() {
+    const selected = document.querySelector('.job-checkbox:checked');
+    if (selected && selected.dataset.applicationsUrl) {
+        window.location.href = selected.dataset.applicationsUrl;
+    }
+}
+
+function handlePauseSelected() {
+    const selected = document.querySelectorAll('.job-checkbox:checked');
+    if (selected.length > 0 && confirm('Are you sure you want to pause the selected job(s)?')) {
+        const url = selected[0].dataset.pauseUrl;
+        if (url) {
+            window.location.href = url;
+        }
+    }
+}
+
+function handlePublishSelected() {
+    const selected = document.querySelectorAll('.job-checkbox:checked');
+    if (selected.length > 0 && confirm('Are you sure you want to publish the selected job(s)?')) {
+        const url = selected[0].dataset.publishUrl;
+        if (url) {
+            window.location.href = url;
+        }
+    }
+}
+
+function handleCloseSelected() {
+    const selected = document.querySelectorAll('.job-checkbox:checked');
+    if (selected.length > 0 && confirm('Are you sure you want to close the selected job(s)?')) {
+        const url = selected[0].dataset.closeUrl;
+        if (url) {
+            window.location.href = url;
+        }
+    }
+}
+
+function handleDeleteSelected() {
+    const selected = document.querySelectorAll('.job-checkbox:checked');
+    if (selected.length > 0 && confirm('Are you sure? Do you want to delete the selected job(s)?')) {
+        const deleteUrl = selected[0].dataset.deleteUrl;
+        if (deleteUrl) {
+            if (confirm('This action cannot be undone. Are you absolutely sure?')) {
+                window.location.href = deleteUrl;
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

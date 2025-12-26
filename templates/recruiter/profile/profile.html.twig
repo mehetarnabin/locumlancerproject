@@ -1,0 +1,1459 @@
+{% extends 'recruiter/base.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block employer_body %}
+<style>
+/* Profile card styles matching provider design */
+.profile-card, .section-card, .profile-right-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: none !important;
+  border: none !important;
+}
+
+.profile-card:hover,
+.section-card:hover,
+.profile-right-card:hover {
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06) !important;
+  transform: none !important;
+  background: #fff !important;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  color: #000000;
+}
+
+.profile-avatar-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #85BB65;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-icon-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+}
+
+.info-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.info-item:hover {
+  background: #F4F9F1 !important;
+  box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.info-value {
+  font-size: 0.9375rem;
+  color: #000;
+  font-weight: 400;
+}
+
+.history-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.history-item:hover {
+  background: #F4F9F1 !important;
+  box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.history-item:last-child {
+  margin-bottom: 0;
+}
+
+.history-label {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.history-value {
+  font-size: 0.9375rem;
+  color: #000;
+  font-weight: 400;
+}
+
+.quick-link-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #e6eef6;
+}
+
+.quick-link-item:last-child {
+  border-bottom: none;
+}
+
+.quick-link-item a {
+  color: #000;
+  text-decoration: none;
+  font-size: 0.9375rem;
+  display: block;
+  transition: color 0.2s;
+}
+
+.quick-link-item a:hover {
+  color: #85BB65;
+}
+
+.section-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6B7280;
+  font-size: 0.9375rem;
+}
+
+/* Share & Quick Links styling */
+.upload-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.upload-btn-custom {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #F4F9F1;
+  border: 1px solid #85BB65;
+  box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+  text-decoration: none;
+  color: #000000;
+  transition: all 0.2s ease;
+}
+
+.upload-btn-custom:hover {
+  background: #E8F5E3;
+  border-color: #6FA050;
+  color: #000000;
+  text-decoration: none;
+}
+
+.upload-btn-custom .cstm-btn-text {
+  flex: 1;
+  color: #000000;
+}
+
+/* Documents and Work Preferences buttons */
+.documents-view-btn {
+  background: #85BB65 !important;
+  border: 2px solid #85BB65 !important;
+  color: #ffffff !important;
+  padding: 10px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.documents-view-btn:hover {
+  background: #6FA050 !important;
+  border-color: #6FA050 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(133, 187, 101, 0.2) !important;
+}
+
+/* Card header row */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.link-plain {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #000000;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.link-plain:hover {
+  color: #85BB65;
+}
+
+/* Ensure proper flex layout */
+.row.g-4 > .col-12.col-md-4 {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.row.g-4 > .col-12.col-md-4 > .card {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  height: 100% !important;
+}
+
+.app-card-settings {
+  border: none;
+  background: #fff;
+  margin-bottom: 0;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-card-settings .card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Profile Edit Mode Styles */
+#infoEdit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+#infoEdit .info-item {
+  padding: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+
+#infoEdit .info-item .d-flex {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#infoEdit .info-item .d-flex .form-control,
+#infoEdit .info-item .form-control,
+#infoEdit .form-control,
+#infoEdit select.form-control {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  font-size: 0.875rem;
+  border: 1px solid #e6eef6;
+  border-radius: 6px;
+  background: #fff;
+  color: #000;
+  line-height: 1.4;
+}
+
+#infoEdit select.form-control {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+}
+
+#infoEdit .info-item svg {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+#infoEdit .d-flex.gap-2 {
+  gap: 8px !important;
+  width: 100%;
+  align-items: center;
+}
+
+#infoEdit label.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+#infoEdit label.btn input[type="file"] {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+}
+
+#infoEdit .info-item {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+#infoEdit .form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #000;
+  font-size: 0.875rem;
+}
+
+#infoEdit .info-item .d-flex {
+  width: 100%;
+  align-items: center;
+}
+
+#personalSection {
+  position: relative;
+}
+</style>
+
+<div class="container-xl">
+  <div class="row mt-4">
+    <div class="col-12 col-lg-8">
+      <div class="row g-4">
+        {# Personal Information card - Full Width #}
+        <div class="col-12 d-flex flex-column mb-5">
+          <div id="personalSection" class="profile-card" style="position: relative; min-height: auto; padding: 32px; overflow: visible; box-sizing: border-box; display: flex; flex-direction: column;">
+            {# View Mode #}
+            <div id="infoView" style="position: relative; width: 100%; padding: 0; box-sizing: border-box; overflow: visible;">
+              <div class="d-flex justify-content-between align-items-center mb-4" style="margin-top: 0; padding-top: 0;">
+                <h5 class="card-title mb-0" style="font-size: 1.25rem; font-weight: 600;">Personal Information</h5>
+                <div id="actionIcons">
+                  <button type="button" id="editToggle" class="link-plain" title="Edit" style="background: none; border: none; padding: 0; cursor: pointer;">
+                    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3 align-items-center" style="margin-bottom: 24px; margin-top: 16px;">
+                <div class="profile-avatar-box" style="width: 120px; height: 120px; border: 3px solid #85BB65;">
+                  <div class="profile-icon-box">
+                    {% if user.profilePictureFilename %}
+                      <img id="profileAvatarView" src="{{ asset('uploads/' ~ user.id ~ '/' ~ user.profilePictureFilename) }}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                    {% else %}
+                      <img id="profileAvatarView" src="{{ asset('assets/admin/images/user.png') }}" alt="profile" style="width:60%;height:60%;object-fit:contain;">
+                    {% endif %}
+                  </div>
+                </div>
+                <div style="flex:1;">
+                  <div class="fw-semibold" style="color: #000000; font-size: 1.5rem; font-weight: 600;">{{ user.name }}</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; min-height: 0;">
+                    <!-- Name - Full Width -->
+                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box; overflow: hidden;">
+                      <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.nickname ?: 'No nickname provided' }}</div>
+                      </div>
+                    </div>
+
+                    <!-- Row 1: Email | Phone -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="style=stroke">
+                            <g id="email">
+                            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
+                            </g>
+                            </g>
+                            </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.email ?: 'No email provided' }}</div>
+                  </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                            <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
+                        </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.phone1 ?: 'No phone provided' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                    </div>
+
+                    <!-- Row 2: Company Name | Contact Person Name -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
+                            </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ recruiter.companyName ?: 'No company name provided' }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.name ?: 'No contact person provided' }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 3: Contact Email | Gender -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="style=stroke">
+                            <g id="email">
+                            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
+                            </g>
+                            </g>
+                            </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.email ?: 'No contact email provided' }}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.gender ?: 'No gender provided' }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 4: Phone2 | Address -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                          <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
+                        </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.phone2 ?: 'No phone2 provided' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                          <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
+                        </svg>
+                            <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;">{{ user.address ?: 'No address provided' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                    {# Website not currently supported for recruiters #}
+                    {# {% if employer.website %} ... {% endif %} #}
+              </div>
+            </div>
+
+            {# Edit Mode #}
+            <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%; padding: 12px; box-sizing: border-box; overflow: visible; z-index: 10; background: #fff;">
+              <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 8px; flex-shrink: 0;">
+                <h6 class="card-title mb-0" style="font-size: 0.95rem; margin: 0;">Personal Information</h6>
+                <button type="button" id="cancelBtn" class="link-plain" title="Cancel" style="background: none; border: none; padding: 0; cursor: pointer;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              {{ form_start(profileForm, {'attr': {'id': 'profileForm', 'enctype': 'multipart/form-data', 'style': 'flex: 1; display: flex; flex-direction: column; overflow: hidden;'}}) }}
+              {{ form_errors(profileForm) }}
+
+              <div class="d-flex gap-2 align-items-center" style="margin-bottom: 8px; flex-shrink: 0;">
+                <div class="profile-avatar-box" style="width: 60px; height: 60px;">
+                  <div class="profile-icon-box">
+                    <img id="profileAvatarEdit" src="{% if user.profilePictureFilename %}{{ asset('uploads/' ~ user.id ~ '/' ~ user.profilePictureFilename) }}{% else %}{{ asset('assets/admin/images/user.png') }}{% endif %}" alt="profile" style="width:100%;height:100%;object-fit:cover;">
+                  </div>
+                </div>
+                <div style="flex:1;">
+                  {{ form_widget(profileForm.name, {'attr': {'class': 'form-control', 'style': 'font-size: 1rem; font-weight: 600; padding: 5px 8px;'}}) }}
+                </div>
+                <div>
+                  {{ form_widget(profileForm.profilePictureFilename, {'attr': {'id': 'profilePictureInput', 'class': 'd-none', 'accept': 'image/*', 'onchange': 'previewProfileImage(this)'}}) }}
+                  <label for="profilePictureInput" class="btn btn-sm" style="background: #85BB65; color: #fff; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer; margin: 0; white-space: nowrap;">
+                    Photo
+                  </label>
+                </div>
+              </div>
+
+              <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; min-height: 0;">
+                    <!-- Nickname -->
+                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box; overflow: hidden;">
+                      <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                        <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          {{ form_widget(profileForm.nickname, {'attr': {'class': 'form-control', 'placeholder': 'Nickname', 'style': 'padding: 5px 8px; font-size: 0.85rem;'}}) }}
+                        </div>
+                      </div>
+
+                    <!-- Row 1: Email | Phone -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                        <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="style=stroke">
+                            <g id="email">
+                            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
+                            </g>
+                            </g>
+                          </svg>
+                          {{ form_widget(profileForm.email, {'attr': {'class': 'form-control', 'style': 'padding: 5px 8px; font-size: 0.85rem;'}}) }}
+                        </div>
+                      </div>
+                    </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                        <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                            <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
+                            </svg>
+                            {{ form_widget(profileForm.phone1, {'attr': {'class': 'form-control', 'style': 'padding: 5px 8px; font-size: 0.85rem;'}}) }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 2: Company Name | Contact Person Name -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
+                          </svg>
+                          <input type="text" name="companyName" value="{{ recruiter.companyName }}" class="form-control" placeholder="Company Name" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                        </div>
+                      </div>
+                    </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                        <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <input type="text" name="contactPersonName" value="{{ user.name }}" class="form-control" placeholder="Contact Person Name" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 3: Contact Email | Gender -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="style=stroke">
+                            <g id="email">
+                            <path id="vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M3.88534 5.2371C3.20538 5.86848 2.75 6.89295 2.75 8.5V15.5C2.75 17.107 3.20538 18.1315 3.88534 18.7629C4.57535 19.4036 5.61497 19.75 7 19.75H17C18.385 19.75 19.4246 19.4036 20.1147 18.7629C20.7946 18.1315 21.25 17.107 21.25 15.5V8.5C21.25 6.89295 20.7946 5.86848 20.1147 5.2371C19.4246 4.59637 18.385 4.25 17 4.25H7C5.61497 4.25 4.57535 4.59637 3.88534 5.2371ZM2.86466 4.1379C3.92465 3.15363 5.38503 2.75 7 2.75H17C18.615 2.75 20.0754 3.15363 21.1353 4.1379C22.2054 5.13152 22.75 6.60705 22.75 8.5V15.5C22.75 17.393 22.2054 18.8685 21.1353 19.8621C20.0754 20.8464 18.615 21.25 17 21.25H7C5.38503 21.25 3.92465 20.8464 2.86466 19.8621C1.79462 18.8685 1.25 17.393 1.25 15.5V8.5C1.25 6.60705 1.79462 5.13152 2.86466 4.1379Z" fill="#000000"></path>
+                            <path id="vector (Stroke)_2" fill-rule="evenodd" clip-rule="evenodd" d="M19.3633 7.31026C19.6166 7.63802 19.5562 8.10904 19.2285 8.3623L13.6814 12.6486C12.691 13.4138 11.3089 13.4138 10.3185 12.6486L4.77144 8.3623C4.44367 8.10904 4.38328 7.63802 4.63655 7.31026C4.88982 6.98249 5.36083 6.9221 5.6886 7.17537L11.2356 11.4616C11.6858 11.8095 12.3141 11.8095 12.7642 11.4616L18.3113 7.17537C18.6391 6.9221 19.1101 6.98249 19.3633 7.31026Z" fill="#000000"></path>
+                            </g>
+                            </g>
+                            </svg>
+                            <input type="email" name="contactEmail" value="{{ user.email }}" class="form-control" placeholder="Contact Email" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="7" r="4" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <select name="gender" class="form-control" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                              <option value="">Select Gender</option>
+                              <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                              <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                              <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Row 4: Phone2 | Address -->
+                    <div class="row g-2" style="margin-bottom: 6px; margin-left: 0; margin-right: 0;">
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 6px;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.7177 3.0919C5.94388 1.80096 7.9721 2.04283 8.98569 3.47641L10.2467 5.25989C11.0574 6.40656 10.9889 8.00073 10.0214 9.0194L9.7765 9.27719C9.77582 9.27897 9.7751 9.2809 9.77436 9.28299C9.76142 9.31935 9.7287 9.43513 9.7609 9.65489C9.82765 10.1104 10.1793 11.0361 11.607 12.5392C13.0391 14.0469 13.9078 14.4023 14.3103 14.4677C14.484 14.4959 14.5748 14.4714 14.6038 14.4612L15.0124 14.031C15.8862 13.111 17.2485 12.9298 18.347 13.5621L20.2575 14.6617C21.8904 15.6016 22.2705 17.9008 20.9655 19.2747L19.545 20.7703C19.1016 21.2371 18.497 21.6355 17.75 21.7092C15.9261 21.8893 11.701 21.6548 7.27161 16.9915C3.13844 12.64 2.35326 8.85513 2.25401 7.00591L2.92011 6.97016L2.25401 7.00591C2.20497 6.09224 2.61224 5.30855 3.1481 4.7444L4.7177 3.0919ZM7.7609 4.34237C7.24855 3.61773 6.32812 3.57449 5.80528 4.12493L4.23568 5.77743C3.90429 6.12632 3.73042 6.52621 3.75185 6.92552C3.83289 8.43533 4.48307 11.8776 8.35919 15.9584C12.4234 20.2373 16.1676 20.3581 17.6026 20.2165C17.8864 20.1885 18.1783 20.031 18.4574 19.7373L19.8779 18.2417C20.4907 17.5965 20.3301 16.4342 19.5092 15.9618L17.5987 14.8621C17.086 14.567 16.4854 14.6582 16.1 15.064L15.6445 15.5435L15.1174 15.0428C15.6445 15.5435 15.6438 15.5442 15.6432 15.545L15.6417 15.5464L15.6388 15.5495L15.6324 15.556L15.6181 15.5701C15.6078 15.5801 15.5959 15.591 15.5825 15.6028C15.5556 15.6264 15.5223 15.6533 15.4824 15.6816C15.4022 15.7384 15.2955 15.8009 15.1606 15.8541C14.8846 15.963 14.5201 16.0214 14.0699 15.9483C13.1923 15.8058 12.0422 15.1755 10.5194 13.5722C8.99202 11.9642 8.40746 10.7645 8.27675 9.87234C8.21022 9.41827 8.26346 9.05468 8.36116 8.78011C8.40921 8.64508 8.46594 8.53742 8.51826 8.45566C8.54435 8.41489 8.56922 8.38075 8.5912 8.35298C8.60219 8.33909 8.61246 8.32678 8.62182 8.31603L8.63514 8.30104L8.64125 8.29441L8.64415 8.2913L8.64556 8.2898C8.64625 8.28907 8.64694 8.28835 9.17861 8.79333L8.64695 8.28834L8.93376 7.98637C9.3793 7.51731 9.44403 6.72292 9.02189 6.12586L7.7609 4.34237Z" fill="#000000"/>
+                            <path d="M13.2595 1.87983C13.3257 1.47094 13.7122 1.19357 14.1211 1.25976C14.1464 1.26461 14.2279 1.27983 14.2705 1.28933C14.3559 1.30834 14.4749 1.33759 14.6233 1.38082C14.9201 1.46726 15.3347 1.60967 15.8323 1.8378C16.8286 2.29456 18.1544 3.09356 19.5302 4.46936C20.906 5.84516 21.705 7.17097 22.1617 8.16725C22.3899 8.66487 22.5323 9.07947 22.6187 9.37625C22.6619 9.52466 22.6912 9.64369 22.7102 9.72901C22.7197 9.77168 22.7267 9.80594 22.7315 9.83125L22.7373 9.86245C22.8034 10.2713 22.5286 10.6739 22.1197 10.7401C21.712 10.8061 21.3279 10.53 21.2601 10.1231C21.258 10.1121 21.2522 10.0828 21.2461 10.0551C21.2337 9.9997 21.2124 9.91188 21.1786 9.79572C21.1109 9.56339 20.9934 9.21806 20.7982 8.79238C20.4084 7.94207 19.7074 6.76789 18.4695 5.53002C17.2317 4.29216 16.0575 3.59117 15.2072 3.20134C14.7815 3.00618 14.4362 2.88865 14.2038 2.82097C14.0877 2.78714 13.9417 2.75363 13.8863 2.7413C13.4793 2.67347 13.1935 2.28755 13.2595 1.87983Z" fill="#000000"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.4861 5.32931C13.5999 4.93103 14.015 4.70041 14.4133 4.81421L14.2072 5.53535C14.4133 4.81421 14.4136 4.81431 14.414 4.81441L14.4147 4.81462L14.4162 4.81506L14.4196 4.81604L14.4273 4.81835L14.4471 4.82451C14.4622 4.82934 14.481 4.83562 14.5035 4.84358C14.5484 4.85952 14.6077 4.88218 14.6805 4.91339C14.8262 4.97582 15.0253 5.07224 15.2698 5.21695C15.7593 5.50664 16.4275 5.98781 17.2124 6.77279C17.9974 7.55776 18.4786 8.22595 18.7683 8.71541C18.913 8.95992 19.0094 9.15899 19.0718 9.30467C19.103 9.37748 19.1257 9.43683 19.1416 9.48175C19.1496 9.5042 19.1559 9.52303 19.1607 9.5381L19.1669 9.55789L19.1692 9.56564L19.1702 9.56898L19.1706 9.57051L19.1708 9.57124C19.1709 9.5716 19.171 9.57195 18.4499 9.77799L19.171 9.57195C19.2848 9.97023 19.0542 10.3853 18.6559 10.4991C18.261 10.612 17.8496 10.3862 17.7317 9.99414L17.728 9.98336C17.7227 9.96833 17.7116 9.93875 17.6931 9.89555C17.6561 9.80921 17.589 9.66798 17.4774 9.47939C17.2544 9.10265 16.8517 8.5334 16.1518 7.83345C15.4518 7.13349 14.8826 6.73079 14.5058 6.50782C14.3172 6.3962 14.176 6.32911 14.0897 6.2921C14.0465 6.27359 14.0169 6.26256 14.0019 6.25722L13.9911 6.25353C13.599 6.13565 13.3733 5.7242 13.4861 5.32931Z" fill="#000000"/>
+                          </svg>
+                            <input type="text" name="phone2" value="{{ user.phone2 }}" class="form-control" placeholder="Phone 2 (Optional)" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                        </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6" style="padding-left: 0; padding-right: 0;">
+                        <div class="info-item" style="margin-bottom: 0;">
+                          <div class="d-flex gap-2 align-items-center">
+                            <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 4.0749C5 3.48125 5.47736 3 6.0662 3H15.5097C16.0986 3 16.5759 3.48125 16.5759 4.0749V17.4855C16.5759 18.0792 16.0986 18.5604 15.5097 18.5604H6.0662C5.47736 18.5604 5 18.0792 5 17.4855V4.0749ZM8.22161 14.2881C7.8069 13.968 7.8069 13.3524 8.22161 13.0323C8.93304 12.4831 9.8227 12.1568 10.7879 12.1568C11.7532 12.1568 12.6428 12.4831 13.3543 13.0323C13.769 13.3524 13.769 13.968 13.3543 14.2881C12.6428 14.8373 11.7532 15.1636 10.7879 15.1636C9.8227 15.1636 8.93304 14.8373 8.22161 14.2881ZM10.7859 11.4041C11.8824 11.4041 12.7713 10.2832 12.7713 8.90046C12.7713 7.51772 11.8824 6.39679 10.7859 6.39679C9.68945 6.39679 8.80058 7.51772 8.80058 8.90046C8.80058 10.2832 9.68945 11.4041 10.7859 11.4041Z" stroke="#000000"/>
+                            </svg>
+                            <input type="text" name="address" value="{{ user.address }}" class="form-control" placeholder="Address" style="flex: 1; padding: 5px 8px; font-size: 0.85rem;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2" style="margin-top: 8px; flex-shrink: 0;">
+                  <button type="submit" class="btn btn-primary" style="background: #85BB65; border-color: #85BB65; color: #fff; padding: 6px 12px; border-radius: 5px; font-weight: 500; cursor: pointer; font-size: 0.8rem; flex: 1;">Save</button>
+                  <button type="button" id="cancelBtn2" class="btn btn-secondary" style="background: #fff; border: 1px solid #85BB65; color: #85BB65; padding: 6px 12px; border-radius: 5px; font-weight: 500; cursor: pointer; font-size: 0.8rem; flex: 1;">Cancel</button>
+                </div>
+              </div>
+              {{ form_end(profileForm) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Your History and Documents - Left Side (Small Squares) -->
+        <div class="row g-4" style="margin-top: 0; width: 100%;">
+          <!-- Your History Card - Small Square -->
+          <div class="col-12 col-md-6">
+            <div class="card app-card-settings" style="display: flex; flex-direction: column; aspect-ratio: 1; max-height: 400px;">
+              <div class="card-header-row d-flex justify-content-between align-items-center mb-0" style="flex-shrink: 0; padding: 20px 20px 12px 20px;">
+                <div class="card-title-wrapper">
+                  <h5 class="card-title mb-0" style="font-size: 1.1rem; font-weight: 600;">Your History</h5>
+                </div>
+              </div>
+              <div class="card-body" style="padding: 20px !important; flex: 1; display: flex; flex-direction: column; overflow-y: auto;">
+                <div class="info-item" style="margin-bottom: 12px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 12px; background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.75rem; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Your Average Rating</div>
+                      <div style="font-size: 0.95rem; font-weight: 600; color: #000000; line-height: 1.3;">
+                        {% if averageRating is not null %}
+                          {{ averageRating|number_format(1) }}/5 ({{ reviewsCount }} review{{ reviewsCount != 1 ? 's' : '' }})
+                        {% else %}
+                          Not Rated Yet
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom: 12px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 12px; background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.75rem; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Job Postings</div>
+                      <div style="font-size: 0.95rem; font-weight: 600; color: #000000; line-height: 1.3;">{{ jobsCount }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom: 12px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 12px; background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.75rem; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Years Active</div>
+                      <div style="font-size: 0.95rem; font-weight: 600; color: #000000; line-height: 1.3;">{{ yearsActive }} year{{ yearsActive != 1 ? 's' : '' }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom: 12px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 12px; background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.75rem; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Membership</div>
+                      <div style="font-size: 0.95rem; font-weight: 600; color: #000000; line-height: 1.3;">{{ membershipLevel ?: '—' }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom: 0; width: 100%; box-sizing: border-box; overflow: hidden; padding: 12px; background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                  <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                      <div style="font-size: 0.75rem; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Membership ID</div>
+                      <div style="font-size: 0.95rem; font-weight: 600; color: #000000; line-height: 1.3;">{{ user.id|slice(0, 8)|upper }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documents Card - Small Square -->
+          <div class="col-12 col-md-6">
+            <div class="card app-card-settings" style="display: flex; flex-direction: column; aspect-ratio: 1; max-height: 400px;">
+              <div class="card-header-row d-flex justify-content-between align-items-center mb-0" style="flex-shrink: 0; padding: 20px 20px 12px 20px;">
+                <div class="card-title-wrapper">
+                  <h5 class="card-title mb-0" style="font-size: 1.1rem; font-weight: 600;">Documents</h5>
+        </div>
+      </div>
+              <div class="card-body" style="padding: 20px !important; flex: 1; display: flex; flex-direction: column; min-height: 200px;">
+                <!-- Documents Upload Area - Show when no documents -->
+                <div id="documents-upload-area" class="d-flex flex-column align-items-center justify-content-center" style="flex: 1; {% if documents is defined and documents is not empty %}display: none;{% endif %}">
+                  <div class="mb-2">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8;">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <p class="mb-3" style="color: #6B7280; font-size: 0.8rem; margin: 0; text-align: center;">No documents uploaded yet.</p>
+                  <button type="button" id="documents-upload-btn" class="btn btn-sm" style="background: #85BB65; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-size: 0.8rem; font-weight: 500;">
+                    <span id="documents-button-text">Upload Document</span>
+                    <span id="documents-upload-spinner" style="display: none;">
+                      <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                    </span>
+                  </button>
+    </div>
+
+                <!-- Hidden file input -->
+                <input type="file" id="documents-file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;" multiple>
+                
+                <!-- Uploaded Documents List -->
+                <div id="documents-list" class="d-flex flex-column gap-2" style="flex: 1; overflow-y: auto; max-height: 300px; {% if documents is not defined or documents is empty %}display: none;{% endif %}">
+                  {{ include('employer/profile/_documents_list.html.twig', { 'documents': documents|default([]) }) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Right: Calendar (Square) and Share & Quick Links - col-lg-4 #}
+    <div class="col-12 col-lg-4 d-flex flex-column" style="align-self: flex-start;">
+      <!-- Calendar Card - Square Format -->
+      <div class="card app-card-settings" style="display: flex; flex-direction: column; aspect-ratio: 1; margin-bottom: 24px;">
+        <div class="card-header-row d-flex justify-content-between align-items-center mb-0" style="flex-shrink: 0; padding: 24px 24px 16px 24px;">
+          <div class="card-title-wrapper">
+            <h5 class="card-title mb-0" style="font-size: 1.25rem; font-weight: 600;">Calendar</h5>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 24px !important; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+          <div id="calendar-container" style="flex: 1; min-height: 0; overflow: hidden;"></div>
+        </div>
+      </div>
+
+      <div class="profile-right-card h-fix-auto" style="margin-top: 0;">
+        <div class="card-header-row d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Share & Quick Links</h5>
+        </div>
+
+        <div class="card-body">
+          <div class="mb-4">
+            <label class="form-label small text-muted mb-2">Share via Onelink</label>
+            <div class="d-flex gap-2">
+              <input type="text" id="share-url" class="form-control" placeholder="Enter email address to share with" style="flex: 1; font-size: 0.875rem; border-color: #85BB65;">
+              <button type="button" class="upload-btn-custom" id="share-quick-links-btn" style="white-space: nowrap;">Share</button>
+            </div>
+            <div id="share-message" class="mt-2" style="font-size: 0.875rem; display: none;"></div>
+          </div>
+
+          <div class="pt-0">
+            <label class="form-label small text-muted mb-2">Quick Links</label>
+            <div class="upload-list mt-2">
+              <a href="{{ path('app_recruiter_dashboard') }}" class="upload-btn-custom">
+                <span class="cstm-btn-text">Manage Membership</span>
+              </a>
+              <a href="{{ path('app_recruiter_invoices') }}" class="upload-btn-custom">
+                <span class="cstm-btn-text">Manage Invoices</span>
+              </a>
+              <a href="{{ path('app_recruiter_jobs') }}" class="upload-btn-custom">
+                <span class="cstm-btn-text">Manage Jobs</span>
+              </a>
+              <a href="{{ path('app_recruiter_analytics') }}" class="upload-btn-custom">
+                <span class="cstm-btn-text">Request Data Analytics</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block footer_scripts %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile Edit/View Toggle
+    const infoView = document.getElementById('infoView');
+    const infoEdit = document.getElementById('infoEdit');
+    const editToggle = document.getElementById('editToggle');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const cancelBtn2 = document.getElementById('cancelBtn2');
+    const actionIcons = document.getElementById('actionIcons');
+    const personalSection = document.getElementById('personalSection');
+    const profileForm = document.getElementById('profileForm');
+    const originalData = {};
+
+    // Store original form values
+    if (profileForm) {
+        profileForm.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.name) {
+                originalData[el.name] = el.value;
+            }
+        });
+    }
+
+    // Switch to edit mode
+    function switchToEditMode(e) {
+        if (e) e.preventDefault();
+        if (!infoView || !infoEdit) return;
+        
+        const viewHeight = infoView.offsetHeight;
+        infoView.style.display = 'none';
+        
+        infoEdit.style.display = 'flex';
+        infoEdit.style.position = 'absolute';
+        infoEdit.style.top = '0';
+        infoEdit.style.left = '0';
+        infoEdit.style.right = '0';
+        infoEdit.style.zIndex = '10';
+        infoEdit.style.background = '#fff';
+        
+        if (personalSection) {
+            personalSection.style.minHeight = viewHeight + 'px';
+        }
+    }
+
+    // Switch to view mode
+    function switchToViewMode() {
+        if (!infoView || !infoEdit) return;
+        
+        infoEdit.style.display = 'none';
+        infoEdit.style.position = '';
+        infoEdit.style.top = '';
+        infoEdit.style.left = '';
+        infoEdit.style.right = '';
+        infoEdit.style.zIndex = '';
+        
+        infoView.style.display = 'block';
+        
+        if (personalSection) {
+            personalSection.style.minHeight = 'auto';
+        }
+    }
+
+    // Edit toggle click handler
+    if (editToggle) {
+        editToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            switchToEditMode(e);
+        });
+    }
+
+    // Cancel button handlers
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            // Restore original values
+            if (profileForm) {
+                profileForm.querySelectorAll('input, select, textarea').forEach(el => {
+                    if (el.name && originalData[el.name] !== undefined) {
+                        el.value = originalData[el.name];
+                    }
+                });
+            }
+            switchToViewMode();
+        });
+    }
+
+    if (cancelBtn2) {
+        cancelBtn2.addEventListener('click', function() {
+            // Restore original values
+            if (profileForm) {
+                profileForm.querySelectorAll('input, select, textarea').forEach(el => {
+                    if (el.name && originalData[el.name] !== undefined) {
+                        el.value = originalData[el.name];
+                    }
+                });
+            }
+            switchToViewMode();
+        });
+    }
+
+    // Profile image preview
+    window.previewProfileImage = function(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarEdit = document.getElementById('profileAvatarEdit');
+                if (avatarEdit) {
+                    avatarEdit.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    };
+
+    // AJAX form submission
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(profileForm);
+            
+            // Add employer-specific fields
+            const companyName = profileForm.querySelector('input[name="companyName"]');
+            if (companyName) {
+                formData.append('companyName', companyName.value);
+            }
+            
+            const contactPersonName = profileForm.querySelector('input[name="contactPersonName"]');
+            if (contactPersonName) {
+                formData.append('contactPersonName', contactPersonName.value);
+            }
+            
+            const contactEmail = profileForm.querySelector('input[name="contactEmail"]');
+            if (contactEmail) {
+                formData.append('contactEmail', contactEmail.value);
+            }
+            
+            const address = profileForm.querySelector('input[name="address"]');
+            if (address) {
+                formData.append('address', address.value);
+            }
+            
+            const phone2 = profileForm.querySelector('input[name="phone2"]');
+            if (phone2) {
+                formData.append('phone2', phone2.value);
+            }
+            
+            const website = profileForm.querySelector('input[name="website"]');
+            if (website) {
+                formData.append('website', website.value);
+            }
+            
+            const gender = profileForm.querySelector('select[name="gender"]');
+            if (gender) {
+                formData.append('gender', gender.value);
+            }
+            
+            fetch('{{ path("app_recruiter_profile") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // If redirected, reload the page to show updated data
+                    window.location.reload();
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html) {
+                    // If we got HTML back, reload to show updated profile
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving. Please try again.');
+            });
+        });
+    }
+
+    // Quick Links Share Functionality
+    const shareBtn = document.getElementById('share-quick-links-btn');
+    const shareInput = document.getElementById('share-url');
+    const shareMessage = document.getElementById('share-message');
+    
+    if (shareBtn && shareInput) {
+        shareBtn.addEventListener('click', function() {
+            const email = shareInput.value.trim();
+            
+            if (!email) {
+                shareMessage.textContent = 'Please enter an email address.';
+                shareMessage.style.color = '#ef4444';
+                shareMessage.style.display = 'block';
+                return;
+            }
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                shareMessage.textContent = 'Please enter a valid email address.';
+                shareMessage.style.color = '#ef4444';
+                shareMessage.style.display = 'block';
+                return;
+            }
+            
+            // Get current page URL
+            const currentUrl = window.location.href;
+            
+            // Here you would typically send this to your backend
+            // For now, we'll show a success message
+            shareMessage.textContent = 'Profile link shared successfully with ' + email + '!';
+            shareMessage.style.color = '#85BB65';
+            shareMessage.style.display = 'block';
+            
+            // Clear input after a delay
+            setTimeout(function() {
+                shareInput.value = '';
+                shareMessage.style.display = 'none';
+            }, 3000);
+        });
+        
+        // Allow Enter key to trigger share
+        shareInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                shareBtn.click();
+            }
+        });
+    }
+    
+    // Calendar initialization
+    const calendarEl = document.getElementById('calendar-container');
+    if (calendarEl) {
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: 'auto',
+            aspectRatio: 2.2,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            views: {
+                dayGridMonth: { buttonText: 'Month' },
+                timeGridWeek: { buttonText: 'Week' }
+            },
+            events: function(fetchInfo, successCallback, failureCallback) {
+                // Fetch calendar events from employer interviews
+                fetch('/employer/interviews/calendar-data')
+                    .then(response => response.json())
+                    .then(data => {
+                        const events = Array.isArray(data) ? data : [];
+                        successCallback(events);
+                    })
+                    .catch(error => {
+                        console.error('Error loading calendar events:', error);
+                        successCallback([]);
+                    });
+            },
+            eventClick: function(info) {
+                if (info.event.url) {
+                    window.open(info.event.url, '_blank');
+                    info.jsEvent.preventDefault();
+                }
+            },
+            eventDidMount: function(info) {
+                if (info.event.extendedProps.description) {
+                    info.el.setAttribute('title', info.event.extendedProps.description);
+                }
+            }
+        });
+        calendar.render();
+    }
+    
+    // Documents Management Functionality
+    const documentsUploadBtn = document.getElementById('documents-upload-btn');
+    const documentsFileInput = document.getElementById('documents-file-input');
+    const documentsUploadSpinner = document.getElementById('documents-upload-spinner');
+    const documentsButtonText = document.getElementById('documents-button-text');
+    const documentsList = document.getElementById('documents-list');
+    const documentsUploadArea = document.getElementById('documents-upload-area');
+    
+    // Handle upload button click
+    if (documentsUploadBtn && documentsFileInput) {
+        documentsUploadBtn.addEventListener('click', function() {
+            documentsFileInput.click();
+        });
+    }
+    
+    // Handle file selection
+    if (documentsFileInput) {
+        documentsFileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const replaceDocumentId = this.dataset.replaceDocumentId;
+                uploadDocuments(files, replaceDocumentId);
+                // Clear replace flag
+                delete this.dataset.replaceDocumentId;
+            }
+        });
+    }
+    
+    function uploadDocuments(files, replaceDocumentId = null) {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('document', files[i]);
+        }
+        if (replaceDocumentId) {
+            formData.append('replaceDocumentId', replaceDocumentId);
+        }
+        
+        // Show loading state
+        if (documentsUploadBtn) {
+            documentsUploadBtn.disabled = true;
+            if (documentsButtonText) documentsButtonText.textContent = 'Uploading...';
+            if (documentsUploadSpinner) documentsUploadSpinner.style.display = 'inline-block';
+        }
+        
+        fetch('{{ path("app_recruiter_profile_documents_upload") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update documents list
+                if (documentsList && data.documentsListHtml) {
+                    documentsList.innerHTML = data.documentsListHtml;
+                    documentsList.style.display = 'flex';
+                }
+                if (documentsUploadArea) {
+                    documentsUploadArea.style.display = 'none';
+                }
+                
+                // Re-attach event listeners
+                attachDocumentEventListeners();
+                
+                // Show success message
+                if (typeof showToast === 'function') {
+                    showToast('Success', data.message || 'Document uploaded successfully', 'success');
+                }
+            } else {
+                alert(data.message || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Upload error:', error);
+            alert('Upload failed. Please try again.');
+        })
+        .finally(() => {
+            // Reset loading state
+            if (documentsUploadBtn) {
+                documentsUploadBtn.disabled = false;
+                if (documentsButtonText) documentsButtonText.textContent = 'Upload Document';
+                if (documentsUploadSpinner) documentsUploadSpinner.style.display = 'none';
+            }
+            if (documentsFileInput) {
+                documentsFileInput.value = '';
+            }
+        });
+    }
+    
+    function attachDocumentEventListeners() {
+        // Handle edit button clicks - triggers file input for replacement
+        document.querySelectorAll('.edit-document-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Trigger file input to replace document
+                if (documentsFileInput) {
+                    documentsFileInput.click();
+                    
+                    // Store document ID for replacement
+                    documentsFileInput.dataset.replaceDocumentId = this.dataset.documentId;
+                }
+            });
+        });
+        
+        // Handle delete button clicks
+        document.querySelectorAll('.delete-document-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const documentId = this.dataset.documentId;
+                const documentName = this.dataset.documentName;
+                const csrfToken = this.dataset.csrfToken;
+                
+                if (!confirm('Are you sure you want to delete "' + documentName + '"?')) {
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('_token', csrfToken);
+                
+                fetch('/employer/profile/documents/delete/' + documentId, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update documents list
+                        if (documentsList && data.documentsListHtml) {
+                            documentsList.innerHTML = data.documentsListHtml;
+                            
+                            // Show upload area if no documents
+                            if (documentsList.innerHTML.trim() === '') {
+                                documentsList.style.display = 'none';
+                                if (documentsUploadArea) {
+                                    documentsUploadArea.style.display = 'flex';
+                                }
+                            }
+                        }
+                        
+                        // Re-attach event listeners
+                        attachDocumentEventListeners();
+                        
+                        // Show success message
+                        if (typeof showToast === 'function') {
+                            showToast('Success', data.message || 'Document deleted successfully', 'success');
+                        }
+                    } else {
+                        alert(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    alert('Delete failed. Please try again.');
+                });
+            });
+        });
+    }
+    
+    // Initial attachment of event listeners
+    attachDocumentEventListeners();
+});
+</script>
+<style>
+/* Calendar styling */
+#calendar-container {
+    font-family: 'Urbanist', sans-serif;
+}
+
+#calendar-container .fc {
+    font-size: 13px;
+}
+
+#calendar-container .fc-daygrid-day {
+    height: 50px;
+}
+
+#calendar-container .fc-scroller {
+    overflow-y: hidden !important;
+}
+
+#calendar-container .fc-col-header-cell {
+    padding: 6px 2px !important;
+    font-size: 12px;
+}
+
+#calendar-container .fc-daygrid-day-number {
+    font-size: 12px;
+    padding: 4px;
+}
+
+#calendar-container .fc-button {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+#calendar-container .fc-toolbar-title {
+    font-size: 16px;
+}
+
+#calendar-container .fc-header-toolbar {
+    margin-bottom: 1rem;
+    padding: 0;
+}
+
+#calendar-container .fc-button {
+    background-color: #85BB65;
+    border-color: #85BB65;
+    color: #fff;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+#calendar-container .fc-button:hover {
+    background-color: #6fa050;
+    border-color: #6fa050;
+}
+
+#calendar-container .fc-button-active {
+    background-color: #5a8a3f;
+    border-color: #5a8a3f;
+}
+
+#calendar-container .fc-today-button {
+    background-color: #EAF3E4;
+    border-color: #85BB65;
+    color: #121C0C;
+}
+
+#calendar-container .fc-today-button:hover {
+    background-color: #d4e6c8;
+}
+
+#calendar-container .fc-daygrid-day-number {
+    color: #121C0C;
+    font-weight: 500;
+}
+
+#calendar-container .fc-col-header-cell {
+    background-color: #F4F9F1;
+    color: #121C0C;
+    font-weight: 600;
+    padding: 8px 4px;
+}
+
+#calendar-container .fc-day-today {
+    background-color: #F4F9F1 !important;
+}
+
+#calendar-container .fc-event {
+    background-color: #85BB65;
+    border-color: #85BB65;
+    color: #fff;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+#calendar-container .fc-event:hover {
+    background-color: #6fa050;
+}
+
+/* Ensure both cards have same height and aligned titles */
+.row.g-3[style*="align-items: stretch"] > [class*="col-"] > .card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+.row.g-3[style*="align-items: stretch"] > [class*="col-"] > .card > .card-header-row {
+    flex-shrink: 0 !important;
+    padding: 20px 24px 16px 24px !important;
+    margin-bottom: 0 !important;
+    min-height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.row.g-3[style*="align-items: stretch"] > [class*="col-"] > .card > .card-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+}
+</style>
+{% endblock %}

@@ -136,6 +136,15 @@
                                 </div>
                             {% endif %}
 
+                            {% if is_granted('ROLE_RECRUITER_LIST') %}
+                                <div class="app-utility-item">
+                                    <a href="{{ path('app_admin_recruiters') }}" title="Recruiters">
+                                        <img src="{{ asset('assets/icons/new-employee.png') }}" class="icon-image" alt="recruiters" />
+                                        Recruiters
+                                    </a>
+                                </div>
+                            {% endif %}
+
                             {% if is_granted('ROLE_MESSAGE_LIST') %}
                                 <div class="app-utility-item">
                                     <a href="#" title="Inbox">
@@ -287,6 +296,19 @@
                             <img src="{{ asset('assets/icons/hospitalx.png') }}" class="icon-image" alt="employers" />
                              </span>
                             <span class="nav-link-text">Employers</span>
+                        </a><!--//nav-link-->
+                    </li><!--//nav-item-->
+                    {% endif %}
+
+                    {% if is_granted('ROLE_RECRUITER_LIST') %}
+                    <li class="nav-item">
+                        <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                        <a class="nav-link {% if app.request.get('_route') == 'app_admin_recruiters' %}active{% endif %}"
+                           href="{{ path('app_admin_recruiters') }}">
+                            <span class="nav-icon">
+                            <img src="{{ asset('assets/icons/new-employee.png') }}" class="icon-image" alt="recruiters" />
+                             </span>
+                            <span class="nav-link-text">Recruiters</span>
                         </a><!--//nav-link-->
                     </li><!--//nav-item-->
                     {% endif %}

@@ -1,0 +1,423 @@
+{% extends 'recruiter/base.html.twig' %}
+
+{% block title %}Job Detail{% endblock %}
+
+{% block employer_body %}
+<style>
+/* Job Detail Page - Provider Design Style */
+.job-detail-wrapper {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.job-detail-main-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Header Section */
+.job-detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e6eef6;
+}
+
+.job-detail-logo-container {
+    flex-shrink: 0;
+}
+
+.job-detail-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.job-detail-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.job-detail-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #121C0C;
+    margin-bottom: 4px;
+}
+
+.job-detail-company {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.job-detail-location {
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.job-detail-location i {
+    color: #85BB65;
+}
+
+/* Key Metrics Grid */
+.job-detail-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.job-detail-meta-item {
+    background: #F4F9F1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+}
+
+.job-detail-meta-label {
+    font-size: 13px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.job-detail-meta-label i {
+    margin-right: 6px;
+    color: #85BB65;
+}
+
+.job-detail-meta-value {
+    font-size: 16px;
+    color: #121C0C;
+    font-weight: 600;
+}
+
+/* Section Styling */
+.job-detail-section {
+    margin-bottom: 24px;
+}
+
+.job-detail-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #121C0C;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #85BB65;
+}
+
+.job-detail-section-title i {
+    margin-right: 8px;
+    color: #85BB65;
+}
+
+.job-detail-description {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #374151;
+    padding: 16px;
+    background: #F4F9F1;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+}
+
+.job-detail-description p {
+    margin-bottom: 12px;
+}
+
+.job-detail-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Details Grid */
+.job-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.job-detail-item {
+    background: #F4F9F1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+    font-size: 14px;
+    color: #333;
+}
+
+.job-detail-item strong {
+    color: #121C0C;
+    margin-right: 6px;
+}
+
+/* Action Buttons */
+.job-detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e6eef6;
+}
+
+.job-detail-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #85BB65;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.job-detail-action-btn:hover {
+    background: #6fa050;
+    color: white;
+    text-decoration: none;
+}
+
+.job-detail-action-btn.secondary {
+    background: #fff;
+    color: #121C0C;
+    border: 1px solid #e6eef6;
+}
+
+.job-detail-action-btn.secondary:hover {
+    background: #F4F9F1;
+    border-color: #85BB65;
+    color: #85BB65;
+}
+
+.job-detail-action-btn .icon-image {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 768px) {
+    .job-detail-main-card {
+    padding: 20px;
+}
+
+    .job-detail-header {
+        flex-direction: column;
+    }
+
+    .job-detail-actions {
+    flex-direction: column;
+    }
+
+    .job-detail-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .job-detail-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .job-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="container-xl job-detail-wrapper">
+    <div class="job-detail-main-card" id="job-print-content">
+        {# Header Section #}
+        <div class="job-detail-header">
+            <div class="job-detail-logo-container">
+                {% if job.employer and job.employer.logo %}
+                    <img src="{{ job.employer.logo }}" 
+                         alt="{{ job.employer }} Logo" 
+                         class="job-detail-logo"
+                         onerror="this.src='{{ asset('assets/icons/job.png') }}'">
+                {% else %}
+                    <img src="{{ asset('assets/icons/job.png') }}" 
+                         alt="{{ job.employer }} Logo" 
+                         class="job-detail-logo">
+                {% endif %}
+                                    </div>
+            <div class="job-detail-info">
+                <h1 class="job-detail-title">{{ job.title }}</h1>
+                <div class="job-detail-company">{{ job.employer }}</div>
+                <div class="job-detail-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ job.state }}{% if job.city %}, {{ job.city }}{% endif %}
+                                </div>
+                </div>
+            </div>
+
+        {# Key Metrics Grid #}
+        <div class="job-detail-meta">
+            {% if job.jobId %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-hashtag"></i> Job ID
+                                </div>
+                <div class="job-detail-meta-value">{{ job.jobId }}</div>
+                                </div>
+            {% endif %}
+
+            {% if job.startDate %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-calendar-alt"></i> Start Date
+                                </div>
+                <div class="job-detail-meta-value">{{ job.startDate|date('m/d/Y') }}</div>
+                            </div>
+            {% endif %}
+
+            {% if job.schedule %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-clock"></i> Schedule
+                </div>
+                <div class="job-detail-meta-value">{{ job.schedule }}</div>
+            </div>
+            {% endif %}
+
+            {% if job.workType %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-briefcase"></i> Work Type
+                            </div>
+                <div class="job-detail-meta-value">{{ job.workType }}</div>
+                            </div>
+                    {% endif %}
+
+            {% if job.payRateHourly %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-dollar-sign"></i> Hourly Rate
+                                    </div>
+                <div class="job-detail-meta-value">${{ job.payRateHourly }}/hr</div>
+                                    </div>
+                                        {% endif %}
+
+            {% if job.payRateDaily %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-dollar-sign"></i> Daily Rate
+                                </div>
+                <div class="job-detail-meta-value">${{ job.payRateDaily }}/day</div>
+                                        </div>
+                                        {% endif %}
+
+            {% if job.payRate %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-dollar-sign"></i> Pay Rate
+                    </div>
+                <div class="job-detail-meta-value">{{ job.payRate }}</div>
+            </div>
+            {% endif %}
+
+            {% if job.status %}
+            <div class="job-detail-meta-item">
+                <div class="job-detail-meta-label">
+                    <i class="fas fa-info-circle"></i> Status
+                                    </div>
+                <div class="job-detail-meta-value">{{ job.status }}</div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+        {# Job Description Section #}
+        {% if job.description %}
+        <div class="job-detail-section">
+            <h3 class="job-detail-section-title">
+                <i class="fas fa-file-alt"></i> Job Description
+            </h3>
+            <div class="job-detail-description">
+                {{ job.description|raw }}
+                                    </div>
+                                </div>
+                                            {% endif %}
+
+        {# Additional Details Section #}
+        <div class="job-detail-section">
+            <h3 class="job-detail-section-title">
+                <i class="fas fa-info-circle"></i> Additional Information
+            </h3>
+            <div class="job-details-grid">
+                {% if job.need %}
+                <div class="job-detail-item">
+                    <strong>Position Need:</strong> {{ job.need }}
+                    </div>
+                {% endif %}
+
+                {% if job.yearOfExperience %}
+                <div class="job-detail-item">
+                    <strong>Years of Experience:</strong> {{ job.yearOfExperience }}
+                </div>
+                {% endif %}
+
+                {% if job.expirationDate %}
+                <div class="job-detail-item">
+                    <strong>Expiration Date:</strong> {{ job.expirationDate|date('m/d/Y') }}
+                                </div>
+                {% endif %}
+
+                {% if job.createdAt %}
+                <div class="job-detail-item">
+                    <strong>Posted:</strong> {{ job.createdAt|date('m/d/Y') }}
+                    </div>
+                {% endif %}
+                        </div>
+                    </div>
+
+        {# Action Buttons #}
+        <div class="job-detail-actions">
+            <a href="{{ path('app_recruiter_job_applications', {'id': job.id}) }}"
+               class="job-detail-action-btn"
+               title="View Applications">
+                <img src="{{ asset('assets/icons/list-search.png') }}" class="icon-image" />
+                Applications
+            </a>
+            <a href="javascript:void(0);" 
+               onclick="printJobDetail()" 
+               class="job-detail-action-btn secondary" 
+               title="Print">
+                <img src="{{ asset('assets/icons/printer.png') }}" class="icon-image" />
+                Print
+            </a>
+                    </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block footer_scripts %}
+<script>
+        function printJobDetail() {
+            var printContents = document.getElementById('job-print-content').innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+</script>
+{% endblock %}

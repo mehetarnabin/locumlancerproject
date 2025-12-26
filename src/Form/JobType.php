@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Employer;
 use App\Entity\Job;
+use App\Entity\Recruiter;
 use App\Entity\User;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -69,14 +70,54 @@ class JobType extends AbstractType
             ])
             ->add('payRateHourly', null, ['label' => 'Pay Rate Hourly'])
             ->add('payRateDaily', null, ['label' => 'Pay Rate Daily'])
-        ;
+            ->add('postingType', ChoiceType::class, [
+                'mapped' => false,
+                'required' => false, // Optional, default to direct
+                'choices' => [
+                    'Direct Posting' => 'direct',
+                    'Recruiter Mediated' => 'recruiter',
+                ],
+                'data' => 'direct', // Default
+            ])
+            ->add('recruiter', EntityType::class, [
+                'mapped' => false,
+                'class' => Recruiter::class,
+                'choice_label' => function (Recruiter $recruiter) {
+                    return $recruiter->getName(); // Assuming Recruiter has getName()
+                },
+                'required' => false,
+                'placeholder' => 'Select a Recruiter',
+            ])
+            ->add('commissionRate', null, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'Commission Rate (%)',
+                'attr' => [
+                    'placeholder' => 'e.g., 20',
+                    'min' => '0',
+                    'max' => '100',
+                    'step' => '0.01'
+                ],
+            ]);
+
+        if ($options['is_recruiter']) {
+            $builder->add('employer', EntityType::class, [
+                'class' => Employer::class,
+                'choice_label' => 'companyName',
+                'required' => true,
+                'placeholder' => 'Select Client (Employer)',
+                'label' => 'Client / Employer',
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Job::class,
+            'is_recruiter' => false,
         ]);
+        $resolver->setAllowedTypes('is_recruiter', 'bool');
     }
 
     private function getUSStates(): array

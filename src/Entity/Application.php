@@ -25,6 +25,9 @@ class Application
     #[ORM\ManyToOne(targetEntity: Employer::class, inversedBy: 'applications')]
     private ?Employer $employer = null;
 
+    #[ORM\ManyToOne(targetEntity: Recruiter::class, inversedBy: 'applications')]
+    private ?Recruiter $recruiter = null;
+
     #[ORM\ManyToOne(targetEntity: Provider::class, inversedBy: 'applications')]
     private ?Provider $provider = null;
 
@@ -113,6 +116,16 @@ class Application
     public function setEmployer(?Employer $employer): void
     {
         $this->employer = $employer;
+    }
+
+    public function getRecruiter(): ?Recruiter
+    {
+        return $this->recruiter;
+    }
+
+    public function setRecruiter(?Recruiter $recruiter): void
+    {
+        $this->recruiter = $recruiter;
     }
 
     public function getProvider(): ?Provider
