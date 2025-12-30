@@ -142,9 +142,22 @@ class MessageRepository extends ServiceEntityRepository
     public function getRootMessage(Message $message): Message
     {
         $current = $message;
-        while ($current->getParent() !== null) {
+        $visited = [];
+        $maxDepth = 100; // Protection against infinite loops
+        $depth = 0;
+        
+        while ($current->getParent() !== null && $depth < $maxDepth) {
+            $currentId = $current->getId()->toString();
+            if (isset($visited[$currentId])) {
+                // Circular reference detected, break
+                error_log('Circular reference detected in message parent chain');
+                break;
+            }
+            $visited[$currentId] = true;
             $current = $current->getParent();
+            $depth++;
         }
+        
         return $current;
     }
 
@@ -155,27 +168,53 @@ class MessageRepository extends ServiceEntityRepository
     {
         $messages = [$rootMessage];
         
-        // Recursively get all replies
+        // Recursively get all replies with proper eager loading
         $this->getRepliesRecursive($rootMessage, $messages);
         
         // Sort by creation date
         usort($messages, function($a, $b) {
-            return $a->getCreatedAt() <=> $b->getCreatedAt();
+            $aDate = $a->getCreatedAt();
+            $bDate = $b->getCreatedAt();
+            if (!$aDate || !$bDate) {
+                return 0;
+            }
+            return $aDate <=> $bDate;
         });
         
         return $messages;
     }
     
     /**
-     * Recursively get all replies for a message
+     * Recursively get all replies for a message with eager loading of relationships
      */
     private function getRepliesRecursive(Message $message, array &$messages): void
     {
-        $replies = $this->findBy(['parent' => $message], ['createdAt' => 'ASC']);
+        // Use query builder to ensure sender and receiver are loaded
+        $replies = $this->createQueryBuilder('m')
+            ->leftJoin('m.sender', 'sender')
+            ->leftJoin('m.receiver', 'receiver')
+            ->addSelect('sender', 'receiver')
+            ->where('m.parent = :parent')
+            ->setParameter('parent', $message->getId())
+            ->orderBy('m.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
         
         foreach ($replies as $reply) {
-            $messages[] = $reply;
-            $this->getRepliesRecursive($reply, $messages);
+            // Avoid duplicates
+            $replyId = $reply->getId()->toString();
+            $exists = false;
+            foreach ($messages as $existing) {
+                if ($existing->getId()->toString() === $replyId) {
+                    $exists = true;
+                    break;
+                }
+            }
+            
+            if (!$exists) {
+                $messages[] = $reply;
+                $this->getRepliesRecursive($reply, $messages);
+            }
         }
     }
 

@@ -130,8 +130,8 @@ div.container-xl,
 .card.app-card-settings {
     border: none;
     background: #fff;
-    margin-bottom: 24px;
-    margin-top: -20px !important;
+    margin-bottom: 0;
+    margin-top: 0;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(16,24,40,0.06);
     padding: 0;
@@ -139,9 +139,13 @@ div.container-xl,
     flex-direction: column;
 }
 
+/* Spacing between separate container sections */
+.container-xl:not(:first-of-type) {
+    margin-top: 24px;
+}
+
 .card.app-card-settings .card-body {
-    padding: 8px 24px 24px 24px !important;
-    padding-top: 8px !important;
+    padding: 24px !important;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1178,7 +1182,7 @@ div.container-xl,
     align-items: center;
     margin-bottom: 16px;
     padding: 12px 16px;
-    background: #F4F9F1;
+    background: #F8FAF9;
     border-radius: 8px;
     transition: none !important;
     animation: none !important;
@@ -1188,7 +1192,7 @@ div.container-xl,
 }
 
 .company-group-header:hover {
-    background: #E8F4E0;
+    background: #F0F9F0;
 }
 
 .company-name-wrapper {
@@ -1873,9 +1877,9 @@ select.form-select option {
 }
 </style>
 
+    {# Document Requests Table - Only Pending Requests #}
     <div class="container-xl">
-   {# Document Requests Table - Only Pending Requests #}
-<div class="card app-card-settings">
+        <div class="card app-card-settings">
     <div class="card-body">
         <div class="card-header-row">
             <h5 class="card-title">Pending Document Requests</h5>
@@ -2165,29 +2169,29 @@ select.form-select option {
             <div class="tab-content" id="sign-document-requests-tab">
                 <div class="documents-grid-wrapper" id="requests-grid-wrapper-sign">
                     {% set signDocumentCompanyGroups = {} %}
-                    {# Group offer letters and contract letters by employer/company #}
-                    {% if offerLetters is defined %}
-                        {% for offerLetter in offerLetters %}
-                            {% if offerLetter.application and offerLetter.application.employer %}
-                                {% set companyName = offerLetter.application.employer.name ?? offerLetter.application.employer.companyName ?? 'Unknown Company' %}
+                    {# Group applications with contracts by employer/company #}
+                    {% if contractApplications is defined %}
+                        {% for application in contractApplications %}
+                            {% if application.employer %}
+                                {% set companyName = application.employer.name ?? application.employer.companyName ?? 'Unknown Company' %}
                                 {% if signDocumentCompanyGroups[companyName] is not defined %}
-                                    {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'documents': []}}) %}
+                                    {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'applications': []}}) %}
                                 {% endif %}
-                                {% set currentDocs = signDocumentCompanyGroups[companyName].documents|default([]) %}
-                                {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'documents': currentDocs|merge([offerLetter])}}) %}
+                                {% set currentApps = signDocumentCompanyGroups[companyName].applications|default([]) %}
+                                {% set signDocumentCompanyGroups = signDocumentCompanyGroups|merge({(companyName): {'applications': currentApps|merge([application])}}) %}
                             {% endif %}
                         {% endfor %}
                     {% endif %}
                     
                     {% if signDocumentCompanyGroups|length > 0 %}
                         {% for companyName, groupData in signDocumentCompanyGroups %}
-                            {% if groupData.documents|length > 0 %}
+                            {% if groupData.applications|length > 0 %}
                             <div class="company-document-group">
                                 <div class="company-group-header" data-accordion-toggle>
                                     <div class="company-name-wrapper">
                                         <h6 class="company-name">{{ companyName }}</h6>
                                         <span class="request-count">
-                                            {{ groupData.documents|length }} document(s) to sign
+                                            {{ groupData.applications|length }} contract(s)
                                         </span>
                                     </div>
                                     <button class="accordion-toggle-btn" type="button" aria-expanded="false">
@@ -2197,19 +2201,57 @@ select.form-select option {
                                     </button>
                                 </div>
                                 <div class="requests-grid accordion-content collapsed" style="display: none;">
-                                    {% for doc in groupData.documents %}
-                                    <div class="request-card" data-document-id="{{ doc.id }}" data-company="{{ companyName }}">
-                                        <div class="request-card-header">
-                                            <div class="request-title">{{ doc.getDisplayName() }}</div>
-                                            <div class="request-meta" style="font-size: 0.75rem; color: #6B7280; margin-top: 4px;">
-                                                {% if doc.application and doc.application.job %}
-                                                    Job: {{ doc.application.job.title }}
-                                                {% endif %}
+                                    {% for app in groupData.applications %}
+                                    <div class="request-card" data-application-id="{{ app.id }}" data-company="{{ companyName }}">
+                                        <div class="request-card-header" style="flex-direction: column; align-items: flex-start;">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <div class="request-title">
+                                                    Contract for {{ app.job.title }}
+                                                </div>
+                                                <div>
+                                                    {% if app.contractSignedFileName %}
+                                                        <span class="badge bg-success">Signed</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning text-dark">Pending Signature</span>
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                            <div class="request-document-select" style="margin-top: 12px;">
-                                                <a href="{{ doc.filePath ?? '/uploads/' ~ user.id ~ '/' ~ doc.fileName }}" target="_blank" class="action-btn" style="padding: 6px 12px; font-size: 0.75rem; width: 100%; text-decoration: none; display: inline-block; text-align: center;">
-                                                    View & Sign Document
+                                            
+                                            <div class="request-meta" style="font-size: 0.75rem; color: #6B7280; margin-top: 4px;">
+                                                Sent: {{ app.contractSentAt ? app.contractSentAt|date('m/d/Y') : 'N/A' }}
+                                            </div>
+
+                                            <div class="request-actions w-100 mt-3">
+                                                {# Download #}
+                                                <a href="/uploads/contracts/{{ app.contractFileName }}" 
+                                                   class="btn btn-outline-primary btn-sm w-100 mb-2" 
+                                                   target="_blank" download>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-1" viewBox="0 0 16 16">
+                                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                                    </svg>
+                                                    Download Contract
                                                 </a>
+
+                                                {# Upload Form #}
+                                                {% if not app.contractSignedFileName %}
+                                                <form action="{{ path('app_provider_application_upload_signed_contract', {'id': app.id}) }}" method="POST" enctype="multipart/form-data">
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="file" name="file" class="form-control" required accept=".pdf,.doc,.docx">
+                                                        <button type="submit" class="btn btn-primary" title="Upload & Accept">
+                                                            Upload
+                                                        </button>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1" style="font-size: 10px;">Uploading will automatically change status to Accepted.</small>
+                                                </form>
+                                                {% else %}
+                                                    <div class="alert alert-success py-1 px-2 mb-0 d-flex align-items-center" style="font-size: 11px;">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-check-circle-fill me-2" viewBox="0 0 16 16">
+                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                                        </svg>
+                                                        Signed copy uploaded on {{ app.contractSignedAt|date('m/d/Y') }}
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
@@ -2220,24 +2262,28 @@ select.form-select option {
                         {% endfor %}
                     {% else %}
                         <div class="empty-grid-state">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 13L12 17L8 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 17V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            <h4>No documents to sign</h4>
-                            <p>There are no documents requiring your signature at this time.</p>
+                            <h4>No contracts to sign</h4>
+                            <p>There are no contracts pending your signature at this time.</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
-        {# Document Upload Form - Compact Version #}
-    <div class="card app-card-settings" style="margin-top: 12px;">
-            <div class="card-body" style="padding: 16px;">
-            <div class="card-header-row" style="margin-bottom: 12px;">
-                <h5 class="card-title" style="font-size: 1rem; margin: 0; color: #000000;">Upload Document</h5>
+    {# Document Upload Form - Compact Version #}
+    <div class="container-xl">
+        <div class="card app-card-settings">
+            <div class="card-body">
+            <div class="card-header-row">
+                <h5 class="card-title">Upload Document</h5>
             </div>
             
             {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data', 'id': 'document-upload-form'}}) }}
@@ -2557,13 +2603,15 @@ select.form-select option {
                     </div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 
     {# Combined Documents Table with Tabs #}
-    <div class="card app-card-settings" style="margin-top: 24px;">
+    <div class="container-xl">
+        <div class="card app-card-settings">
         <div class="card-body">
-            <div class="card-header-row" style="margin-bottom: 0; padding-bottom: 0;">
+            <div class="card-header-row">
                 <h5 class="card-title">Documents</h5>
                 <button id="documents-split-view-btn" class="action-btn" title="Split View" style="display: flex;">
                     <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2936,9 +2984,7 @@ select.form-select option {
             </div>
         </div>
     </div>
-
     </div>
-</div>
 {% endblock %}
 
 {% block footer_scripts %}

@@ -3,36 +3,1455 @@
 {% block title %}Message{% endblock %}
 
 {% block employer_body %}
+<script>
+// Define openReplyModal to show/hide reply modal
+window.openReplyModal = function() {
+    console.log('openReplyModal called - opening reply modal');
+    
+    const replyModal = document.getElementById('reply-modal');
+    if (!replyModal) {
+        console.error('Reply modal not found!');
+        return;
+    }
+    
+    // Show modal
+    replyModal.classList.remove('hidden');
+    replyModal.style.display = 'block';
+    
+    // Focus on textarea
+    setTimeout(() => {
+        const textarea = document.getElementById('reply-modal-message');
+        if (textarea) {
+            textarea.focus();
+        }
+    }, 100);
+};
+
+window.closeReplyModal = function() {
+    const modal = document.getElementById('reply-modal');
+    const backdrop = document.getElementById('reply-modal-backdrop');
+    
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        const form = document.getElementById('reply-modal-form');
+        if (form) {
+            form.reset();
+        }
+        // Clear file attachments
+        const fileInput = document.getElementById('reply-modal-attachment');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        const attachmentList = document.getElementById('reply-file-attachment-list');
+        if (attachmentList) {
+            attachmentList.innerHTML = '';
+        }
+        const attachmentDisplay = document.getElementById('reply-file-attachment-display');
+        if (attachmentDisplay) {
+            attachmentDisplay.style.display = 'none';
+        }
+        if (typeof replySelectedFiles !== 'undefined') {
+            replySelectedFiles = [];
+        }
+        if (typeof updateReplyAttachmentButton === 'function') {
+            updateReplyAttachmentButton();
+        }
+    }
+    
+    // Hide backdrop
+    if (backdrop) {
+        backdrop.classList.add('hidden');
+        backdrop.style.display = 'none';
+    }
+};
+
+// Also define as global function (not just window property) for onclick compatibility
+function openReplyModal() {
+    if (typeof window.openReplyModal === 'function') {
+        window.openReplyModal();
+    } else {
+        // Fallback: try to find and show the reply modal
+        const replyModal = document.getElementById('reply-modal');
+        if (replyModal) {
+            replyModal.classList.remove('hidden');
+            replyModal.style.display = 'block';
+            setTimeout(() => {
+                const textarea = document.getElementById('reply-modal-message');
+                if (textarea) {
+                    textarea.focus();
+                }
+            }, 100);
+        }
+    }
+}
+
+function closeReplyModal() {
+    if (typeof window.closeReplyModal === 'function') {
+        window.closeReplyModal();
+    }
+}
+
+// Ensure window.openReplyModal is set
+if (typeof window.openReplyModal === 'undefined') {
+    window.openReplyModal = openReplyModal;
+}
+
+// Compose modal functions
+function openComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.remove('minimized');
+    }
+}
+
+function closeComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function minimizeComposeModal() {
+    const modal = document.getElementById('compose-modal');
+    if (modal) {
+        modal.classList.toggle('minimized');
+    }
+}
+
+window.openComposeModal = openComposeModal;
+window.closeComposeModal = closeComposeModal;
+window.minimizeComposeModal = minimizeComposeModal;
+</script>
+<script>
+    // Immediately set button styles when button exists
+    (function() {
+        function setupReplyButton() {
+            const btn = document.getElementById('reply-button-top') || document.querySelector('.message-reply-btn');
+            if (btn) {
+                btn.style.backgroundColor = '#85BB65';
+                btn.style.color = '#ffffff';
+                btn.style.border = 'none';
+                btn.style.borderRadius = '10px';
+                btn.style.padding = '10px 20px';
+                btn.style.fontWeight = '600';
+                btn.style.fontSize = '14px';
+                btn.style.cursor = 'pointer';
+                btn.style.display = 'flex';
+                btn.style.alignItems = 'center';
+                btn.style.gap = '8px';
+                btn.style.transition = 'all 0.2s ease';
+                btn.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.15)';
+                btn.removeAttribute('onclick');
+                
+                // Verify modal exists
+                const modal = document.getElementById('reply-modal');
+                if (!modal) {
+                    console.error('Reply modal not found in DOM!');
+                } else {
+                    console.log('Reply modal found in DOM');
+                }
+            }
+        }
+        // Try immediately
+        setupReplyButton();
+        // Also try when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupReplyButton);
+        } else {
+            setupReplyButton();
+        }
+        // Also try after a short delay
+        setTimeout(setupReplyButton, 100);
+    })();
+</script>
+<style>
+* {
+    box-sizing: border-box;
+}
+
+/* Message Detail Styles */
+.message-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000000;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-button:hover {
+    color: #85BB65;
+    text-decoration: none;
+}
+
+.message-header-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 16px 24px;
+    margin-top: 16px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.message-sender-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+    flex-shrink: 0;
+}
+
+.message-header-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.message-sender-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #000000;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.message-date {
+    font-size: 13px;
+    color: #9aa0a6;
+    margin: 0;
+    padding-bottom: 60px;
+    font-weight: 400;
+}
+
+.message-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    padding: 0 24px 16px 24px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: #fff;
+    min-height: 50px;
+}
+
+.message-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    margin: 16px 24px;
+    text-decoration: none;
+    color: #000000;
+    transition: all 0.2s ease;
+}
+
+.message-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.message-reply-btn {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    flex-shrink: 0 !important;
+    text-decoration: none !important;
+}
+
+.message-reply-btn span {
+    color: #ffffff !important;
+}
+
+.message-reply-btn svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+.message-reply-btn:hover {
+    background: #85BB65 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.35) !important;
+    color: #ffffff !important;
+}
+
+.message-reply-btn:hover span {
+    color: #ffffff !important;
+}
+
+.message-reply-btn:hover svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+.message-reply-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    background: #000000 !important;
+}
+
+.message-reply-btn:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.3) !important;
+}
+
+/* Inline Reply Form - Beautiful and Professional */
+.inline-reply-form {
+    background: #ffffff;
+    border: 1px solid #e6eef6;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin: 32px 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.inline-reply-form.hidden {
+    display: none !important;
+}
+
+.inline-reply-header {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.inline-reply-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(133, 187, 101, 0.1) 0%, rgba(111, 160, 80, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.inline-reply-header:hover::before {
+    opacity: 1;
+}
+
+.inline-reply-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inline-reply-header-left svg {
+    color: #ffffff;
+    stroke: #ffffff;
+}
+
+.inline-reply-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 1;
+}
+
+.inline-reply-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #ffffff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.inline-reply-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.inline-reply-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.inline-reply-subject {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f3f4;
+    background: linear-gradient(to bottom, #fafafa 0%, #ffffff 100%);
+}
+
+.inline-reply-subject-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #5f6368;
+    background: transparent;
+    font-weight: 500;
+}
+
+.inline-reply-editor {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.inline-reply-textarea {
+    width: 100%;
+    min-height: 220px;
+    border: 2px solid #e6eef6;
+    border-radius: 12px;
+    padding: 18px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #202124;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    resize: vertical;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.inline-reply-textarea:focus {
+    outline: none;
+    border-color: #85BB65;
+    box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.12), inset 0 1px 3px rgba(0, 0, 0, 0.04);
+    background: #fafafa;
+}
+
+.inline-reply-textarea::placeholder {
+    color: #9aa0a6;
+}
+
+.inline-reply-attachments {
+    padding: 16px 20px;
+    border-top: 1px solid #f1f3f4;
+    border-bottom: 1px solid #f1f3f4;
+    background: #f8f9fa;
+}
+
+.inline-reply-attachments-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5f6368;
+    margin-bottom: 12px;
+}
+
+.inline-reply-attachment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inline-reply-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.inline-reply-attachment-item:hover {
+    border-color: #85BB65;
+    background: #f4f9f1;
+}
+
+.inline-reply-attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.inline-reply-attachment-name {
+    font-size: 13px;
+    color: #202124;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inline-reply-attachment-size {
+    font-size: 12px;
+    color: #9aa0a6;
+}
+
+.inline-reply-attachment-remove {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.inline-reply-attachment-remove:hover {
+    background: #fee;
+    transform: scale(1.1);
+}
+
+.inline-reply-footer {
+    padding: 18px 24px;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+}
+
+.inline-reply-footer-left,
+.inline-reply-footer-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.inline-reply-attach-btn {
+    background: #ffffff;
+    border: 2px solid #e6eef6;
+    color: #5f6368;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.inline-reply-attach-btn:hover {
+    background: #f4f9f1;
+    border-color: #85BB65;
+    color: #85BB65;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+}
+
+.inline-reply-send-btn {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    border: none;
+    color: #ffffff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.inline-reply-send-btn:hover {
+    background: linear-gradient(135deg, #85BB65 0%, #6fa050 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(133, 187, 101, 0.4);
+}
+
+.inline-reply-send-btn:hover svg {
+    transform: translateX(2px);
+}
+
+.inline-reply-send-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(133, 187, 101, 0.3);
+}
+
+.inline-reply-send-btn svg {
+    stroke: #ffffff;
+}
+
+/* Compose Modal Styles */
+.compose-modal {
+    position: fixed;
+    bottom: 0;
+    right: 40px;
+    width: 600px;
+    max-height: 90vh;
+    background: #fff;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e6eef6;
+    border-bottom: none;
+    animation: slideUp 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.compose-modal.hidden {
+    display: none;
+}
+
+.compose-modal.minimized {
+    height: 48px;
+    max-height: 48px;
+}
+
+.compose-modal-header {
+    background: #85BB65;
+    color: #000;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+    cursor: move;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.compose-modal-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+
+.compose-modal-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.compose-modal-btn {
+    background: transparent;
+    border: none;
+    color: #000;
+    padding: 6px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.compose-modal-btn:hover {
+    background: rgba(0,0,0,0.1);
+    transform: scale(1.1);
+}
+
+.compose-modal-btn:active {
+    transform: scale(0.95);
+}
+
+.compose-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 400px;
+    background: #fff;
+}
+
+.compose-field {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.compose-select,
+.compose-field input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #000;
+    background: transparent;
+}
+
+.compose-editor {
+    flex: 1;
+    padding: 16px;
+    background: #fff;
+}
+
+.compose-editor textarea {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #000;
+    font-family: inherit;
+}
+
+.compose-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+
+.compose-footer-left,
+.compose-footer-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.compose-save-draft-btn,
+.compose-send-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.compose-save-draft-btn {
+    background: transparent;
+    color: #5f6368;
+    border: 1px solid #e6eef6;
+}
+
+.compose-save-draft-btn:hover {
+    background: #f1f3f4;
+}
+
+.compose-send-btn {
+    background: #85BB65;
+    color: #fff;
+}
+
+.compose-send-btn:hover {
+    background: #6fa050;
+}
+
+.compose-toolbar-btn {
+    background: transparent;
+    border: none;
+    color: #5f6368;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.compose-toolbar-btn:hover {
+    background: #f1f3f4;
+    color: #000;
+}
+
+.file-attachment-display {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #f8f9fa;
+    display: none;
+}
+
+.file-attachment-display.visible {
+    display: block;
+}
+
+.file-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.compose-draft-indicator {
+    display: none;
+    padding: 8px 16px;
+    background: #fff3cd;
+    color: #856404;
+    font-size: 12px;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-draft-indicator.visible {
+    display: flex;
+}
+
+.message-detail-content {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    overflow: hidden;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100%;
+    position: relative;
+}
+
+.replies-section {
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.replies-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #fff;
+}
+
+.replies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+}
+
+.reply-item {
+    background: #fff;
+    border-bottom: 1px solid #f1f3f4;
+    padding: 16px 24px;
+}
+
+.reply-item:last-child {
+    border-bottom: none;
+}
+
+.reply-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.reply-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e6eef6;
+}
+
+.reply-sender {
+    font-weight: 600;
+    font-size: 15px;
+    color: #000000;
+}
+
+.reply-date {
+    font-size: 12px;
+    color: #6b7280;
+    margin-left: auto;
+}
+
+.reply-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #000000;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin-bottom: 12px;
+}
+
+.reply-attachment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #000000;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.reply-attachment:hover {
+    background: #e6eef6;
+    text-decoration: none;
+    color: #85BB65;
+}
+
+.empty-replies {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* Thread Messages Styles */
+.thread-header {
+    background: #f8f9fa;
+    padding: 12px 24px;
+    border-bottom: 1px solid #e6eef6;
+    margin-bottom: 0;
+}
+
+.thread-messages-container {
+    padding: 0;
+}
+
+.gmail-style-thread {
+    border-top: 1px solid #e6eef6;
+}
+
+.gmail-message-item {
+    border-bottom: 1px solid #e6eef6;
+    transition: background-color 0.1s ease;
+}
+
+.gmail-message-item:hover {
+    background-color: #f8f9fa;
+}
+
+.gmail-message-item.active-message {
+    background-color: #f1f3f4;
+}
+
+.gmail-message-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    min-height: 48px;
+}
+
+.gmail-message-avatar {
+    flex-shrink: 0;
+}
+
+.gmail-sender-name {
+    font-weight: 600;
+    color: #202124;
+}
+
+.gmail-message-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.gmail-message-content {
+    padding: 0 16px 12px 16px;
+}
+
+.gmail-message-content.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.gmail-message-item.collapsed .gmail-message-content.collapsible-content {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.gmail-message-item.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+    color: #5f6368;
+}
+
+/* ============================================================================
+   REPLY MODAL - REBUILT WITH CLEAN CSS
+   ============================================================================ */
+.reply-modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 9999 !important;
+    display: block !important;
+}
+
+.reply-modal-backdrop.hidden {
+    display: none !important;
+}
+
+#reply-modal {
+    position: fixed !important;
+    bottom: 0 !important;
+    right: 40px !important;
+    width: 600px !important;
+    max-width: calc(100vw - 80px) !important;
+    max-height: 90vh !important;
+    background: #ffffff !important;
+    border-radius: 12px 12px 0 0 !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 10000 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #e6eef6 !important;
+    border-bottom: none !important;
+    overflow: hidden !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    animation: slideUpReply 0.3s ease-out !important;
+}
+
+#reply-modal.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+@keyframes slideUpReply {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#reply-modal .reply-modal-header {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#reply-modal .reply-modal-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(133, 187, 101, 0.1) 0%, rgba(111, 160, 80, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#reply-modal .reply-modal-header:hover::before {
+    opacity: 1;
+}
+
+#reply-modal .reply-modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 1;
+}
+
+#reply-modal .reply-modal-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+#reply-modal .reply-modal-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+#reply-modal .reply-modal-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#reply-modal .reply-modal-btn:active {
+    transform: scale(0.95);
+}
+
+#reply-modal .reply-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 400px;
+    background: #ffffff;
+}
+
+#reply-modal .reply-modal-field {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+#reply-modal .reply-modal-field input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 0;
+    color: #9aa0a6 !important;
+    background: transparent;
+    font-family: inherit;
+}
+
+#reply-modal .reply-modal-field input[readonly] {
+    color: #9aa0a6 !important;
+    cursor: default;
+}
+
+#reply-modal .reply-modal-editor {
+    flex: 1;
+    padding: 20px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+#reply-modal .reply-modal-editor textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 200px !important;
+    padding: 16px !important;
+    border: 2px solid #85BB65 !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    font-family: inherit !important;
+    resize: vertical !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    color: #121C0C !important;
+    background: #ffffff !important;
+    line-height: 1.6 !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 3px rgba(133, 187, 101, 0.1) !important;
+    margin: 0 !important;
+}
+
+#reply-modal .reply-modal-editor textarea:focus {
+    outline: none !important;
+    border-color: #85BB65 !important;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.15), 0 2px 8px rgba(133, 187, 101, 0.2) !important;
+    background: #ffffff !important;
+}
+
+#reply-modal .reply-modal-editor textarea::placeholder {
+    color: #9aa0a6 !important;
+}
+
+#reply-modal .reply-file-attachment-display {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    background: #f8f9fa;
+    display: none;
+    flex-shrink: 0;
+}
+
+#reply-modal .reply-file-attachment-display.visible {
+    display: block;
+}
+
+#reply-modal .reply-file-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#reply-modal .reply-file-attachment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+    font-size: 14px;
+}
+
+#reply-modal .reply-file-attachment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+#reply-modal .reply-file-attachment-icon {
+    width: 18px;
+    height: 18px;
+    color: #5f6368;
+    flex-shrink: 0;
+}
+
+#reply-modal .reply-file-attachment-name {
+    color: #000000;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+#reply-modal .reply-file-attachment-size {
+    color: #6b7280;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+#reply-modal .reply-file-attachment-remove {
+    background: transparent;
+    border: none;
+    color: #dc3545;
+    padding: 6px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+#reply-modal .reply-file-attachment-remove:hover {
+    background: #fee;
+}
+
+#reply-modal .reply-file-attachment-remove:active {
+    transform: scale(0.95);
+}
+
+#reply-modal .reply-modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+#reply-modal .reply-modal-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#reply-modal .reply-modal-send-btn {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+#reply-modal .reply-modal-send-btn:hover {
+    background: linear-gradient(135deg, #85BB65 0%, #6fa050 100%);
+    box-shadow: 0 6px 20px rgba(133, 187, 101, 0.4);
+    transform: translateY(-2px);
+}
+
+#reply-modal .reply-modal-send-btn:hover svg {
+    transform: translateX(2px);
+}
+
+#reply-modal .reply-modal-send-btn:active {
+    transform: translateY(0);
+}
+
+#reply-modal .reply-modal-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#reply-modal .reply-modal-footer-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+#reply-modal .reply-modal-toolbar-btn {
+    background: transparent;
+    border: none;
+    color: #5f6368;
+    padding: 8px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+#reply-modal .reply-modal-toolbar-btn:hover {
+    background: #f1f3f4;
+    color: #000000;
+}
+
+#reply-modal .reply-modal-toolbar-btn:active {
+    transform: scale(0.95);
+}
+
+#reply-modal .reply-modal-toolbar-btn.has-attachment {
+    background: #e8f5e9;
+    color: #85BB65;
+}
+
+#reply-modal .reply-modal-toolbar-btn.has-attachment:hover {
+    background: #d4edda;
+}
+</style>
+
 <div class="messages-content-body">
-    <div class="message-detail-header" style="margin-bottom: 24px;">
+    <div class="message-detail-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
         <a href="{{ path('app_employer_messages') }}" class="back-button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Back to Messages
         </a>
-        
-        <div class="message-actions">
-            {% if thread_messages is defined and thread_messages|length > 1 %}
-                <a href="{{ path('app_employer_message_forward_thread', {id: root_message.id}) }}" class="forward-btn" title="Forward entire conversation" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Forward all
-                </a>
-            {% else %}
-                <a href="{{ path('app_employer_message_forward', {id: root_message.id}) }}" class="forward-btn" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Forward
-                </a>
-            {% endif %}
-        </div>
+        <button type="button" class="message-reply-btn" id="reply-button-top" title="Reply">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Reply</span>
+        </button>
     </div>
     
     {% if thread_messages is defined and thread_messages|length > 1 %}
-        <div class="thread-header" style="background: #f8f9fa; padding: 12px 24px; border-bottom: 1px solid #e6eef6; margin-bottom: 0;">
+        <div class="thread-header">
             <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #5f6368;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -62,7 +1481,7 @@
                             {% set msgSenderName = threadMsg.sender.name|default(threadMsg.sender.email) %}
                             {% set msgSenderAvatar = threadMsg.sender.profilePictureFilename ? '/uploads/' ~ threadMsg.sender.id ~ '/' ~ threadMsg.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
                             
-                            <img src="{{ msgSenderAvatar }}" alt="{{ msgSenderName }}" class="gmail-message-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                            <img src="{{ msgSenderAvatar }}" alt="" class="gmail-message-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                             
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -70,19 +1489,13 @@
                                     {% if isReply %}
                                         <span style="font-size: 12px; color: #5f6368;">to me</span>
                                     {% endif %}
-                                    <span style="font-size: 12px; color: #5f6368; margin-left: auto;">{{ threadMsg.createdAt|date('M j, Y, g:i A') }}</span>
+                                    <span style="font-size: 12px; color: #9aa0a6; margin-left: auto; font-weight: 400;">{{ threadMsg.createdAt|date('M j, Y, g:i A') }}</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="gmail-message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 12px;">
-                            {% if isReply %}
-                                <button type="button" class="gmail-action-btn" onclick="event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); window.location.href='{{ path('app_employer_message_forward', {id: threadMsg.id}) }}'; return false;" title="Forward this message">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </button>
-                            {% endif %}
+                        <div class="gmail-message-actions">
+                            <!-- Forward button removed -->
                         </div>
                     </div>
                     
@@ -113,7 +1526,7 @@
                 {% set senderName = message.sender.name|default(message.sender.email) %}
                 {% set senderAvatar = message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png') %}
                 
-                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-sender-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
+                <img src="{{ senderAvatar }}" alt="" class="message-sender-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}';">
                 <div class="message-header-details">
                     <div class="message-sender-name">{{ senderName }}</div>
                     <div class="message-date">{{ message.createdAt|date('F j, Y \\a\\t g:i A') }}</div>
@@ -170,59 +1583,583 @@
         {% endif %}
     </div>
 
-    <!-- Reply Form -->
-    <div class="reply-form-section">
-        <h5 class="reply-form-title">Write a Reply</h5>
-        <form id="reply-form" enctype="multipart/form-data" class="reply-form">
-            <textarea name="message" placeholder="Type your reply here..." required></textarea>
-            <div class="file-attachment-wrapper">
-                <input type="file" name="attachment" class="form-control" id="reply-attachment">
+    <!-- Inline Reply Form - Beautiful and Professional (Placed after all content) -->
+    <div id="inline-reply-form" class="inline-reply-form hidden" style="display: none;">
+        <div class="inline-reply-header">
+            <div class="inline-reply-header-left">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="inline-reply-title">Write a Reply</span>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px; justify-content: flex-end;">
-                <a href="{{ path('app_employer_message_forward', {id: root_message.id}) }}" class="email-detail-forward-btn" style="text-decoration: none; padding: 10px 20px; border: 1px solid #e6eef6; border-radius: 8px; color: #5f6368; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#85BB65'; this.style.color='#85BB65';" onmouseout="this.style.borderColor='#e6eef6'; this.style.color='#5f6368';" onclick="event.preventDefault(); event.stopPropagation(); window.location.href=this.href; return false;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
-                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Forward
-                </a>
-                <button type="submit" style="background: #85BB65; color: white; border: none; border-radius: 8px; padding: 12px 32px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(133, 187, 101, 0.2);" onmouseover="this.style.background='#6fa050'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(133, 187, 101, 0.3)';" onmouseout="this.style.background='#85BB65'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(133, 187, 101, 0.2)';">
+            <button type="button" class="inline-reply-close-btn" onclick="window.openReplyModal()" title="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+        <form id="inline-reply-form-element" action="{{ path('app_employer_message_reply_ajax', {'id': root_message.id}) }}" method="post" enctype="multipart/form-data" class="inline-reply-body">
+            <input type="hidden" name="message_id" value="{{ root_message.id }}">
+            <div class="inline-reply-subject">
+                <input type="text" name="subject" value="Re: {{ root_message.subject|default('Message') }}" readonly class="inline-reply-subject-input">
+            </div>
+            <div class="inline-reply-editor">
+                <textarea name="message" id="inline-reply-message" placeholder="Type your reply here..." required class="inline-reply-textarea"></textarea>
+            </div>
+            
+            <!-- File Attachment Display -->
+            <div class="inline-reply-attachments" id="inline-reply-attachments" style="display: none;">
+                <div class="inline-reply-attachments-header">
+                    <span>Attachments</span>
+                </div>
+                <ul class="inline-reply-attachment-list" id="inline-reply-attachment-list">
+                    <!-- Files will be dynamically added here -->
+                </ul>
+            </div>
+            
+            <div class="inline-reply-footer">
+                <div class="inline-reply-footer-left">
+                    <button type="button" class="inline-reply-attach-btn" onclick="document.getElementById('inline-reply-file-input').click()" title="Attach files">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Attach</span>
+                    </button>
+                    <input type="file" id="inline-reply-file-input" name="attachment" style="display: none;" multiple>
+                </div>
+                <div class="inline-reply-footer-right">
+                    <button type="submit" class="inline-reply-send-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Send Reply</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- REPLY MODAL BACKDROP -->
+<div id="reply-modal-backdrop" class="reply-modal-backdrop hidden" onclick="window.closeReplyModal();"></div>
+
+<!-- REPLY MODAL - REBUILT -->
+<div id="reply-modal" class="hidden">
+    <div class="reply-modal-header">
+        <span class="reply-modal-title">Reply</span>
+        <div class="reply-modal-actions">
+            <button type="button" class="reply-modal-btn" onclick="window.closeReplyModal(); return false;" title="Close" aria-label="Close reply modal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <form id="reply-modal-form" action="{{ path('app_employer_message_reply_ajax', {'id': root_message.id}) }}" method="post" enctype="multipart/form-data" class="reply-modal-body">
+        <div class="reply-modal-field">
+            <input type="text" value="Re: {{ root_message.subject|default('Message') }}" readonly>
+        </div>
+        <div class="reply-modal-editor">
+            <textarea name="message" id="reply-modal-message" placeholder="Type your reply here..." required></textarea>
+    </div>
+
+        <!-- File Attachment Display -->
+        <div class="reply-file-attachment-display" id="reply-file-attachment-display">
+            <ul class="reply-file-attachment-list" id="reply-file-attachment-list">
+                <!-- Files will be dynamically added here -->
+            </ul>
+            </div>
+        
+        <div class="reply-modal-footer">
+            <div class="reply-modal-footer-left">
+                <button type="submit" class="reply-modal-send-btn" id="reply-modal-send-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Send Reply
+                    Send
                 </button>
             </div>
+            <div class="reply-modal-footer-right">
+                <button type="button" class="reply-modal-toolbar-btn" onclick="document.getElementById('reply-modal-attachment').click()" title="Attach files" id="reply-attachment-btn" aria-label="Attach files">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <input type="file" id="reply-modal-attachment" name="attachment" style="display: none !important;" multiple>
+            </div>
+            </div>
         </form>
-        <div id="reply-status" class="mt-2"></div>
+</div>
+
+<!-- COMPOSE MODAL -->
+<div id="compose-modal" class="compose-modal hidden">
+    <div class="compose-modal-header">
+        <span class="compose-modal-title">New Message</span>
+        <div class="compose-modal-actions">
+            <button type="button" class="compose-modal-btn" onclick="minimizeComposeModal()" title="Minimize">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <button type="button" class="compose-modal-btn" onclick="closeComposeModal()" title="Close">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
     </div>
+    <form id="compose-form" action="{{ path('app_employer_messages_new') }}" method="post" enctype="multipart/form-data" class="compose-modal-body">
+        <input type="hidden" name="draft_id" id="compose-draft-id">
+        <div class="compose-draft-indicator" id="draft-indicator">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Editing draft</span>
+        </div>
+        <div class="compose-field">
+            <select name="receiver" id="compose-receiver" class="compose-select" required>
+                <option value="">-- Select Provider --</option>
+                {% if providers is defined %}
+                    {% for provider in providers %}
+                        <option value="{{ provider.id }}">{{ provider.name }} {% if provider.email %}[{{ provider.email }}]{% endif %}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </div>
+        <div class="compose-field">
+            <input type="text" name="subject" id="compose-subject" placeholder="Subject">
+        </div>
+        <div class="compose-editor">
+            <textarea name="message" id="compose-message" placeholder="Compose your message..." required></textarea>
+        </div>
+        
+        <!-- File Attachment Display -->
+        <div class="file-attachment-display" id="file-attachment-display">
+            <ul class="file-attachment-list" id="file-attachment-list">
+                <!-- Files will be dynamically added here -->
+            </ul>
+        </div>
+        
+        <div class="compose-footer">
+            <div class="compose-footer-left">
+                <button type="button" id="save-draft-btn" class="compose-save-draft-btn" onclick="saveAsDraft()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7M3 7L5 21H19L21 7M3 7H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Save Draft
+                </button>
+            </div>
+            <div class="compose-footer-right">
+                <button type="button" class="compose-toolbar-btn" onclick="document.getElementById('compose-attachment').click()" title="Attach files" id="attachment-btn" aria-label="Attach files">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <input type="file" id="compose-attachment" name="attachment" style="display: none !important;" multiple>
+                <button type="submit" class="compose-send-btn" id="compose-send-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Send
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
 
 {% block footer_scripts %}
     <script>
-        document.getElementById('reply-form').addEventListener('submit', async function (e) {
+// ============================================================================
+// REPLY MODAL FUNCTIONS - Define immediately for global access
+// ============================================================================
+let replySelectedFiles = [];
+
+// openReplyModal is already defined at the top - ensure it opens the modal
+if (typeof window.openReplyModal === 'undefined') {
+    window.openReplyModal = function() {
+        const replyModal = document.getElementById('reply-modal');
+        if (!replyModal) {
+            console.error('Reply modal not found!');
+            return;
+        }
+        
+        // Show modal
+        replyModal.classList.remove('hidden');
+        replyModal.style.display = 'block';
+        
+        // Focus on textarea
+        setTimeout(() => {
+            const textarea = document.getElementById('reply-modal-message');
+            if (textarea) {
+                textarea.focus();
+            }
+        }, 100);
+    };
+}
+
+// Define closeReplyModal function immediately
+function closeReplyModal() {
+    const modal = document.getElementById('reply-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        // Clear form
+        const form = document.getElementById('reply-modal-form');
+        if (form) {
+            form.reset();
+        }
+        replySelectedFiles = [];
+        if (typeof updateReplyFileDisplay === 'function') {
+            updateReplyFileDisplay();
+        }
+        if (typeof updateReplyAttachmentButton === 'function') {
+            updateReplyAttachmentButton();
+        }
+    }
+}
+
+// Reply file attachment helper functions
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function updateReplyFileDisplay() {
+    const attachmentDisplay = document.getElementById('reply-file-attachment-display');
+    const attachmentList = document.getElementById('reply-file-attachment-list');
+    if (!attachmentDisplay || !attachmentList) return;
+    attachmentList.innerHTML = '';
+    if (replySelectedFiles.length === 0) {
+        attachmentDisplay.classList.remove('visible');
+        return;
+    }
+    replySelectedFiles.forEach((file, index) => {
+        const fileSize = file.size > 0 ? formatFileSize(file.size) : 'Unknown size';
+        const listItem = document.createElement('li');
+        listItem.className = 'reply-file-attachment-item';
+        listItem.innerHTML = `
+            <div class="reply-file-attachment-info">
+                <svg class="reply-file-attachment-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="reply-file-attachment-name" title="${file.name}">${file.name}</span>
+                <span class="reply-file-attachment-size">${fileSize}</span>
+            </div>
+            <button type="button" class="reply-file-attachment-remove" onclick="removeReplySelectedFile(${index})" title="Remove file">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        `;
+        attachmentList.appendChild(listItem);
+    });
+    attachmentDisplay.classList.add('visible');
+}
+
+function updateReplyAttachmentButton() {
+    const attachmentBtn = document.getElementById('reply-attachment-btn');
+    if (attachmentBtn) {
+        if (replySelectedFiles.length > 0) {
+            attachmentBtn.classList.add('has-attachment');
+            attachmentBtn.title = `${replySelectedFiles.length} file(s) attached`;
+        } else {
+            attachmentBtn.classList.remove('has-attachment');
+            attachmentBtn.title = 'Attach files';
+        }
+    }
+}
+
+function removeReplySelectedFile(index) {
+    if (index >= 0 && index < replySelectedFiles.length) {
+        replySelectedFiles.splice(index, 1);
+        updateReplyFileDisplay();
+        updateReplyAttachmentButton();
+    }
+}
+
+function handleReplyFileSelection(files) {
+    if (!files || files.length === 0) return;
+    const newFiles = Array.from(files);
+    replySelectedFiles = [...replySelectedFiles, ...newFiles];
+    updateReplyFileDisplay();
+    updateReplyAttachmentButton();
+}
+
+function initializeReplyFileAttachments() {
+    const fileInput = document.getElementById('reply-modal-attachment');
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            handleReplyFileSelection(e.target.files);
+        });
+    }
+}
+
+// Make functions globally accessible immediately
+window.openReplyModal = openReplyModal;
+window.closeReplyModal = closeReplyModal;
+window.removeReplySelectedFile = removeReplySelectedFile;
+
+// Toggle message collapse (Gmail-style)
+function toggleMessageCollapse(headerElement) {
+    const messageItem = headerElement.closest('.gmail-message-item');
+    if (messageItem) {
+        messageItem.classList.toggle('collapsed');
+        const content = messageItem.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            if (messageItem.classList.contains('collapsed')) {
+                content.style.display = 'none';
+            } else {
+                content.style.display = 'block';
+            }
+        }
+    }
+}
+
+// Initialize - expand all messages by default
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.gmail-message-item').forEach(function(item) {
+        const content = item.querySelector('.gmail-message-content.collapsible-content');
+        if (content) {
+            content.style.display = 'block';
+        }
+    });
+    
+    // Immediately set button color and ensure function is available
+    const replyBtn = document.getElementById('reply-button-top') || document.querySelector('.message-reply-btn');
+    if (replyBtn) {
+        replyBtn.style.backgroundColor = '#000000';
+        replyBtn.style.color = '#ffffff';
+        replyBtn.removeAttribute('onclick');
+        replyBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.openReplyModal === 'function') {
+                window.openReplyModal();
+            }
+        });
+    }
+});
+
+// Reply Modal Functions - already defined above
+
+// Toast notification function
+function showToast(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid ' + (type === 'success' ? '#85BB65' : '#dc3545') + '; z-index: 10000; max-width: 300px; animation: slideIn 0.3s ease;';
+    toast.innerHTML = `
+        <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 14px; color: #000000;">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 10px; color: #6b7280;">&times;</button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
+}
+
+// Reply form submission
+document.addEventListener('DOMContentLoaded', function() {
+    initializeReplyFileAttachments();
+    
+    // Ensure reply button works - function is already defined globally
+    const replyButtons = document.querySelectorAll('.message-reply-btn, #reply-button-top');
+    replyButtons.forEach(function(btn) {
+        // Remove any onclick attribute
+        btn.removeAttribute('onclick');
+        // Force black background
+        btn.style.backgroundColor = '#85BB65';
+        btn.style.color = '#ffffff';
+        btn.style.border = 'none';
+        btn.style.borderRadius = '10px';
+        btn.style.padding = '10px 20px';
+        btn.style.fontWeight = '600';
+        btn.style.fontSize = '14px';
+        btn.style.cursor = 'pointer';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.justifyContent = 'center';
+        btn.style.gap = '8px';
+        btn.style.transition = 'all 0.2s ease';
+        btn.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.15)';
+        
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Reply button clicked');
+            if (typeof window.openReplyModal === 'function') {
+                console.log('Calling openReplyModal');
+                window.openReplyModal();
+            } else {
+                console.error('openReplyModal not found');
+                alert('Reply function not available. Please refresh the page.');
+            }
+        }, true);
+        
+        // Add hover effect
+        btn.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#85BB65';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '#85BB65';
+        });
+    });
+    
+    // Initialize inline reply form file attachments
+    const fileInput = document.getElementById('inline-reply-file-input');
+    const attachmentList = document.getElementById('inline-reply-attachment-list');
+    const attachmentsContainer = document.getElementById('inline-reply-attachments');
+    let selectedFiles = [];
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function removeAttachment(index) {
+        selectedFiles.splice(index, 1);
+        updateAttachmentDisplay();
+    }
+    
+    function updateAttachmentDisplay() {
+        if (!attachmentList || !attachmentsContainer) return;
+        
+        attachmentList.innerHTML = '';
+        
+        if (selectedFiles.length === 0) {
+            attachmentsContainer.style.display = 'none';
+            return;
+        }
+        
+        attachmentsContainer.style.display = 'block';
+        
+        selectedFiles.forEach(function(file, index) {
+            const li = document.createElement('li');
+            li.className = 'inline-reply-attachment-item';
+            li.innerHTML = `
+                <div class="inline-reply-attachment-info">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                        <div class="inline-reply-attachment-name">${file.name}</div>
+                        <div class="inline-reply-attachment-size">${formatFileSize(file.size)}</div>
+                    </div>
+                </div>
+                <button type="button" class="inline-reply-attachment-remove" onclick="removeAttachment(${index})" title="Remove">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            `;
+            attachmentList.appendChild(li);
+        });
+    }
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            selectedFiles = selectedFiles.concat(files);
+            updateAttachmentDisplay();
+            // Reset input
+            this.value = '';
+        });
+    }
+    
+    // Make removeAttachment globally accessible
+    window.removeAttachment = removeAttachment;
+    
+    // Handle form submission
+    const replyForm = document.getElementById('inline-reply-form-element');
+    if (replyForm) {
+        replyForm.addEventListener('submit', function(e) {
+            // Form will submit normally with attachments
+            console.log('Submitting reply form');
+        });
+    }
+    
+    const replyForm = document.getElementById('reply-modal-form');
+    if (replyForm) {
+        replyForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const form = e.target;
             const formData = new FormData(form);
-            const messageId = '{{ message.id }}';
+            
+            // Add selected files to form data
+            replySelectedFiles.forEach((file, index) => {
+                formData.append('attachment', file);
+            });
+            
+            const messageId = '{{ root_message.id }}';
+            const button = form.querySelector('button[type="submit"]');
+            const originalButtonText = button.innerHTML;
 
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span>Sending...';
+
+            try {
             const response = await fetch(`/employer/messages/${messageId}/reply`, {
                 method: 'POST',
                 body: formData
             });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // Check content type before parsing JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Non-JSON response received:', text.substring(0, 200));
+                    throw new Error('Server returned non-JSON response. Please try again.');
+                }
+
             const result = await response.json();
-            const statusDiv = document.getElementById('reply-status');
 
             if (result.success) {
-                document.getElementById('replies-list').insertAdjacentHTML('beforeend', result.replyHtml);
-                form.reset();
-                showToast('success', 'Reply sent successfully')
+                    showToast('success', 'Reply sent successfully!');
+                    closeReplyModal();
+                    // Reload the page to show the new reply in the thread
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
             } else {
-                statusDiv.innerHTML = `<!--<div class="alert alert-danger mt-2">${result.error || 'An error occurred.'}</div>-->`;
-                showToast('error', 'An error occurred.')
+                    showToast('error', result.error || 'An error occurred.');
+                }
+            } catch (error) {
+                console.error('Error sending reply:', error);
+                showToast('error', error.message || 'An error occurred while sending your reply.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalButtonText;
             }
+        });
+    }
+
+    // Close reply modal when clicking outside
+    document.addEventListener('click', function(e) {
+        const replyModal = document.getElementById('reply-modal');
+        if (replyModal && !replyModal.contains(e.target) && !e.target.closest('.message-reply-btn')) {
+            // Allow clicking outside to close, but only if modal is visible
+            if (!replyModal.classList.contains('hidden')) {
+                // Only close if clicking on backdrop area
+                const isBackdrop = e.target === document.body || e.target.classList.contains('messages-content-body');
+                if (isBackdrop) {
+                    closeReplyModal();
+                }
+            }
+        }
+    });
         });
     </script>
 {% endblock %}

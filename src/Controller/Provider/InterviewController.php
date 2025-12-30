@@ -5,6 +5,7 @@ namespace App\Controller\Provider;
 use App\Repository\InterviewRepository;
 use App\Entity\Application;
 use App\Entity\Document;
+use App\Entity\ToDo;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,6 +55,23 @@ class InterviewController extends AbstractController
             if ($interview && $interview->getApplication() === $application) {
                 $application->setInterview($interview);
                 $em->persist($application);
+
+                // Create ToDo for Employer regarding accepted interview
+                $employerTodo = new ToDo();
+                $employerTodo->setEmployer($application->getEmployer());
+                $employerTodo->setProvider($application->getProvider());
+                $employerTodo->setJob($application->getJob());
+                $employerTodo->setTitle('Interview Accepted');
+                $employerTodo->setDescription(
+                    sprintf(
+                        '%s has accepted the interview request for %s.',
+                        $application->getProvider()->getUser()->getName(),
+                        $interview->getDate()->format('F j, Y g:i A')
+                    )
+                );
+                $employerTodo->setType('interview_accepted');
+                $employerTodo->setIsCompleted(false);
+                $em->persist($employerTodo);
             }
         }
 

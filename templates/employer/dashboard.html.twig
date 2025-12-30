@@ -574,29 +574,104 @@ div.container-xl,
                     <ul class="list-unstyled m-0 p-0" id="todoList">
                         {% if employerTodos is defined and employerTodos|length > 0 %}
                             {% for todo in employerTodos %}
-                                <li class="todo-item {% if todo.id %}todo-id-{{ todo.id }}{% endif %}">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="todo-content-left flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div class="todo-title-section flex-grow-1">
-                                                    <div class="todo-title fw-semibold {{ todo.isCompleted ? 'text-decoration-line-through text-muted' : '' }}" {% if todo.id %}id="todo-title-{{ todo.id }}"{% endif %} style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
-                                                        {{ todo.title }}
+                                {% if todo.isBundled is defined and todo.isBundled %}
+                                    <!-- Bundled Todo Item by Candidate -->
+                                    <li class="todo-item todo-item-bundled {% if loop.first %}todo-item-first{% endif %}" data-provider-id="{{ todo.providerId }}" {% if loop.first %}style="margin-top: 15px;"{% endif %}>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="todo-content-left flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="todo-title-section flex-grow-1">
+                                                        <div class="todo-title fw-semibold" style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
+                                                            📦 {{ todo.providerName }} ({{ todo.todoCount }} tasks)
+                                                        </div>
+                                                        <div class="todo-meta-info mt-1">
+                                                            <div class="small">Candidate ID: {{ todo.providerId }}</div>
+                                                            <div class="bundled-todos-list mt-2" style="display: none;">
+                                                                {% for bundledTodo in todo.todos %}
+                                                                    <div class="bundled-todo-item mb-2 p-2" style="background: #f0f0f0; border-radius: 6px; border-left: 3px solid #006bff;" {% if bundledTodo.id %}data-todo-id="{{ bundledTodo.id }}"{% endif %}>
+                                                                        <div class="d-flex justify-content-between align-items-start">
+                                                                            <div class="flex-grow-1">
+                                                                                <div class="fw-semibold {{ bundledTodo.isCompleted ? 'text-decoration-line-through text-muted' : '' }}" style="font-size: 12px; color: #121C0C; margin-bottom: 2px;" {% if bundledTodo.id %}id="bundled-todo-title-{{ bundledTodo.id }}"{% endif %}>
+                                                                                    {{ bundledTodo.title }}
+                                                                                </div>
+                                                                                <div class="small" style="font-size: 11px; color: #666;">
+                                                                                    {{ bundledTodo.description }}
+                                                                                </div>
+                                                                                {% if bundledTodo.type == 'interview_accepted' and not bundledTodo.isCompleted %}
+                                                                                    {% if not bundledTodo.contractSent %}
+                                                                                    <div class="mt-1">
+                                                                                        <a href="{{ path('app_employer_application_sendcontract', {'id': bundledTodo.applicationId}) }}" class="btn btn-sm btn-primary py-1 px-2" style="font-size: 10px; border-radius: 8px; background-color: #006bff; border-color: #006bff; color:white; text-decoration: none;">
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" class="bi bi-file-earmark-text me-1" viewBox="0 0 16 16">
+                                                                                              <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5.5 9a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5.5 11a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                                                                                              <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                                                                            </svg>
+                                                                                            Send Contract
+                                                                                        </a>
+                                                                                    </div>
+                                                                                    {% endif %}
+                                                                                {% endif %}
+                                                                            </div>
+                                                                            <div class="ms-2">
+                                                                                <span class="todo-status-badge {{ bundledTodo.isCompleted ? 'completed' : 'pending' }}" style="font-size: 10px;">{{ bundledTodo.isCompleted ? 'Completed' : 'Pending' }}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="todo-meta-info mt-1">
-                                                        <div class="small">{{ todo.description }}</div>
+                                                    <div class="todo-badge-top">
+                                                        <button class="btn btn-sm p-0 border-0 bg-transparent toggle-bundle" type="button" style="font-size: 11px; color: #006bff; cursor: pointer;" title="Toggle bundle">
+                                                            <span class="bundle-toggle-text">Show</span>
+                                                        </button>
                                                     </div>
-                                                </div>
-                                                <div class="todo-badge-top">
-                                                    <span class="todo-status-badge {{ todo.isCompleted ? 'completed' : 'pending' }}">{{ todo.isCompleted ? 'Completed' : 'Pending' }}</span>
                                                 </div>
                                             </div>
+                                            <div class="todo-date-right">
+                                                <div class="small fw-semibold text-end" style="font-size:12px;">{{ todo.createdAt|date('M d, Y') }}</div>
+                                                <div class="small text-end" style="font-size:12px;">{{ todo.createdAt|date('h:i A') }}</div>
+                                            </div>
                                         </div>
-                                        <div class="todo-date-right">
-                                            <div class="small fw-semibold text-end" style="font-size:12px;">{{ todo.createdAt|date('M d, Y') }}</div>
-                                            <div class="small text-end" style="font-size:12px;">{{ todo.createdAt|date('h:i A') }}</div>
+                                    </li>
+                                {% else %}
+                                    <!-- Regular Todo Item -->
+                                    <li class="todo-item {% if todo.id %}todo-id-{{ todo.id }}{% endif %} {% if loop.first %}todo-item-first{% endif %}" {% if loop.first %}style="margin-top: 15px;"{% endif %}>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="todo-content-left flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div class="todo-title-section flex-grow-1">
+                                                        <div class="todo-title fw-semibold {{ todo.isCompleted ? 'text-decoration-line-through text-muted' : '' }}" {% if todo.id %}id="todo-title-{{ todo.id }}"{% endif %} style="font-size: 13px; line-height: 1.3; color: #121C0C; margin-bottom: 3px;">
+                                                            {{ todo.title }}
+                                                        </div>
+                                                        <div class="todo-meta-info mt-1">
+                                                            <div class="small">{{ todo.description }}</div>
+                                                            {% if todo.type == 'interview_accepted' and not todo.isCompleted %}
+                                                                {% if not todo.contractSent %}
+                                                                <div class="mt-2">
+                                                                    <a href="{{ path('app_employer_application_sendcontract', {'id': todo.applicationId}) }}" class="btn btn-sm btn-primary py-1 px-3" style="font-size: 11px; border-radius: 12px; background-color: #006bff; border-color: #006bff; color:white; text-decoration: none;">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-file-earmark-text me-1" viewBox="0 0 16 16">
+                                                                          <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5.5 9a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5.5 11a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1z"/>
+                                                                          <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                                                        </svg>
+                                                                        Send Contract
+                                                                    </a>
+                                                                </div>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="todo-badge-top">
+                                                        <span class="todo-status-badge {{ todo.isCompleted ? 'completed' : 'pending' }}">{{ todo.isCompleted ? 'Completed' : 'Pending' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="todo-date-right">
+                                                <div class="small fw-semibold text-end" style="font-size:12px;">{{ todo.createdAt|date('M d, Y') }}</div>
+                                                <div class="small text-end" style="font-size:12px;">{{ todo.createdAt|date('h:i A') }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </li>
+                                    </li>
+                                {% endif %}
                             {% endfor %}
                         {% else %}
                             <li class="todo-item">
@@ -616,6 +691,29 @@ div.container-xl,
                     document.addEventListener('DOMContentLoaded', function() {
                         const todoList = document.getElementById('todoList');
                         
+                        // Bundle toggle functionality
+                        document.querySelectorAll('.toggle-bundle').forEach(function(btn) {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const bundledItem = this.closest('.todo-item-bundled');
+                                if(bundledItem) {
+                                    const todosList = bundledItem.querySelector('.bundled-todos-list');
+                                    const toggleText = this.querySelector('.bundle-toggle-text');
+                                    
+                                    if(todosList) {
+                                        if(todosList.style.display === 'none' || !todosList.style.display) {
+                                            todosList.style.display = 'block';
+                                            toggleText.textContent = 'Hide';
+                                        } else {
+                                            todosList.style.display = 'none';
+                                            toggleText.textContent = 'Show';
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                        
                         // Event Delegation for Toggle - click on status badge to toggle
                         todoList?.addEventListener('click', function(e) {
                             // Toggle via status badge click
@@ -623,10 +721,12 @@ div.container-xl,
                             if(statusBadge) {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                const todoItem = statusBadge.closest('.todo-item');
-                                if(todoItem) {
-                                    const idMatch = todoItem.className.match(/todo-id-([\w-]+)/);
-                                    const id = idMatch ? idMatch[1] : null;
+                                
+                                // Check if it's inside a bundled todo
+                                const bundledTodoItem = statusBadge.closest('.bundled-todo-item');
+                                if(bundledTodoItem) {
+                                    // Get the todo ID from data attribute
+                                    const id = bundledTodoItem.getAttribute('data-todo-id');
                                     if(id) {
                                         const isCompleted = statusBadge.classList.contains('completed');
                                         
@@ -635,7 +735,7 @@ div.container-xl,
                                         .then(data => {
                                             if(data.success) {
                                                 const newStatus = data.isCompleted;
-                                                const titleEl = document.getElementById(`todo-title-${id}`);
+                                                const titleEl = document.getElementById(`bundled-todo-title-${id}`);
                                                 
                                                 if(newStatus) {
                                                     if(titleEl) titleEl.classList.add('text-decoration-line-through', 'text-muted');
@@ -649,6 +749,36 @@ div.container-xl,
                                             }
                                         })
                                         .catch(err => console.error('Error toggling todo:', err));
+                                    }
+                                } else {
+                                    // Regular todo item
+                                    const todoItem = statusBadge.closest('.todo-item');
+                                    if(todoItem && !todoItem.classList.contains('todo-item-bundled')) {
+                                        const idMatch = todoItem.className.match(/todo-id-([\w-]+)/);
+                                        const id = idMatch ? idMatch[1] : null;
+                                        if(id) {
+                                            const isCompleted = statusBadge.classList.contains('completed');
+                                            
+                                            fetch(`/employer/todos/${id}/toggle`, { method: 'POST' })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if(data.success) {
+                                                    const newStatus = data.isCompleted;
+                                                    const titleEl = document.getElementById(`todo-title-${id}`);
+                                                    
+                                                    if(newStatus) {
+                                                        if(titleEl) titleEl.classList.add('text-decoration-line-through', 'text-muted');
+                                                        statusBadge.textContent = 'Completed';
+                                                        statusBadge.className = 'todo-status-badge completed';
+                                                    } else {
+                                                        if(titleEl) titleEl.classList.remove('text-decoration-line-through', 'text-muted');
+                                                        statusBadge.textContent = 'Pending';
+                                                        statusBadge.className = 'todo-status-badge pending';
+                                                    }
+                                                }
+                                            })
+                                            .catch(err => console.error('Error toggling todo:', err));
+                                        }
                                     }
                                 }
                             }
@@ -1481,8 +1611,10 @@ div.container-xl,
     }
 }
 
-.todo-item:nth-child(1) {
+.todo-item:nth-child(1),
+.todo-item-first {
     animation-delay: 0.05s;
+    margin-top: 15px;
 }
 
 .todo-item:nth-child(2) {

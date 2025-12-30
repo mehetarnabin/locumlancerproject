@@ -6,13 +6,13 @@ use App\Entity\Recruiter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-require_once dirname(__DIR__) . '/vendor/autoload_runtime.php';
+require_once __DIR__ . '/vendor/autoload_runtime.php';
 
 return function (array $context) {
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
     return new class($kernel) extends \Symfony\Bundle\FrameworkBundle\Console\Application {
-        public function doRun(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output)
+        public function doRun(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output): int
         {
             $kernel = $this->getKernel();
             $kernel->boot();

@@ -26,9 +26,20 @@ class ToDoController extends AbstractController
         $provider = $this->getUser()->getProvider();
         $todos = $todoRepository->findPendingByProvider($provider);
 
-        $data = array_map(function (ToDo $todo) {
-            return $this->formatTodoData($todo);
-        }, $todos);
+        $data = [];
+        foreach ($todos as $todo) {
+            try {
+                $formatted = $this->formatTodoData($todo);
+                // Ensure type is set correctly
+                if ($todo->getType() === 'document_request') {
+                    $formatted['type'] = 'document_request';
+                }
+                $data[] = $formatted;
+            } catch (\Exception $e) {
+                // Log error but continue processing other todos
+                error_log('Error formatting todo: ' . $e->getMessage());
+            }
+        }
 
         return $this->json([
             'success' => true, 
@@ -55,24 +66,34 @@ class ToDoController extends AbstractController
     private function formatTodoData(ToDo $todo): array
 {
     $documentRequest = $todo->getDocumentRequest();
-    $application = $documentRequest ? $documentRequest->getApplication() : null;
-    $job = $application ? $application->getJob() : null;
+    $application = $documentRequest ? $documentRequest->getApplication() : ($todo->getJob() ? null : null);
+    $job = $application ? $application->getJob() : ($todo->getJob() ? $todo->getJob() : null);
 
     $baseData = [
         'id' => (string)$todo->getId(),
         'title' => $todo->getTitle(),
-        'description' => $todo->getDescription(), // This shows the specific document name
+        'description' => $todo->getDescription() ?: ($documentRequest ? $documentRequest->getName() : null), // This shows the specific document name
         'type' => $todo->getType(),
-        'createdAt' => $todo->getCreatedAt()->format('M j, g:i A'),
+        'createdAt' => $todo->getCreatedAt() ? $todo->getCreatedAt()->format('M j, g:i A') : 'Unknown',
     ];
 
     // For document requests - show specific document information
-    if ($todo->getType() === 'document_request') {
+    if ($todo->getType() === 'document_request' || ($documentRequest && !$todo->getType())) {
+        // Ensure type is set
+        if (!$baseData['type']) {
+            $baseData['type'] = 'document_request';
+        }
+        
         $baseData['jobTitle'] = $job ? $job->getTitle() : 'Unknown Job';
         $baseData['employer'] = $todo->getEmployerName() ?: 'Unknown Employer'; // Use the helper method
         $baseData['actionUrl'] = $this->generateUrl('app_provider_documents');
         $baseData['actionText'] = 'Upload Document';
         $baseData['icon'] = '📄';
+        
+        // Add document request ID if available
+        if ($documentRequest) {
+            $baseData['documentRequestId'] = (string)$documentRequest->getId();
+        }
     }
 
     return $baseData;

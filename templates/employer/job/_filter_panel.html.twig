@@ -9,7 +9,7 @@
         <span>Filter</span>
     </button>
     <!-- Filter Dropdown Panel -->
-    <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 340px; max-width: 380px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 4px 12px rgba(11,22,40,0.08); border-radius: 12px; padding: 0; display: none; overflow: hidden;">
+    <div id="filter-panel" class="filter-panel custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 400px; max-width: 450px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 4px 12px rgba(11,22,40,0.08); border-radius: 12px; padding: 0; display: none; overflow: hidden;">
         <form id="filter-form" onsubmit="applyFilters(event)">
             <!-- Header -->
             <div style="padding: 14px 16px 10px 16px; border-bottom: 1px solid #e6eef6; background: #f8f9fa;">
@@ -18,24 +18,27 @@
             </div>
             
             <!-- Tabs -->
-            <div style="display: flex; border-bottom: 1px solid #e6eef6; background: #fff;">
-                <button type="button" class="filter-tab active" data-tab="direct-jobs" onclick="switchFilterTab('direct-jobs', event)" style="flex: 1; padding: 10px 12px; background: transparent; border: none; border-bottom: 2px solid #85BB65; color: #85BB65; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+            <div style="display: flex; border-bottom: 1px solid #e6eef6; background: #fff; width: 100%;">
+                <button type="button" class="filter-tab active" data-tab="all-jobs" onclick="switchFilterTab('all-jobs', event)" style="flex: 1; padding: 10px 6px; background: transparent; border: none; border-bottom: 2px solid #85BB65; color: #85BB65; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; min-width: 0;">
+                    All jobs
+                </button>
+                <button type="button" class="filter-tab" data-tab="direct-jobs" onclick="switchFilterTab('direct-jobs', event)" style="flex: 1; padding: 10px 6px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; min-width: 0;">
                     Direct jobs
                 </button>
-                <button type="button" class="filter-tab" data-tab="recruiter-assigned" onclick="switchFilterTab('recruiter-assigned', event)" style="flex: 1; padding: 10px 12px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-                    Recruiter assigned jobs
+                <button type="button" class="filter-tab" data-tab="recruiter-assigned" onclick="switchFilterTab('recruiter-assigned', event)" style="flex: 1; padding: 10px 6px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; min-width: 0;">
+                    Recruiter assigned
                 </button>
-                <button type="button" class="filter-tab" data-tab="recruiter-applied" onclick="switchFilterTab('recruiter-applied', event)" style="flex: 1; padding: 10px 12px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
-                    Recruiter applied jobs
+                <button type="button" class="filter-tab" data-tab="recruiter-applied" onclick="switchFilterTab('recruiter-applied', event)" style="flex: 1; padding: 10px 6px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #6b7280; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; min-width: 0;">
+                    Recruiter applied
                 </button>
             </div>
             
-            <!-- Filter Content - Direct Jobs Tab -->
-            <div id="direct-jobs-content" class="filter-tab-content" style="padding: 14px; max-height: 500px; overflow-y: auto; display: block;">
+            <!-- Filter Content - All Jobs Tab -->
+            <div id="all-jobs-content" class="filter-tab-content" style="padding: 14px; max-height: 500px; overflow-y: auto; display: block;">
                 <!-- Job ID Search -->
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #121C0C;">Job ID</label>
-                    <input type="text" id="filter-job-id" name="jobId" class="form-control" 
+                    <input type="text" id="filter-job-id-all" name="jobId" class="form-control" 
                            placeholder="Enter Job ID" 
                            value="{{ app.request.get('jobId') }}"
                            style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; width: 100%; transition: border-color 0.2s;" 
@@ -45,7 +48,7 @@
                 <!-- Location Filter -->
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #121C0C;">Location</label>
-                    <input type="text" id="filter-location" name="location" class="form-control" 
+                    <input type="text" id="filter-location-all" name="location" class="form-control" 
                            placeholder="City or state" 
                            value="{{ app.request.get('location') }}"
                            style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; width: 100%; transition: border-color 0.2s;" 
@@ -56,13 +59,13 @@
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #121C0C;">Salary Range</label>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="number" id="filter-salary-min" name="salaryMin" class="form-control" 
+                        <input type="number" id="filter-salary-min-all" name="salaryMin" class="form-control" 
                                placeholder="Min" 
                                value="{{ app.request.get('salaryMin') }}"
                                style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; flex: 1; transition: border-color 0.2s;" 
                                onfocus="this.style.borderColor='#85BB65'" onblur="this.style.borderColor='#e6eef6'">
                         <span style="color: #6b7280; font-weight: 500; font-size: 12px;">-</span>
-                        <input type="number" id="filter-salary-max" name="salaryMax" class="form-control" 
+                        <input type="number" id="filter-salary-max-all" name="salaryMax" class="form-control" 
                                placeholder="Max" 
                                value="{{ app.request.get('salaryMax') }}"
                                style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; flex: 1; transition: border-color 0.2s;" 
@@ -73,7 +76,7 @@
                 <!-- Category/Work Type Filter -->
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #121C0C;">Work Type</label>
-                    <select id="filter-category" name="category" class="form-control" 
+                    <select id="filter-category-all" name="category" class="form-control" 
                             style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; width: 100%; transition: border-color 0.2s; cursor: pointer;" 
                             onfocus="this.style.borderColor='#85BB65'" onblur="this.style.borderColor='#e6eef6'">
                         <option value="">All Types</option>
@@ -86,7 +89,7 @@
                 <!-- Date Applied Filter -->
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; color: #121C0C;">Applied Within</label>
-                    <select id="filter-date-applied" name="days" class="form-control" 
+                    <select id="filter-date-applied-all" name="days" class="form-control" 
                             style="font-size: 12px; padding: 8px 12px; border: 1px solid #e6eef6; border-radius: 8px; width: 100%; transition: border-color 0.2s; cursor: pointer;" 
                             onfocus="this.style.borderColor='#85BB65'" onblur="this.style.borderColor='#e6eef6'">
                         <option value="">Any time</option>
@@ -112,17 +115,45 @@
                 </div>
             </div>
             
+            <!-- Filter Content - Direct Jobs Tab -->
+            <div id="direct-jobs-content" class="filter-tab-content" style="padding: 14px; max-height: 500px; overflow-y: auto; display: none;">
+                <div style="text-align: center; padding: 60px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="margin-bottom: 24px;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                            <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 style="color: #000000; font-size: 18px; font-weight: 600; margin-bottom: 8px;">No jobs available</h3>
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">This section is coming soon.</p>
+                </div>
+            </div>
+            
             <!-- Filter Content - Recruiter Assigned Jobs Tab -->
             <div id="recruiter-assigned-content" class="filter-tab-content" style="padding: 14px; max-height: 500px; overflow-y: auto; display: none;">
-                <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
-                    <p style="margin: 0; font-size: 12px;">Content coming soon</p>
+                <div style="text-align: center; padding: 60px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="margin-bottom: 24px;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                            <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 style="color: #000000; font-size: 18px; font-weight: 600; margin-bottom: 8px;">No jobs available</h3>
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">This section is coming soon.</p>
                 </div>
             </div>
             
             <!-- Filter Content - Recruiter Applied Jobs Tab -->
             <div id="recruiter-applied-content" class="filter-tab-content" style="padding: 14px; max-height: 500px; overflow-y: auto; display: none;">
-                <div style="text-align: center; padding: 40px 20px; color: #6b7280;">
-                    <p style="margin: 0; font-size: 12px;">Content coming soon</p>
+                <div style="text-align: center; padding: 60px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="margin-bottom: 24px;">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                            <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 style="color: #000000; font-size: 18px; font-weight: 600; margin-bottom: 8px;">No jobs available</h3>
+                    <p style="color: #6b7280; font-size: 14px; margin: 0;">This section is coming soon.</p>
                 </div>
             </div>
             

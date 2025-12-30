@@ -495,13 +495,38 @@ class MessageController extends AbstractController
     {
         $user = $this->getUser();
 
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to view messages.');
+        }
+
+        // Ensure message is fully loaded with all relationships and fields
+        $message = $em->getRepository(Message::class)->createQueryBuilder('m')
+            ->leftJoin('m.sender', 'sender')
+            ->leftJoin('m.receiver', 'receiver')
+            ->addSelect('sender', 'receiver')
+            ->where('m.id = :id')
+            ->setParameter('id', $message->getId())
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$message) {
+            throw $this->createNotFoundException('Message not found.');
+        }
+
         // Security check - user can only view their own messages
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+        $sender = $message->getSender();
+        $receiver = $message->getReceiver();
+        
+        if (!$sender || !$receiver) {
+            throw $this->createNotFoundException('Message sender or receiver not found.');
+        }
+        
+        if ($sender->getId() !== $user->getId() && $receiver->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You cannot access this message.');
         }
 
         // Mark as read if receiver is viewing
-        if ($message->getReceiver() && $message->getReceiver()->getId() === $user->getId() && !$message->isSeen()) {
+        if ($receiver && $receiver->getId() === $user->getId() && !$message->isSeen()) {
             $message->setSeen(true);
             $em->persist($message);
             $em->flush();
@@ -512,23 +537,108 @@ class MessageController extends AbstractController
         $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
 
         // Get employers for compose modal
-        $employers = $em->getRepository(User::class)->getEmployersForMessage($user->getProvider()->getId());
+        $employers = [];
+        $provider = $user->getProvider();
+        if ($provider) {
+            $employers = $em->getRepository(User::class)->getEmployersForMessage($provider->getId());
+        }
 
-        // Get root message (thread starter)
-        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+        // Get root message (thread starter) - ensure it's loaded with relationships
+        try {
+            $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+            // Ensure root message has sender/receiver loaded
+            if ($rootMessage->getId()->toString() !== $message->getId()->toString()) {
+                $rootMessage = $em->getRepository(Message::class)->createQueryBuilder('m')
+                    ->leftJoin('m.sender', 'sender')
+                    ->leftJoin('m.receiver', 'receiver')
+                    ->addSelect('sender', 'receiver')
+                    ->where('m.id = :id')
+                    ->setParameter('id', $rootMessage->getId())
+                    ->getQuery()
+                    ->getOneOrNullResult() ?? $rootMessage;
+            }
+        } catch (\Exception $e) {
+            error_log('Error getting root message: ' . $e->getMessage());
+            $rootMessage = $message; // Fallback to current message
+        }
 
-        // Get all messages in the thread
-        $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+        // Get all messages in the thread - ensure all have sender/receiver loaded
+        try {
+            $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+            // Ensure all thread messages have sender/receiver loaded
+            $loadedMessages = [];
+            foreach ($threadMessages as $threadMsg) {
+                if (!$threadMsg->getSender() || !$threadMsg->getReceiver()) {
+                    // Reload message with relationships
+                    $loadedMsg = $em->getRepository(Message::class)->createQueryBuilder('m')
+                        ->leftJoin('m.sender', 'sender')
+                        ->leftJoin('m.receiver', 'receiver')
+                        ->addSelect('sender', 'receiver')
+                        ->where('m.id = :id')
+                        ->setParameter('id', $threadMsg->getId())
+                        ->getQuery()
+                        ->getOneOrNullResult();
+                    $loadedMessages[] = $loadedMsg ?? $threadMsg;
+                } else {
+                    $loadedMessages[] = $threadMsg;
+                }
+            }
+            $threadMessages = $loadedMessages;
+        } catch (\Exception $e) {
+            error_log('Error getting thread messages: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString());
+            $threadMessages = [$message]; // Fallback to just current message
+        }
 
-        return $this->render('provider/message/show.html.twig', [
-            'message' => $message,
-            'root_message' => $rootMessage,
-            'thread_messages' => $threadMessages,
-            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $rootMessage], ['createdAt' => 'ASC']),
-            'draft_count' => $draftCount,
-            'trash_count' => $trashCount,
-            'employers' => $employers,
-        ]);
+        // Get replies (direct children of root message) - ensure sender/receiver are loaded
+        $replies = [];
+        try {
+            // Use query builder with UUID comparison and eager loading
+            $replies = $em->getRepository(Message::class)->createQueryBuilder('m')
+                ->leftJoin('m.sender', 'sender')
+                ->leftJoin('m.receiver', 'receiver')
+                ->addSelect('sender', 'receiver')
+                ->where('m.parent = :parent')
+                ->setParameter('parent', $rootMessage->getId())
+                ->orderBy('m.createdAt', 'ASC')
+                ->getQuery()
+                ->getResult();
+        } catch (\Exception $e) {
+            error_log('Error getting replies: ' . $e->getMessage());
+            // Fallback: extract replies from thread messages
+            foreach ($threadMessages as $threadMsg) {
+                if ($threadMsg && $threadMsg->getParent() && $threadMsg->getParent()->getId() === $rootMessage->getId()) {
+                    $replies[] = $threadMsg;
+                }
+            }
+        }
+
+        // Validate all thread messages have required data
+        $validThreadMessages = [];
+        foreach ($threadMessages as $threadMsg) {
+            if ($threadMsg && $threadMsg->getSender() && $threadMsg->getReceiver()) {
+                $validThreadMessages[] = $threadMsg;
+            }
+        }
+        
+        // If no valid thread messages, use the current message
+        if (empty($validThreadMessages)) {
+            $validThreadMessages = [$message];
+        }
+
+        try {
+            return $this->render('provider/message/show.html.twig', [
+                'message' => $message,
+                'root_message' => $rootMessage,
+                'thread_messages' => $validThreadMessages,
+                'replies' => $replies,
+                'draft_count' => $draftCount,
+                'trash_count' => $trashCount,
+                'employers' => $employers,
+            ]);
+        } catch (\Exception $e) {
+            error_log('Error rendering message show template: ' . $e->getMessage() . ' - Trace: ' . $e->getTraceAsString());
+            throw $this->createNotFoundException('Error loading message content. Please try again.');
+        }
     }
 
     #[Route('/messages/{id}/reply', name: 'app_provider_message_reply_ajax', methods: ['POST'])]

@@ -380,6 +380,57 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
     color: #85BB65 !important;
     font-weight: 600 !important;
 }
+
+/* Status Cards Active State - Light Blue Highlight */
+.application .col .is-card.active,
+.col .is-card.active {
+    background-color: #87ceeb !important;
+    border: 2px solid #70b8d4 !important;
+    box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3) !important;
+    color: #87ceeb !important;
+}
+
+.application .col .is-card.active .card-title,
+.application .col .is-card.active .card-text,
+.col .is-card.active * {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+/* Ensure active state overrides all other status colors */
+.application .col .is-card.is-applied.active,
+.application .col .is-card.is-shortlisted.active,
+.application .col .is-card.is-interviewing.active,
+.application .col .is-card.is-negotiating.active,
+.application .col .is-card.is-accepted.active,
+.application .col .is-card.is-completed.active,
+.col .is-card.is-applied.active,
+.col .is-card.is-shortlisted.active,
+.col .is-card.is-interviewing.active,
+.col .is-card.is-negotiating.active,
+.col .is-card.is-accepted.active,
+.col .is-card.is-completed.active {
+    background-color: #87ceeb !important;
+    border: 2px solid #70b8d4 !important;
+    box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3) !important;
+    color: #87ceeb !important;
+}
+
+.application .col .is-card.is-applied.active .card-title,
+.application .col .is-card.is-applied.active .card-text,
+.application .col .is-card.is-shortlisted.active .card-title,
+.application .col .is-card.is-shortlisted.active .card-text,
+.application .col .is-card.is-interviewing.active .card-title,
+.application .col .is-card.is-interviewing.active .card-text,
+.application .col .is-card.is-negotiating.active .card-title,
+.application .col .is-card.is-negotiating.active .card-text,
+.application .col .is-card.is-accepted.active .card-title,
+.application .col .is-card.is-accepted.active .card-text,
+.application .col .is-card.is-completed.active .card-title,
+.application .col .is-card.is-completed.active .card-text {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
 </style>
 
 <!-- Status Cards (Light Green Cards Style) -->
@@ -527,22 +578,39 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
                     <!-- Status Dropdown Panel -->
                     <div id="status-dropdown-panel" class="status-dropdown custom-dropdown hidden" style="position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 200px; z-index: 9999; background: #fff; border: 1px solid #e6eef6; box-shadow: 0 2px 6px rgba(11,22,40,0.03); border-radius: 10px; padding: 12px; display: none;">
                         <div style="margin-bottom: 8px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Current Status:</div>
-                            <div style="font-size: 14px; font-weight: 600; color: #000000;">{{ currentStatusLabel }}</div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Current: <b>{{ currentStatusLabel }}</b></div>
                         </div>
                         <div style="height: 1px; background: #e6eef6; margin: 8px 0;"></div>
-                        <div style="margin-bottom: 8px;">
-                            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Move to:</div>
-                            <button type="button" onclick="changeApplicationStatus('{{ nextTransition }}', '{{ activeApplication.id }}')" class="status-change-btn" style="width: 100%; padding: 8px 12px; background: #85BB65; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;">
-                                <span>{{ nextPhaseLabel }}</span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                        
+                        <div class="status-options" style="display: flex; flex-direction: column; gap: 4px;">
+                            <button type="button" onclick="updateApplicationStatus('interview', '{{ activeApplication.id }}')" class="status-change-btn dropdown-item" style="padding: 8px; text-align: left; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 14px; color: #333; display: flex; align-items: center; width: 100%;">
+                                <span style="width: 8px; height: 8px; background: #FFB020; border-radius: 50%; margin-right: 8px;"></span>
+                                Move to Interview
+                            </button>
+                            <button type="button" onclick="updateApplicationStatus('negotiate', '{{ activeApplication.id }}')" class="status-change-btn dropdown-item" style="padding: 8px; text-align: left; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 14px; color: #333; display: flex; align-items: center; width: 100%;">
+                                <span style="width: 8px; height: 8px; background: #5E81F4; border-radius: 50%; margin-right: 8px;"></span>
+                                Move to Negotiating
+                            </button>
+                            <button type="button" onclick="updateApplicationStatus('accept', '{{ activeApplication.id }}')" class="status-change-btn dropdown-item" style="padding: 8px; text-align: left; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 14px; color: #333; display: flex; align-items: center; width: 100%;">
+                                <span style="width: 8px; height: 8px; background: #14B13B; border-radius: 50%; margin-right: 8px;"></span>
+                                Move to Accepted
+                            </button>
+                            <button type="button" onclick="updateApplicationStatus('complete', '{{ activeApplication.id }}')" class="status-change-btn dropdown-item" style="padding: 8px; text-align: left; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 14px; color: #333; display: flex; align-items: center; width: 100%;">
+                                <span style="width: 8px; height: 8px; background: #121C0C; border-radius: 50%; margin-right: 8px;"></span>
+                                Move to Completed
                             </button>
                         </div>
                     </div>
                 </div>
             {% endif %}
+            {# Note button #}
+            <button id="detail-note-btn" class="action-btn" title="Add Note" style="display: flex; cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500;">
+                <svg class="icon-image" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 3H14C16.7614 3 19 5.23858 19 8V14.5C19 15.0523 18.5523 15.5 18 15.5H14C12.3431 15.5 11 16.8431 11 18.5V20C11 20.5523 10.5523 21 10 21H8C5.23858 21 3 18.7614 3 16V8C3 5.23858 5.23858 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M21 7L15 13L14 16L17 15L23 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span style="color: #000000 !important;">Note</span>
+            </button>
         {% endif %}
         
         <button id="email-btn" class="action-btn" title="Email">
@@ -871,48 +939,207 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
     }
     window._filterPanelInitialized = true;
     
+    // Store original status card counts globally
+    let originalStatusCounts = {};
+    
+    // Define helper functions globally so they can be called from anywhere
+    function filterApplicationsByJobType(jobType) {
+            // Wait for DOM to be ready if needed
+            if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize filter panel functions (scoped to this callback)
-        function switchFilterTab(tabName, event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            // Handle "coming soon" tabs
-            if (tabName === 'recruiter-assigned' || tabName === 'recruiter-applied') {
-                alert('Coming soon');
+                    filterApplicationsByJobType(jobType);
+                });
                 return;
             }
             
-            // Remove active class from all tabs
-            const tabs = document.querySelectorAll('.filter-tab');
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-                tab.style.borderBottomColor = 'transparent';
-                tab.style.color = '#6b7280';
-                tab.style.fontWeight = '500';
-            });
+            const applicationCards = document.querySelectorAll('.candidate-field .card.card-v2');
+            const applicationDetailContent = document.getElementById('application-detail-content');
+            const candidateList = document.querySelector('.candidate-field');
+            let noCandidatesMessage = candidateList ? candidateList.querySelector('div[style*="text-align: center"]') : null;
             
-            // Hide all tab contents
-            const contents = document.querySelectorAll('.filter-tab-content');
-            contents.forEach(function(content) {
-                content.style.display = 'none';
-            });
-            
-            // Activate selected tab
-            const activeTab = document.querySelector('[data-tab="' + tabName + '"]');
-            if (activeTab) {
-                activeTab.classList.add('active');
-                activeTab.style.borderBottomColor = '#85BB65';
-                activeTab.style.color = '#85BB65';
-                activeTab.style.fontWeight = '600';
+            if (jobType === 'recruiter-assigned' || jobType === 'recruiter-applied') {
+                // Hide all applications for recruiter tabs (coming soon)
+                applicationCards.forEach(function(card) {
+                    card.style.display = 'none';
+                });
+                
+                // Show "No Applications Found" message in detail area
+                if (applicationDetailContent) {
+                    const existingNoApp = applicationDetailContent.querySelector('.app-detail-section');
+                    const hasNoAppMessage = existingNoApp && existingNoApp.textContent && existingNoApp.textContent.includes('No Applications Found');
+                    if (!existingNoApp || !hasNoAppMessage) {
+                        applicationDetailContent.innerHTML = `
+                            <div class="app-detail-section" style="text-align: center; padding: 80px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div style="margin-bottom: 32px;">
+                                    <svg width="96" height="96" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                                        <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h3 class="app-detail-section-title" style="justify-content: center; border-bottom: none; margin-bottom: 16px; padding-bottom: 0;">
+                                    <span style="color: #000000 !important; font-size: 28px; font-weight: 700;">No Applications Found</span>
+                                </h3>
+                                <p style="color: #000000; font-size: 17px; margin: 0; line-height: 1.6; max-width: 500px;">
+                                    There are no applications matching the selected filter criteria. Try selecting a different status or check back later.
+                                </p>
+                            </div>
+                        `;
+                    }
+                    applicationDetailContent.style.display = 'flex';
+                }
+                
+                // Show "No candidates found" in candidate list
+                if (candidateList) {
+                    // Remove existing no candidates message if any
+                    if (noCandidatesMessage) {
+                        noCandidatesMessage.remove();
+                    }
+                    // Check if there are any visible cards
+                    const hasVisibleCards = Array.from(applicationCards).some(card => card.style.display !== 'none');
+                    if (!hasVisibleCards) {
+                        noCandidatesMessage = document.createElement('div');
+                        noCandidatesMessage.style.cssText = 'text-align: center; padding: 40px 20px; color: #666; font-size: 14px;';
+                        noCandidatesMessage.innerHTML = '<p style="margin: 0;">No candidates found</p>';
+                        candidateList.appendChild(noCandidatesMessage);
+                    }
+                }
+            } else if (jobType === 'all-jobs') {
+                // Show all applications for all-jobs
+                applicationCards.forEach(function(card) {
+                    card.style.display = 'block';
+                });
+                
+                // Remove "No candidates found" message if it exists
+                if (noCandidatesMessage) {
+                    noCandidatesMessage.remove();
+                }
+            } else if (jobType === 'direct-jobs') {
+                // Hide all applications for direct-jobs (show no jobs available)
+                applicationCards.forEach(function(card) {
+                    card.style.display = 'none';
+                });
+                
+                // Show "No Applications Found" message in detail area
+                if (applicationDetailContent) {
+                    const existingNoApp = applicationDetailContent.querySelector('.app-detail-section');
+                    const hasNoAppMessage = existingNoApp && existingNoApp.textContent && existingNoApp.textContent.includes('No Applications Found');
+                    if (!existingNoApp || !hasNoAppMessage) {
+                        applicationDetailContent.innerHTML = `
+                            <div class="app-detail-section" style="text-align: center; padding: 80px 20px; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div style="margin-bottom: 32px;">
+                                    <svg width="96" height="96" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; opacity: 0.4;">
+                                        <path d="M9 11l3 3L22 4" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#85BB65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h3 class="app-detail-section-title" style="justify-content: center; border-bottom: none; margin-bottom: 16px; padding-bottom: 0;">
+                                    <span style="color: #000000 !important; font-size: 28px; font-weight: 700;">No Applications Found</span>
+                                </h3>
+                                <p style="color: #000000; font-size: 17px; margin: 0; line-height: 1.6; max-width: 500px;">
+                                    There are no applications matching the selected filter criteria. Try selecting a different status or check back later.
+                                </p>
+                            </div>
+                        `;
+                    }
+                    applicationDetailContent.style.display = 'flex';
+                }
+                
+                // Show "No candidates found" in candidate list
+                if (candidateList) {
+                    // Remove existing no candidates message if any
+                    if (noCandidatesMessage) {
+                        noCandidatesMessage.remove();
+                    }
+                    // Check if there are any visible cards
+                    const hasVisibleCards = Array.from(applicationCards).some(card => card.style.display !== 'none');
+                    if (!hasVisibleCards) {
+                        noCandidatesMessage = document.createElement('div');
+                        noCandidatesMessage.style.cssText = 'text-align: center; padding: 40px 20px; color: #666; font-size: 14px;';
+                        noCandidatesMessage.innerHTML = '<p style="margin: 0;">No candidates found</p>';
+                        candidateList.appendChild(noCandidatesMessage);
+                    }
+                }
+                
+                // For direct jobs, check if we need to restore application detail
+                if (applicationDetailContent) {
+                    const noAppSection = applicationDetailContent.querySelector('.app-detail-section');
+                    const hasNoAppMessage = noAppSection && noAppSection.textContent && noAppSection.textContent.includes('No Applications Found');
+                    
+                    // Only hide if it's the "no applications" message we added
+                    // Don't hide if there's actual application detail content
+                    if (hasNoAppMessage && applicationCards.length > 0) {
+                        // Check if there's a selected application
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const applicationId = urlParams.get('applicationId');
+                        const activeCard = document.querySelector('.card.card-v2.active-card');
+                        
+                        // If no application is selected and we have cards, hide the "no applications" message
+                        // The normal flow will show application details if one is selected
+                        if (!applicationId && !activeCard) {
+                            applicationDetailContent.style.display = 'none';
+                        }
+                    }
+                }
+            }
+        }
+        
+    function updateStatusCardsForJobType(jobType) {
+            // Wait for DOM to be ready if needed
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateStatusCardsForJobType(jobType);
+                });
+                return;
             }
             
-            // Show selected tab content
-            const activeContent = document.getElementById(tabName + '-content');
-            if (activeContent) {
-                activeContent.style.display = 'block';
+            const statusCards = document.querySelectorAll('.application .card.is-card');
+            
+            // Store original counts on first call if not already stored
+            if (Object.keys(originalStatusCounts).length === 0) {
+                statusCards.forEach(function(card) {
+                    const countElement = card.querySelector('.card-text');
+                    if (countElement) {
+                        const cardLink = card.closest('a');
+                        if (cardLink) {
+                            const href = cardLink.getAttribute('href');
+                            originalStatusCounts[href] = countElement.textContent;
+                        }
+                    }
+                });
+            }
+            
+            if (jobType === 'recruiter-assigned' || jobType === 'recruiter-applied') {
+                // Set all status card counts to 0 for recruiter tabs
+                statusCards.forEach(function(card) {
+                    const countElement = card.querySelector('.card-text');
+                    if (countElement) {
+                        countElement.textContent = '0';
+                    }
+                    // Remove active class from all cards
+                    card.classList.remove('active');
+                });
+            } else if (jobType === 'all-jobs') {
+                // For all-jobs, restore original counts
+                statusCards.forEach(function(card) {
+                    const cardLink = card.closest('a');
+                    if (cardLink) {
+                        const href = cardLink.getAttribute('href');
+                        const countElement = card.querySelector('.card-text');
+                        if (countElement && originalStatusCounts[href]) {
+                            countElement.textContent = originalStatusCounts[href];
+                        }
+                        
+                        // Update active state based on current status filter
+                        const currentStatus = new URLSearchParams(window.location.search).get('status') || '';
+                        const isActive = (currentStatus === '' && href && !href.includes('status=')) || 
+                                       (currentStatus !== '' && href && href.includes('status=' + currentStatus));
+                        if (isActive) {
+                            card.classList.add('active');
+                        } else {
+                            card.classList.remove('active');
+                        }
+                    }
+                });
             }
         }
         
@@ -954,6 +1181,13 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
                     params.append(key, value.trim());
                 }
             });
+            
+            // Get current active tab (jobType)
+            const activeTab = document.querySelector('.filter-tab.active');
+            const currentJobType = activeTab ? activeTab.getAttribute('data-tab') : 'direct-jobs';
+            if (currentJobType && currentJobType !== 'direct-jobs') {
+                params.append('jobType', currentJobType);
+            }
             
             // Preserve job ID and application ID if present
             const urlParams = new URLSearchParams(window.location.search);
@@ -1005,19 +1239,84 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
             window.location.href = newUrl;
         }
         
-        // Make functions globally available for onclick handlers (only if not already set)
-        if (!window.toggleFilterPanel) {
-            window.toggleFilterPanel = toggleFilterPanel;
+    // Define switchFilterTab function
+    function switchFilterTab(tabName, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
         }
-        if (!window.applyFilters) {
-            window.applyFilters = applyFilters;
+        
+        // Wait for DOM to be ready if needed
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                switchFilterTab(tabName, event);
+            });
+            return;
         }
-        if (!window.clearFilters) {
-            window.clearFilters = clearFilters;
+        
+        // Remove active class from all tabs
+        const tabs = document.querySelectorAll('.filter-tab');
+        tabs.forEach(function(tab) {
+            tab.classList.remove('active');
+            tab.style.borderBottomColor = 'transparent';
+            tab.style.color = '#6b7280';
+            tab.style.fontWeight = '500';
+        });
+        
+        // Hide all tab contents
+        const contents = document.querySelectorAll('.filter-tab-content');
+        contents.forEach(function(content) {
+            content.style.display = 'none';
+        });
+        
+        // Activate selected tab
+        const activeTab = document.querySelector('[data-tab="' + tabName + '"]');
+        if (activeTab) {
+            activeTab.classList.add('active');
+            activeTab.style.borderBottomColor = '#85BB65';
+            activeTab.style.color = '#85BB65';
+            activeTab.style.fontWeight = '600';
         }
-        if (!window.switchFilterTab) {
-            window.switchFilterTab = switchFilterTab;
+        
+        // Show selected tab content
+        const activeContent = document.getElementById(tabName + '-content');
+        if (activeContent) {
+            activeContent.style.display = 'block';
         }
+        
+        // Store the active tab type in a hidden input or data attribute for filter application
+        const filterForm = document.getElementById('filter-form');
+        if (filterForm) {
+            // Remove existing job type input if any
+            const existingInput = filterForm.querySelector('input[name="jobType"]');
+            if (existingInput) {
+                existingInput.remove();
+            }
+            
+            // Add hidden input to track job type
+            const jobTypeInput = document.createElement('input');
+            jobTypeInput.type = 'hidden';
+            jobTypeInput.name = 'jobType';
+            jobTypeInput.value = tabName;
+            filterForm.appendChild(jobTypeInput);
+        }
+        
+        // Filter applications based on job type
+        filterApplicationsByJobType(tabName);
+        
+        // Update status cards
+        updateStatusCardsForJobType(tabName);
+    }
+    
+    // Make all functions globally available for onclick handlers
+    window.toggleFilterPanel = toggleFilterPanel;
+    window.applyFilters = applyFilters;
+    window.clearFilters = clearFilters;
+    window.switchFilterTab = switchFilterTab;
+    window.filterApplicationsByJobType = filterApplicationsByJobType;
+    window.updateStatusCardsForJobType = updateStatusCardsForJobType;
+    
+    document.addEventListener('DOMContentLoaded', function() {
         
         // Close filter panel when clicking outside (only add once)
         if (!window._filterPanelClickHandlerAdded) {
@@ -1032,6 +1331,59 @@ body:has(.applications-main-layout:not(.candidate-collapsed)) .candidate-collaps
             });
             window._filterPanelClickHandlerAdded = true;
         }
+        
+        // Initialize filter tab on page load based on URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobType = urlParams.get('jobType') || 'all-jobs';
+        
+        // Set the correct tab on page load
+        const targetTab = document.querySelector('[data-tab="' + jobType + '"]');
+        if (targetTab) {
+            // Remove active from all tabs
+            document.querySelectorAll('.filter-tab').forEach(function(tab) {
+                tab.classList.remove('active');
+                tab.style.borderBottomColor = 'transparent';
+                tab.style.color = '#6b7280';
+                tab.style.fontWeight = '500';
+            });
+            
+            // Activate target tab
+            targetTab.classList.add('active');
+            targetTab.style.borderBottomColor = '#85BB65';
+            targetTab.style.color = '#85BB65';
+            targetTab.style.fontWeight = '600';
+            
+            // Show correct content
+            document.querySelectorAll('.filter-tab-content').forEach(function(content) {
+                content.style.display = 'none';
+            });
+            const targetContent = document.getElementById(jobType + '-content');
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+            
+            // Filter applications and update status cards
+            filterApplicationsByJobType(jobType);
+            updateStatusCardsForJobType(jobType);
+        }
+        
+        // Intercept status card clicks to preserve jobType parameter
+        document.querySelectorAll('.application .card.is-card').forEach(function(card) {
+            const cardLink = card.closest('a');
+            if (cardLink) {
+                cardLink.addEventListener('click', function(e) {
+                    const currentJobType = urlParams.get('jobType') || 'all-jobs';
+                    if (currentJobType && currentJobType !== 'all-jobs') {
+                        const href = this.getAttribute('href');
+                        if (href) {
+                            const url = new URL(href, window.location.origin);
+                            url.searchParams.set('jobType', currentJobType);
+                            this.setAttribute('href', url.pathname + url.search);
+                        }
+                    }
+                });
+            }
+        });
     });
 })();
 
@@ -1098,6 +1450,48 @@ document.addEventListener('click', function(event) {
 });
 
 // Change Application Status
+// Update Application Status (Manual Switch)
+function updateApplicationStatus(status, applicationId) {
+    if (!status || !applicationId) return;
+
+    // Show loading
+    const statusBtn = document.getElementById('status-switch-btn');
+    if (statusBtn) {
+        statusBtn.disabled = true;
+        const textSpan = statusBtn.querySelector('#status-switch-text');
+        if (textSpan) textSpan.textContent = 'Updating...';
+        document.getElementById('status-dropdown-panel').style.display = 'none';
+    }
+
+    // Construct URL for POST request
+    const url = '{{ path('app_employer_application_update_status', {'id': 'PLACEHOLDER_ID'}) }}'.replace('PLACEHOLDER_ID', applicationId);
+
+    // Send POST request
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'status=' + encodeURIComponent(status)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to reflect changes
+            window.location.reload();
+        } else {
+            alert('Error updating status: ' + (data.message || 'Unknown error'));
+            if (statusBtn) statusBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating status.');
+        if (statusBtn) statusBtn.disabled = false;
+    });
+}
+
 function changeApplicationStatus(transition, applicationId) {
     if (!transition || !applicationId) {
         console.error('Missing transition or applicationId');

@@ -17,66 +17,103 @@
         <p class="mb-0" style="font-size: 0.85rem;">Add your preferences to improve job matching.</p>
     </div>
 {% else %}
-    <div class="work-preferences-summary d-flex flex-column gap-3">
-        <div>
-            <div class="text-uppercase text-muted small">Profession</div>
-            <div class="fw-semibold">{{ provider.profession ?: '—' }}</div>
-        </div>
-
-        <div>
-            <div class="text-uppercase text-muted small">Specialities</div>
-            {% set specialityNames = [] %}
-            {% for speciality in specialities %}
-                {% set specialityNames = specialityNames|merge([(speciality.name ?? speciality.title ?? speciality)]) %}
-            {% endfor %}
-            <div class="fw-semibold">{{ specialityNames ? specialityNames|join(', ') : '—' }}</div>
-        </div>
-
-        <div class="row g-3">
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Desired Pay Rate</div>
-                <div class="fw-semibold">
-                    {{ provider.desiredPayRate ?: '—' }}
-                    {% if provider.desiredPayRate == 'Hourly' and provider.payRateHourly %}
-                        ({{ provider.payRateHourly|number_format(0, '.', ',') }} USD/hr)
-                    {% elseif provider.desiredPayRate == 'Daily' and provider.payRateDaily %}
-                        ({{ provider.payRateDaily|number_format(0, '.', ',') }} USD/day)
-                    {% endif %}
+    <div class="work-preferences-summary">
+        {# Professional Information Section #}
+        <div class="mb-4">
+            <h6 class="text-primary mb-3 pb-2 border-bottom small fw-semibold text-uppercase">Professional Information</h6>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Profession</div>
+                        <div class="fw-semibold">{{ provider.profession ?: '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Specialities</div>
+                        {% set specialityNames = [] %}
+                        {% for speciality in specialities %}
+                            {% set specialityNames = specialityNames|merge([(speciality.name ?? speciality.title ?? speciality)]) %}
+                        {% endfor %}
+                        <div class="fw-semibold">{{ specialityNames ? specialityNames|join(', ') : '—' }}</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Desired Hours</div>
-                <div class="fw-semibold">{{ provider.desiredHour ?: '—' }}</div>
+        </div>
+
+        {# Compensation & Hours Section #}
+        <div class="mb-4">
+            <h6 class="text-primary mb-3 pb-2 border-bottom small fw-semibold text-uppercase">Compensation & Hours</h6>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Desired Pay Rate</div>
+                        <div class="fw-semibold">
+                            {% if provider.desiredPayRate %}
+                                {{ provider.desiredPayRate }}
+                                {% if provider.desiredPayRate == 'Hourly' and provider.payRateHourly %}
+                                    <span class="text-muted">(${{ provider.payRateHourly|number_format(0, '.', ',') }}/hr)</span>
+                                {% elseif provider.desiredPayRate == 'Daily' and provider.payRateDaily %}
+                                    <span class="text-muted">(${{ provider.payRateDaily|number_format(0, '.', ',') }}/day)</span>
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Desired Hours</div>
+                        <div class="fw-semibold">{{ provider.desiredHour ?: '—' }}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row g-3">
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Availability</div>
-                <div class="fw-semibold">
-                    {{ provider.availabilityToStart ? provider.availabilityToStart|date('M d, Y') : '—' }}
+        {# Availability Section #}
+        <div class="mb-4">
+            <h6 class="text-primary mb-3 pb-2 border-bottom small fw-semibold text-uppercase">Availability</h6>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Availability to Start</div>
+                        <div class="fw-semibold">
+                            {{ provider.availabilityToStart ? provider.availabilityToStart|date('M d, Y') : '—' }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Patient Volume</div>
-                <div class="fw-semibold">{{ provider.preferredPatientVolume ?: '—' }}</div>
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Preferred Patient Volume</div>
+                        <div class="fw-semibold">{{ provider.preferredPatientVolume ?: '—' }}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row g-3">
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Preferred States</div>
-                <div class="fw-semibold">
-                    {{ desiredStates ? desiredStates|join(', ') : '—' }}
+        {# Location Preferences Section #}
+        <div class="mb-4">
+            <h6 class="text-primary mb-3 pb-2 border-bottom small fw-semibold text-uppercase">Location Preferences</h6>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Preferred States</div>
+                        <div class="fw-semibold">
+                            {{ desiredStates ? desiredStates|join(', ') : '—' }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-12 col-sm-6">
-                <div class="text-uppercase text-muted small">Willing To Travel</div>
-                {% if provider.willingToTravel is same as(null) %}
-                    <div class="fw-semibold">—</div>
-                {% else %}
-                    <div class="fw-semibold">{{ provider.willingToTravel ? 'Yes' : 'No' }}</div>
-                {% endif %}
+                <div class="col-12 col-sm-6">
+                    <div class="mb-2">
+                        <div class="text-uppercase text-muted small mb-1">Willing To Travel</div>
+                        {% if provider.willingToTravel is same as(null) %}
+                            <div class="fw-semibold">—</div>
+                        {% else %}
+                            <div class="fw-semibold">{{ provider.willingToTravel ? 'Yes' : 'No' }}</div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

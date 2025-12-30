@@ -663,41 +663,45 @@ body {
     width: 100%;
 }
 
+.messages-list-container {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Gmail-style single-line message item */
 .message-item {
     background: #fff;
     border-bottom: 1px solid #f1f3f4;
-    padding: 14px 20px;
+    padding: 8px 0;
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.2s ease;
+    gap: 0;
+    transition: background-color 0.1s ease;
     color: inherit;
     cursor: pointer;
     position: relative;
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
+    min-height: 40px;
 }
 
-.message-item::before {
+.message-item:hover {
+    background-color: #f2f6fc;
+}
+
+.message-item.selected {
+    background-color: #e8f0fe;
+}
+
+.message-item.selected::before {
     content: '';
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    width: 0;
-    background: #85BB65;
-    transition: width 0.2s ease;
-}
-
-.message-item:hover {
-    background: #f8f9fa;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    transform: translateX(2px);
-}
-
-.message-item:hover::before {
-    width: 3px;
+    width: 4px;
+    background: #1a73e8;
 }
 
 .message-item:active {
@@ -741,38 +745,37 @@ body {
     color: #5f6368 !important;
 }
 
+/* Gmail-style checkbox */
 .message-item .message-checkbox {
     width: 20px;
     height: 20px;
+    margin: 0 8px 0 16px;
     cursor: pointer;
     flex-shrink: 0;
-    accent-color: #85BB65;
-    border-radius: 4px;
-    border: 2px solid #d1d5db;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    position: relative;
-    transition: all 0.2s ease;
+    accent-color: #1a73e8;
     z-index: 20;
     pointer-events: auto;
 }
 
-.message-item .message-checkbox:checked {
-    background-color: #85BB65;
-    border-color: #85BB65;
+/* Star icon - appears on hover */
+.message-star-icon {
+    width: 20px;
+    height: 20px;
+    margin: 0 8px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    color: #5f6368;
+    cursor: pointer;
 }
 
-.message-item .message-checkbox:checked::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
+.message-item:hover .message-star-icon {
+    opacity: 0.54;
+}
+
+.message-star-icon:hover {
+    opacity: 1 !important;
+    color: #fbbc04;
 }
 
 .message-item > a {
@@ -782,9 +785,19 @@ body {
     min-width: 0;
     width: 100%;
     box-sizing: border-box;
-    gap: 16px;
+    gap: 12px;
     text-decoration: none;
     color: inherit;
+}
+
+.message-latest-reply {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .message-item > a:hover {
@@ -803,49 +816,74 @@ a.message-item:hover {
     color: inherit;
 }
 
+/* Gmail-style avatar */
 .message-avatar {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #e6eef6;
+    flex-shrink: 0;
+    margin-right: 16px;
 }
 
+/* Gmail-style single-line content */
 .message-content {
     flex: 1;
     min-width: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .message-sender {
-    font-weight: 600;
+    font-weight: 400;
     font-size: 14px;
-    color: #000000;
-    margin-bottom: 4px;
+    color: #202124;
+    margin: 0;
     line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 120px;
+    max-width: 200px;
+    flex-shrink: 0;
+}
+
+.message-item.unread .message-sender {
+    font-weight: 700;
+    color: #202124;
 }
 
 .message-text {
     font-size: 14px;
     color: #5f6368;
-    line-height: 1.5;
-    word-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    line-height: 1.4;
     white-space: nowrap;
-    max-width: 100%;
+    overflow: hidden;
     text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
 }
 
 .message-meta {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     gap: 8px;
     min-width: 100px;
+    flex-shrink: 0;
+    padding-right: 16px;
+    justify-content: flex-end;
+}
+
+.message-time {
+    font-size: 12px;
+    color: #5f6368;
+    white-space: nowrap;
+    margin: 0;
 }
 
 /* Forward button removed from tiles - now only in toolbar */
@@ -893,6 +931,86 @@ a.message-item:hover {
     align-items: center;
     flex-shrink: 0;
     margin-left: 8px;
+    gap: 8px;
+}
+
+/* Message Action Buttons - Rounded Rectangle Style */
+.message-action-btn {
+    background: #F4F9F1;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.03);
+    border-radius: 10px;
+    padding: 6px 14px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #333333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.message-action-btn:hover {
+    color: #85BB65 !important;
+    border-color: #85BB65 !important;
+    background: #F4F9F1 !important;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(133, 187, 101, 0.15);
+}
+
+.message-action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.message-action-btn:hover svg {
+    color: #85BB65 !important;
+    stroke: #85BB65 !important;
+}
+
+.message-delete-action-btn:hover {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.message-delete-action-btn:hover svg {
+    color: #dc3545 !important;
+    stroke: #dc3545 !important;
+}
+
+/* Update message-detail-header styling */
+.message-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.message-detail-header .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333333;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.message-detail-header .back-button:hover {
+    color: #85BB65;
+    text-decoration: none;
+}
+
+.message-detail-header .back-button svg {
+    width: 20px;
+    height: 20px;
 }
 
 .message-badge {
@@ -907,18 +1025,335 @@ a.message-item:hover {
     letter-spacing: 0.3px;
 }
 
+/* ============================================================================
+   REPLY MODAL CSS - Added for embedded view
+   ============================================================================ */
+.reply-modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 9999 !important;
+    display: block !important;
+}
+
+.reply-modal-backdrop.hidden {
+    display: none !important;
+}
+
+#reply-modal {
+    position: fixed !important;
+    bottom: 0 !important;
+    right: 40px !important;
+    width: 600px !important;
+    max-width: calc(100vw - 80px) !important;
+    max-height: 90vh !important;
+    background: #ffffff !important;
+    border-radius: 12px 12px 0 0 !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 10000 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #e6eef6 !important;
+    border-bottom: none !important;
+    overflow: hidden !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+#reply-modal.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+@keyframes slideUpReply {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#reply-modal .reply-modal-header {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#reply-modal .reply-modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 1;
+}
+
+#reply-modal .reply-modal-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+#reply-modal .reply-modal-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+#reply-modal .reply-modal-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+#reply-modal .reply-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 400px;
+    background: #ffffff;
+}
+
+#reply-modal .reply-modal-field {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+#reply-modal .reply-modal-field input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    padding: 0;
+    color: #9aa0a6 !important;
+    background: transparent;
+    font-family: inherit;
+}
+
+#reply-modal .reply-modal-editor {
+    flex: 1;
+    padding: 20px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+#reply-modal .reply-modal-editor textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 200px !important;
+    padding: 16px !important;
+    border: 2px solid #85BB65 !important;
+    border-radius: 12px !important;
+    outline: none !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    font-family: inherit !important;
+    resize: vertical !important;
+    overflow-y: auto !important;
+    flex: 1 !important;
+    color: #121C0C !important;
+    background: #ffffff !important;
+    line-height: 1.6 !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 3px rgba(133, 187, 101, 0.1) !important;
+    margin: 0 !important;
+}
+
+#reply-modal .reply-modal-editor textarea:focus {
+    outline: none !important;
+    border-color: #85BB65 !important;
+    box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.15), 0 2px 8px rgba(133, 187, 101, 0.2) !important;
+    background: #ffffff !important;
+}
+
+#reply-modal .reply-modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #f1f3f4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+#reply-modal .reply-modal-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#reply-modal .reply-modal-send-btn {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(133, 187, 101, 0.3) !important;
+}
+
+#reply-modal .reply-modal-send-btn:hover {
+    background: #6fa050 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4) !important;
+}
+
+#reply-modal .reply-modal-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#reply-modal .reply-modal-footer-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#reply-modal .reply-modal-toolbar-btn {
+    background: transparent;
+    border: 1px solid #e6eef6;
+    color: #5f6368;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#reply-modal .reply-modal-toolbar-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    color: #85BB65;
+}
+
+.message-reply-btn {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.message-reply-btn:hover {
+    background: #6fa050 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4) !important;
+}
+
+.message-reply-btn span {
+    color: #ffffff !important;
+}
+
+.message-reply-btn svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* NEW REPLY BUTTON - Rebuilt from scratch */
+.reply-btn-new {
+    background: #85BB65 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    pointer-events: auto !important;
+    text-decoration: none !important;
+    font-family: inherit !important;
+}
+
+.reply-btn-new:hover {
+    background: #6fa050 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4) !important;
+}
+
+.reply-btn-new:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+}
+
+.reply-btn-new span {
+    color: #ffffff !important;
+}
+
+.reply-btn-new svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    fill: none !important;
+}
+
 .btn-new-message {
-    background-color: #00FFFF;
+    background-color: #85BB65;
     color: #FFFFFF;
     border: none;
-    border-radius: 4px;
-    padding: 2px 8px;
+    border-radius: 12px;
+    padding: 3px 8px;
     font-size: 10px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: default;
     display: inline-block;
     flex-shrink: 0;
-    margin-left: 12px;
+    line-height: 1.2;
+    margin: 0;
     white-space: nowrap;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.4;
@@ -930,9 +1365,11 @@ a.message-item:hover {
 
 .message-time {
     font-size: 12px;
-    color: #5f6368;
+    color: #6b7280;
     white-space: nowrap;
     font-weight: 400;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .message-delete-btn {
@@ -2311,10 +2748,13 @@ a.message-item:hover {
 .thread-count-badge {
     background: #e8f5e9;
     color: #2e7d32;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 10px;
     font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    flex-shrink: 0;
 }
 
 .message-thread.expanded .thread-indicator svg {
@@ -2592,37 +3032,25 @@ a.message-item:hover {
                                         {% set latestReply = thread.latest_reply %}
                                         
                                         <div class="message-thread {% if hasReplies %}has-replies{% endif %}" data-thread-id="{{ message.id }}" data-message-id="{{ message.id }}">
-                                            <div class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                            <div class="message-item {% if not message.seen and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" onclick="loadMessageInPanel('{{ message.id }}'); event.stopPropagation();">
                                                 <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
-                                                <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                    {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
-                                                    {% set senderAvatar = current_type == 'sent' 
-                                                        ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
-                                                        : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
-                                                    {% set isRead = message.seen|default(false) %}
-                                                    {% set messageText = message.text|striptags|slice(0, 100) %}
-                                                    
-                                                    <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                    <div class="message-content" style="flex: 1;">
-                                                        <div style="display: flex; align-items: center; gap: 8px;">
-                                                            <div class="message-sender">{{ senderName }}</div>
-                                                            {% if hasReplies %}
-                                                                <span class="thread-count-badge">{{ replyCount }} {{ replyCount == 1 ? 'reply' : 'replies' }}</span>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                        {% if latestReply %}
-                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
-                                                                Latest: {{ latestReply.sender.name|default(latestReply.sender.email) }} - {{ latestReply.createdAt|time_diff }}
-                                                            </div>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div class="message-meta">
-                                                        {% if not isRead and current_type != 'sent' %}
-                                                            <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
-                                                        {% endif %}
-                                                        <div class="message-time">{{ message.createdAt|time_diff }}</div>
-                                                    </div>
+                                                <svg class="message-star-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="event.stopPropagation();">
+                                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                {% set senderName = current_type == 'sent' ? message.receiver.name|default(message.receiver.email) : message.sender.name|default(message.sender.email) %}
+                                                {% set senderAvatar = current_type == 'sent' 
+                                                    ? (message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png'))
+                                                    : (message.sender.profilePictureFilename ? '/uploads/' ~ message.sender.id ~ '/' ~ message.sender.profilePictureFilename : asset('assets/img/user-image.png')) %}
+                                                {% set isRead = message.seen|default(false) %}
+                                                {% set messageText = message.text|striptags|slice(0, 100) %}
+                                                
+                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}'">
+                                                <div class="message-content">
+                                                    <span class="message-sender">{{ senderName }}</span>
+                                                    <span class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</span>
+                                                </div>
+                                                <div class="message-meta">
+                                                    <span class="message-time">{{ message.createdAt|time_diff }}</span>
                                                 </div>
                                             </div>
                                             <div class="message-item-expanded" id="expanded-{{ message.id }}">
@@ -2640,20 +3068,18 @@ a.message-item:hover {
                                             {% set receiverName = message.receiver ? message.receiver.name|default(message.receiver.email) : 'No receiver' %}
                                             {% set receiverAvatar = message.receiver and message.receiver.profilePictureFilename ? '/uploads/' ~ message.receiver.id ~ '/' ~ message.receiver.profilePictureFilename : asset('assets/img/user-image.png') %}
                                             
-                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}" data-message-id="{{ message.id }}">
+                                            <div class="message-item draft-item" data-draft-id="{{ message.id }}" data-message-id="{{ message.id }}" onclick="loadMessageInPanel('{{ message.id }}'); event.stopPropagation();">
                                                 <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
-                                                <div class="draft-item-content" style="display: flex; align-items: center; gap: 16px; flex: 1; cursor: pointer;">
-                                                    <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar">
-                                                    <div class="message-content" style="flex: 1;">
-                                                        <div class="message-sender">To: {{ receiverName }}</div>
-                                                        <div class="message-text">{{ message.subject ?: '(No subject)' }}</div>
-                                                        {% if message.text %}
-                                                            <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">{{ message.text|striptags|slice(0, 80) }}{% if message.text|striptags|length > 80 %}...{% endif %}</div>
-                                                        {% endif %}
-                                                    </div>
-                                                    <div class="message-meta">
-                                                        <div class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
-                                                    </div>
+                                                <svg class="message-star-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="event.stopPropagation();">
+                                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                <img src="{{ receiverAvatar }}" alt="{{ receiverName }}" class="message-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}'">
+                                                <div class="message-content">
+                                                    <span class="message-sender">To: {{ receiverName }}</span>
+                                                    <span class="message-text">{{ message.subject ?: '(No subject)' }}</span>
+                                                </div>
+                                                <div class="message-meta">
+                                                    <span class="message-time">{{ message.savedAt ? message.savedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</span>
                                                 </div>
                                             </div>
                                     {% elseif current_type == 'trash' %}
@@ -2666,17 +3092,18 @@ a.message-item:hover {
                                         {% set messageText = message.text|striptags|slice(0, 100) %}
                                         
                                         <div class="message-thread" data-message-id="{{ message.id }}">
-                                        <div class="message-item read" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                        <div class="message-item read" data-message-id="{{ message.id }}" onclick="loadMessageInPanel('{{ message.id }}'); event.stopPropagation();">
                                             <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateTrashActionButtons(); handleCheckboxChange();" onclick="event.stopPropagation();">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                <div class="message-content">
-                                                    <div class="message-sender">{{ senderName }}</div>
-                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                </div>
-                                                <div class="message-meta">
-                                                    <div class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</div>
-                                                </div>
+                                            <svg class="message-star-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="event.stopPropagation();">
+                                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}'">
+                                            <div class="message-content">
+                                                <span class="message-sender">{{ senderName }}</span>
+                                                <span class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</span>
+                                            </div>
+                                            <div class="message-meta">
+                                                <span class="message-time">{{ message.deletedAt ? message.deletedAt|date('M j, Y g:i A') : message.createdAt|date('M j, Y g:i A') }}</span>
                                             </div>
                                             <div class="message-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 8px;">
                                                 <button type="button" class="permanent-delete-btn" onclick="event.stopPropagation(); event.preventDefault(); permanentlyDeleteMessage({{ message.id }}, this);" title="Permanently Delete">
@@ -2702,20 +3129,18 @@ a.message-item:hover {
                                         {% set messageText = message.text|striptags|slice(0, 100) %}
                                         
                                         <div class="message-thread" data-message-id="{{ message.id }}">
-                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" style="text-decoration: none; color: inherit;">
+                                        <div class="message-item {% if not isRead and current_type != 'sent' %}unread{% else %}read{% endif %}" data-message-id="{{ message.id }}" onclick="loadMessageInPanel('{{ message.id }}'); event.stopPropagation();">
                                             <input type="checkbox" class="message-checkbox" data-message-id="{{ message.id }}" onchange="updateMessageActionsToolbar(); handleCheckboxChange();" onclick="event.stopPropagation();">
-                                            <div style="display: flex; align-items: center; gap: 16px; flex: 1; text-decoration: none; color: inherit; cursor: pointer;">
-                                                <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar">
-                                                <div class="message-content">
-                                                    <div class="message-sender">{{ senderName }}</div>
-                                                    <div class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</div>
-                                                </div>
-                                                <div class="message-meta">
-                                                    {% if not isRead and current_type != 'sent' %}
-                                                        <button class="btn-new-message" type="button" onclick="event.stopPropagation(); event.preventDefault();">New</button>
-                                                    {% endif %}
-                                                    <div class="message-time">{{ message.createdAt|time_diff }}</div>
-                                                </div>
+                                            <svg class="message-star-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="event.stopPropagation();">
+                                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <img src="{{ senderAvatar }}" alt="{{ senderName }}" class="message-avatar" onerror="this.onerror=null;this.src='{{ asset('assets/img/user-image.png') }}'">
+                                            <div class="message-content">
+                                                <span class="message-sender">{{ senderName }}</span>
+                                                <span class="message-text">{{ messageText }}{% if message.text|striptags|length > 100 %}...{% endif %}</span>
+                                            </div>
+                                            <div class="message-meta">
+                                                <span class="message-time">{{ message.createdAt|time_diff }}</span>
                                             </div>
                                         </div>
                                         <div class="message-item-expanded" id="expanded-{{ message.id }}">
@@ -4315,8 +4740,96 @@ window.loadMessageInPanel = async function(messageId) {
             const repliesSection = contentContainer.querySelector('.replies-section');
             const replyForm = contentContainer.querySelector('.reply-form-section');
             
+            // Extract reply modal from the document (it should be in the show page)
+            const replyModal = doc.querySelector('#reply-modal');
+            const replyModalBackdrop = doc.querySelector('#reply-modal-backdrop');
+            
+            // Extract message metadata for reply
+            let messageMetadata = {
+                senderId: null,
+                receiverId: null,
+                senderName: '',
+                receiverName: '',
+                subject: ''
+            };
+            
+            // Try to extract from message detail content
+            if (messageDetailContent) {
+                const senderEl = messageDetailContent.querySelector('.message-sender-name');
+                if (senderEl) {
+                    messageMetadata.senderName = senderEl.textContent.trim();
+                }
+            }
+            
+            // Try to extract from thread messages
+            if (threadMessagesContainer) {
+                const firstMessage = threadMessagesContainer.querySelector('.gmail-message-item');
+                if (firstMessage) {
+                    const senderNameEl = firstMessage.querySelector('.gmail-sender-name');
+                    if (senderNameEl) {
+                        messageMetadata.senderName = senderNameEl.textContent.trim();
+                    }
+                }
+            }
+            
             // Build the content HTML
             let contentHTML = '';
+            
+            // Add header with back button and NEW reply button
+            if (backButtonHeader) {
+                // Extract back button only, we'll add our own reply button
+                const backButton = backButtonHeader.querySelector('.back-button');
+                if (backButton) {
+                    let backBtnHTML = backButton.outerHTML;
+                    backBtnHTML = backBtnHTML.replace(/href="[^"]*app_employer_messages[^"]*"/gi, 'href="javascript:void(0);" onclick="closeEmailDetailPanel(); return false;"');
+                    contentHTML += `
+                        <div class="message-detail-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                            ${backBtnHTML}
+                            <button type="button" id="reply-btn-${messageId}" class="reply-btn-new" data-message-id="${messageId}" title="Reply" onclick="alert('Reply clicked! ID: ${messageId}'); return false;" style="background-color: #85BB65; color: white; border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Reply</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    contentHTML += `
+                        <div class="message-detail-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Back to Messages
+                            </button>
+                            <button type="button" id="reply-btn-${messageId}" class="reply-btn-new" data-message-id="${messageId}" title="Reply" onclick="alert('Reply clicked! ID: ${messageId}'); return false;" style="background-color: #85BB65; color: white; border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Reply</span>
+                            </button>
+                        </div>
+                    `;
+                }
+            } else {
+                // Add header if it doesn't exist
+                contentHTML += `
+                    <div class="message-detail-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <button type="button" class="email-detail-back" onclick="closeEmailDetailPanel()" title="Back to messages">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Back to Messages
+                        </button>
+                        <button type="button" id="reply-btn-${messageId}" class="reply-btn-new" data-message-id="${messageId}" title="Reply" onclick="alert('Reply clicked! ID: ${messageId}'); return false;" style="background-color: #85BB65; color: white; border: none; border-radius: 10px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Reply</span>
+                        </button>
+                    </div>
+                `;
+            }
             
             // Note: Header will be extracted in the expanded content section below
             
@@ -4543,10 +5056,405 @@ window.loadMessageInPanel = async function(messageId) {
                 }, 100);
             }
             
+            // Add reply modal to body if it doesn't exist or update existing one
+            let existingModal = document.getElementById('reply-modal');
+            if (replyModal) {
+                if (existingModal) {
+                    // Update existing modal
+                    existingModal.innerHTML = replyModal.innerHTML;
+                } else {
+                    // Create new modal
+                    const clonedModal = replyModal.cloneNode(true);
+                    clonedModal.id = 'reply-modal';
+                    clonedModal.classList.add('hidden');
+                    document.body.appendChild(clonedModal);
+                    existingModal = clonedModal;
+                }
+                
+                // Update form action with correct message ID
+                const form = existingModal.querySelector('#reply-modal-form');
+                if (form) {
+                    form.action = `/employer/messages/${messageId}/reply`;
+                }
+            } else if (!existingModal) {
+                // Create modal if it doesn't exist in response
+                existingModal = document.createElement('div');
+                existingModal.id = 'reply-modal';
+                existingModal.className = 'hidden';
+                existingModal.innerHTML = `
+                    <div class="reply-modal-header">
+                        <span class="reply-modal-title">Reply</span>
+                        <div class="reply-modal-actions">
+                            <button type="button" class="reply-modal-btn" onclick="window.closeReplyModal(); return false;" title="Close">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <form id="reply-modal-form" action="/employer/messages/${messageId}/reply" method="post" enctype="multipart/form-data" class="reply-modal-body">
+                        <div class="reply-modal-field">
+                            <input type="text" value="Re: Message" readonly>
+                        </div>
+                        <div class="reply-modal-editor">
+                            <textarea name="message" id="reply-modal-message" placeholder="Type your reply here..." required></textarea>
+                        </div>
+                        <div class="reply-modal-footer">
+                            <div class="reply-modal-footer-left">
+                                <button type="submit" class="reply-modal-send-btn" id="reply-modal-send-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Send
+                                </button>
+                            </div>
+                            <div class="reply-modal-footer-right">
+                                <button type="button" class="reply-modal-toolbar-btn" onclick="document.getElementById('reply-modal-attachment').click()" title="Attach files">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <input type="file" id="reply-modal-attachment" name="attachment" style="display: none !important;" multiple>
+                            </div>
+                        </div>
+                    </form>
+                `;
+                document.body.appendChild(existingModal);
+            }
+            
+            let existingBackdrop = document.getElementById('reply-modal-backdrop');
+            if (!existingBackdrop) {
+                existingBackdrop = document.createElement('div');
+                existingBackdrop.id = 'reply-modal-backdrop';
+                existingBackdrop.className = 'reply-modal-backdrop hidden';
+                existingBackdrop.onclick = function() { window.closeReplyModal(); };
+                document.body.appendChild(existingBackdrop);
+            }
+            
+            // Ensure reply modal functions are available - always override to ensure latest version
+            window.openReplyModal = function() {
+                console.log('openReplyModal called');
+                const replyModal = document.getElementById('reply-modal');
+                const backdrop = document.getElementById('reply-modal-backdrop');
+                
+                console.log('Reply modal found:', !!replyModal);
+                console.log('Backdrop found:', !!backdrop);
+                
+                if (!replyModal) {
+                    console.error('Reply modal not found!');
+                    alert('Reply modal not found. Please refresh the page.');
+                    return;
+                }
+                
+                // Show backdrop
+                if (backdrop) {
+                    backdrop.classList.remove('hidden');
+                    backdrop.style.display = 'block';
+                    console.log('Backdrop shown');
+                }
+                
+                // Show modal
+                replyModal.classList.remove('hidden');
+                replyModal.style.display = 'flex';
+                replyModal.style.visibility = 'visible';
+                replyModal.style.opacity = '1';
+                console.log('Modal shown');
+                
+                // Focus on textarea
+                setTimeout(() => {
+                    const textarea = document.getElementById('reply-modal-message');
+                    if (textarea) {
+                        textarea.focus();
+                        console.log('Textarea focused');
+                    } else {
+                        console.error('Textarea not found');
+                    }
+                }, 100);
+            };
+            
+            // Always override to ensure latest version
+            window.closeReplyModal = function() {
+                const modal = document.getElementById('reply-modal');
+                const backdrop = document.getElementById('reply-modal-backdrop');
+                
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                    modal.style.visibility = 'hidden';
+                    modal.style.opacity = '0';
+                    const form = document.getElementById('reply-modal-form');
+                    if (form) {
+                        form.reset();
+                    }
+                }
+                
+                if (backdrop) {
+                    backdrop.classList.add('hidden');
+                    backdrop.style.display = 'none';
+                }
+            };
+            
             if (contentHTML.trim() === '') {
                 content.innerHTML = '<div class="email-detail-loading">Error: Could not extract message content. Please try again.</div>';
             } else {
                 content.innerHTML = contentHTML;
+                
+                // USE EVENT DELEGATION - This will work even if button is replaced
+                const msgId = messageId;
+                const contentContainer = document.getElementById('email-detail-content');
+                
+                if (contentContainer) {
+                    // Remove any existing delegated handler
+                    const existingHandler = contentContainer._replyClickHandler;
+                    if (existingHandler) {
+                        contentContainer.removeEventListener('click', existingHandler, true);
+                    }
+                    
+                    // Create new handler
+                    const replyClickHandler = function(e) {
+                        // Check if clicked element or its parent is the reply button
+                        const replyBtn = e.target.closest('.reply-btn-new, button[id^="reply-btn-"]');
+                        
+                        if (replyBtn) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            
+                            console.log('=== REPLY BUTTON CLICKED (Event Delegation) ===', msgId, replyBtn);
+                            alert('Reply button clicked! Message ID: ' + msgId);
+                            
+                            return false;
+                        }
+                    };
+                    
+                    // Store handler reference
+                    contentContainer._replyClickHandler = replyClickHandler;
+                    
+                    // Attach using capture phase to catch it early
+                    contentContainer.addEventListener('click', replyClickHandler, true);
+                    
+                    console.log('✓ Event delegation attached to email-detail-content for reply button');
+                }
+                
+                // ALSO try direct attachment as backup
+                const replyBtnId = `reply-btn-${messageId}`;
+                
+                function attachReplyHandler() {
+                    let btn = document.getElementById(replyBtnId) || 
+                              document.querySelector(`.reply-btn-new[data-message-id="${messageId}"]`) ||
+                              document.querySelector('#email-detail-content .reply-btn-new');
+                    
+                    if (btn) {
+                        console.log('✓ Found reply button, attaching direct handler', btn);
+                        
+                        // Direct onclick
+                        btn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            console.log('=== REPLY BUTTON CLICKED (Direct) ===', msgId);
+                            alert('Reply button clicked (Direct)! Message ID: ' + msgId);
+                            return false;
+                        };
+                        
+                        // Also addEventListener
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('=== REPLY BUTTON CLICKED (addEventListener) ===', msgId);
+                            alert('Reply button clicked (addEventListener)! Message ID: ' + msgId);
+                            return false;
+                        }, true);
+                        
+                        return true;
+                    }
+                    return false;
+                }
+                
+                // Try immediately and with retries
+                attachReplyHandler();
+                setTimeout(attachReplyHandler, 50);
+                setTimeout(attachReplyHandler, 200);
+                setTimeout(attachReplyHandler, 500);
+                
+                // REBUILD REPLY BUTTON FROM SCRATCH - Simple and clean
+                function initReplyButton() {
+                    const replyBtnId = `reply-btn-${messageId}`;
+                    console.log('Looking for reply button with ID:', replyBtnId);
+                    
+                    let replyBtn = document.getElementById(replyBtnId);
+                    console.log('Button by ID:', replyBtn);
+                    
+                    if (!replyBtn) {
+                        // Try to find it by class or data attribute
+                        replyBtn = document.querySelector(`.reply-btn-new[data-message-id="${messageId}"]`);
+                        console.log('Button by class and data:', replyBtn);
+                        
+                        if (!replyBtn) {
+                            replyBtn = document.querySelector(`#email-detail-content .reply-btn-new`);
+                            console.log('Button in email-detail-content:', replyBtn);
+                        }
+                        
+                        if (!replyBtn) {
+                            replyBtn = document.querySelector(`.message-detail-header .reply-btn-new`);
+                            console.log('Button in message-detail-header:', replyBtn);
+                        }
+                        
+                        if (!replyBtn) {
+                            // Try to find ANY button with "reply" in the text or class
+                            const allButtons = document.querySelectorAll('#email-detail-content button, .message-detail-header button');
+                            console.log('All buttons in detail area:', allButtons);
+                            allButtons.forEach(btn => {
+                                if (btn.textContent && btn.textContent.toLowerCase().includes('reply')) {
+                                    replyBtn = btn;
+                                    console.log('Found reply button by text:', replyBtn);
+                                }
+                            });
+                        }
+                    }
+                    
+                    if (replyBtn) {
+                        console.log('✓ Reply button found!', replyBtn);
+                        console.log('Button HTML:', replyBtn.outerHTML);
+                        
+                        // Store message ID
+                        const msgId = messageId;
+                        
+                        // Remove all existing event listeners by cloning
+                        const newReplyBtn = replyBtn.cloneNode(true);
+                        replyBtn.parentNode.replaceChild(newReplyBtn, replyBtn);
+                        
+                        // Ensure ID and data attribute
+                        newReplyBtn.id = replyBtnId;
+                        newReplyBtn.setAttribute('data-message-id', msgId);
+                        newReplyBtn.className = 'reply-btn-new';
+                        
+                        // Make sure it's visible and clickable
+                        newReplyBtn.style.display = 'inline-block';
+                        newReplyBtn.style.visibility = 'visible';
+                        newReplyBtn.style.pointerEvents = 'auto';
+                        newReplyBtn.style.cursor = 'pointer';
+                        newReplyBtn.style.zIndex = '10000';
+                        
+                        // PRESERVE inline onclick if it exists, otherwise add new one
+                        if (!newReplyBtn.getAttribute('onclick')) {
+                            newReplyBtn.setAttribute('onclick', `alert('Reply clicked! ID: ${msgId}'); return false;`);
+                        }
+                        
+                        // SIMPLE TEST: Just show a popup first to verify click works
+                        newReplyBtn.onclick = function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            event.stopImmediatePropagation();
+                            
+                            console.log('=== REPLY BUTTON CLICKED ===', msgId);
+                            alert('Reply button clicked! Message ID: ' + msgId);
+                            
+                            return false;
+                        };
+                        
+                        // Also try addEventListener as backup
+                        newReplyBtn.addEventListener('click', function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            console.log('=== REPLY BUTTON CLICKED (addEventListener) ===', msgId);
+                            alert('Reply button clicked (addEventListener)! Message ID: ' + msgId);
+                            return false;
+                        }, true); // Use capture phase
+                        
+                        // Hover effects
+                        newReplyBtn.onmouseenter = function() {
+                            this.style.backgroundColor = '#6fa050';
+                        };
+                        newReplyBtn.onmouseleave = function() {
+                            this.style.backgroundColor = '#85BB65';
+                        };
+                        
+                        console.log('✓ Reply button rebuilt and ready!', newReplyBtn);
+                        console.log('Button onclick:', newReplyBtn.onclick);
+                        return true;
+                    } else {
+                        console.error('✗ Reply button NOT FOUND! ID:', replyBtnId);
+                        console.log('Available elements in email-detail-content:');
+                        const detailContent = document.getElementById('email-detail-content');
+                        if (detailContent) {
+                            console.log(detailContent.innerHTML.substring(0, 500));
+                        }
+                        return false;
+                    }
+                }
+                
+                // Try to initialize immediately and retry if needed
+                console.log('Initializing reply button for message:', messageId);
+                if (!initReplyButton()) {
+                    console.log('Retrying in 100ms...');
+                    setTimeout(() => {
+                        if (!initReplyButton()) {
+                            console.log('Retrying again in 200ms...');
+                            setTimeout(initReplyButton, 200);
+                        }
+                    }, 100);
+                }
+                
+                // Initialize reply modal form submission
+                setTimeout(() => {
+                    const replyModalForm = document.getElementById('reply-modal-form');
+                    if (replyModalForm && !replyModalForm.hasAttribute('data-initialized')) {
+                        replyModalForm.setAttribute('data-initialized', 'true');
+                        replyModalForm.addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            const form = e.target;
+                            const formData = new FormData(form);
+                            
+                            const button = form.querySelector('button[type="submit"]');
+                            if (!button) {
+                                console.error('Submit button not found');
+                                return;
+                            }
+                            
+                            const originalButtonText = button.innerHTML;
+                            
+                            button.disabled = true;
+                            button.innerHTML = '<span class="loading-spinner"></span>Sending...';
+                            
+                            try {
+                                const response = await fetch(form.action, {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                
+                                const result = await response.json();
+                                
+                                if (result.success) {
+                                    if (typeof showToast === 'function') {
+                                        showToast('success', 'Reply sent successfully!');
+                                    }
+                                    window.closeReplyModal();
+                                    // Reload the message to show the new reply
+                                    setTimeout(() => {
+                                        window.loadMessageInPanel(messageId);
+                                    }, 500);
+                                } else {
+                                    if (typeof showToast === 'function') {
+                                        showToast('error', result.error || 'An error occurred.');
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error sending reply:', error);
+                                if (typeof showToast === 'function') {
+                                    showToast('error', error.message || 'An error occurred while sending your reply.');
+                                }
+                            } finally {
+                                button.disabled = false;
+                                button.innerHTML = originalButtonText;
+                            }
+                        });
+                    }
+                }, 200);
                 
                 // Re-initialize collapsible messages if Gmail style
                 setTimeout(() => {
@@ -4724,6 +5632,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // GLOBAL REPLY BUTTON HANDLER - Ultimate fallback that catches ALL reply button clicks
+    document.addEventListener('click', function(e) {
+        const replyBtn = e.target.closest('.reply-btn-new, button[id^="reply-btn-"], button[data-message-id]');
+        if (replyBtn && (replyBtn.textContent && replyBtn.textContent.toLowerCase().includes('reply'))) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            const msgId = replyBtn.getAttribute('data-message-id') || replyBtn.id.replace('reply-btn-', '');
+            console.log('=== GLOBAL REPLY BUTTON CLICKED ===', msgId, replyBtn);
+            alert('Reply button clicked (GLOBAL)! Message ID: ' + msgId);
+            
+            return false;
+        }
+    }, true); // Use capture phase to catch early
+    
     // Initialize counts
     updateDraftsCount();
     

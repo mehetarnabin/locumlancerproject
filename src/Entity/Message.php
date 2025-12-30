@@ -35,6 +35,7 @@ class Message
     private ?Employer $employer = null;
 
     #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'recruiter_id', nullable: true)]
     private ?Recruiter $recruiter = null;
 
     #[ORM\ManyToOne]

@@ -28,8 +28,7 @@ class DashboardController extends AbstractController
         JobRepository $jobRepository,
         InterviewRepository $interviewRepository,
         ProfileAnalyticsService $analyticsService,
-    ): Response
-    {
+    ): Response {
         $user = $this->getUser();
 
         $totalJobs = $em->createQuery("SELECT count(j.id) as total_jobs FROM App\Entity\Job j WHERE j.employer = :employer")
@@ -65,7 +64,7 @@ class DashboardController extends AbstractController
         $interviewCount = $statusCountsArray['interview'];
 
         $messages = $em->getRepository(Message::class)->findBy(['receiver' => $user], ['id' => 'DESC'], 10);
-        $messagesView = array_map(function(Message $m) {
+        $messagesView = array_map(function (Message $m) {
             $sender = $m->getSender();
             $provider = $sender ? $sender->getProvider() : null;
             $senderName = null;
@@ -100,27 +99,116 @@ class DashboardController extends AbstractController
         $employer = $this->getUser()->getEmployer();
         $pastJobs = $jobRepository->getEmployerPastJobs($employer->getId());
         $currentJobs = $jobRepository->getEmployerCurrentJobs($employer->getId());
-        
+
         $skills = $analyticsService->getEmployerTopSkillsInDemand($employer);
         $resume = $analyticsService->getEmployerProfileInsights($employer, $user);
 
         $employerTodosRaw = $em->getRepository(ToDo::class)->findBy(
             ['employer' => $employer, 'isCompleted' => false],
-            ['createdAt' => 'DESC'],
-            5
+            ['createdAt' => 'DESC']
         );
-        $employerTodos = array_map(function(ToDo $t) {
-            return [
-                'id' => (string) $t->getId(),
-                'title' => $t->getTitle() ?? 'Task',
-                'description' => $t->getDescription() ?? '—',
-                'isCompleted' => $t->isCompleted(),
-                'createdAt' => $t->getCreatedAt(),
-            ];
-        }, $employerTodosRaw);
+        
+        // Bundle todos by candidate (provider) name and ID
+        $bundledTodos = [];
+        $todosByProvider = [];
+        
+        foreach ($employerTodosRaw as $t) {
+            $provider = $t->getProvider();
+            if ($provider) {
+                $providerId = (string) $provider->getId();
+                $providerName = $provider->getName() ?? 'Unknown Candidate';
+                
+                if (!isset($todosByProvider[$providerId])) {
+                    $todosByProvider[$providerId] = [
+                        'providerId' => $providerId,
+                        'providerName' => $providerName,
+                        'todos' => [],
+                        'latestDate' => $t->getCreatedAt(),
+                    ];
+                }
+                
+                $app = null;
+                if ($t->getJob() && $t->getProvider()) {
+                    $app = $em->getRepository(Application::class)->findOneBy([
+                        'job' => $t->getJob(),
+                        'provider' => $t->getProvider()
+                    ]);
+                }
+                
+                $todoData = [
+                    'id' => (string) $t->getId(),
+                    'title' => $t->getTitle() ?? 'Task',
+                    'description' => $t->getDescription() ?? '—',
+                    'isCompleted' => $t->isCompleted(),
+                    'createdAt' => $t->getCreatedAt(),
+                    'type' => $t->getType(),
+                    'provider' => $t->getProvider(),
+                    'job' => $t->getJob(),
+                    'applicationId' => $app ? $app->getId() : null,
+                    'contractSent' => $app ? ($app->getContractFileName() !== null) : false,
+                ];
+                
+                $todosByProvider[$providerId]['todos'][] = $todoData;
+                
+                // Update latest date if this todo is newer
+                if ($t->getCreatedAt() > $todosByProvider[$providerId]['latestDate']) {
+                    $todosByProvider[$providerId]['latestDate'] = $t->getCreatedAt();
+                }
+            } else {
+                // Handle todos without provider separately
+                $app = null;
+                if ($t->getJob() && $t->getProvider()) {
+                    $app = $em->getRepository(Application::class)->findOneBy([
+                        'job' => $t->getJob(),
+                        'provider' => $t->getProvider()
+                    ]);
+                }
+                
+                $bundledTodos[] = [
+                    'isBundled' => false,
+                    'id' => (string) $t->getId(),
+                    'title' => $t->getTitle() ?? 'Task',
+                    'description' => $t->getDescription() ?? '—',
+                    'isCompleted' => $t->isCompleted(),
+                    'createdAt' => $t->getCreatedAt(),
+                    'type' => $t->getType(),
+                    'provider' => $t->getProvider(),
+                    'job' => $t->getJob(),
+                    'applicationId' => $app ? $app->getId() : null,
+                    'contractSent' => $app ? ($app->getContractFileName() !== null) : false,
+                ];
+            }
+        }
+        
+        // Convert provider groups to bundled todo items
+        foreach ($todosByProvider as $providerId => $bundle) {
+            if (count($bundle['todos']) > 1) {
+                // Multiple todos for this candidate - bundle them
+                $bundledTodos[] = [
+                    'isBundled' => true,
+                    'providerId' => $providerId,
+                    'providerName' => $bundle['providerName'],
+                    'todos' => $bundle['todos'],
+                    'todoCount' => count($bundle['todos']),
+                    'createdAt' => $bundle['latestDate'],
+                ];
+            } else {
+                // Single todo for this candidate - add as regular todo
+                $bundledTodos[] = array_merge($bundle['todos'][0], ['isBundled' => false]);
+            }
+        }
+        
+        // Sort by latest date
+        usort($bundledTodos, function ($a, $b) {
+            $dateA = $a['createdAt'] instanceof \DateTimeInterface ? $a['createdAt'] : new \DateTime();
+            $dateB = $b['createdAt'] instanceof \DateTimeInterface ? $b['createdAt'] : new \DateTime();
+            return $dateB <=> $dateA;
+        });
+        
+        $employerTodos = $bundledTodos;
 
         $rawInterviews = $interviewRepository->getEmployerInterviews($employer->getId());
-        $rawInterviews = array_filter($rawInterviews, function($iv) {
+        $rawInterviews = array_filter($rawInterviews, function ($iv) {
             return $iv && $iv->getDate();
         });
         $now = new \DateTimeImmutable();
@@ -134,10 +222,10 @@ class DashboardController extends AbstractController
                 $past[] = $iv;
             }
         }
-        usort($future, function($a, $b) {
+        usort($future, function ($a, $b) {
             return $a->getDate() <=> $b->getDate();
         });
-        usort($past, function($a, $b) {
+        usort($past, function ($a, $b) {
             return $b->getDate() <=> $a->getDate();
         });
         $selected = array_slice($future, 0, 5);
@@ -166,7 +254,7 @@ class DashboardController extends AbstractController
             'totalApplications' => $totalApplications,
             'totalHiredApplications' => $totalHiredApplications,
             'totalInterviewedApplications' => $totalInterviewedApplications,
-            'statusCounts'=> $statusCounts,
+            'statusCounts' => $statusCounts,
             'messages' => $messagesView,
             'notifications' => $notifications,
             'currentJobs' => $currentJobs,
@@ -185,7 +273,7 @@ class DashboardController extends AbstractController
     {
         $user = $this->getUser();
         $employer = $user ? $user->getEmployer() : null;
-        
+
         if (!$employer || $todo->getEmployer() !== $employer) {
             return $this->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }

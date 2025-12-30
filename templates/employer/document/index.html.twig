@@ -1,0 +1,1437 @@
+{% extends 'employer/base.html.twig' %}
+
+{% block title %}Documents{% endblock %}
+
+{% block employer_body %}
+<style>
+/* Layout reset */
+body.app .app-wrapper, .app-wrapper {
+    display: block !important;
+    justify-content: unset !important;
+    align-items: unset !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+@media (min-width: 1200px) {
+    body.app .app-wrapper, .app-wrapper {
+        margin-left: 250px !important;
+        transform: translateX(-150px) !important;
+        width: calc(100% - 250px + 150px) !important;
+    }
+}
+body.app .app-wrapper .app-content, .app-wrapper .app-content, .app-content {
+    padding-top: 80px !important;
+    padding-bottom: 48px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+}
+@media (min-width: 1200px) {
+    body.app .app-wrapper .app-content, .app-wrapper .app-content, .app-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+body.app .app-wrapper .app-content .container-xl,
+.app-wrapper .app-content .container-xl,
+.app-content .container-xl,
+body .app-content .container-xl,
+div.container-xl,
+[class*="container-xl"],
+.container-xl {
+    position: relative !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 30px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Card Styles */
+.card.app-card-settings {
+    border: none;
+    background: #fff;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.card.app-card-settings .card-body {
+    padding: 24px !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-page-title {
+    color: #000000;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0 0 32px 4px;
+}
+
+/* Tabs Styling - Matching Provider Style */
+.settings-nav-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin: 0 0 24px 0;
+    background: #fff;
+    border-radius: 12px 12px 0 0;
+    padding: 0 24px;
+}
+.settings-nav-tabs .nav-link {
+    padding: 16px 24px;
+    border: none;
+    background: none;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    margin-right: 0;
+}
+.settings-nav-tabs .nav-link:hover {
+    color: #85BB65;
+    background: transparent;
+}
+.settings-nav-tabs .nav-link.active {
+    color: #85BB65;
+    border-bottom-color: #85BB65;
+    font-weight: 500;
+    background: none !important;
+    background-color: transparent !important;
+}
+.settings-nav-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #85BB65;
+}
+
+/* Override global nav-tabs active background */
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+    background: none !important;
+    background-color: transparent !important;
+}
+
+/* Table Styles - Shared */
+.document-table-wrapper {
+    overflow-x: auto;
+    padding: 0 4px;
+}
+.document-header, .document-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 0 8px 0 0;
+}
+.document-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #121C0C;
+    background: #F8FAF9;
+    border: 1px solid #e6eef6;
+    border-bottom: 2px solid #e6eef6;
+    border-radius: 10px 10px 0 0;
+    height: 48px;
+    margin-bottom: 2px;
+}
+.document-row {
+    font-size: 13px;
+    color: #1a1a1a;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    min-height: 48px;
+    height: 48px;
+    transition: background-color 0.2s ease;
+}
+.document-row:hover {
+    background-color: #F8FAF9;
+}
+.document-header > div, .document-row > div {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 48px;
+}
+
+/* Column Widths */
+.col-name { flex: 2; font-weight: 500; }
+.col-info { flex: 1.5; }
+.col-date { flex: 1; justify-content: center; }
+.col-actions { flex: 0 0 100px; justify-content: center; }
+
+/* Split View Styles matching Provider */
+.split-view-container {
+    display: grid;
+    grid-template-columns: minmax(350px, 1fr) 1.5fr;
+    gap: 20px;
+    height: calc(100vh - 240px);
+    min-height: 500px;
+    transition: all 0.3s ease;
+}
+.split-view-container.list-collapsed {
+    grid-template-columns: 0 1fr;
+    gap: 0;
+}
+.split-list-panel {
+    border-right: 1px solid #e6eef6;
+    padding-right: 16px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+/* Allow hiding list panel content when collapsed */
+.split-view-container.list-collapsed .split-list-panel {
+    padding-right: 0;
+    border-right: none;
+    overflow: hidden;
+}
+
+.split-details-panel {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 0; /* Updated to 0 to allow iframe to fill */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    border: 1px dashed #cbd5e1;
+    overflow: hidden; /* For iframe */
+    position: relative;
+}
+
+.document-item-card {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e6eef6;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+.document-item-card:hover {
+    border-color: #85BB65;
+    background: #F4F9F1;
+}
+.document-item-card.active {
+    border-color: #85BB65;
+    background: #F4F9F1;
+    box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+}
+
+/* Bundled Document Cards */
+.document-bundle-card {
+    border: 1px solid #e6eef6;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    background: #fff;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.document-bundle-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.bundle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: #F8FAF9;
+    transition: background-color 0.2s ease;
+}
+
+.bundle-header:hover {
+    background: #F0F9F0;
+}
+
+.bundle-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bundle-candidate-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #1e293b;
+}
+
+.bundle-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.bundle-status-badge {
+    background: #E8F5E8;
+    color: #2E7D32;
+    border: 1px solid #85BB65;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.bundle-doc-count {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.bundle-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.bundle-toggle:hover {
+    background: #E8F5E8;
+}
+
+.bundle-arrow {
+    color: #64748b;
+    transition: transform 0.3s ease;
+}
+
+.document-bundle-card.expanded .bundle-arrow {
+    transform: rotate(180deg);
+    color: #85BB65;
+}
+
+.bundle-content {
+    padding: 0;
+    background: #fff;
+    border-top: 1px solid #e6eef6;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.document-bundle-card.expanded .bundle-content {
+    max-height: 2000px;
+    padding: 12px;
+}
+
+.bundle-document-item {
+    margin-bottom: 8px;
+    border: 1px solid #e6eef6;
+    background: #F8FAF9;
+}
+
+.bundle-document-item:hover {
+    border-color: #85BB65;
+    background: #F0F9F0;
+}
+
+.bundle-document-item:last-child {
+    margin-bottom: 0;
+}
+
+.doc-type-badge {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Pending Requests Table Styles */
+.pending-requests-table {
+    width: 100%;
+}
+
+.pending-request-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: #F8FAF9;
+    border-bottom: 2px solid #e6eef6;
+    font-weight: 600;
+    font-size: 12px;
+    color:rgba(18, 28, 12, 0);
+    border-radius: 8px 8px 0 0;
+}
+
+.pending-request-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e6eef6;
+    background: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.pending-request-row:hover {
+    background-color: #F8FAF9;
+}
+
+.pending-request-row:last-child {
+    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+}
+
+.pending-col-name {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #1e293b;
+}
+
+.pending-col-job {
+    flex: 1.5;
+    font-size: 13px;
+    color: #64748b;
+    text-align: left;
+    padding: 0 8px;
+}
+
+.pending-col-date {
+    flex: 1;
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+}
+
+.pending-col-candidate-status {
+    flex: 1;
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Candidate Status Badge Colors */
+.candidate-status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    border: none;
+    color: #fff;
+}
+
+.candidate-status-shortlisted {
+    background: #85BB65 !important;
+    color: #fff !important;
+}
+
+.candidate-status-accepted {
+    background: #10b981 !important;
+    color: #fff !important;
+}
+
+.candidate-status-completed {
+    background: #6b7280 !important;
+    color: #fff !important;
+}
+
+.candidate-status-interviewing {
+    background: #3b82f6 !important;
+    color: #fff !important;
+}
+
+.candidate-status-negotiating {
+    background: #f59e0b !important;
+    color: #fff !important;
+}
+
+.candidate-status-applied {
+    background: #60a5fa !important;
+    color: #fff !important;
+}
+
+.candidate-status-default {
+    background: #9ca3af !important;
+    color: #fff !important;
+}
+
+.pending-col-status {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.request-type-badge {
+    font-size: 10px;
+    color: #85BB65;
+    background: #E8F5E8;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.pending-col-status .btn-outline-success {
+    border: 1px solid #85BB65;
+    color: #85BB65;
+    background: transparent;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.pending-col-status .btn-outline-success:hover {
+    background: #85BB65;
+    color: #fff;
+    border-color: #85BB65;
+}
+
+.pending-col-status .badge.bg-success {
+    background-color: #85BB65 !important;
+    color: #fff;
+}
+
+.pending-col-status .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #000;
+}
+.doc-card-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.doc-card-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Toggle Button */
+.split-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.split-toggle-btn:hover {
+    color: #85BB65;
+    border-color: #85BB65;
+    transform: scale(1.05);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+/* Button styles */
+.btn-primary {
+    background: #85BB65;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 500;
+    color: white;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+.btn-primary:hover {
+    background: #6FA050;
+    color: white;
+}
+.btn-outline-primary {
+    background: transparent;
+    border: 1px solid #85BB65;
+    color: #85BB65;
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.btn-outline-primary:hover {
+    background: #F4F9F1;
+    color: #6FA050;
+}
+.btn-uniform-modal {
+    min-width: 140px; /* Slightly wider to accommodate longer text */
+    height: 38px; /* Standard Bootstrap button height */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-toolbar-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px; /* Fixed width for perfect uniformity */
+    height: 42px;
+    padding: 0 16px;
+    white-space: nowrap;
+}
+
+/* Remove black overlay/backdrop from modals - COMPLETE REMOVAL */
+.modal-backdrop,
+.modal-backdrop.show,
+.modal-backdrop.fade,
+.modal-backdrop.fade.show,
+[class*="modal-backdrop"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    z-index: -9999 !important;
+}
+
+/* Also remove any background overlay from modal itself */
+.modal.fade.show,
+.modal.show {
+    background: transparent !important;
+}
+
+.modal.fade {
+    background: transparent !important;
+}
+</style>
+
+<div class="container-xl">
+    <div class="row mb-4 align-items-center">
+        <div class="col-auto">
+            <h1 class="app-page-title mb-0">Documents</h1>
+        </div>
+        <div class="col-auto ms-auto d-flex gap-2">
+             <button type="button" class="btn btn-outline-primary btn-toolbar-action" data-bs-toggle="modal" data-bs-target="#requestDocumentModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-plus me-1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                Request Doc
+            </button>
+            <button type="button" class="btn btn-secondary btn-toolbar-action" data-bs-toggle="modal" data-bs-target="#requestOneFileModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-archive me-1"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                One File
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-toolbar-action" data-bs-toggle="modal" data-bs-target="#sendCredentialsModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-link me-1"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                Credentials
+            </button>
+            <button type="button" class="btn btn-primary btn-toolbar-action" data-bs-toggle="modal" data-bs-target="#uploadContractModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Contract
+            </button>
+        </div>
+    </div>
+
+    <!-- Section 1: Pending Requests -->
+    <div class="card app-card-settings mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Pending Requests</h5>
+            
+            <ul class="nav nav-tabs settings-nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="requests-tab" data-bs-toggle="tab" data-bs-target="#requests-pane" type="button" role="tab">Pending Requests</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contracts-tab" data-bs-toggle="tab" data-bs-target="#contracts-pane" type="button" role="tab">Pending Contracts</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Documents Tab -->
+                <div class="tab-pane fade show active" id="requests-pane" role="tabpanel">
+                    {% if pendingDocumentRequests|length > 0 or pendingOneFileRequests|length > 0 %}
+                        {# Collect all unique providers first #}
+                        {% set uniqueProviders = [] %}
+                        {% set providerRequestsMap = {} %}
+                        
+                        {# Collect providers from document requests #}
+                        {% for req in pendingDocumentRequests %}
+                            {% set provider = req.application.provider %}
+                            {% set providerId = provider.id|default('') %}
+                            {% if providerId != '' and providerId not in uniqueProviders %}
+                                {% set uniqueProviders = uniqueProviders|merge([providerId]) %}
+                                {% set providerRequestsMap = providerRequestsMap|merge({(providerId): {
+                                    'provider': provider,
+                                    'requests': []
+                                }}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Collect providers from one file requests #}
+                        {% for req in pendingOneFileRequests %}
+                            {% set provider = req.provider %}
+                            {% set providerId = provider.id|default('') %}
+                            {% if providerId != '' and providerId not in uniqueProviders %}
+                                {% set uniqueProviders = uniqueProviders|merge([providerId]) %}
+                                {% set providerRequestsMap = providerRequestsMap|merge({(providerId): {
+                                    'provider': provider,
+                                    'requests': []
+                                }}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Add document requests to their providers #}
+                        {% for req in pendingDocumentRequests %}
+                            {% set providerId = req.application.provider.id|default('') %}
+                            {% if providerId != '' and providerRequestsMap[providerId] is defined %}
+                                {% set bundleData = providerRequestsMap[providerId] %}
+                                {% set newRequest = {
+                                    'type': 'document',
+                                    'name': req.name,
+                                    'jobTitle': req.application.job.title,
+                                    'date': req.createdAt,
+                                    'requestStatus': 'Pending',
+                                    'candidateStatus': req.application.status|default('N/A')
+                                } %}
+                                {% set updatedRequests = bundleData.requests|merge([newRequest]) %}
+                                {% set providerRequestsMap = providerRequestsMap|merge({(providerId): bundleData|merge({'requests': updatedRequests})}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Add one file requests to their providers #}
+                        {% for req in pendingOneFileRequests %}
+                            {% set providerId = req.provider.id|default('') %}
+                            {% if providerId != '' and providerRequestsMap[providerId] is defined %}
+                                {% set bundleData = providerRequestsMap[providerId] %}
+                                {% set applicationStatus = 'N/A' %}
+                                {% if req.application is defined and req.application.status is defined %}
+                                    {% set applicationStatus = req.application.status %}
+                                {% endif %}
+                                {% set newRequest = {
+                                    'type': 'onefile',
+                                    'name': 'One File (Bundle)',
+                                    'jobTitle': req.job.title|default('N/A'),
+                                    'date': req.oneFileRequestedAt,
+                                    'requestStatus': 'Pending',
+                                    'candidateStatus': applicationStatus
+                                } %}
+                                {% set updatedRequests = bundleData.requests|merge([newRequest]) %}
+                                {% set providerRequestsMap = providerRequestsMap|merge({(providerId): bundleData|merge({'requests': updatedRequests})}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Display bundled cards #}
+                        {% for providerId in uniqueProviders %}
+                            {% if providerRequestsMap[providerId] is defined %}
+                                {% set bundleData = providerRequestsMap[providerId] %}
+                                <div class="document-bundle-card">
+                                    <div class="bundle-header" onclick="toggleBundle('pending-bundle-{{ providerId }}')">
+                                        <div class="bundle-info">
+                                            <div class="bundle-candidate-name">{{ bundleData.provider.user.name }}</div>
+                                            <div class="bundle-meta">
+                                                <span class="bundle-doc-count">{{ bundleData.requests|length }} request{{ bundleData.requests|length > 1 ? 's' : '' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="bundle-toggle">
+                                            <svg class="bundle-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="bundle-content" id="pending-bundle-{{ providerId }}" style="display: none;">
+                                        <div class="pending-requests-table">
+                                            <div class="pending-request-header">
+                                                <div class="pending-col-name">Document Name</div>
+                                                <div class="pending-col-job">Job Title</div>
+                                                <div class="pending-col-date">Requested Date</div>
+                                                <div class="pending-col-candidate-status">Document Status</div>
+                                                <div class="pending-col-status">Status</div>
+                                            </div>
+                                            {% for r in bundleData.requests %}
+                                                <div class="pending-request-row">
+                                                    <div class="pending-col-name">
+                                                        <span class="request-type-badge">{{ r.type == 'onefile' ? 'Bundle' : 'Document' }}</span>
+                                                        {{ r.name }}
+                                                    </div>
+                                                    <div class="pending-col-job">{{ r.jobTitle|default('N/A') }}</div>
+                                                    <div class="pending-col-date">{{ r.date|date('M d, Y') }}</div>
+                                                    <div class="pending-col-candidate-status">
+                                                        {% set status = r.candidateStatus|default('N/A')|lower %}
+                                                        {% if status == 'in_review' %}
+                                                            <span class="badge candidate-status-badge candidate-status-shortlisted">Shortlisted</span>
+                                                        {% elseif status == 'shortlisted' %}
+                                                            <span class="badge candidate-status-badge candidate-status-shortlisted">Shortlisted</span>
+                                                        {% elseif status == 'hired' or status == 'accepted' %}
+                                                            <span class="badge candidate-status-badge candidate-status-accepted">Accepted</span>
+                                                        {% elseif status == 'completed' %}
+                                                            <span class="badge candidate-status-badge candidate-status-completed">Completed</span>
+                                                        {% elseif status == 'interviewing' or status == 'interview' %}
+                                                            <span class="badge candidate-status-badge candidate-status-interviewing">Interviewing</span>
+                                                        {% elseif status == 'negotiating' or status == 'offered' %}
+                                                            <span class="badge candidate-status-badge candidate-status-negotiating">Negotiating</span>
+                                                        {% elseif status == 'applied' %}
+                                                            <span class="badge candidate-status-badge candidate-status-applied">Applied</span>
+                                                        {% else %}
+                                                            <span class="badge candidate-status-badge candidate-status-default">{{ r.candidateStatus|default('N/A')|capitalize }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="pending-col-status">
+                                                        <span class="badge bg-warning text-dark">{{ r.requestStatus }}</span>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">No pending document requests.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Sign Documents Tab -->
+                <div class="tab-pane fade" id="contracts-pane" role="tabpanel">
+                    {% if pendingContracts|length > 0 %}
+                        {# Collect all unique providers first #}
+                        {% set uniqueProviders = [] %}
+                        {% set providerContractsMap = {} %}
+                        
+                        {# Collect providers from contracts #}
+                        {% for app in pendingContracts %}
+                            {% set provider = app.provider %}
+                            {% set providerId = provider.id|default('') %}
+                            {% if providerId != '' and providerId not in uniqueProviders %}
+                                {% set uniqueProviders = uniqueProviders|merge([providerId]) %}
+                                {% set providerContractsMap = providerContractsMap|merge({(providerId): {
+                                    'provider': provider,
+                                    'status': app.status|default('N/A'),
+                                    'contracts': []
+                                }}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Add contracts to their providers #}
+                        {% for app in pendingContracts %}
+                            {% set providerId = app.provider.id|default('') %}
+                            {% if providerId != '' and providerContractsMap[providerId] is defined %}
+                                {% set bundleData = providerContractsMap[providerId] %}
+                                {% set contractStatus = app.contractSignedFileName ? 'Signed' : 'Sent' %}
+                                {% set newContract = {
+                                    'jobTitle': app.job.title,
+                                    'sentDate': app.contractSentAt,
+                                    'status': contractStatus,
+                                    'isSigned': app.contractSignedFileName ? true : false,
+                                    'applicationId': app.id,
+                                    'candidateStatus': app.status|default('N/A')
+                                } %}
+                                {% set updatedContracts = bundleData.contracts|merge([newContract]) %}
+                                {% set providerContractsMap = providerContractsMap|merge({(providerId): bundleData|merge({'contracts': updatedContracts})}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Display bundled cards #}
+                        {% for providerId in uniqueProviders %}
+                            {% if providerContractsMap[providerId] is defined %}
+                                {% set bundleData = providerContractsMap[providerId] %}
+                                <div class="document-bundle-card">
+                                    <div class="bundle-header" onclick="toggleBundle('contract-bundle-{{ providerId }}')">
+                                        <div class="bundle-info">
+                                            <div class="bundle-candidate-name">{{ bundleData.provider.user.name }}</div>
+                                            <div class="bundle-meta">
+                                                <span class="badge bundle-status-badge">{{ bundleData.status|capitalize }}</span>
+                                                <span class="bundle-doc-count">{{ bundleData.contracts|length }} contract{{ bundleData.contracts|length > 1 ? 's' : '' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="bundle-toggle">
+                                            <svg class="bundle-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="bundle-content" id="contract-bundle-{{ providerId }}" style="display: none;">
+                                        <div class="pending-requests-table">
+                                            <div class="pending-request-header">
+                                                <div class="pending-col-name">Job Title</div>
+                                                <div class="pending-col-date">Sent Date</div>
+                                                <div class="pending-col-candidate-status">Job Status</div>
+                                                <div class="pending-col-status">Status</div>
+                                            </div>
+                                            {% for contract in bundleData.contracts %}
+                                                <div class="pending-request-row">
+                                                    <div class="pending-col-name">
+                                                        {{ contract.jobTitle }}
+                                                    </div>
+                                                    <div class="pending-col-date">{{ contract.sentDate|date('M d, Y') }}</div>
+                                                    <div class="pending-col-candidate-status">
+                                                        {% set status = contract.candidateStatus|default('N/A')|lower %}
+                                                        {% if status == 'in_review' %}
+                                                            <span class="badge candidate-status-badge candidate-status-shortlisted">Shortlisted</span>
+                                                        {% elseif status == 'shortlisted' %}
+                                                            <span class="badge candidate-status-badge candidate-status-shortlisted">Shortlisted</span>
+                                                        {% elseif status == 'hired' or status == 'accepted' %}
+                                                            <span class="badge candidate-status-badge candidate-status-accepted">Accepted</span>
+                                                        {% elseif status == 'completed' %}
+                                                            <span class="badge candidate-status-badge candidate-status-completed">Completed</span>
+                                                        {% elseif status == 'interviewing' or status == 'interview' %}
+                                                            <span class="badge candidate-status-badge candidate-status-interviewing">Interviewing</span>
+                                                        {% elseif status == 'negotiating' or status == 'offered' %}
+                                                            <span class="badge candidate-status-badge candidate-status-negotiating">Negotiating</span>
+                                                        {% elseif status == 'applied' %}
+                                                            <span class="badge candidate-status-badge candidate-status-applied">Applied</span>
+                                                        {% else %}
+                                                            <span class="badge candidate-status-badge candidate-status-default">{{ contract.candidateStatus|default('N/A')|capitalize }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="pending-col-status">
+                                                        {% if contract.isSigned %}
+                                                            <a href="{{ path('app_employer_contract_download', {'id': contract.applicationId}) }}" class="btn btn-sm btn-outline-success me-2" title="Download Signed Contract" style="padding: 4px 8px; font-size: 11px;">
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                                                </svg>
+                                                                Download
+                                                            </a>
+                                                            <span class="badge bg-success">Signed</span>
+                                                        {% else %}
+                                                            <span class="badge bg-info">Sent</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">No pending contracts to sign.</div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Received Documents (Split View) -->
+    <div class="card app-card-settings">
+        <div class="card-body p-0" style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                 <h5 class="card-title">Received Documents</h5>
+                 
+                 <!-- Toggle Button -->
+                 <div id="documents-toggle-btn" class="split-toggle-btn" title="Toggle List">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="feather feather-sidebar">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="2"></line>
+                    </svg>
+                 </div>
+            </div>
+
+            <ul class="nav nav-tabs settings-nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="uploaded-tab" data-bs-toggle="tab" data-bs-target="#uploaded-pane" type="button">Uploaded Documents</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="uploaded-pane">
+                    
+                    <div class="split-view-container" id="documents-split-view">
+                        <!-- List Panel -->
+                        <div class="split-list-panel" id="documents-list">
+                             {% if receivedDocuments|length > 0 %}
+                                {# Group documents by provider using a simple approach #}
+                                {% set processedProviders = [] %}
+                                {% for doc in receivedDocuments %}
+                                    {% set providerId = doc.provider.id|default('unknown-' ~ loop.index0) %}
+                                    {% if providerId not in processedProviders %}
+                                        {% set processedProviders = processedProviders|merge([providerId]) %}
+                                        {# Find all documents for this provider #}
+                                        {% set providerDocs = [] %}
+                                        {% set providerStatus = 'N/A' %}
+                                        {% for d in receivedDocuments %}
+                                            {% if d.provider.id|default('unknown-' ~ loop.index0) == providerId %}
+                                                {% set providerDocs = providerDocs|merge([d]) %}
+                                                {% if d.providerStatus|default('N/A') != 'N/A' %}
+                                                    {% set providerStatus = d.providerStatus %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {# Display bundled card #}
+                                        <div class="document-bundle-card">
+                                            <div class="bundle-header" onclick="toggleBundle('bundle-{{ providerId }}')">
+                                                <div class="bundle-info">
+                                                    <div class="bundle-candidate-name">{{ doc.provider.user.name }}</div>
+                                                    <div class="bundle-meta">
+                                                        <span class="badge bundle-status-badge">{{ providerStatus|capitalize }}</span>
+                                                        <span class="bundle-doc-count">{{ providerDocs|length }} document{{ providerDocs|length > 1 ? 's' : '' }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="bundle-toggle">
+                                                    <svg class="bundle-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="bundle-content" id="bundle-{{ providerId }}" style="display: none;">
+                                                {% for d in providerDocs %}
+                                                    <div class="document-item-card bundle-document-item" 
+                                                         data-doc-id="{{ d.id }}"
+                                                         data-doc-name="{{ d.name }}"
+                                                         data-doc-download-url="{{ d.downloadUrl|default('') }}"
+                                                         data-doc-view-url="{{ d.viewUrl|default('') }}"
+                                                         data-external-url="{{ d.externalUrl|default('') }}"
+                                                         onclick="showDocumentPreview(this); event.stopPropagation();">
+                                                        <div class="doc-card-title">{{ d.name }}</div>
+                                                        <div class="doc-card-subtitle">
+                                                            <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                                    <span class="doc-type-badge">{{ d.type|default('document')|capitalize }}</span>
+                                                                    <span style="font-size: 11px; color: #64748b; font-weight: 500;">{{ d.jobTitle|default('N/A') }}</span>
+                                                                </div>
+                                                                <span class="ms-auto" style="font-size: 11px; color: #94a3b8;">{{ d.date|date('M d, Y') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                             {% else %}
+                                <div class="empty-state">No documents received yet.</div>
+                             {% endif %}
+                        </div>
+
+                        <!-- Details/Preview Panel -->
+                        <div class="split-details-panel" id="documents-preview">
+                            <div class="text-center text-muted" id="preview-placeholder">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3" style="opacity: 0.5;">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <p>Select a document to view details</p>
+                            </div>
+                            <!-- Header for preview (hidden by default) -->
+                            <div id="preview-header" style="display:none; width: 100%; border-bottom: 1px solid #e2e8f0; padding: 16px; background: #fff; justify-content: space-between; align-items: center; position: absolute; top: 0; left: 0; z-index: 10;">
+                                <h6 style="margin: 0; font-weight: 600;" id="preview-title">Document Name</h6>
+                                <div id="preview-actions"></div>
+                            </div>
+                            <!-- Iframe for content -->
+                            <iframe id="preview-frame" style="width: 100%; height: 100%; border: none; display: none; padding-top: 60px;" src=""></iframe>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Request Document Modal -->
+    <div class="modal fade" id="requestDocumentModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request Document</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ path('app_employer_document_request') }}" method="POST" onsubmit="return prepareDocumentRequest()">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Candidate</label>
+                            <select name="application_id" class="form-select" required>
+                                <option value="" selected disabled>Choose candidate...</option>
+                                {% for app in activeApplications %}
+                                    <option value="{{ app.id }}">{{ app.provider.user.name }} - {{ app.job.title }} ({{ app.status|capitalize }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Document Type</label>
+                            <select class="form-select" id="documentTypeSelect" onchange="toggleDocumentInput(this)">
+                                <option value="" selected disabled>Select document type...</option>
+                                <option value="CV Upload">CV Upload</option>
+                                <option value="Driver's license">Driver's license</option>
+                                <option value="Copy of passport">Copy of passport</option>
+                                <option value="Passport photo 2&quot; x 2&quot;">Passport photo 2" x 2"</option>
+                                <option value="USMLE Step 1-3/COMLEX">USMLE Step 1-3/COMLEX</option>
+                                <option value="Specialty and Subspecialty Exam Certification">Specialty and Subspecialty Exam Certification</option>
+                                <option value="Medical school diploma">Medical school diploma</option>
+                                <option value="Postgraduate certificates (eg: Residency and Fellowship completion)">Postgraduate certificates (eg: Residency and Fellowship completion)</option>
+                                <option value="Life support certifications">Life support certifications</option>
+                                <option value="Active and Inactive medical licenses">Active and Inactive medical licenses</option>
+                                <option value="All DEAs">All DEAs</option>
+                                <option value="CSR (Controlled Substance Registration)">CSR (Controlled Substance Registration)</option>
+                                <option value="Copy of undergraduate transcript">Copy of undergraduate transcript</option>
+                                <option value="Vaccine titers: Hepatitis B, Varicella, MMR">Vaccine titers: Hepatitis B, Varicella, MMR</option>
+                                <option value="Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)">Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)</option>
+                                <option value="Influenza vaccine proof">Influenza vaccine proof</option>
+                                <option value="COVID-19 vaccine proof">COVID-19 vaccine proof</option>
+                                <option value="Mask fit testing">Mask fit testing</option>
+                                <option value="MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)">MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)</option>
+                                <option value="PROCEDURE LOGS last 2 years">PROCEDURE LOGS last 2 years</option>
+                                <option value="Case Logs last 2 years">Case Logs last 2 years</option>
+                                <option value="Application/ Certification: A list of everywhere lived for the last 10 years">Application/ Certification: A list of everywhere lived for the last 10 years</option>
+                                <option value="All Hospital Affiliations and Training Programs">All Hospital Affiliations and Training Programs</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                                <option value="Other">Other (Specify below)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="customDocumentInput" style="display: none;">
+                            <label class="form-label">Custom Document Name</label>
+                            <input type="text" id="customDocNameField" class="form-control" placeholder="e.g. Specific State License">
+                        </div>
+                        <input type="hidden" name="document_name" id="finalDocumentName">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-uniform-modal" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-uniform-modal">Send Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Request One File Modal -->
+    <div class="modal fade" id="requestOneFileModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request One File (Compliance Bundle)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ path('app_employer_document_request_one_file') }}" method="POST">
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">
+                            This will send a request to the candidate to upload their complete compliance bundle (One File).
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label">Select Candidate</label>
+                            <select name="application_id" class="form-select" required>
+                                <option value="" selected disabled>Choose candidate...</option>
+                                {% for app in activeApplications %}
+                                    <option value="{{ app.id }}">{{ app.provider.user.name }} - {{ app.job.title }} ({{ app.status|capitalize }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-uniform-modal" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-uniform-modal">Send Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Credentials Modal -->
+    <div class="modal fade" id="sendCredentialsModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Credentialing Link</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ path('app_employer_send_credentialing_link') }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Candidate</label>
+                            <select name="application_id" class="form-select" required>
+                                <option value="" selected disabled>Choose candidate...</option>
+                                {% for app in activeApplications %}
+                                    <option value="{{ app.id }}">{{ app.provider.user.name }} - {{ app.job.title }} ({{ app.status|capitalize }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Background Check Portal" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL</label>
+                            <input type="url" name="url" class="form-control" placeholder="https://..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Instructions for the candidate..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-uniform-modal" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-uniform-modal">Send Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Contract Modal -->
+    <div class="modal fade" id="uploadContractModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Signed Contract</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ path('app_employer_contract_upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Select Candidate</label>
+                            <select name="application_id" class="form-select" required>
+                                <option value="" selected disabled>Choose candidate...</option>
+                                {% for app in activeApplications %}
+                                    <option value="{{ app.id }}">{{ app.provider.user.name }} - {{ app.job.title }} ({{ app.status|capitalize }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contract File (PDF)</label>
+                            <input type="file" name="contract_file" class="form-control" accept=".pdf" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-uniform-modal" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-uniform-modal">Upload Contract</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // COMPLETE REMOVAL - Remove modal backdrop overlay entirely
+        function removeModalBackdrop() {
+            const backdrops = document.querySelectorAll('.modal-backdrop, [class*="modal-backdrop"]');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+                backdrop.style.display = 'none';
+                backdrop.style.visibility = 'hidden';
+                backdrop.style.opacity = '0';
+            });
+        }
+        
+        // Prevent Bootstrap from creating backdrop - override modal initialization
+        if (window.bootstrap && window.bootstrap.Modal) {
+            const OriginalModal = window.bootstrap.Modal;
+            window.bootstrap.Modal = function(element, config) {
+                // Force backdrop to false
+                const newConfig = Object.assign({}, config || {}, {
+                    backdrop: false,
+                    keyboard: true
+                });
+                return new OriginalModal(element, newConfig);
+            };
+            // Copy static methods
+            Object.setPrototypeOf(window.bootstrap.Modal, OriginalModal);
+            Object.getOwnPropertyNames(OriginalModal).forEach(name => {
+                if (name !== 'prototype' && name !== 'length' && name !== 'name') {
+                    window.bootstrap.Modal[name] = OriginalModal[name];
+                }
+            });
+        }
+        
+        // Remove backdrop when modals are shown
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                setTimeout(removeModalBackdrop, 1);
+                setTimeout(removeModalBackdrop, 10);
+                setTimeout(removeModalBackdrop, 50);
+                setTimeout(removeModalBackdrop, 100);
+            });
+        });
+        
+        // Watch for dynamically added backdrops - AGGRESSIVE REMOVAL
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) {
+                        if (node.classList && (node.classList.contains('modal-backdrop') || node.className.includes('modal-backdrop'))) {
+                            node.remove();
+                        }
+                        // Also check children
+                        const childBackdrops = node.querySelectorAll ? node.querySelectorAll('.modal-backdrop, [class*="modal-backdrop"]') : [];
+                        childBackdrops.forEach(bd => bd.remove());
+                    }
+                });
+            });
+            // Also check all existing backdrops
+            removeModalBackdrop();
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+        
+        // Remove any existing backdrops immediately and continuously
+        removeModalBackdrop();
+        setInterval(removeModalBackdrop, 100);
+        
+        // Also remove backdrop on modal show events
+        document.addEventListener('shown.bs.modal', removeModalBackdrop);
+        document.addEventListener('show.bs.modal', removeModalBackdrop);
+        
+        // Simple Split View Logic
+        const container = document.getElementById('documents-split-view');
+        const listPanel = document.getElementById('documents-list');
+        const previewPanel = document.getElementById('documents-preview');
+        const toggleBtn = document.getElementById('documents-toggle-btn');
+        
+        const placeholder = document.getElementById('preview-placeholder');
+        const header = document.getElementById('preview-header');
+        const title = document.getElementById('preview-title');
+        const actions = document.getElementById('preview-actions');
+        const frame = document.getElementById('preview-frame');
+
+        // Toggle Button Click
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                container.classList.toggle('list-collapsed');
+            });
+        }
+
+        // Toggle Bundle Expand/Collapse
+        window.toggleBundle = function(bundleId) {
+            const bundleContent = document.getElementById(bundleId);
+            const bundleCard = bundleContent.closest('.document-bundle-card');
+            
+            if (bundleCard) {
+                bundleCard.classList.toggle('expanded');
+                if (bundleCard.classList.contains('expanded')) {
+                    bundleContent.style.display = 'block';
+                } else {
+                    bundleContent.style.display = 'none';
+                }
+            }
+        };
+
+        // Handle Document Selection
+        window.showDocumentPreview = function(element) {
+            // Remove active class from all
+            document.querySelectorAll('.document-item-card').forEach(el => el.classList.remove('active'));
+            // Add active to clicked
+            element.classList.add('active');
+
+            const docName = element.getAttribute('data-doc-name');
+            const downloadUrl = element.getAttribute('data-doc-download-url');
+            const viewUrl = element.getAttribute('data-doc-view-url');
+            const externalUrl = element.getAttribute('data-external-url');
+
+            // Set Title
+            title.textContent = docName;
+
+            // Set Actions
+            let actionHtml = '';
+            if (downloadUrl) {
+                actionHtml += `<a href="${downloadUrl}" class="btn btn-primary btn-sm me-2">Download</a>`;
+            }
+            if (viewUrl) {
+                // Check if it's likely viewable (optional, but good for UX)
+                 actionHtml += `<a href="${viewUrl}" target="_blank" class="btn btn-outline-primary btn-sm">Open in New Tab</a>`;
+            }
+            if (externalUrl) {
+                actionHtml += `<a href="${externalUrl}" target="_blank" class="btn btn-outline-primary btn-sm">Visit Link</a>`;
+            }
+            actions.innerHTML = actionHtml;
+
+            // Show Header and Frame, Hide Placeholder
+            placeholder.style.display = 'none';
+            header.style.display = 'flex';
+            
+            // Handle Content
+            if (viewUrl) {
+                frame.src = viewUrl;
+                frame.style.display = 'block';
+                // Reset styling to ensure full height underneath header
+                frame.style.height = '100%';
+                frame.style.width = '100%';
+            } else if (externalUrl) {
+                 // For external links, we might not be able to iframe them due to X-Frame-Options
+                 // So we show a message
+                 frame.style.display = 'none';
+                 placeholder.style.display = 'flex';
+                 placeholder.innerHTML = `
+                    <div class="text-center">
+                        <p class="mb-3">This is an external link.</p>
+                        <a href="${externalUrl}" target="_blank" class="btn btn-primary">Open Link</a>
+                    </div>
+                 `;
+            } else {
+                 frame.style.display = 'none';
+                 placeholder.style.display = 'flex';
+                 placeholder.innerHTML = '<p>No preview available.</p>';
+            }
+        };
+    });
+</script>
+<script>
+    function toggleDocumentInput(select) {
+        var customInputDiv = document.getElementById('customDocumentInput');
+        var customInputField = document.getElementById('customDocNameField');
+        if (select.value === 'Other') {
+            customInputDiv.style.display = 'block';
+            customInputField.required = true;
+        } else {
+            customInputDiv.style.display = 'none';
+            customInputField.required = false;
+        }
+    }
+
+    function prepareDocumentRequest() {
+        var select = document.getElementById('documentTypeSelect');
+        var customInput = document.getElementById('customDocNameField');
+        var finalInput = document.getElementById('finalDocumentName');
+
+        if (select.value === 'Other') {
+            finalInput.value = customInput.value;
+        } else {
+            finalInput.value = select.value;
+        }
+
+        if (!finalInput.value) {
+            alert('Please select or enter a document name.');
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}

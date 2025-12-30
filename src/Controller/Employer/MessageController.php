@@ -439,6 +439,14 @@ class MessageController extends AbstractController
         $senderName = $message->getSender() ? ($message->getSender()->getName() ?: $message->getSender()->getEmail()) : 'Unknown';
         $createdAt = $message->getCreatedAt() ? $message->getCreatedAt()->format('F j, Y \\a\\t g:i A') : '';
 
+        // Determine reply recipient - if user is sender, reply to receiver, and vice versa
+        $replyReceiverId = null;
+        if ($isSender && $message->getReceiver()) {
+            $replyReceiverId = $message->getReceiver()->getId();
+        } else if ($isReceiver && $message->getSender()) {
+            $replyReceiverId = $message->getSender()->getId();
+        }
+        
         return new JsonResponse([
             'success' => true,
             'message' => [
@@ -446,6 +454,8 @@ class MessageController extends AbstractController
                 'subject' => $message->getSubject() ?: 'No subject',
                 'text' => $message->getText(),
                 'sender_name' => $senderName,
+                'sender_id' => $message->getSender() ? $message->getSender()->getId() : null,
+                'receiver_id' => $replyReceiverId,
                 'created_at' => $createdAt,
                 'root_id' => $rootMessage->getId(),
             ]
@@ -456,14 +466,25 @@ class MessageController extends AbstractController
     public function show(Message $message, EntityManagerInterface $em)
     {
         $user = $this->getUser();
+        
+        if (!$user) {
+            throw $this->createAccessDeniedException('You must be logged in to view messages.');
+        }
 
         // Security check - user can only view their own messages
-        if ($message->getSender()->getId() !== $user->getId() && $message->getReceiver()->getId() !== $user->getId()) {
+        $sender = $message->getSender();
+        $receiver = $message->getReceiver();
+        
+        if (!$sender || !$receiver) {
+            throw $this->createNotFoundException('Message sender or receiver not found.');
+        }
+        
+        if ($sender->getId() !== $user->getId() && $receiver->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException('You cannot access this message.');
         }
 
         // Mark as read if receiver is viewing
-        if ($message->getReceiver() && $message->getReceiver()->getId() === $user->getId() && !$message->isSeen()) {
+        if ($receiver && $receiver->getId() === $user->getId() && !$message->isSeen()) {
             $message->setSeen(true);
             $em->persist($message);
             $em->flush();
@@ -474,19 +495,59 @@ class MessageController extends AbstractController
         $trashCount = $em->getRepository(Message::class)->getTrashCount($user);
 
         // Get providers for compose modal
-        $providers = $em->getRepository(User::class)->getProvidersForMessage($user->getEmployer()->getId());
+        $providers = [];
+        $employer = $user->getEmployer();
+        if ($employer) {
+            try {
+                $providers = $em->getRepository(User::class)->getProvidersForMessage($employer->getId());
+            } catch (\Exception $e) {
+                // Log error but don't fail the request
+                error_log('Error loading providers for message: ' . $e->getMessage());
+                $providers = [];
+            }
+        }
 
         // Get root message (thread starter)
-        $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+        try {
+            $rootMessage = $em->getRepository(Message::class)->getRootMessage($message);
+        } catch (\Exception $e) {
+            error_log('Error getting root message: ' . $e->getMessage());
+            $rootMessage = $message; // Fallback to current message
+        }
 
         // Get all messages in the thread
-        $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+        try {
+            $threadMessages = $em->getRepository(Message::class)->getThreadMessages($rootMessage);
+        } catch (\Exception $e) {
+            error_log('Error getting thread messages: ' . $e->getMessage());
+            $threadMessages = [$message]; // Fallback to just current message
+        }
+
+        // Get replies (direct children of root message)
+        $replies = [];
+        try {
+            // Use query builder with UUID comparison to avoid issues
+            $replies = $em->getRepository(Message::class)->createQueryBuilder('m')
+                ->where('m.parent = :parent')
+                ->setParameter('parent', $rootMessage->getId())
+                ->orderBy('m.createdAt', 'ASC')
+                ->getQuery()
+                ->getResult();
+        } catch (\Exception $e) {
+            error_log('Error getting replies: ' . $e->getMessage());
+            // Fallback: extract replies from thread messages
+            foreach ($threadMessages as $threadMsg) {
+                if ($threadMsg->getParent() && $threadMsg->getParent()->getId() === $rootMessage->getId()) {
+                    $replies[] = $threadMsg;
+                }
+            }
+        }
 
         return $this->render('employer/message/show.html.twig', [
             'message' => $message,
             'root_message' => $rootMessage,
             'thread_messages' => $threadMessages,
-            'replies' => $em->getRepository(Message::class)->findBy(['parent' => $rootMessage], ['createdAt' => 'ASC']),
+            'replies' => $replies,
             'draft_count' => $draftCount,
             'trash_count' => $trashCount,
             'providers' => $providers,

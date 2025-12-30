@@ -142,6 +142,49 @@ div.container-xl,
                     View Timeline
                 </button>
                 {% endif %}
+                
+                {% if application is defined and application %}
+                    {% if application.status in ['negotiating', 'offered'] %}
+                        <div class="mt-3">
+                            <div class="d-flex flex-column gap-2">
+                                <form action="{{ path('app_provider_application_notify_hire', {'id': application.id}) }}" method="POST" onsubmit="return confirm('Are you sure you want to notify the employer that you have been hired? This will change the status to Accepted.');">
+                                    <button type="submit" class="btn-apply-primary" style="width: 100%; background-color: #2E7D32;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Notify of Hire
+                                    </button>
+                                </form>
+
+                                <div class="p-3" style="background: #f8f9fa; border-radius: 8px; border: 1px dashed #ced4da;">
+                                    <h6 style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #495057;">Contract Actions</h6>
+                                    
+                                    {% if application.contractFileName %}
+                                    {# Download Button #}
+                                    <a href="/uploads/contracts/{{ application.contractFileName }}" 
+                                       class="btn btn-outline-primary btn-sm w-100 mb-2" 
+                                       target="_blank" download>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Download Contract
+                                    </a>
+                                    {% endif %}
+
+                                    {# Upload Form #}
+                                    <h6 style="font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #495057;">Upload Signed Copy:</h6>
+                                    <form action="{{ path('app_provider_application_upload_signed_contract', {'id': application.id}) }}" method="POST" enctype="multipart/form-data">
+                                        <input type="file" name="file" class="form-control form-control-sm mb-2" required accept=".pdf,.doc,.docx" style="font-size: 12px;">
+                                        <button type="submit" class="btn btn-primary btn-sm w-100" style="background-color: #0d6efd; border: none;">Upload & Accept</button>
+                                    </form>
+                                    <small class="text-muted d-block mt-1" style="font-size: 10px;">Uploading will automatically change status to Accepted.</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
             </div>
 
             {% if application is defined %}

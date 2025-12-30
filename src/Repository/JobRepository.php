@@ -139,28 +139,27 @@ class JobRepository extends ServiceEntityRepository
         ;
     }
 
-    public function getProviderMatchingJobs($filters=[])
+    public function getProviderMatchingJobs($filters = [])
     {
         $qb = $this->createQueryBuilder('j')
             ->where('j.status = :status')
             ->setParameter('status', Job::JOB_STATUS_PUBLISHED)
-            ->andWhere('j.expirationDate <= :expiration_date')
-            ->setParameter('expiration_date', new \DateTime())
-        ;
+            ->andWhere('j.expirationDate >= :expiration_date')
+            ->setParameter('expiration_date', new \DateTime());
 
         $orX = $qb->expr()->orX();
 
-        if(!empty($filters['profession'])){
+        if (!empty($filters['profession'])) {
             $orX->add('j.profession = :profession');
             $qb->setParameter('profession', $filters['profession'], UuidType::NAME);
         }
 
-        if(!empty($filters['speciality_ids'])){
+        if (!empty($filters['speciality_ids'])) {
             $orX->add('j.speciality IN (:speciality)');
             $qb->setParameter('speciality', $filters['speciality_ids']);
         }
 
-        if(!empty($filters['state'])){
+        if (!empty($filters['state'])) {
             $orX->add('j.state IN (:state)');
             $qb->setParameter('state', $filters['state']);
         }
@@ -172,24 +171,24 @@ class JobRepository extends ServiceEntityRepository
         // Location filter (city or state)
         if (!empty($filters['location'])) {
             $qb->andWhere('LOWER(j.city) LIKE :location OR LOWER(j.state) LIKE :location')
-               ->setParameter('location', '%' . strtolower($filters['location']) . '%');
+                ->setParameter('location', '%' . strtolower($filters['location']) . '%');
         }
 
         // Salary range filters
         if (!empty($filters['salaryMin'])) {
             $qb->andWhere('j.payRateHourly >= :salaryMin')
-               ->setParameter('salaryMin', $filters['salaryMin']);
+                ->setParameter('salaryMin', $filters['salaryMin']);
         }
 
         if (!empty($filters['salaryMax'])) {
             $qb->andWhere('j.payRateHourly <= :salaryMax')
-               ->setParameter('salaryMax', $filters['salaryMax']);
+                ->setParameter('salaryMax', $filters['salaryMax']);
         }
 
         // Category filter (work_type)
         if (!empty($filters['category'])) {
             $qb->andWhere('j.work_type = :category')
-               ->setParameter('category', $filters['category']);
+                ->setParameter('category', $filters['category']);
         }
 
         // Date posted filter (days)
@@ -197,17 +196,14 @@ class JobRepository extends ServiceEntityRepository
             $date = new \DateTime();
             $date->modify('-' . $filters['days'] . ' days');
             $qb->andWhere('j.created_at >= :date')
-               ->setParameter('date', $date);
+                ->setParameter('date', $date);
         }
 
-        if(!empty($filters['limit'])){
+        if (!empty($filters['limit'])) {
             $qb->setMaxResults($filters['limit']);
         }
 
-        $qb->orderBy('j.id', 'DESC')
-            ->getQuery()
-            ->getResult()
-        ;
+        $qb->orderBy('j.createdAt', 'DESC');
 
         return $qb->getQuery()->getResult();
     }

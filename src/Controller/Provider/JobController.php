@@ -203,13 +203,13 @@ class JobController extends AbstractController
                 ->join('b.job', 'j')
                 ->where('b.user = :user')
                 ->setParameter('user', $this->getUser()->getId(), UuidType::NAME);
-            
+
             // Exclude jobs that have applications
             if (!empty($appliedJobIdArray)) {
                 $qb->andWhere('j.id NOT IN (:appliedJobIds)')
-                   ->setParameter('appliedJobIds', $appliedJobIdArray);
+                    ->setParameter('appliedJobIds', $appliedJobIdArray);
             }
-            
+
             $bookmarks = $qb->orderBy('b.id', 'DESC')
                 ->getQuery()
                 ->getResult();
@@ -315,6 +315,12 @@ class JobController extends AbstractController
                 $statusFilters[] = 'offered';
             }
 
+            // Map 'interview' (URL param) to 'interviewing' (DB status)
+            if (in_array('interview', $statusFilters, true)) {
+                $statusFilters = array_filter($statusFilters, fn($s) => $s !== 'interview');
+                $statusFilters[] = 'interviewing';
+            }
+
             $filters['status'] = array_values(array_unique($statusFilters));
         }
 
@@ -362,7 +368,9 @@ class JobController extends AbstractController
         $docStatusesTextByJob = [];
         foreach ($applications as $app) {
             $job = $app->getJob();
-            if (!$job) { continue; }
+            if (!$job) {
+                continue;
+            }
             $names = [];
             $statusParts = [];
             foreach ($app->getDocumentRequests() as $dr) {
@@ -425,7 +433,7 @@ class JobController extends AbstractController
             'reviewedBy' => 'PROVIDER',
         ]);
 
-        $canReview = $application->getStatus() === 'completed' && !$existingReview;
+        $canReview = in_array($application->getStatus(), ['completed', 'accepted', 'hired']) && !$existingReview;
 
         return $this->render('provider/job/detail.html.twig', [
             'job' => $application->getJob(),
@@ -476,7 +484,7 @@ class JobController extends AbstractController
                 $em->persist($application);
                 $em->flush();
             }
-            
+
             if ($isAjax) {
                 return new JsonResponse(['status' => 'success', 'message' => 'You already applied for this job.']);
             }
@@ -499,14 +507,14 @@ class JobController extends AbstractController
 
         // Create application - ensure status is 'applied'
         $applicationService->createApplication($job, $user);
-        
+
         // Verify application was created and has correct status
         $newApplication = $em->getRepository(Application::class)->findOneBy([
             'provider' => $user->getProvider(),
             'job' => $job,
             'employer' => $job->getEmployer()
         ]);
-        
+
         if ($newApplication && $newApplication->getStatus() !== 'applied') {
             $newApplication->setStatus('applied');
             $em->persist($newApplication);
@@ -515,7 +523,7 @@ class JobController extends AbstractController
 
         if ($isAjax) {
             return new JsonResponse([
-                'status' => 'success', 
+                'status' => 'success',
                 'message' => 'Job applied successfully.',
                 'application_id' => $newApplication ? $newApplication->getId() : null
             ]);
@@ -773,6 +781,13 @@ class JobController extends AbstractController
 
                 $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::EMPLOYER_REVIEWED);
 
+                // Automatic switch to Completed when review is added (if not already)
+                if ($application->getStatus() !== Application::STATUS_COMPLETED) {
+                    $application->setStatus(Application::STATUS_COMPLETED);
+                    $em->persist($application);
+                    $em->flush();
+                }
+
                 // If AJAX request, return JSON
                 if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
                     return $this->json(['success' => true, 'message' => 'Review added for employer successfully.']);
@@ -861,11 +876,18 @@ class JobController extends AbstractController
 
             $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::EMPLOYER_REVIEWED);
 
+            // Automatic switch to Completed when review is added (if not already)
+            if ($application->getStatus() !== Application::STATUS_COMPLETED) {
+                $application->setStatus(Application::STATUS_COMPLETED);
+                $em->persist($application);
+                $em->flush();
+            }
+
+
             return $this->json([
                 'success' => true,
                 'message' => 'Review added successfully!'
             ]);
-
         } catch (\Exception $e) {
             return $this->json(['error' => 'Error submitting review: ' . $e->getMessage()], 500);
         }
@@ -975,54 +997,64 @@ class JobController extends AbstractController
     public function jobDetailContent($id, EntityManagerInterface $em, Request $request): Response
     {
         try {
+            $user = $this->getUser();
+            if (!$user) {
+                $errorMessage = '<div class="alert alert-danger">Authentication required. Please log in.</div>';
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => $errorMessage], 401);
+                }
+                return new Response($errorMessage, 401);
+            }
+
             // Validate UUID
             if (!Uuid::isValid($id)) {
+                $errorMessage = '<div class="alert alert-danger">Invalid job ID format</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Invalid job ID format'], 400);
+                    return new JsonResponse(['error' => $errorMessage], 400);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Invalid job ID format</div>',
-                    400
-                );
+                return new Response($errorMessage, 400);
             }
 
             // Find the job
             $job = $em->getRepository(Job::class)->find($id);
 
             if (!$job) {
+                $errorMessage = '<div class="alert alert-danger">Job not found</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Job not found'], 404);
+                    return new JsonResponse(['error' => $errorMessage], 404);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Job not found</div>',
-                    404
-                );
+                return new Response($errorMessage, 404);
             }
 
-            // Get applied jobs IDs
-            $appliedJobsIds = $this->getAppliedJobsIds($em);
+            // Get applied jobs IDs with error handling
+            try {
+                $appliedJobsIds = $this->getAppliedJobsIds($em);
+            } catch (\Exception $e) {
+                error_log('Error getting applied jobs IDs: ' . $e->getMessage());
+                $appliedJobsIds = [];
+            }
 
-            // Render the HTML content
-            $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
-                'job' => $job,
-                'appliedJobsIds' => $appliedJobsIds
-            ]);
-
-            // For AJAX requests, return JSON with HTML
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse([
-                    'success' => true,
-                    'html' => $htmlContent
+            // Render the HTML content with error handling
+            try {
+                $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
+                    'job' => $job,
+                    'appliedJobsIds' => $appliedJobsIds
                 ]);
+            } catch (\Exception $e) {
+                error_log('Error rendering job detail template: ' . $e->getMessage());
+                error_log('Stack trace: ' . $e->getTraceAsString());
+                $errorMessage = '<div class="alert alert-danger">Error rendering job details: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                return new Response($errorMessage, 500);
             }
 
-            // For direct requests, return the HTML directly
-            return new Response($htmlContent);
+            // Always return HTML (frontend expects HTML text, not JSON)
+            return new Response($htmlContent, 200, ['Content-Type' => 'text/html']);
         } catch (\Exception $e) {
             // Log the error for debugging
             error_log('Job detail content error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
 
-            $errorMessage = '<div class="alert alert-danger">Error loading job details. Please try again.</div>';
+            $errorMessage = '<div class="alert alert-danger">Error loading job details: ' . htmlspecialchars($e->getMessage()) . '. Please try again.</div>';
 
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['error' => $errorMessage], 500);
@@ -1036,78 +1068,93 @@ class JobController extends AbstractController
     public function applicationDetailContent($id, EntityManagerInterface $em, Request $request): Response
     {
         try {
+            $user = $this->getUser();
+            if (!$user) {
+                $errorMessage = '<div class="alert alert-danger">Authentication required. Please log in.</div>';
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => $errorMessage], 401);
+                }
+                return new Response($errorMessage, 401);
+            }
+
             // Validate UUID
             if (!Uuid::isValid($id)) {
+                $errorMessage = '<div class="alert alert-danger">Invalid application ID format</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Invalid application ID format'], 400);
+                    return new JsonResponse(['error' => $errorMessage], 400);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Invalid application ID format</div>',
-                    400
-                );
+                return new Response($errorMessage, 400);
             }
 
             // Find the application
             $application = $em->getRepository(Application::class)->find($id);
 
             if (!$application) {
+                $errorMessage = '<div class="alert alert-danger">Application not found</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Application not found'], 404);
+                    return new JsonResponse(['error' => $errorMessage], 404);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Application not found</div>',
-                    404
-                );
+                return new Response($errorMessage, 404);
             }
 
             // Verify the application belongs to the current provider
-            $provider = $this->getUser()->getProvider();
-            if ($application->getProvider() !== $provider) {
+            $provider = $user->getProvider();
+            if (!$provider) {
+                $errorMessage = '<div class="alert alert-danger">Provider account not found</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Access denied'], 403);
+                    return new JsonResponse(['error' => $errorMessage], 403);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Access denied</div>',
-                    403
-                );
+                return new Response($errorMessage, 403);
+            }
+
+            if ($application->getProvider() !== $provider) {
+                $errorMessage = '<div class="alert alert-danger">Access denied</div>';
+                if ($request->isXmlHttpRequest()) {
+                    return new JsonResponse(['error' => $errorMessage], 403);
+                }
+                return new Response($errorMessage, 403);
             }
 
             // Get the job from the application
             $job = $application->getJob();
             if (!$job) {
+                $errorMessage = '<div class="alert alert-danger">Job not found for this application</div>';
                 if ($request->isXmlHttpRequest()) {
-                    return new JsonResponse(['error' => 'Job not found for this application'], 404);
+                    return new JsonResponse(['error' => $errorMessage], 404);
                 }
-                return new Response(
-                    '<div class="alert alert-danger">Job not found for this application</div>',
-                    404
-                );
+                return new Response($errorMessage, 404);
             }
 
-            // Get applied jobs IDs
-            $appliedJobsIds = $this->getAppliedJobsIds($em);
+            // Get applied jobs IDs with error handling
+            try {
+                $appliedJobsIds = $this->getAppliedJobsIds($em);
+            } catch (\Exception $e) {
+                error_log('Error getting applied jobs IDs: ' . $e->getMessage());
+                $appliedJobsIds = [];
+            }
 
-            // Render the HTML content
-            $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
-                'job' => $job,
-                'appliedJobsIds' => $appliedJobsIds
-            ]);
-
-            // For AJAX requests, return JSON with HTML
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse([
-                    'success' => true,
-                    'html' => $htmlContent
+            // Render the HTML content with error handling
+            try {
+                $htmlContent = $this->renderView('provider/job/_job_detail_content.html.twig', [
+                    'job' => $job,
+                    'appliedJobsIds' => $appliedJobsIds,
+                    'application' => $application
                 ]);
+            } catch (\Exception $e) {
+                error_log('Error rendering application detail template: ' . $e->getMessage());
+                error_log('Stack trace: ' . $e->getTraceAsString());
+                $errorMessage = '<div class="alert alert-danger">Error rendering application details: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                return new Response($errorMessage, 500);
             }
 
-            // For direct requests, return the HTML directly
-            return new Response($htmlContent);
+            // Always return HTML (frontend expects HTML text, not JSON)
+            return new Response($htmlContent, 200, ['Content-Type' => 'text/html']);
         } catch (\Exception $e) {
             // Log the error for debugging
             error_log('Application detail content error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
 
-            $errorMessage = '<div class="alert alert-danger">Error loading application details. Please try again.</div>';
+            $errorMessage = '<div class="alert alert-danger">Error loading application details: ' . htmlspecialchars($e->getMessage()) . '. Please try again.</div>';
 
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse(['error' => $errorMessage], 500);
@@ -1344,11 +1391,11 @@ class JobController extends AbstractController
             ->join('b.job', 'j')
             ->where('b.user = :user')
             ->setParameter('user', $this->getUser()->getId(), UuidType::NAME);
-        
+
         // Exclude jobs that have applications
         if (!empty($appliedJobIdArray)) {
             $qb->andWhere('j.id NOT IN (:appliedJobIds)')
-               ->setParameter('appliedJobIds', $appliedJobIdArray);
+                ->setParameter('appliedJobIds', $appliedJobIdArray);
         }
 
         $bookmarks = $qb->orderBy('b.id', 'DESC')
@@ -1435,13 +1482,13 @@ class JobController extends AbstractController
                                 ->andWhere('j.id IN (:jobIds)')
                                 ->setParameter('user', $user->getId(), UuidType::NAME)
                                 ->setParameter('jobIds', $uuidJobIds);
-                            
+
                             // Exclude jobs that have applications
                             if (!empty($appliedJobIdArray)) {
                                 $qb->andWhere('j.id NOT IN (:appliedJobIds)')
-                                   ->setParameter('appliedJobIds', $appliedJobIdArray);
+                                    ->setParameter('appliedJobIds', $appliedJobIdArray);
                             }
-                            
+
                             $bookmarks = $qb->orderBy('b.id', 'DESC')
                                 ->getQuery()
                                 ->getResult();
@@ -1457,13 +1504,13 @@ class JobController extends AbstractController
                         ->join('b.job', 'j')
                         ->where('b.user = :user')
                         ->setParameter('user', $user->getId(), UuidType::NAME);
-                    
+
                     // Exclude jobs that have applications
                     if (!empty($appliedJobIdArray)) {
                         $qb->andWhere('j.id NOT IN (:appliedJobIds)')
-                           ->setParameter('appliedJobIds', $appliedJobIdArray);
+                            ->setParameter('appliedJobIds', $appliedJobIdArray);
                     }
-                    
+
                     $bookmarks = $qb->orderBy('b.id', 'DESC')
                         ->getQuery()
                         ->getResult();
@@ -1768,7 +1815,7 @@ class JobController extends AbstractController
             // Deduplicate notApplied list by jobId to avoid duplicate display
             if (!empty($results['notApplied'])) {
                 $seen = [];
-                $results['notApplied'] = array_values(array_filter($results['notApplied'], function($item) use (&$seen) {
+                $results['notApplied'] = array_values(array_filter($results['notApplied'], function ($item) use (&$seen) {
                     $id = $item['jobId'] ?? null;
                     if (!$id) return false;
                     if (isset($seen[$id])) return false;
@@ -2087,13 +2134,7 @@ class JobController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
 
-    #[Route('/jobs/{id}/detail-content', name: 'app_provider_jobs_detail_content', methods: ['GET'])]
-    public function detailContent(Job $job): Response
-    {
-        return $this->render('provider/job/_job_detail_content.html.twig', [
-            'job' => $job,
-        ]);
-    }
+    // Duplicate route removed - using jobDetailContent method instead (line 974)
 
     #[Route('/api/job/{id}/note', name: 'api_job_note', methods: ['GET', 'POST', 'DELETE'])]
     public function handleJobNote(
@@ -2516,7 +2557,7 @@ class JobController extends AbstractController
             if ($application) {
                 // Try to get interview from application relationship
                 $interview = $application->getInterview();
-                
+
                 if (!$interview) {
                     // If not, try to find interviews linked to this application
                     $interviews = $em->getRepository(Interview::class)->findBy([

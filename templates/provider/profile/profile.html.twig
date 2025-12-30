@@ -338,6 +338,38 @@ h6.card-title {
   transition: none !important;
 }
 
+/* Requests Button Highlighting */
+.requests-header-btn {
+  background: #85BB65 !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+}
+
+.requests-header-btn:hover {
+  background: #6FA850 !important;
+  box-shadow: 0 4px 12px rgba(133, 187, 101, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+.requests-header-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(133, 187, 101, 0.4) !important;
+}
+
+.requests-header-btn svg {
+  flex-shrink: 0;
+}
+
 /* Profile avatar box */
 .profile-avatar-box {
   width:92px;
@@ -352,24 +384,20 @@ h6.card-title {
 
 /* Info row items */
 .info-item {
-    padding: 10px 0;
-  border-bottom: none;
-    margin: 0;
-  border-radius: 8px;
   padding: 10px 12px;
+  border-radius: 0;
+  margin-bottom: 6px;
   transition: all 0.2s ease-in-out;
   cursor: default;
+  background: transparent;
+  border: none;
 }
 .info-item:last-child { border-bottom: none; }
 
-/* Enhanced hover effect for info items - entire tile enhancement */
 .info-item:hover {
   background: #F4F9F1 !important;
   box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15) !important;
   transform: translateY(-1px) !important;
-  transition: all 0.2s ease-in-out;
-  border: none !important;
-  border-color: inherit !important;
 }
 
 /* Prevent text color change to green on hover for non-clickable text */
@@ -1027,57 +1055,129 @@ input[type="checkbox"]:checked::after,
     width: 18px;
     height: 18px;
 }
-/* Smaller form inputs and icons in edit mode */
-#infoEdit .form-control {
-    font-size: 14px !important;
-    padding: 6px 12px;
-    max-width: 100%;
-    box-sizing: border-box;
-    flex: 1;
-    min-width: 0;
-}
-#infoEdit .info-item svg {
-    width: 20px;
-    height: 20px;
-}
-#infoEdit .app-card-title {
-    font-size: 16px;
-}
-/* Reduce gap between elements in edit mode */
-#infoEdit .d-flex.gap-3 {
-    gap: 16px !important;
-    padding: 0;
-    width: 100%;
-}
-#infoEdit .info-item {
-    padding: 10px 0;
-    width: 100%;
-    box-sizing: border-box;
+/* Profile Edit Mode Styles */
+#infoEdit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 100%;
 }
 
-#infoEdit .info-item .d-flex,
-#infoView .info-item .d-flex {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
+#infoEdit .info-item {
+  padding: 10px 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+#infoEdit .info-item:last-child {
+  border-bottom: none;
+}
+
+#infoEdit .info-item .d-flex {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  align-items: center;
 }
 
 #infoEdit .info-item .d-flex .form-control,
-#infoView .info-item .d-flex .text-muted {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#infoEdit .info-item .form-control,
+#infoEdit .form-control,
+#infoEdit select.form-control {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px 0;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #000;
+  line-height: 1.4;
 }
+
+#infoEdit select.form-control {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+#infoEdit .form-control:focus,
+#infoEdit select.form-control:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
 #infoEdit .info-item svg {
-    width: 24px;
-    height: 24px;
-    margin-right: 4px;
-    flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
+
 #infoEdit .d-flex.gap-2 {
-    gap: 8px !important;
+  gap: 8px !important;
+  width: 100%;
+  align-items: center;
+}
+
+#infoEdit label.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+#infoEdit label.btn input[type="file"] {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+}
+
+#infoEdit .form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #000;
+  font-size: 0.875rem;
+}
+
+#infoEdit .form-control,
+#infoEdit input[type="text"],
+#infoEdit input[type="email"] {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding: 4px 0 !important;
+}
+
+#personalSection {
+  position: relative;
+  flex-shrink: 0;
 }
 .action-btn-edit:hover, .dropdown-cstm:hover {
     color: #85BB65 !important;
@@ -1170,8 +1270,8 @@ input[type="checkbox"]:checked::after,
       <div class="row g-4">
         {# Left: profile card #}
           <div class="col-12 col-lg-6 d-flex flex-column">
-              <div id="personalSection" class="profile-card" style="position: relative; min-height: 400px; height: 400px; padding: 20px; overflow: hidden; box-sizing: border-box; display: flex; flex-direction: column;">
-                <div id="infoView" style="position: absolute; top: 0; left: 0; right: 0; width: 100%; padding: 20px; box-sizing: border-box; overflow: hidden;">
+              <div id="personalSection" class="profile-card" style="position: relative; min-height: 400px; height: 100%; padding: 20px; overflow: visible; box-sizing: border-box; display: flex; flex-direction: column;">
+                <div id="infoView" style="position: relative; width: 100%; padding: 0; box-sizing: border-box; overflow: visible;">
                   <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 0;">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons">
@@ -1207,9 +1307,9 @@ input[type="checkbox"]:checked::after,
 
                   <!-- Removed duplicate name section -->
 
-                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden; min-height: 0;">
+                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: visible;">
 
-                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box; overflow: hidden;">
+                    <div class="info-item" style="margin-bottom: 6px;">
                       <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1280,7 +1380,7 @@ input[type="checkbox"]:checked::after,
                     </div>#}
                   </div>
                 </div>
-                <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; width: 100%; padding: 20px; box-sizing: border-box; overflow: hidden;">
+                <div id="infoEdit" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; padding: 0; box-sizing: border-box; overflow: hidden;">
                   <div class="d-flex justify-content-between align-items-center mb-3" style="margin-top: 0;">
                       <h6 class="app-card-title mb-0">Personal Information</h6>
                       <div id="actionIcons" class="d-flex gap-2">
@@ -1306,7 +1406,7 @@ input[type="checkbox"]:checked::after,
                   </div>
             {{ form_start(profileForm, {'attr': {'id': 'profileForm', 'class': 'needs-validation', 'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
                   {{ form_errors(profileForm) }}
-                  <div class="d-flex gap-2 align-items-center" style="margin-bottom: 6px;">
+                  <div class="d-flex gap-2 align-items-center" style="margin-bottom: 6px; margin-top: 12px;">
                     <div class="position-relative profile-avatar-box">
                       <div class="profile-icon-box" style="cursor:pointer;">
                           {% if app.user.profilePictureFilename %}
@@ -1332,14 +1432,14 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <div style="flex:1;">
-                      {{ form_widget(profileForm.name, {'attr': {'class': 'form-control fw-semibold', 'placeholder': 'Name'}}) }}
+                      {{ form_widget(profileForm.name, {'attr': {'class': 'form-control fw-semibold', 'placeholder': 'Name', 'style': 'background-color: transparent; cursor: not-allowed; border: none; border-radius: 0;', 'readonly': 'readonly'}}) }}
                       {{ form_errors(profileForm.name) }}
                     </div>
                   </div>
 
-                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: hidden;">
+                  <div style="margin-top: 16px; padding: 0; width: 100%; box-sizing: border-box; overflow: visible; flex: 1; display: flex; flex-direction: column;">
                     <!-- Nickname -->
-                    <div class="info-item" style="margin-bottom: 6px; width: 100%; box-sizing: border-box; overflow: hidden;">
+                    <div class="info-item">
                       <div class="d-flex gap-2 align-items-center" style="min-width: 0;">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1355,7 +1455,7 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <!-- Email -->
-                    <div class="info-item" style="margin-bottom: 6px;">
+                    <div class="info-item">
                       <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <g id="style=stroke">
@@ -1371,7 +1471,7 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <!-- Address -->
-                    <div class="info-item" style="margin-bottom: 6px;">
+                    <div class="info-item">
                       <div class="d-flex gap-2 align-items-center">
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M8 20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V6" stroke="#000000" stroke-linecap="round"/>
@@ -1383,7 +1483,7 @@ input[type="checkbox"]:checked::after,
                     </div>
 
                     <!-- Phone -->
-                    <div class="info-item" style="margin-bottom: 6px;">
+                    <div class="info-item">
                       <div class="d-flex gap-2 align-items-center">
                       <!-- Phone Icon -->
                         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1590,6 +1690,16 @@ input[type="checkbox"]:checked::after,
       <div class="profile-right-card h-fix-auto" style="margin-top: 0;">
           <div class="card-header-row d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Share & Quick Links</h5>
+            {# Requests Button - Highlighted in header #}
+            <button type="button" class="btn btn-sm requests-header-btn" id="requests-quick-link" role="button" style="background: #85BB65; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(133, 187, 101, 0.4); transition: all 0.3s ease;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              Requests
+            </button>
           </div>
 
           <div class="card-body">
@@ -1705,87 +1815,122 @@ input[type="checkbox"]:checked::after,
             <div id="work-preferences-form-view" style="display: none;">
             {% if workPreferenceForm is defined %}
                 {{ form_start(workPreferenceForm, {'attr': {'id': 'work-preferences-form', 'class': 'needs-validation'}}) }}
-                <div class="row g-3">
-                  <div class="col-md-6">
+                
+                {# Professional Information Section #}
+                <div class="mb-4">
+                  <h6 class="text-primary mb-3 pb-2 border-bottom">Professional Information</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.profession, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.profession, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         {{ form_widget(workPreferenceForm.profession, {'attr': {'class': 'form-control'}}) }}
                         {{ form_errors(workPreferenceForm.profession) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.specialities, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.specialities, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         {{ form_widget(workPreferenceForm.specialities, {'attr': {'class': 'form-control select2'}}) }}
                         {{ form_errors(workPreferenceForm.specialities) }}
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-6">
+                </div>
+
+                {# Compensation & Hours Section #}
+                <div class="mb-4">
+                  <h6 class="text-primary mb-3 pb-2 border-bottom">Compensation & Hours</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.desiredPayRate, null, {'label_attr': {'class': 'form-label'}}) }}
-                        <div class="radio-group">
+                        {{ form_label(workPreferenceForm.desiredPayRate, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        <div class="radio-group mt-2">
                           {{ form_widget(workPreferenceForm.desiredPayRate, {'attr':{'class': 'checkbox'}}) }}
                         </div>
                         {{ form_errors(workPreferenceForm.desiredPayRate) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.desiredHour, null, {'label_attr': {'class': 'form-label'}}) }}
-                        <div class="radio-group">
+                        {{ form_label(workPreferenceForm.desiredHour, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        <div class="radio-group mt-2">
                           {{ form_widget(workPreferenceForm.desiredHour, {'attr':{'class': 'checkbox'}}) }}
                         </div>
                         {{ form_errors(workPreferenceForm.desiredHour) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6" id="pay-rate-hourly-field" style="display: none;">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.payRateHourly, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(workPreferenceForm.payRateHourly, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_label(workPreferenceForm.payRateHourly, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          {{ form_widget(workPreferenceForm.payRateHourly, {'attr': {'class': 'form-control', 'placeholder': 'Enter hourly rate'}}) }}
+                          <span class="input-group-text">/hr</span>
+                        </div>
                         {{ form_errors(workPreferenceForm.payRateHourly) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6" id="pay-rate-daily-field" style="display: none;">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.payRateDaily, null, {'label_attr': {'class': 'form-label'}}) }}
-                        {{ form_widget(workPreferenceForm.payRateDaily, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_label(workPreferenceForm.payRateDaily, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          {{ form_widget(workPreferenceForm.payRateDaily, {'attr': {'class': 'form-control', 'placeholder': 'Enter daily rate'}}) }}
+                          <span class="input-group-text">/day</span>
+                        </div>
                         {{ form_errors(workPreferenceForm.payRateDaily) }}
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-6">
+                </div>
+
+                {# Availability Section #}
+                <div class="mb-4">
+                  <h6 class="text-primary mb-3 pb-2 border-bottom">Availability</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.availabilityToStart, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.availabilityToStart, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         {{ form_widget(workPreferenceForm.availabilityToStart, {'attr': {'class': 'form-control js-datepicker'}}) }}
                         {{ form_errors(workPreferenceForm.availabilityToStart) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.preferredPatientVolume, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.preferredPatientVolume, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         {{ form_widget(workPreferenceForm.preferredPatientVolume, {'attr': {'class': 'form-control'}}) }}
                         {{ form_errors(workPreferenceForm.preferredPatientVolume) }}
                       </div>
+                    </div>
                   </div>
-                  <div class="col-md-6">
+                </div>
+
+                {# Location Preferences Section #}
+                <div class="mb-4">
+                  <h6 class="text-primary mb-3 pb-2 border-bottom">Location Preferences</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.desiredStates, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.desiredStates, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         {{ form_widget(workPreferenceForm.desiredStates, {'attr': {'class': 'form-control select2'}}) }}
                         {{ form_errors(workPreferenceForm.desiredStates) }}
                       </div>
-                  </div>
-                  <div class="col-md-6">
+                    </div>
+                    <div class="col-md-6">
                       <div class="mb-3">
-                        {{ form_label(workPreferenceForm.willingToTravel, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_label(workPreferenceForm.willingToTravel, null, {'label_attr': {'class': 'form-label fw-semibold'}}) }}
                         <div class="mt-2">
                           {{ form_widget(workPreferenceForm.willingToTravel, {'attr':{'class': 'checkbox'}}) }}
                         </div>
                         {{ form_errors(workPreferenceForm.willingToTravel) }}
                       </div>
+                    </div>
                   </div>
                 </div>
+
                 {{ form_rest(workPreferenceForm) }}
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <button type="button" class="btn btn-secondary" id="work-preferences-cancel-form-btn">Cancel</button>
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                  <button type="button" class="btn btn-secondary" id="work-preferences-cancel-form-btn">Cancel</button>
                   <button type="submit" class="btn btn-primary" id="work-preferences-submit">Save Preferences</button>
                 </div>
                 {{ form_end(workPreferenceForm) }}
@@ -4788,6 +4933,57 @@ function clearFile() {
   });
 </script>
 <script>
+// Function to update pay rate field visibility based on selected pay rate type
+function updatePayRateFieldsVisibility() {
+  const payRateHourlyField = document.getElementById('pay-rate-hourly-field');
+  const payRateDailyField = document.getElementById('pay-rate-daily-field');
+  
+  if (!payRateHourlyField || !payRateDailyField) return;
+  
+  // Find the selected pay rate radio button
+  const payRateRadios = document.querySelectorAll('#work-preferences-form input[name*="[desiredPayRate]"]');
+  let selectedPayRate = null;
+  
+  payRateRadios.forEach(radio => {
+    if (radio.checked) {
+      selectedPayRate = radio.value;
+    }
+  });
+  
+  // Show/hide fields based on selection
+  if (selectedPayRate === 'Hourly') {
+    payRateHourlyField.style.display = 'block';
+    payRateDailyField.style.display = 'none';
+  } else if (selectedPayRate === 'Daily') {
+    payRateHourlyField.style.display = 'none';
+    payRateDailyField.style.display = 'block';
+  } else {
+    payRateHourlyField.style.display = 'none';
+    payRateDailyField.style.display = 'none';
+  }
+}
+
+// Attach event listeners to pay rate radio buttons
+document.addEventListener('DOMContentLoaded', function() {
+  // Use event delegation for dynamically loaded forms
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.name && e.target.name.includes('[desiredPayRate]')) {
+      updatePayRateFieldsVisibility();
+    }
+  });
+  
+  // Also check on form view display
+  const formView = document.getElementById('work-preferences-form-view');
+  if (formView) {
+    const observer = new MutationObserver(function(mutations) {
+      if (formView.style.display !== 'none') {
+        setTimeout(updatePayRateFieldsVisibility, 100);
+      }
+    });
+    observer.observe(formView, { attributes: true, attributeFilter: ['style'] });
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   const workPrefForm = document.getElementById('work-preferences-form');
   const workPrefError = document.getElementById('work-preferences-error');
@@ -4899,47 +5095,58 @@ document.addEventListener('DOMContentLoaded', function () {
       if (e) e.preventDefault();
       if (!infoView || !infoEdit) return;
       const personalSection = document.getElementById('personalSection');
-      // Hide view, show edit in same position
+      
       const viewHeight = infoView.offsetHeight;
-      infoView.style.visibility = 'hidden';
-      infoView.style.opacity = '0';
-      infoView.style.height = viewHeight + 'px';
-      infoView.style.overflow = 'hidden';
+      const sectionHeight = personalSection ? personalSection.offsetHeight : viewHeight;
       
-      infoEdit.style.display = 'block';
-      infoEdit.style.visibility = 'visible';
-      infoEdit.style.opacity = '1';
-      infoEdit.style.height = 'auto';
-      
-      // Set flexbox height to prevent size change when edit mode is open
+      // Preserve the parent container's height
       if (personalSection) {
-        // Use a fixed height that accommodates both view and edit modes
-        personalSection.style.minHeight = '400px';
-        personalSection.style.height = '400px';
+        personalSection.style.minHeight = sectionHeight + 'px';
+        personalSection.style.height = sectionHeight + 'px';
+        personalSection.style.overflow = 'hidden';
       }
+      
+      infoView.style.display = 'none';
+      
+      infoEdit.style.display = 'flex';
+      infoEdit.style.position = 'absolute';
+      infoEdit.style.top = '0';
+      infoEdit.style.left = '0';
+      infoEdit.style.right = '0';
+      infoEdit.style.bottom = '0';
+      infoEdit.style.width = '100%';
+      infoEdit.style.height = '100%';
+      infoEdit.style.zIndex = '10';
+      infoEdit.style.background = '#fff';
+      infoEdit.style.overflow = 'hidden';
+      infoEdit.style.padding = '20px';
     }
 
     // Function to switch back to view mode
     function switchToViewMode() {
       if (!infoView || !infoEdit) return;
       const personalSection = document.getElementById('personalSection');
-      // Hide edit, show view
-    infoEdit.style.display = 'none';
-    infoEdit.style.visibility = 'hidden';
-    infoEdit.style.opacity = '0';
-    
-    infoView.style.display = 'block';
-    infoView.style.visibility = 'visible';
-    infoView.style.opacity = '1';
-    infoView.style.height = 'auto';
-    infoView.style.overflow = 'visible';
-    
-    // Reset flexbox height when view mode is active - maintain same size
-    if (personalSection) {
-      // Keep the same height to prevent layout shift
-      personalSection.style.minHeight = '400px';
-      personalSection.style.height = '400px';
-    }
+      
+      infoEdit.style.display = 'none';
+      infoEdit.style.position = '';
+      infoEdit.style.top = '';
+      infoEdit.style.left = '';
+      infoEdit.style.right = '';
+      infoEdit.style.bottom = '';
+      infoEdit.style.width = '';
+      infoEdit.style.height = '';
+      infoEdit.style.zIndex = '';
+      infoEdit.style.overflow = '';
+      infoEdit.style.padding = '';
+      
+      infoView.style.display = 'block';
+      
+      if (personalSection) {
+        personalSection.style.overflow = 'visible';
+        // Reset height to allow natural sizing
+        personalSection.style.minHeight = '400px';
+        personalSection.style.height = '100%';
+      }
 
       // Restore edit button
       if (actionIcons) {
@@ -5720,6 +5927,9 @@ document.addEventListener('DOMContentLoaded', function () {
               }
             });
           }
+          
+          // Initialize pay rate field visibility
+          updatePayRateFieldsVisibility();
         }, 100);
       }
     }
@@ -6294,8 +6504,653 @@ function clearFile() {
     </div>
 </div>
 
+<!-- Requests Modal -->
+<div class="modal fade" id="requestsModal" tabindex="-1" aria-labelledby="requestsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom: 1px solid #e6eef6; padding: 20px 24px;">
+                <h5 class="modal-title" id="requestsModalLabel" style="font-size: 20px; font-weight: 600; color: #121C0C; margin: 0;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    Document Requests
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 24px;">
+                <div class="row g-4">
+                    <!-- Left Column: Received Requests -->
+                    <div class="col-12 col-lg-6">
+                        <div class="card" style="border: 1px solid #e6eef6; border-radius: 10px; height: 100%;">
+                            <div class="card-header" style="background: #F9FDF9; border-bottom: 1px solid #E0F5E0; padding: 16px 20px;">
+                                <h6 class="mb-0" style="font-weight: 600; color: #2E7D32;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                    Received Requests
+                                </h6>
+                            </div>
+                            <div class="card-body" style="padding: 20px; max-height: 500px; overflow-y: auto;">
+                                <div id="received-requests-list">
+                                    <div class="text-center text-muted py-4">
+                                        <p>Loading requests...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Send Request -->
+                    <div class="col-12 col-lg-6">
+                        <div class="card" style="border: 1px solid #e6eef6; border-radius: 10px; height: 100%;">
+                            <div class="card-header" style="background: #F9FDF9; border-bottom: 1px solid #E0F5E0; padding: 16px 20px;">
+                                <h6 class="mb-0" style="font-weight: 600; color: #2E7D32;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+                                        <path d="M21 9v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9"></path>
+                                        <polyline points="17 3 12 8 7 3"></polyline>
+                                        <line x1="12" y1="8" x2="12" y2="21"></line>
+                                    </svg>
+                                    Send Request
+                                </h6>
+                            </div>
+                            <div class="card-body" style="padding: 20px;">
+                                <form id="send-request-form">
+                                    <div class="mb-3">
+                                        <label for="request-document-type" class="form-label" style="font-weight: 600;">Document Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="request-document-type" name="document_type" required style="border-color: #85BB65;">
+                                            <option value="">Select Document Type</option>
+                                            <option value="Education & Training">Education & Training</option>
+                                            <option value="License & Certificate">License & Certificate</option>
+                                            <option value="Insurance">Insurance</option>
+                                            <option value="Health Assessment">Health Assessment</option>
+                                            <option value="Risk Assessment">Risk Assessment</option>
+                                            <option value="Application Certification">Application Certification</option>
+                                            <option value="References">References</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="request-message" class="form-label" style="font-weight: 600;">Message</label>
+                                        <textarea class="form-control" id="request-message" name="message" rows="4" placeholder="Add any additional comments or instructions..." style="border-color: #85BB65;"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="request-file-upload" class="form-label" style="font-weight: 600;">Attach File (Optional)</label>
+                                        <input type="file" class="form-control" id="request-file-upload" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="border-color: #85BB65;">
+                                        <small class="form-text text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG</small>
+                                    </div>
+                                    <div id="request-form-error" class="alert alert-danger" style="display: none; margin-top: 1rem;"></div>
+                                    <div id="request-form-success" class="alert alert-success" style="display: none; margin-top: 1rem;"></div>
+                                    <button type="submit" class="btn btn-primary w-100" style="background: #85BB65; border-color: #85BB65; padding: 10px;">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+                                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                        </svg>
+                                        Send Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e6eef6; padding: 16px 24px;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Handle Requests Modal
+        const requestsQuickLink = document.getElementById('requests-quick-link');
+        const requestsModal = document.getElementById('requestsModal');
+        
+        if (requestsQuickLink && requestsModal) {
+            requestsQuickLink.addEventListener('click', function() {
+                const modal = new bootstrap.Modal(requestsModal);
+                modal.show();
+                // Load requests when modal is shown
+                setTimeout(() => {
+                    loadReceivedRequests();
+                }, 300);
+            });
+            
+            // Also load when modal is opened via Bootstrap events
+            requestsModal.addEventListener('shown.bs.modal', function() {
+                loadReceivedRequests();
+            });
+        }
+        
+        // Load received requests
+        function loadReceivedRequests() {
+            const requestsList = document.getElementById('received-requests-list');
+            requestsList.innerHTML = '<div class="text-center text-muted py-4"><p>Loading requests...</p></div>';
+            
+            // Fetch all document requests for the provider from todos endpoint
+            fetch('{{ path("app_provider_todo_pending") }}', {
+                headers: { 
+                    'Accept': 'application/json', 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Todo data received:', data);
+                
+                // Check if response has success and data
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load requests');
+                }
+                
+                const todos = data.data || [];
+                
+                // Filter for document requests - todos with type 'document_request'
+                // Also include todos that have document request related fields
+                let documentRequests = todos.filter(todo => {
+                    // Primary check: type must be 'document_request'
+                    if (todo.type === 'document_request') {
+                        return true;
+                    }
+                    // Fallback: if type is missing but has document request fields, include it
+                    if ((!todo.type || todo.type === 'document_request') && (todo.description || todo.title || todo.actionUrl)) {
+                        // Check if it's related to documents
+                        const title = (todo.title || '').toLowerCase();
+                        const desc = (todo.description || '').toLowerCase();
+                        if (title.includes('document') || desc.includes('document') || todo.actionText === 'Upload Document') {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                
+                // If no document requests found in todos, try fetching directly from document requests endpoint
+                if (documentRequests.length === 0 && todos.length > 0) {
+                    console.log('No document requests in todos, checking if there are pending document requests...');
+                    // The todos endpoint should have found them, but if not, we'll show the empty message
+                }
+                
+                console.log('Total todos:', todos.length);
+                console.log('Document requests found:', documentRequests.length);
+                console.log('Document requests data:', documentRequests);
+                
+                if (documentRequests.length === 0) {
+                    requestsList.innerHTML = '<div class="text-center text-muted py-4"><p>No document requests received yet.</p></div>';
+                    return;
+                }
+                
+                requestsList.innerHTML = documentRequests.map(request => {
+                    const requestName = escapeHtml(request.description || request.title || 'Document Request');
+                    const jobTitle = escapeHtml(request.jobTitle || request.job?.title || 'N/A');
+                    const employer = escapeHtml(request.employer || request.employerName || 'N/A');
+                    const createdAt = request.createdAt || 'N/A';
+                    const actionUrl = request.actionUrl || request.action_url || '#';
+                    const actionText = request.actionText || request.action_text || 'Upload Document';
+                    
+                    return `
+                        <div class="request-item mb-3 p-3" style="background: #F9FDF9; border: 1px solid #E0F5E0; border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div style="flex: 1;">
+                                    <h6 class="mb-1" style="font-weight: 600; color: #121C0C;">${requestName}</h6>
+                                    <small class="text-muted d-block">Job: ${jobTitle}</small>
+                                    <small class="text-muted d-block">Employer: ${employer}</small>
+                                    <small class="text-muted">Requested: ${createdAt}</small>
+                                </div>
+                                <span class="badge bg-warning">Pending</span>
+                            </div>
+                            <a href="${actionUrl}" class="btn btn-sm btn-primary w-100 mt-2" style="background: #85BB65; border-color: #85BB65; text-decoration: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                ${actionText}
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            })
+            .catch(error => {
+                console.error('Error loading requests:', error);
+                requestsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error loading requests:</strong><br>
+                        ${escapeHtml(error.message || 'Please try again.')}
+                        <br><br>
+                        <button class="btn btn-sm btn-primary" onclick="loadReceivedRequests()" style="background: #85BB65; border-color: #85BB65;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            });
+        }
+        
+        // Handle document type change - auto-generate PDF from quick links
+        const documentTypeSelect = document.getElementById('request-document-type');
+        const fileUploadInput = document.getElementById('request-file-upload');
+        const sendRequestForm = document.getElementById('send-request-form');
+        const sendRequestBtn = sendRequestForm ? sendRequestForm.querySelector('button[type="submit"]') : null;
+        
+        if (documentTypeSelect && fileUploadInput) {
+            documentTypeSelect.addEventListener('change', async function() {
+                const selectedType = this.value;
+                if (!selectedType) return;
+                
+                // Map document types to quick link IDs
+                const typeToLinkMap = {
+                    'Education & Training': 'education',
+                    'License & Certificate': 'license',
+                    'Insurance': 'insurance',
+                    'Health Assessment': 'health',
+                    'Risk Assessment': 'risk',
+                    'Application Certification': 'application-certification'
+                };
+                
+                const linkId = typeToLinkMap[selectedType];
+                if (!linkId) return; // References doesn't have a quick link
+                
+                // Show loading state
+                if (sendRequestBtn) {
+                    const originalText = sendRequestBtn.innerHTML;
+                    sendRequestBtn.disabled = true;
+                    sendRequestBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating PDF...';
+                    
+                    try {
+                        // Load jsPDF if not already loaded
+                        if (typeof window.jspdf === 'undefined') {
+                            await new Promise((resolve, reject) => {
+                                const script = document.createElement('script');
+                                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                                script.onload = resolve;
+                                script.onerror = reject;
+                                document.head.appendChild(script);
+                            });
+                        }
+                        
+                        // Generate PDF from the matching quick link
+                        const pdfBlob = await generateQuickLinkPDF(linkId, selectedType);
+                        const pdfFile = new File([pdfBlob], selectedType.replace(/\s+/g, '_') + '.pdf', { type: 'application/pdf' });
+                        
+                        // Create a new FileList with the PDF file
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(pdfFile);
+                        fileUploadInput.files = dataTransfer.files;
+                        
+                        // Trigger change event to show file name
+                        fileUploadInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        // Show success message
+                        const successDiv = document.getElementById('request-form-success');
+                        if (successDiv) {
+                            successDiv.textContent = 'PDF generated and attached automatically!';
+                            successDiv.style.display = 'block';
+                            setTimeout(() => {
+                                successDiv.style.display = 'none';
+                            }, 3000);
+                        }
+                        
+                        sendRequestBtn.innerHTML = originalText;
+                        sendRequestBtn.disabled = false;
+                    } catch (error) {
+                        console.error('Error generating PDF:', error);
+                        sendRequestBtn.innerHTML = originalText;
+                        sendRequestBtn.disabled = false;
+                        const errorDiv = document.getElementById('request-form-error');
+                        if (errorDiv) {
+                            errorDiv.textContent = 'Failed to generate PDF: ' + (error.message || 'Unknown error. Please try again or upload manually.');
+                            errorDiv.style.display = 'block';
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to generate PDF from a single quick link
+        async function generateQuickLinkPDF(linkId, linkName) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 14;
+            const maxWidth = pageWidth - (margin * 2);
+            
+            // Set font
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text(linkName, margin, 20);
+            
+            // Add date
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const dateStr = new Date().toLocaleString();
+            doc.text('Generated: ' + dateStr, margin, 30);
+            
+            // Add line separator
+            doc.setDrawColor(200, 200, 200);
+            doc.line(margin, 36, pageWidth - margin, 36);
+            let yPos = 44;
+            
+            // Helper function to add wrapped text
+            function addWrappedText(doc, text, x, y, maxWidth, fontSize) {
+                doc.setFontSize(fontSize);
+                const lines = doc.splitTextToSize(text, maxWidth);
+                doc.text(lines, x, y);
+                return lines.length * (fontSize * 0.4);
+            }
+            
+            // Fetch quick link data
+            const linkData = await fetchQuickLinkDataForRequest(linkId);
+            
+            if (linkData && linkData.length > 0) {
+                linkData.forEach((item) => {
+                    // Check if we need a new page
+                    if (yPos > pageHeight - 30) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    
+                    // Item title
+                    if (item.title) {
+                        doc.setFont(undefined, 'bold');
+                        doc.setFontSize(11);
+                        const titleHeight = addWrappedText(doc, item.title, margin + 5, yPos, maxWidth - 5, 11);
+                        yPos += titleHeight + 2;
+                    }
+                    
+                    // Item details
+                    if (item.details && item.details.length > 0) {
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(10);
+                        item.details.forEach((detail) => {
+                            if (yPos > pageHeight - 20) {
+                                doc.addPage();
+                                yPos = 20;
+                            }
+                            const detailHeight = addWrappedText(doc, '  • ' + detail, margin + 10, yPos, maxWidth - 10, 10);
+                            yPos += detailHeight + 3;
+                        });
+                    }
+                    
+                    yPos += 3; // Space between items
+                });
+            } else {
+                doc.setFont(undefined, 'italic');
+                doc.setFontSize(10);
+                doc.text('  No data available', margin + 5, yPos);
+            }
+            
+            return doc.output('blob');
+        }
+        
+        // Helper function to fetch quick link data (simplified version)
+        async function fetchQuickLinkDataForRequest(linkId) {
+            try {
+                switch(linkId) {
+                    case 'education':
+                        // First try to get data from popup if available
+                        const educationPopup = document.getElementById('popup-education');
+                        if (educationPopup) {
+                            const popupCards = educationPopup.querySelectorAll('.ed-card, .card');
+                            if (popupCards.length > 0) {
+                                return Array.from(popupCards).map(card => {
+                                    const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+                                    const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+                                    return { title, details };
+                                });
+                            }
+                        }
+                        
+                        // Fallback: try to fetch from endpoint
+                        try {
+                            const eduResponse = await fetch("{{ path('app_provider_education_list') }}", {
+                                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            });
+                            if (!eduResponse.ok) {
+                                console.warn('Education list fetch failed:', eduResponse.status, eduResponse.statusText);
+                                return [];
+                            }
+                            const eduHtml = await eduResponse.text();
+                            if (!eduHtml || eduHtml.trim() === '') {
+                                return [];
+                            }
+                            const eduParser = new DOMParser();
+                            const eduDoc = eduParser.parseFromString(eduHtml, 'text/html');
+                            const eduCards = eduDoc.querySelectorAll('.ed-card, .card');
+                            if (eduCards.length > 0) {
+                                return Array.from(eduCards).map(card => {
+                                    const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+                                    const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+                                    return { title, details };
+                                });
+                            }
+                        } catch (fetchError) {
+                            console.warn('Error fetching education list:', fetchError);
+                            // Return empty array - PDF will show "No data available"
+                        }
+                        return [];
+                    case 'license':
+                        const licensePopup = document.getElementById('popup-license');
+                        if (licensePopup && !licensePopup.classList.contains('d-none')) {
+                            const licenseCards = licensePopup.querySelectorAll('.ed-card, .card');
+                            if (licenseCards.length > 0) {
+                                return Array.from(licenseCards).map(card => {
+                                    const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+                                    const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+                                    return { title, details };
+                                });
+                            }
+                        }
+                        return [];
+                    case 'insurance':
+                        const insurancePopup = document.getElementById('popup-insurance');
+                        if (insurancePopup && !insurancePopup.classList.contains('d-none')) {
+                            const insuranceCards = insurancePopup.querySelectorAll('.ed-card, .card');
+                            if (insuranceCards.length > 0) {
+                                return Array.from(insuranceCards).map(card => {
+                                    const title = card.querySelector('h5, .card-title')?.textContent?.trim() || '';
+                                    const details = Array.from(card.querySelectorAll('p, .card-text')).map(p => p.textContent.trim()).filter(t => t);
+                                    return { title, details };
+                                });
+                            }
+                        }
+                        return [];
+                    case 'health':
+                        const healthPopup = document.getElementById('popup-health');
+                        if (healthPopup && !healthPopup.classList.contains('d-none')) {
+                            const form = healthPopup.querySelector('form');
+                            if (form) {
+                                const healthData = [];
+                                form.querySelectorAll('.form-group').forEach(group => {
+                                    const label = group.querySelector('label')?.textContent?.trim() || '';
+                                    const inputs = group.querySelectorAll('input[type="radio"]:checked, textarea, select');
+                                    const values = Array.from(inputs).map(input => {
+                                        if (input.type === 'radio') return input.value;
+                                        if (input.tagName === 'TEXTAREA') return input.value;
+                                        if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                                        return '';
+                                    }).filter(v => v);
+                                    if (label && values.length > 0) {
+                                        healthData.push({ title: label, details: values });
+                                    }
+                                });
+                                return healthData.length > 0 ? healthData : [];
+                            }
+                        }
+                        return [];
+                    case 'risk':
+                        const riskPopup = document.getElementById('popup-risk');
+                        if (riskPopup && !riskPopup.classList.contains('d-none')) {
+                            const form = riskPopup.querySelector('form');
+                            if (form) {
+                                const riskData = [];
+                                form.querySelectorAll('.form-group').forEach(group => {
+                                    const label = group.querySelector('label')?.textContent?.trim() || '';
+                                    const inputs = group.querySelectorAll('input[type="radio"]:checked, textarea, select');
+                                    const values = Array.from(inputs).map(input => {
+                                        if (input.type === 'radio') return input.value;
+                                        if (input.tagName === 'TEXTAREA') return input.value;
+                                        if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                                        return '';
+                                    }).filter(v => v);
+                                    if (label && values.length > 0) {
+                                        riskData.push({ title: label, details: values });
+                                    }
+                                });
+                                return riskData.length > 0 ? riskData : [];
+                            }
+                        }
+                        return [];
+                    case 'application-certification':
+                        const certPopup = document.getElementById('popup-application-certification');
+                        if (certPopup && !certPopup.classList.contains('d-none')) {
+                            const form = certPopup.querySelector('form');
+                            if (form) {
+                                const certData = [];
+                                form.querySelectorAll('.form-group, .form-check').forEach(group => {
+                                    const label = group.querySelector('label')?.textContent?.trim() || '';
+                                    const inputs = group.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked, textarea, select');
+                                    const values = Array.from(inputs).map(input => {
+                                        if (input.type === 'checkbox' || input.type === 'radio') return input.value || 'Yes';
+                                        if (input.tagName === 'TEXTAREA') return input.value;
+                                        if (input.tagName === 'SELECT') return input.options[input.selectedIndex]?.text;
+                                        return '';
+                                    }).filter(v => v);
+                                    if (label && values.length > 0) {
+                                        certData.push({ title: label, details: values });
+                                    }
+                                });
+                                return certData.length > 0 ? certData : [];
+                            }
+                        }
+                        return [];
+                    default:
+                        return [];
+                }
+            } catch (error) {
+                console.error('Error fetching quick link data for', linkId, ':', error);
+                // Return empty array instead of throwing to prevent breaking the PDF generation
+                return [];
+            }
+        }
+        
+        // Handle send request form
+        if (sendRequestForm) {
+            sendRequestForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const errorDiv = document.getElementById('request-form-error');
+                const successDiv = document.getElementById('request-form-success');
+                const submitBtn = this.querySelector('button[type="submit"]');
+                
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+                
+                // Disable submit button
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+                
+                // Send the request to backend
+                const requestData = {
+                    document_type: formData.get('document_type'),
+                    message: formData.get('message'),
+                    file: formData.get('file') ? {
+                        name: formData.get('file').name,
+                        size: formData.get('file').size,
+                        type: formData.get('file').type
+                    } : null
+                };
+                
+                // Create FormData for file upload
+                const uploadFormData = new FormData();
+                uploadFormData.append('document_type', formData.get('document_type'));
+                uploadFormData.append('message', formData.get('message') || '');
+                if (formData.get('file')) {
+                    uploadFormData.append('file', formData.get('file'));
+                }
+                
+                fetch('{{ path("app_provider_send_document_request") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: uploadFormData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            try {
+                                const json = JSON.parse(text);
+                                throw new Error(json.message || json.error || 'Request failed');
+                            } catch (e) {
+                                if (e.message && e.message.includes('Request failed')) {
+                                    throw e;
+                                }
+                                throw new Error('HTTP ' + response.status + ': ' + (text.substring(0, 100) || 'Request failed'));
+                            }
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        successDiv.textContent = data.message || 'Request sent successfully!';
+                        successDiv.style.display = 'block';
+                        
+                        // Reset form
+                        this.reset();
+                        
+                        // Reset button
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        
+                        // Reload received requests
+                        setTimeout(() => {
+                            loadReceivedRequests();
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || data.error || 'Request failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending request:', error);
+                    errorDiv.textContent = error.message || 'Failed to send request. Please try again.';
+                    errorDiv.style.display = 'block';
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+            });
+        }
+        
+        // Escape HTML helper
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Upload document for request
+        window.uploadDocumentForRequest = function(requestId) {
+            // This would open a file upload dialog or modal
+            alert('Upload functionality for request ' + requestId + ' - to be implemented');
+        };
+        
         // Handle View CV Modal
         const viewCvModal = document.getElementById('viewCvModal');
         if (viewCvModal) {

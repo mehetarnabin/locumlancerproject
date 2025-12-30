@@ -78,9 +78,17 @@ textarea.form-control {
     gap: 4px;
 }
 
-.star-rating input[type="radio"] {
-    display: none;
-}
+    /* Fix for validation on hidden inputs */
+    .star-rating input[type="radio"] {
+        opacity: 0;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none;
+    }
 
 .star-rating label {
     font-size: 32px;
@@ -117,10 +125,33 @@ textarea.form-control {
     transition: all 0.2s;
 }
 
-.btn-submit:hover {
+.btn-submit:disabled {
+    background-color: #a0cfa0; /* Lighter green */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-submit:hover:not(:disabled) {
     background: #6fa852;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(133, 187, 101, 0.3);
+}
+
+/* Error state for rating */
+.star-rating.invalid {
+    border-bottom: 2px solid #dc3545;
+    padding-bottom: 5px;
+}
+
+.text-danger {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 4px;
+    display: none;
+}
+
+.star-rating.invalid + .text-danger {
+    display: block;
 }
 
 .btn-cancel {
@@ -134,10 +165,13 @@ textarea.form-control {
     cursor: pointer;
     transition: all 0.2s;
     margin-right: 12px;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-cancel:hover {
     background: #d4ddeb;
+    color: #6b7280;
 }
 
 .form-actions {
@@ -154,7 +188,7 @@ textarea.form-control {
             <p>Share your experience with {{ application.employer }}</p>
         </div>
 
-        <form method="post" action="{{ path('app_provider_application_review_employer', {'id': application.id}) }}">
+        <form method="post" action="{{ path('app_provider_application_review_employer', {'id': application.id}) }}" id="reviewForm" novalidate>
             <div class="form-group">
                 <label for="message">Your Review</label>
                 <textarea 
@@ -163,24 +197,89 @@ textarea.form-control {
                     class="form-control" 
                     placeholder="Tell us about your experience..." 
                     required></textarea>
+                <div class="invalid-feedback">
+                    Please provide your review message.
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Rating</label>
-                <div class="star-rating">
+                <div class="star-rating" id="starRatingContainer">
                     {% for i in 5..1 %}
                         <input type="radio" name="point" id="point-{{ i }}" value="{{ i }}" required>
                         <label for="point-{{ i }}">★</label>
                     {% endfor %}
                 </div>
+                <div class="text-danger" id="ratingError">Please select a rating.</div>
             </div>
 
             <div class="form-actions">
                 <a href="{{ path('app_provider_jobs_application_detail', {'id': application.id}) }}" class="btn-cancel">Cancel</a>
-                <button type="submit" class="btn-submit">Submit Review</button>
+                <button type="submit" class="btn-submit" id="submitBtn">Submit Review</button>
             </div>
         </form>
     </div>
 </div>
-{% endblock %}
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('reviewForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const starRatingContainer = document.getElementById('starRatingContainer');
+        const ratingError = document.getElementById('ratingError');
+        
+        // Ensure button is enabled on load
+        submitBtn.disabled = false;
+        
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Check message
+            const message = document.getElementById('message');
+            if (!message.value.trim()) {
+                message.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                message.classList.remove('is-invalid');
+            }
+            
+            // Check rating
+            const rating = document.querySelector('input[name="point"]:checked');
+            if (!rating) {
+                starRatingContainer.classList.add('invalid');
+                ratingError.style.display = 'block';
+                isValid = false;
+            } else {
+                starRatingContainer.classList.remove('invalid');
+                ratingError.style.display = 'none';
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Shake effect or feedback
+                submitBtn.classList.add('shake');
+                setTimeout(() => submitBtn.classList.remove('shake'), 500);
+            } else {
+                // Prevent double submission
+                 submitBtn.disabled = true;
+                 submitBtn.innerText = 'Submitting...';
+            }
+        });
+        
+        // Clear errors on input
+        document.getElementById('message').addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+        
+        const ratingInputs = document.querySelectorAll('input[name="point"]');
+        ratingInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                starRatingContainer.classList.remove('invalid');
+                ratingError.style.display = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

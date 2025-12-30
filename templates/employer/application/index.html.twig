@@ -95,8 +95,55 @@
     max-height: 70vh;
     position: relative;
     transition: grid-template-columns 0.3s ease, gap 0.3s ease;
-    overflow-x: hidden;
+    overflow-x: visible;
     overflow-y: hidden;
+    padding-left: 30px; /* Add padding to prevent clipping */
+}
+
+.split-view-container.list-hidden {
+    grid-template-columns: 0fr 1fr;
+    gap: 0; /* Remove gap when list is hidden */
+}
+
+.split-view-container.list-hidden .split-job-list {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Ensure detail panel always stays visible and stable */
+.split-job-details {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.split-job-list {
+    transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+.split-job-details {
+    transition: none !important; /* Keep detail panel stable - no transitions */
+    width: 100% !important; /* Always take full available width */
+    display: block !important; /* Always visible */
+    visibility: visible !important; /* Always visible */
+    opacity: 1 !important; /* Always visible */
+    flex: 1 !important; /* Take remaining space */
+}
+
+/* Ensure detail panel is never hidden by list-hidden class */
+.split-view-container.list-hidden .split-job-details {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
 }
 
 .split-view-container::-webkit-scrollbar {
@@ -136,13 +183,55 @@
     background: #6FA050;
 }
 
+/* List Toggle Button */
+.list-toggle-btn {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(11,22,40,0.1);
+    transition: all 0.3s ease;
+}
+
+.list-toggle-btn:hover {
+    background: #f8f9fa;
+    border-color: #85BB65;
+    box-shadow: 0 4px 12px rgba(11,22,40,0.15);
+}
+
+.list-toggle-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.split-view-container:not(.list-hidden) .list-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+.split-view-container.list-hidden .list-toggle-btn {
+    left: -20px;
+}
+
+.split-view-container:not(.list-hidden) .list-toggle-btn {
+    left: 330px;
+}
+
 .split-job-details {
     background: #fff;
     border: 1px solid #e6eef6;
     border-radius: 10px;
     padding: 20px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: visible;
     box-shadow: 0 2px 6px rgba(11,22,40,0.03);
     position: relative;
     height: 100%;
@@ -255,6 +344,150 @@
 .no-job-selected svg {
     margin-bottom: 16px;
     opacity: 0.5;
+}
+
+/* Notes Panel Styles */
+.notes-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 400px;
+    max-width: 90vw;
+    background: #fff;
+    border-left: 1px solid #e6eef6;
+    box-shadow: -2px 0 8px rgba(11,22,40,0.06);
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    visibility: hidden;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.notes-panel.open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.notes-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e6eef6;
+    font-weight: 600;
+}
+
+.notes-panel-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.notes-panel-close:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+.notes-panel-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.notes-title {
+    margin-bottom: 16px;
+}
+
+.notes-title h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.notes-title p {
+    font-size: 12px;
+    margin: 0;
+}
+
+.notes-textarea {
+    width: 100%;
+    flex: 1;
+    resize: none;
+    border: 1px solid #e6eef6;
+    border-radius: 8px;
+    padding: 12px;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 200px;
+}
+
+.notes-textarea:focus {
+    border-color: #85BB65;
+    box-shadow: 0 0 0 2px rgba(133, 187, 101, 0.1);
+}
+
+.notes-footer {
+    margin-top: 12px;
+    color: #666;
+    font-size: 12px;
+}
+
+.notes-footer .last-saved {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.notes-footer .last-saved::before {
+    content: "✓";
+    color: #85BB65;
+}
+
+.split-job-details.notes-open {
+    padding-right: 400px;
+}
+
+/* Detail Note Button Styling */
+#detail-note-btn {
+    color: #000000 !important;
+}
+
+#detail-note-btn span {
+    color: #000000 !important;
+}
+
+#detail-note-btn:hover {
+    background: #f8f9fa !important;
+    border-color: #85BB65 !important;
+}
+
+#detail-note-btn:hover span {
+    color: #000000 !important;
+}
+
+#detail-note-btn:active {
+    background: #e8f5e9 !important;
+    transform: scale(0.98);
+}
+
+#detail-note-btn:active span {
+    color: #000000 !important;
 }
 
 /* Hide table headers when split view is active */
@@ -720,6 +953,16 @@ body:has(#split-view-container[style*="grid"]) .table-responsive-wrapper .job-he
 .action-btn:disabled:hover {
     color: inherit;
     border-color: #e6eef6;
+}
+
+/* Icon-only buttons - smaller padding for tighter border around SVGs */
+#email-btn,
+#archive-btn,
+#delete-btn,
+#grid-view-btn,
+#float-view-btn {
+    padding: 2px 6px !important;
+    min-width: auto !important;
 }
 
 .dropdown-cstm {
@@ -1714,7 +1957,7 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                     {% include 'employer/job/_filter_panel.html.twig' %}
                     
                     <!-- Status Switch Button -->
-                    <div class="position-relative" style="flex-shrink: 0; display: none;" id="status-switch-container">
+                    <div class="position-relative" style="flex-shrink: 0;" id="status-switch-container">
                         <button id="status-switch-btn" class="action-btn" title="Switch Status" onclick="toggleStatusDropdown(event)">
                             <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1750,11 +1993,12 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         </g>
                         </g>
                         <use xlink:href="#icon-email"/>
-                        </svg> Email
+                        </svg>
                     </button>
                     
-                    <!-- Applied Status Actions -->
+                    <!-- Applied Status Actions - Request One File (opens modal) -->
                     <button id="action-request-file-btn" class="action-btn conditional-btn" style="display: none;" 
+                            type="button"
                             data-bs-toggle="modal" 
                             data-bs-target="#askDocumentModal"
                             title="Request One File">
@@ -1794,31 +2038,17 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                     </button>
 
                     <!-- Negotiating/Offered Status Actions -->
-                    <button id="action-send-offer-btn" class="action-btn conditional-btn" style="display: none;" 
+                    <button id="action-send-contract-offer-btn" class="action-btn conditional-btn" style="display: none;" 
                             data-bs-toggle="modal" 
                             data-bs-target="#sendOfferModal"
-                            data-document-type="offer"
-                            title="Send Offer Letter">
+                            title="Send Contract/Offer">
                         <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                             <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
-                        Send Offer Letter
-                    </button>
-                    <button id="action-send-contract-btn" class="action-btn conditional-btn" style="display: none;" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#sendOfferModal"
-                            data-document-type="contract"
-                            title="Send Contract Letter">
-                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        Send Contract Letter
+                        Send Contract/Offer
                     </button>
 
                     <!-- Accepted/Hired Status Actions -->
@@ -1847,13 +2077,19 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 
                 <!-- Middle Group: Archive, Delete -->
                 <div class="job-actions-middle">
+                    <a href="{{ path('app_employer_documents') }}" class="action-btn" title="View Documents" style="pointer-events: auto; cursor: pointer; position: relative; z-index: 1000; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                        <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>View</span>
+                    </a>
                     <button id="archive-btn" class="action-btn archive-btn" title="Archive" type="button" style="pointer-events: auto; cursor: pointer; position: relative; z-index: 1000;">
                         <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 21L12 12M12 12L15 15.3333M12 12L9 15.3333" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             <path d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                             <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentcolor" stroke-width="1.5"/>
                         </svg>
-                        Archive
                     </button>
                     <button id="delete-btn" class="action-btn" title="Delete" type="button" style="pointer-events: auto; cursor: pointer; position: relative; z-index: 1000;">
                         <svg class="icon-image" width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1863,7 +2099,6 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                             <path d="M9.5 11L10 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                             <path d="M14.5 11L14 16" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
-                        Delete
                     </button>
                 </div>
                 
@@ -1987,9 +2222,17 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                                 {% elseif statusLower == 'shortlisted' %}
                                     {% set todoTask = 'Open Response' %}
                                 {% elseif statusLower in ['interview','interviewing'] %}
-                                    {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                                    {% if application.interview %}
+                                        {% set todoTask = 'Send Contract' %}
+                                    {% else %}
+                                        {% set todoTask = 'Confirm interview from the list of interview dates' %}
+                                    {% endif %}
                                 {% elseif statusLower in ['negotiating','offered'] %}
-                                    {% set todoTask = 'Review signed offer/contract' %}
+                                    {% if not application.contractSentAt %}
+                                        {% set todoTask = 'Send Contract' %}
+                                    {% else %}
+                                        {% set todoTask = 'Review signed offer/contract' %}
+                                    {% endif %}
                                 {% elseif statusLower in ['accepted','hired'] %}
                                     {% set todoTask = 'Request Credentialing Docs' %}
                                 {% elseif statusLower == 'completed' %}
@@ -1997,8 +2240,8 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                                 {% endif %}
                                 {% set sentItems = [] %}
                                 {% if application.documentProvidedAt %}{% set sentItems = sentItems|merge(['Document']) %}{% endif %}
-                                {% if application.oneFileProvidedAt %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
-                                {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
+                                {% if application.oneFileProvidedAt and statusLower != 'completed' %}{% set sentItems = sentItems|merge(['OneFile']) %}{% endif %}
+                                {% if application.contractSignedAt %}{% set sentItems = sentItems|merge(['Contract Signed']) %}{% elseif application.contractSentAt and statusLower != 'completed' %}{% set sentItems = sentItems|merge(['Contract Sent']) %}{% endif %}
                                 {% if statusLower == 'completed' and employerReview %}
                                     <span style="font-size: 24px; color: #ccc; line-height: 1;">-</span>
                                 {% else %}
@@ -2067,7 +2310,32 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                                         {% endif %}
                                     </div>
                                 </span>
-                                    {% if sentItems|length > 0 %}
+                                    {% if application.interview and statusLower in ['interview', 'interviewing'] %}
+                                        {# Show Interview Icon separately if confirmed #}
+                                        <span class="todo-icon-wrapper" title="Interview Confirmed" data-application-id="{{ application.id }}" data-status="{{ application.status }}" data-todo-action="interview" role="button" tabindex="0" onclick="return (window.handleEmployerTodoIconClick || function(){})(event, this)" style="margin-left: 5px;">
+                                            <div class="todo-icon status-interview" data-todo-action="interview" data-todo-type="application" data-todo-icon-type="interview" data-application-id="{{ application.id }}">
+                                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 16h.01M16 18h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                </svg>
+                                            </div>
+                                        </span>
+                                    {% endif %}
+                                {# Document icon to view sent documents #}
+                                {% if sentItems|length > 0 %}
+                                <span class="todo-icon-wrapper document-view-icon" title="View Sent Documents" data-application-id="{{ application.id }}" role="button" tabindex="0" onclick="if(typeof openEmployerDocsModal === 'function') { openEmployerDocsModal('{{ application.id }}'); return false; } else { console.error('openEmployerDocsModal not available'); return false; }" style="margin-left: 4px;">
+                                    <div class="todo-icon status-{{ application.status }}" data-application-id="{{ application.id }}">
+                                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        </svg>
+                                    </div>
+                                </span>
+                                {% endif %}
+                                    {% if sentItems|length > 0 and statusLower != 'completed' %}
                                     <span class="provider-sent-icons" title="{{ 'Sent: ' ~ sentItems|join(', ') }}" data-application-id="{{ application.id }}" data-todo-action="{{ 'Contract Signed' in sentItems ? 'contract' : ('OneFile' in sentItems ? 'onefile' : 'document') }}" onclick="return (window.handleEmployerTodoIconClick || function(){})(event, this)">
                                         {% for item in sentItems %}
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color:#000000;">
@@ -2121,15 +2389,15 @@ div.job-header div.col-job.sortable[data-sort="job"] {
     </div>
 
     <!-- Split View Container -->
-    <div class="split-view-container" id="split-view-container" style="display: none;">
-        <button class="list-toggle-btn" id="list-toggle-btn" style="display: none;" title="Toggle application list">
+    <div class="split-view-container list-hidden" id="split-view-container" style="display: none;">
+        <button class="list-toggle-btn" id="list-toggle-btn" title="Show candidate list">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
         
         <!-- Left Side: Application List -->
-        <div class="split-job-list" id="split-job-list">
+        <div class="split-job-list" id="split-job-list" style="display: none;">
             {% if applications|length > 0 %}
                 {% for application in applications %}
                     {% set job = application.job %}
@@ -2187,6 +2455,26 @@ div.job-header div.col-job.sortable[data-sort="job"] {
             
             <!-- Application details will be dynamically loaded here -->
             <div id="application-detail-content" style="display: none;"></div>
+            
+            <!-- Notes Panel -->
+            <aside id="notes-panel" class="notes-panel" aria-hidden="true">
+                <div class="notes-panel-header">
+                    <span>Notes</span>
+                    <button type="button" class="notes-panel-close" onclick="closeNotesPanel()">×</button>
+                </div>
+                <div class="notes-panel-body">
+                    <div class="notes-title">
+                        <h6>Add notes for this application</h6>
+                        <p class="text-muted">Your notes are saved automatically and only visible to you.</p>
+                    </div>
+                    <textarea id="notes-textarea" class="notes-textarea" placeholder="Write your notes here..."></textarea>
+                    <div class="notes-footer">
+                        <div class="last-saved" style="display: none;">
+                            Last saved <span class="last-saved-time"></span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
         </div>
     </div>
 
@@ -2209,75 +2497,281 @@ div.job-header div.col-job.sortable[data-sort="job"] {
         </div>
     </div>
 
-    <!-- Schedule Interview Modal with Multiple Dates -->
-    <div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="scheduleInterviewLabel">Schedule Interview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="" method="POST" id="scheduleInterviewForm">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Meeting Date (From — To)</label>
-                            <div id="interviewDatesContainer">
-                                <div class="interview-date-entry mb-3">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label small">From</label>
-                                            <div class="position-relative">
-                                                <input type="text" class="form-control js-datepicker schedule-date-from" name="interview_date_from[]" placeholder="mm/dd/yyyy --:--" required style="border: 1px solid #85BB65;">
-                                                <i class="fas fa-calendar-alt position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); color: #85BB65; cursor: pointer;"></i>
-                                    </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label small">To</label>
-                                            <div class="position-relative">
-                                                <input type="text" class="form-control js-datepicker schedule-date-to" name="interview_date_to[]" placeholder="mm/dd/yyyy --:--" required style="border: 1px solid #85BB65;">
-                                                <i class="fas fa-calendar-alt position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); color: #85BB65; cursor: pointer;"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-danger btn-sm remove-date-btn mt-2" style="display: none;">
-                                        <i class="fas fa-times"></i> Remove
-                                    </button>
+    <!-- Schedule Interview Modal - Calendly Style -->
+    <div class="modal fade" id="scheduleInterviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; height: 80vh; max-height: 700px; display: flex;">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" onclick="closeModal('scheduleInterviewModal')" style="position: absolute; top: 15px; right: 20px; z-index: 100; border: none; background: #f8f9fa; width: 32px; height: 32px; border-radius: 50%; opacity: 1; transition: all 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 6L18 18" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div class="interview-booking-container" style="display: flex; width: 100%; height: 100%;">
+                    <form id="scheduleInterviewForm" action="" method="POST" style="display: flex; width: 100%;">
+                        <input type="hidden" id="scheduleInterviewApplicationId" name="application_id">
+                        <!-- Left Panel: Calendar -->
+                        <div class="booking-left-panel" style="flex: 1; padding: 30px; border-right: 1px solid #e1e4e8; display: flex; flex-direction: column; background: #fff;">
+                            <div style="margin-bottom: 20px;">
+                                <h3 style="font-weight: 700; color: #0d233e; font-size: 20px; margin-bottom: 5px;">Select a Date & Time</h3>
+                                <div class="duration-display" style="color: #666; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                    <span id="duration-text">60 min</span>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-sm mt-2" id="addInterviewDateBtn" style="background-color: #85BB65; color: white; border: 1px solid #85BB65;">
-                                Add another date
-                            </button>
+                            
+                            <div class="inline-datepicker-container" style="display: flex; justify-content: center; flex: 1;">
+                                <input type="hidden" id="meeting_date" name="meeting_date" required>
+                                <div id="inline-flatpickr" style="box-shadow: none;"></div>
+                            </div>
+                            
+                            <div class="time-zone-display" style="margin-top: 15px; font-size: 12px; color: #666;">
+                                <span id="local-timezone">Loading...</span>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="meeting_platform" class="form-label">Meeting Platform</label>
-                            <select class="form-control" id="meeting_platform" name="meeting_platform" required style="border: 1px solid #85BB65;">
-                                <option value="">Choose Platform</option>
-                                <option value="Zoom">Zoom</option>
-                                <option value="Microsoft Teams">Microsoft Teams</option>
-                                <option value="Google Meet">Google Meet</option>
-                                <option value="In-Person">In-Person</option>
-                            </select>
+
+                        <!-- Right Panel -->
+                        <div class="booking-right-panel" style="width: 420px; position: relative; background: #fff; overflow-y: auto;">
+                            <!-- VIEW 1: Time Slot Selection -->
+                            <div id="view-time-slots" style="padding: 30px; height: 100%; display: flex; flex-direction: column;">
+                                <h4 id="selected-date-header" style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 20px;">Select a date to see times</h4>
+                                
+                                <div class="duration-selector-mini" style="margin-bottom: 20px; display: flex; gap: 8px;">
+                                    <input type="hidden" id="meeting_duration" name="meeting_duration" value="60">
+                                    <button type="button" class="duration-chip-mini" data-value="30" onclick="setMeetingDuration(this, 30)">30m</button>
+                                    <button type="button" class="duration-chip-mini" data-value="45" onclick="setMeetingDuration(this, 45)">45m</button>
+                                    <button type="button" class="duration-chip-mini active" data-value="60" onclick="setMeetingDuration(this, 60)">60m</button>
+                                </div>
+
+                                <div class="time-slots-grid" id="time-slots-container" style="display: grid; grid-template-columns: 1fr; gap: 10px; overflow-y: auto; flex: 1; padding-right: 5px;">
+                                    <!-- Time slots generated by JS -->
+                                    <div style="text-align: center; color: #888; padding-top: 20px;">Select a date to see times</div>
+                                </div>
+                            </div>
+
+                            <!-- VIEW 2: Meeting Details -->
+                            <div id="view-details" style="display: none; padding: 30px; height: 100%; flex-direction: column;">
+                                <button type="button" onclick="showTimeSlots()" style="background: none; border: none; color: #006bff; font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 5px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                                    Back
+                                </button>
+                                
+                                <h4 style="font-size: 18px; font-weight: 700; color: #0d233e; margin-bottom: 5px;">Enter Details</h4>
+                                <div id="confirm-time-display" style="color: #666; margin-bottom: 25px; font-size: 14px;"></div>
+
+                                <!-- Platform -->
+                                <div class="form-group mb-3">
+                                    <label style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; display: block;">Platform</label>
+                                    <select class="form-control" id="meeting_platform" name="meeting_platform" required style="border-radius: 8px; border: 1px solid #d1d5db;">
+                                        <option value="">Select Platform</option>
+                                        <option value="Zoom">Zoom</option>
+                                        <option value="Microsoft Teams">Microsoft Teams</option>
+                                        <option value="Google Meet">Google Meet</option>
+                                        <option value="Phone Call">Phone Call</option>
+                                    </select>
+                                </div>
+
+                                <!-- Link -->
+                                <div class="form-group mb-3">
+                                    <label style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; display: block;">Link / Phone Number</label>
+                                    <input type="text" class="form-control" id="meeting_url" name="meeting_url" required placeholder="URL or Phone number" style="border-radius: 8px; border: 1px solid #d1d5db;">
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="form-group mb-4" style="flex: 1;">
+                                    <label style="font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; display: block;">Notes</label>
+                                    <textarea class="form-control" id="meeting_comments" name="comment" rows="3" style="border-radius: 8px; border: 1px solid #d1d5db; resize: none; height: 80px;"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block" style="height: 48px; font-weight: 600; border-radius: 24px; background: #006bff; border: none; width: 100%; font-size: 16px;">
+                                    Schedule Event
+                                </button>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="meeting_url" class="form-label">Meeting URL</label>
-                            <input type="text" class="form-control" id="meeting_url" name="meeting_url" placeholder="" style="border: 1px solid #85BB65;">
-                        </div>
-                        <div class="mb-3">
-                            <label for="meeting_comments" class="form-label">Comments / Rescheduling Notes</label>
-                            <textarea class="form-control" id="meeting_comments" name="comment" rows="3" placeholder="Add any notes or comments about this schedule..." style="border: 1px solid #85BB65;"></textarea>
-                        </div>
-                        <input type="hidden" id="scheduleInterviewApplicationId" name="application_id">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn" data-bs-dismiss="modal" style="background-color: #85BB65; color: white; border: 1px solid #85BB65;">Cancel</button>
-                        <button type="submit" class="btn" style="background-color: #85BB65; color: white; border: 1px solid #85BB65;">Send Schedule</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Send Offer/Contract Modal -->
+    <style>
+        #sendOfferModal .modal-header {
+            background: linear-gradient(135deg, #85BB65 0%, #6FA855 100%);
+            color: #fff;
+            border-bottom: none;
+            padding: 20px 24px;
+            border-radius: 10px 10px 0 0;
+        }
+        #sendOfferModal .modal-title {
+            color: #fff;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        #sendOfferModal .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.9;
+        }
+        #sendOfferModal .btn-close:hover {
+            opacity: 1;
+        }
+        #sendOfferModal .modal-body {
+            padding: 24px;
+        }
+        #sendOfferModal .form-label {
+            font-weight: 600;
+            color: #121C0C;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        #sendOfferModal .table {
+            margin-bottom: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e6eef6;
+        }
+        #sendOfferModal .table thead th {
+            background: linear-gradient(135deg, #E8F5E8 0%, #D4EDD4 100%);
+            font-weight: 600;
+            border-bottom: 2px solid #85BB65;
+            color: #2E7D32;
+            padding: 14px;
+            text-align: center;
+            font-size: 14px;
+        }
+        #sendOfferModal .table tbody td {
+            vertical-align: middle;
+            transition: all 0.3s ease;
+            padding: 20px;
+            border: 1px solid #e6eef6;
+            cursor: pointer;
+            position: relative;
+        }
+        #sendOfferModal .table tbody td:hover {
+            background-color: #F0F9F0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(133, 187, 101, 0.15);
+        }
+        #sendOfferModal .table tbody td:has(input:checked) {
+            background: linear-gradient(135deg, #E8F5E8 0%, #D4EDD4 100%);
+            border: 2px solid #85BB65;
+            box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+        }
+        #sendOfferModal .form-check {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 0;
+        }
+        #sendOfferModal .form-check-input {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            border: 2px solid #85BB65;
+            margin: 0;
+            position: relative;
+        }
+        #sendOfferModal .form-check-input:checked {
+            background-color: #85BB65;
+            border-color: #85BB65;
+            box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2);
+        }
+        #sendOfferModal .form-check-input:focus {
+            border-color: #85BB65;
+            box-shadow: 0 0 0 4px rgba(133, 187, 101, 0.2);
+        }
+        #sendOfferModal .form-check-label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #sendOfferModal .form-check-label svg {
+            color: #6c757d;
+            transition: all 0.3s ease;
+            width: 32px;
+            height: 32px;
+        }
+        #sendOfferModal .form-check-label span {
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        #sendOfferModal .table tbody td:hover .form-check-label svg,
+        #sendOfferModal .table tbody td:hover .form-check-label span {
+            color: #85BB65;
+        }
+        #sendOfferModal .table tbody td:hover .form-check-label svg {
+            transform: scale(1.1);
+        }
+        #sendOfferModal .form-check-input:checked ~ .form-check-label svg,
+        #sendOfferModal .form-check-input:checked + .form-check-label svg,
+        #sendOfferModal .table tbody td:has(input:checked) .form-check-label svg {
+            color: #85BB65;
+            transform: scale(1.15);
+        }
+        #sendOfferModal .form-check-input:checked ~ .form-check-label span,
+        #sendOfferModal .form-check-input:checked + .form-check-label span,
+        #sendOfferModal .table tbody td:has(input:checked) .form-check-label span {
+            color: #2E7D32;
+            font-weight: 600;
+        }
+        #sendOfferModal .form-control {
+            border: 2px solid #e6eef6;
+            border-radius: 8px;
+            padding: 10px 14px;
+            transition: all 0.3s ease;
+        }
+        #sendOfferModal .form-control:focus {
+            border-color: #85BB65;
+            box-shadow: 0 0 0 3px rgba(133, 187, 101, 0.1);
+            outline: none;
+        }
+        #sendOfferModal .modal-footer {
+            border-top: 1px solid #e6eef6;
+            padding: 16px 24px;
+        }
+        #sendOfferModal .btn-secondary {
+            border: 2px solid #e6eef6;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        #sendOfferModal .btn-secondary:hover {
+            border-color: #85BB65;
+            color: #85BB65;
+            background-color: #F0F9F0;
+        }
+        #sendOfferModal .btn-primary {
+            background: linear-gradient(135deg, #85BB65 0%, #6FA855 100%);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(133, 187, 101, 0.3);
+        }
+        #sendOfferModal .btn-primary:hover {
+            background: linear-gradient(135deg, #6FA855 0%, #5A8F45 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(133, 187, 101, 0.4);
+        }
+        #sendOfferModal .btn-primary:active {
+            transform: translateY(0);
+        }
+        #sendOfferModal .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+    </style>
     <div class="modal fade" id="sendOfferModal" tabindex="-1" aria-labelledby="sendOfferLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -2287,13 +2781,48 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 </div>
                 <form action="" method="POST" enctype="multipart/form-data" id="sendOfferForm">
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Document Type *</label>
-                            <select class="form-control" name="document_type" required>
-                                <option value="offer">Offer Letter</option>
-                                <option value="contract">Contract Letter</option>
-                                <option value="both">Both Offer and Contract</option>
-                            </select>
+                        <div class="mb-4">
+                            <label class="form-label">Select Document Type *</label>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%; text-align: center;">Offer Letter</th>
+                                        <th style="width: 50%; text-align: center;">Contract Letter</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td onclick="document.getElementById('document_type_offer').click();">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="document_type" id="document_type_offer" value="offer" required>
+                                                <label class="form-check-label" for="document_type_offer">
+                                                    <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    </svg>
+                                                    <span style="display: block; margin-top: 8px; font-weight: 500; font-size: 13px;">Offer Letter</span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td onclick="document.getElementById('document_type_contract').click();">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="document_type" id="document_type_contract" value="contract" required>
+                                                <label class="form-check-label" for="document_type_contract">
+                                                    <svg class="icon-image" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                        <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                                    </svg>
+                                                    <span style="display: block; margin-top: 8px; font-weight: 500; font-size: 13px;">Contract Letter</span>
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload Document *</label>
@@ -2316,6 +2845,13 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                             const applicationId = document.getElementById('sendOfferApplicationId').value;
                             if (!applicationId) {
                                 alert('Please select an application first.');
+                                return;
+                            }
+                            
+                            // Check if document type is selected
+                            const documentType = this.querySelector('input[name="document_type"]:checked');
+                            if (!documentType) {
+                                alert('Please select a document type (Offer Letter or Contract Letter).');
                                 return;
                             }
                             
@@ -2463,6 +2999,115 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         <button type="submit" class="btn btn-primary">Submit Review</button>
                     </div>
                 </form>
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const reviewForm = document.getElementById('writeReviewForm');
+                    if (reviewForm) {
+                        reviewForm.addEventListener('submit', function(e) {
+                            e.preventDefault();
+                            
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('button[type="submit"]');
+                            const originalText = submitBtn.textContent;
+                            
+                            if (submitBtn) {
+                                submitBtn.disabled = true;
+                                submitBtn.textContent = 'Submitting...';
+                            }
+                            
+                            const actionUrl = this.getAttribute('action');
+                            
+                            fetch(actionUrl, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => {
+                                // Try to parse JSON regardless of header, but handle failure
+                                return response.text().then(text => {
+                                    try {
+                                        return JSON.parse(text);
+                                    } catch (e) {
+                                        console.error('Server response:', text);
+                                        throw new Error('Server returned invalid JSON');
+                                    }
+                                });
+                            })
+                            .then(data => {
+                                console.log('Response data:', data); // Debug log
+                                if (data.success) {
+                                    // 1. Reset Submit Button immediately
+                                    if (submitBtn) {
+                                        submitBtn.disabled = false;
+                                        submitBtn.textContent = originalText;
+                                    }
+
+                                    // 2. Show alert first
+                                    setTimeout(() => {
+                                        alert(data.message || 'Review submitted successfully.');
+
+                                        // 3. Update UI button
+                                        const openReviewBtn = document.getElementById('action-write-review-btn');
+                                        if (openReviewBtn) {
+                                            openReviewBtn.textContent = 'Review Submitted';
+                                            openReviewBtn.disabled = true;
+                                            openReviewBtn.classList.remove('btn-primary');
+                                            openReviewBtn.classList.add('btn-secondary');
+                                            openReviewBtn.removeAttribute('data-bs-toggle');
+                                            openReviewBtn.removeAttribute('data-bs-target');
+                                        }
+
+                                        // 4. Force Close modal (Manual DOM manipulation to guarantee close)
+                                        const modalEl = document.getElementById('writeReviewModal');
+                                        if (modalEl) {
+                                            // Try the bootstrap native way via button click first (good for events)
+                                            const closeBtn = modalEl.querySelector('.btn-close, [data-bs-dismiss="modal"]');
+                                            if (closeBtn) {
+                                                closeBtn.click();
+                                            }
+
+                                            // AND Forcefully cleanup styling/backdrop just in case
+                                            modalEl.classList.remove('show');
+                                            modalEl.style.display = 'none';
+                                            modalEl.setAttribute('aria-hidden', 'true');
+                                            modalEl.removeAttribute('aria-modal');
+                                            modalEl.removeAttribute('role');
+                                            
+                                            const backdrop = document.querySelector('.modal-backdrop');
+                                            if (backdrop) {
+                                                backdrop.classList.remove('show');
+                                                setTimeout(() => backdrop.remove(), 100);
+                                            }
+                                            document.body.classList.remove('modal-open');
+                                            document.body.style.overflow = '';
+                                            document.body.style.paddingRight = '';
+                                        }
+                                        
+                                        // 5. Reset form
+                                        reviewForm.reset();
+                                    }, 10);
+                                } else {
+                                    alert(data.message || 'Failed to submit review.');
+                                    if (submitBtn) {
+                                        submitBtn.disabled = false;
+                                        submitBtn.textContent = originalText;
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error details:', error);
+                                alert('An error occurred: ' + error.message);
+                                if (submitBtn) {
+                                    submitBtn.disabled = false;
+                                    submitBtn.textContent = originalText;
+                                }
+                            });
+                        });
+                    }
+                });
+                </script>
             </div>
         </div>
     </div>
@@ -2505,30 +3150,13 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                             <label for="documentName" class="form-label">Document Name <span class="text-danger">*</span></label>
                             <select class="form-control form-select" id="documentName" name="document_name" required>
                                 <option value="">Select Document</option>
-                                <option value="CV Upload">CV Upload</option>
-                                <option value="Driver's license">Driver's license</option>
-                                <option value="Copy of passport">Copy of passport</option>
-                                <option value="Passport photo 2&quot; x 2&quot;">Passport photo 2" x 2"</option>
-                                <option value="USMLE Step 1-3/COMLEX">USMLE Step 1-3/COMLEX</option>
-                                <option value="Specialty and Subspecialty Exam Certification">Specialty and Subspecialty Exam Certification</option>
-                                <option value="Medical school diploma">Medical school diploma</option>
-                                <option value="Postgraduate certificates (eg: Residency and Fellowship completion)">Postgraduate certificates (eg: Residency and Fellowship completion)</option>
-                                <option value="Life support certifications">Life support certifications</option>
-                                <option value="Active and Inactive medical licenses">Active and Inactive medical licenses</option>
-                                <option value="All DEAs">All DEAs</option>
-                                <option value="CSR (Controlled Substance Registration)">CSR (Controlled Substance Registration)</option>
-                                <option value="Copy of undergraduate transcript">Copy of undergraduate transcript</option>
-                                <option value="Vaccine titers: Hepatitis B, Varicella, MMR">Vaccine titers: Hepatitis B, Varicella, MMR</option>
-                                <option value="Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)">Negative TB test (TST vs IGRA) in the last 12 months (or if positive a CXR is required)</option>
-                                <option value="Influenza vaccine proof">Influenza vaccine proof</option>
-                                <option value="COVID-19 vaccine proof">COVID-19 vaccine proof</option>
-                                <option value="Mask fit testing">Mask fit testing</option>
-                                <option value="MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)">MALPRACTICE (COI = CERTIFICATE OF INSURANCE of the last 10 years)</option>
-                                <option value="PROCEDURE LOGS last 2 years">PROCEDURE LOGS last 2 years</option>
-                                <option value="Case Logs last 2 years">Case Logs last 2 years</option>
-                                <option value="Application/ Certification: A list of everywhere lived for the last 10 years">Application/ Certification: A list of everywhere lived for the last 10 years</option>
-                                <option value="All Hospital Affiliations and Training Programs">All Hospital Affiliations and Training Programs</option>
-                                <option value="Miscellaneous">Miscellaneous</option>
+                                <option value="Education & Training">Education & Training</option>
+                                <option value="License & Certificate">License & Certificate</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="Health Assessment">Health Assessment</option>
+                                <option value="Risk Assessment">Risk Assessment</option>
+                                <option value="Application Certification">Application Certification</option>
+                                <option value="References">References</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -3128,8 +3756,7 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 } else if (status === 'interviewing') {
                     document.getElementById('action-request-documents-btn').style.display = 'flex';
                 } else if (status === 'negotiating') {
-                    document.getElementById('action-send-offer-btn').style.display = 'flex';
-                    document.getElementById('action-send-contract-btn').style.display = 'flex';
+                    document.getElementById('action-send-contract-offer-btn').style.display = 'flex';
                 } else if (status === 'accepted') {
                     document.getElementById('action-send-credential-btn').style.display = 'flex';
                 } else if (status === 'completed') {
@@ -3725,18 +4352,46 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 });
             });
 
-            // Handle action button clicks - set application ID for modals
-            document.getElementById('action-request-file-btn')?.addEventListener('click', function() {
+            // Handle "Request One File" button - opens modal
+            document.getElementById('action-request-file-btn')?.addEventListener('click', function(e) {
+                const applicationId = selectedApplicationId || window.selectedApplicationId;
+                if (!applicationId) {
+                    alert('Please select an application first.');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                
+                // Set the application ID in the hidden input
                 const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
-                if (hiddenInput && selectedApplicationId) {
-                    hiddenInput.value = selectedApplicationId;
+                if (hiddenInput) {
+                    hiddenInput.value = applicationId;
+                }
+                
+                // Set form action URL with application ID
+                const form = document.querySelector('#askDocumentModal form');
+                if (form && applicationId) {
+                    const actionUrl = "{{ path('app_employer_application_askfordocument', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', applicationId);
+                    form.setAttribute('action', actionUrl);
+                }
+                
+                // Update modal title
+                const modalTitle = document.querySelector('#askDocumentLabel');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Request Document';
                 }
             });
 
+            // Handle "Request Documents" button - for other statuses (uses modal)
             document.getElementById('action-request-documents-btn')?.addEventListener('click', function() {
                 const hiddenInput = document.querySelector('#askDocumentModal input[name="application_id"]');
                 if (hiddenInput && selectedApplicationId) {
                     hiddenInput.value = selectedApplicationId;
+                }
+                // Update modal title for regular document requests
+                const modalTitle = document.querySelector('#askDocumentLabel');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Request Document';
                 }
             });
 
@@ -3747,25 +4402,10 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 }
             });
 
-            document.getElementById('action-send-offer-btn')?.addEventListener('click', function() {
+            document.getElementById('action-send-contract-offer-btn')?.addEventListener('click', function() {
                 const hiddenInput = document.querySelector('#sendOfferApplicationId');
-                const select = document.querySelector('#sendOfferModal select[name="document_type"]');
                 if (hiddenInput && selectedApplicationId) {
                     hiddenInput.value = selectedApplicationId;
-                }
-                if (select) {
-                    select.value = 'offer';
-                }
-            });
-
-            document.getElementById('action-send-contract-btn')?.addEventListener('click', function() {
-                const hiddenInput = document.querySelector('#sendOfferApplicationId');
-                const select = document.querySelector('#sendOfferModal select[name="document_type"]');
-                if (hiddenInput && selectedApplicationId) {
-                    hiddenInput.value = selectedApplicationId;
-                }
-                if (select) {
-                    select.value = 'contract';
                 }
             });
 
@@ -4212,13 +4852,12 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         var actionUrl = "{{ path('app_employer_application_sendoffer', {'id': 'APPLICATION_ID'}) }}".replace('APPLICATION_ID', appId);
                         form.setAttribute('action', actionUrl);
 
-                        var docTypeSelect = form.querySelector('select[name="document_type"]');
-                        if (docTypeSelect) {
-                            if (action.indexOf('contract') !== -1) {
-                                docTypeSelect.value = 'contract';
-                            } else {
-                                docTypeSelect.value = 'offer';
-                            }
+                        // Reset radio buttons - user will select in modal
+                        var docTypeRadios = form.querySelectorAll('input[name="document_type"]');
+                        if (docTypeRadios) {
+                            docTypeRadios.forEach(function(radio) {
+                                radio.checked = false;
+                            });
                         }
                     }
                     
@@ -4281,9 +4920,12 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                                 resetModalForm('writeReviewModal');
                                 var f = m.querySelector('form');
                                 if (f) {
-                                    f.querySelectorAll('input, textarea, select').forEach(function(i){ try { i.disabled = false; } catch(_){} });
-                                    var btn = m.querySelector('button[type=\"submit\"]');
-                                    if (btn) btn.style.display = 'block';
+                                f.querySelectorAll('input, textarea, select, button').forEach(function(i){ try { i.disabled = false; } catch(_){} });
+                                    var btn = m.querySelector('button[type="submit"]');
+                                    if (btn) {
+                                        btn.style.display = 'block';
+                                        btn.disabled = false;
+                                    }
                                 }
                             }
                         })
@@ -4297,9 +4939,12 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                             resetModalForm('writeReviewModal');
                             var f = m.querySelector('form');
                             if (f) {
-                                f.querySelectorAll('input, textarea, select').forEach(function(i){ try { i.disabled = false; } catch(_){} });
-                                var btn = m.querySelector('button[type=\"submit\"]');
-                                if (btn) btn.style.display = 'block';
+                                f.querySelectorAll('input, textarea, select, button').forEach(function(i){ try { i.disabled = false; } catch(_){} });
+                                var btn = m.querySelector('button[type="submit"]');
+                                if (btn) {
+                                    btn.style.display = 'block';
+                                    btn.disabled = false;
+                                }
                             }
                         });
                     }
@@ -4481,6 +5126,11 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                     }
                 });
             } catch(_) {}
+        }
+        
+        // Expose function to window for global access
+        if (typeof window !== 'undefined') {
+            window.openEmployerDocsModal = openEmployerDocsModal;
         }
         
         function openEmployerMessageModal(appId) {
@@ -4826,6 +5476,9 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         applicationDetailContent.innerHTML = html;
                         applicationDetailContent.style.display = 'block';
                         
+                        // Ensure note button and action buttons are created and visible
+                        ensureSplitViewButtons();
+                        
                         // Re-attach event handlers for all buttons after content is loaded
                         setTimeout(function() {
                             // Re-attach hire/complete buttons
@@ -4851,16 +5504,10 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                                 scheduleBtn.setAttribute('data-application_id', applicationId);
                             }
                             
-                            // Send Offer button
-                            const sendOfferBtn = document.getElementById('action-send-offer-btn');
-                            if (sendOfferBtn) {
-                                sendOfferBtn.setAttribute('data-application_id', applicationId);
-                            }
-                            
-                            // Send Contract button
-                            const sendContractBtn = document.getElementById('action-send-contract-btn');
-                            if (sendContractBtn) {
-                                sendContractBtn.setAttribute('data-application_id', applicationId);
+                            // Send Contract/Offer button
+                            const sendContractOfferBtn = document.getElementById('action-send-contract-offer-btn');
+                            if (sendContractOfferBtn) {
+                                sendContractOfferBtn.setAttribute('data-application_id', applicationId);
                             }
                             
                             // Send Credential button - get provider ID from loaded content or selected card
@@ -5043,8 +5690,7 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                     'action-request-file-btn',
                     'action-schedule-interview-btn',
                     'action-request-documents-btn',
-                    'action-send-offer-btn',
-                    'action-send-contract-btn',
+                    'action-send-contract-offer-btn',
                     'action-send-credential-btn',
                     'action-write-review-btn'
                 ];
@@ -5070,34 +5716,8 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 } else if (normalizedStatus === 'interview' || normalizedStatus === 'interviewing') {
                     targetBtnId = 'action-request-documents-btn';
                 } else if (normalizedStatus === 'offered' || normalizedStatus === 'negotiating') {
-                    // Show both offer and contract buttons
-                    const offerBtn = document.getElementById('action-send-offer-btn');
-                    const contractBtn = document.getElementById('action-send-contract-btn');
-                    if (offerBtn) {
-                        offerBtn.classList.add('show');
-                        offerBtn.style.display = 'flex';
-                        offerBtn.style.visibility = 'visible';
-                        offerBtn.style.opacity = '1';
-                        offerBtn.style.pointerEvents = 'auto';
-                        offerBtn.removeAttribute('disabled');
-                        offerBtn.style.cursor = 'pointer';
-                        if (offerBtn.hasAttribute('data-bs-toggle')) {
-                            offerBtn.setAttribute('type', 'button');
-                        }
-                    }
-                    if (contractBtn) {
-                        contractBtn.classList.add('show');
-                        contractBtn.style.display = 'flex';
-                        contractBtn.style.visibility = 'visible';
-                        contractBtn.style.opacity = '1';
-                        contractBtn.style.pointerEvents = 'auto';
-                        contractBtn.removeAttribute('disabled');
-                        contractBtn.style.cursor = 'pointer';
-                        if (contractBtn.hasAttribute('data-bs-toggle')) {
-                            contractBtn.setAttribute('type', 'button');
-                        }
-                    }
-                    return;
+                    // Show combined contract/offer button
+                    targetBtnId = 'action-send-contract-offer-btn';
                 } else if (normalizedStatus === 'accepted' || normalizedStatus === 'hired') {
                     targetBtnId = 'action-send-credential-btn';
                 } else if (normalizedStatus === 'completed') {
@@ -5195,6 +5815,7 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                     } else {
                         // Switch to split view
                         splitViewContainer.style.display = 'grid';
+                        splitViewContainer.classList.add('list-hidden'); // Hide list by default
                         if (listViewContainer) listViewContainer.style.display = 'none';
                         gridViewBtn.classList.add('active');
                         gridViewBtn.innerHTML = `
@@ -5208,6 +5829,19 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         tableHeaders.forEach(header => {
                             header.style.display = 'none';
                         });
+                        
+                        // Hide the candidate list by default
+                        const splitJobList = document.getElementById('split-job-list');
+                        if (splitJobList) {
+                            splitJobList.style.display = 'none';
+                        }
+                        
+                        // Show toggle button
+                        const listToggleBtn = document.getElementById('list-toggle-btn');
+                        if (listToggleBtn) {
+                            listToggleBtn.style.display = 'flex';
+                            listToggleBtn.title = 'Show candidate list';
+                        }
                         
                         // Show placeholder or auto-select first application
                         if (noApplicationSelected) {
@@ -5258,6 +5892,140 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                         e.preventDefault();
                         e.stopPropagation();
                         selectApplicationCard(appCard);
+                    }
+                });
+            }
+            
+            // Function to create and ensure note button exists in split view
+            function ensureSplitViewButtons() {
+                const splitJobDetails = document.getElementById('split-job-details');
+                let detailActionButtons = document.getElementById('detail-action-buttons');
+                
+                if (!splitJobDetails) return;
+                
+                // Create detail-action-buttons container if it doesn't exist
+                if (!detailActionButtons) {
+                    detailActionButtons = document.createElement('div');
+                    detailActionButtons.id = 'detail-action-buttons';
+                    detailActionButtons.style.cssText = 'position: absolute; top: 10px; right: 10px; display: none; flex-direction: row; gap: 10px; align-items: center; justify-content: flex-end; z-index: 10;';
+                    splitJobDetails.appendChild(detailActionButtons);
+                }
+                
+                // Create Note button if it doesn't exist
+                let noteBtn = document.getElementById('detail-note-btn');
+                if (!noteBtn) {
+                    noteBtn = document.createElement('button');
+                    noteBtn.id = 'detail-note-btn';
+                    noteBtn.className = 'action-btn';
+                    noteBtn.type = 'button';
+                    noteBtn.title = 'Notes';
+                    noteBtn.style.cssText = 'display: flex !important; cursor: pointer !important; padding: 6px 12px; border-radius: 6px; border: 1px solid #e6eef6; background: #fff; align-items: center; gap: 6px; font-size: 13px; color: #000000 !important; transition: all 0.2s ease; white-space: nowrap; font-weight: 500; pointer-events: auto !important; z-index: 1001 !important; position: relative !important;';
+                    noteBtn.innerHTML = `
+                        <svg class="icon-image" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span style="color: #000000 !important;">Note</span>
+                    `;
+                    
+                    // Add click event listener for note button
+                    noteBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        console.log('Note button clicked');
+                        let applicationId = window.selectedApplicationId || currentApplicationId || null;
+                        
+                        if (!applicationId) {
+                            const activeCard = document.querySelector('.split-job-card.active');
+                            if (activeCard) {
+                                applicationId = activeCard.getAttribute('data-application-id');
+                            }
+                        }
+                        
+                        if (applicationId && typeof window.openNotesPanel === 'function') {
+                            window.openNotesPanel(applicationId);
+                        } else if (applicationId) {
+                            openNotesPanel(applicationId);
+                        } else {
+                            console.error('No application selected or openNotesPanel not found');
+                            if (typeof showToast === 'function') {
+                                showToast('Please select an application first', 'error');
+                            } else {
+                                alert('Please select an application first');
+                            }
+                        }
+                        
+                        return false;
+                    }, true);
+                    
+                    // Append note button to detail action buttons
+                    if (detailActionButtons) {
+                        detailActionButtons.appendChild(noteBtn);
+                    }
+                    
+                    console.log('Note button created and added to DOM', noteBtn);
+                }
+                
+                // Ensure button is visible and clickable
+                noteBtn.style.display = 'flex';
+                noteBtn.style.visibility = 'visible';
+                noteBtn.style.opacity = '1';
+                noteBtn.style.pointerEvents = 'auto';
+                
+                // Show action buttons container
+                if (detailActionButtons) {
+                    detailActionButtons.style.display = 'flex';
+                }
+            }
+            
+            // Make function globally available
+            window.ensureSplitViewButtons = ensureSplitViewButtons;
+            
+            // List Toggle Button Handler
+            const listToggleBtn = document.getElementById('list-toggle-btn');
+            if (listToggleBtn) {
+                listToggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const splitViewContainer = document.getElementById('split-view-container');
+                    const splitJobList = document.getElementById('split-job-list');
+                    
+                    if (!splitViewContainer || !splitJobList) return;
+                    
+                    const isHidden = splitViewContainer.classList.contains('list-hidden');
+                    
+                    if (isHidden) {
+                        // Show the list
+                        splitViewContainer.classList.remove('list-hidden');
+                        splitJobList.style.display = 'block';
+                        splitJobList.style.visibility = 'visible';
+                        splitJobList.style.width = 'auto';
+                        splitJobList.style.minWidth = '350px';
+                        splitJobList.style.maxWidth = 'none';
+                        listToggleBtn.title = 'Hide candidate list';
+                        listToggleBtn.style.left = '330px'; // Adjust position when list is visible
+                    } else {
+                        // Hide ONLY the list, keep detail panel visible
+                        splitViewContainer.classList.add('list-hidden');
+                        splitJobList.style.display = 'none';
+                        splitJobList.style.visibility = 'hidden';
+                        splitJobList.style.width = '0';
+                        splitJobList.style.minWidth = '0';
+                        splitJobList.style.maxWidth = '0';
+                        // Ensure detail panel stays visible
+                        const splitJobDetails = document.getElementById('split-job-details');
+                        if (splitJobDetails) {
+                            splitJobDetails.style.display = 'block';
+                            splitJobDetails.style.visibility = 'visible';
+                            splitJobDetails.style.width = '100%';
+                        }
+                        listToggleBtn.title = 'Show candidate list';
+                        listToggleBtn.style.left = '-20px'; // Position outside when list is hidden
                     }
                 });
             }
@@ -5717,12 +6485,30 @@ div.job-header div.col-job.sortable[data-sort="job"] {
                 if (response.redirected || response.status === 302 || response.status === 200) {
                     // Success - reload the entire page to update the application list and status cards
                     // Map database status to display status for URL (what the controller expects)
+                    // Map database status to display status for URL (what the controller expects)
+                    const transitionToStatus = {
+                        'interview': 'interviewing',
+                        'negotiate': 'negotiating',
+                        'accept': 'accepted',
+                        'hire': 'accepted',
+                        'complete': 'completed'
+                    };
+                    
                     const statusMapping = {
                         'hired': 'accepted',
                         'accepted': 'accepted',
-                        'completed': 'completed'
+                        'completed': 'completed',
+                        'interviewing': 'interviewing',
+                        'negotiating': 'negotiating'
                     };
-                    const dbStatus = transition === 'hire' ? 'hired' : 'completed';
+                    
+                    // Determine new status based on transition
+                    let dbStatus = transitionToStatus[transition];
+                    if (!dbStatus) {
+                         // Fallback for legacy calls or direct status names
+                         dbStatus = (transition === 'hire') ? 'hired' : ((transition === 'complete') ? 'completed' : transition);
+                    }
+                    
                     const displayStatus = statusMapping[dbStatus] || dbStatus;
                     
                     // Build redirect URL - use the main applications route, not the job-specific one
@@ -5754,5 +6540,611 @@ div.job-header div.col-job.sortable[data-sort="job"] {
 
         // Make function available globally
         window.updateApplicationStatus = updateApplicationStatus;
+
+        // ============================================================================
+        // NOTES FUNCTIONALITY FOR EMPLOYER APPLICATIONS
+        // ============================================================================
+        let noteSaveTimeout = null;
+        let lastSavedContent = '';
+
+        // Enhanced openNotesPanel function
+        function openNotesPanel(applicationId) {
+            const panel = document.getElementById('notes-panel');
+            const textarea = document.getElementById('notes-textarea');
+            const jobDetails = document.getElementById('split-job-details');
+            const container = document.getElementById('split-view-container');
+            
+            if (!panel || !textarea) return;
+            
+            // Step 1: Collapse the left list first
+            if (typeof window.collapseList === 'function') {
+                window.collapseList();
+            }
+            
+            // Step 2: Set application ID and load note
+            panel.dataset.applicationId = applicationId;
+            lastSavedContent = '';
+            loadApplicationNote(applicationId, textarea);
+            
+            // Step 3: Wait for collapse animation, then open panel
+            setTimeout(() => {
+                // Ensure container and job details don't scroll
+                if (container) {
+                    container.style.overflow = 'hidden';
+                }
+                if (jobDetails) {
+                    jobDetails.classList.add('notes-open');
+                    jobDetails.style.overflowY = 'hidden';
+                    jobDetails.style.overflowX = 'hidden';
+                }
+                
+                // Open panel
+                panel.classList.add('open');
+                panel.setAttribute('aria-hidden', 'false');
+                textarea.focus();
+            }, 300);
+        }
+
+        function closeNotesPanel() {
+            const panel = document.getElementById('notes-panel');
+            const jobDetails = document.getElementById('split-job-details');
+            if (!panel) return;
+            panel.classList.remove('open');
+            panel.setAttribute('aria-hidden', 'true');
+            panel.dataset.applicationId = '';
+            
+            // Remove notes-open class from job details container to restore layout
+            if (jobDetails) {
+                jobDetails.classList.remove('notes-open');
+                jobDetails.style.overflowY = 'auto';
+                jobDetails.style.overflowX = 'hidden';
+            }
+        }
+
+        // Load note from backend
+        function loadApplicationNote(applicationId, textarea) {
+            if (!applicationId || !textarea) return;
+            
+            // Show loading state
+            textarea.value = 'Loading note...';
+            textarea.disabled = true;
+            
+            fetch(`/employer/applications/api/application/${String(applicationId)}/note`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                cache: 'no-store'
+            })
+            .then(response => {
+                console.log('Note response status:', response.status);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // Note doesn't exist yet, which is fine
+                        return { success: true, content: '' };
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Note loaded:', data);
+                if (data.success) {
+                    textarea.value = data.content || '';
+                    lastSavedContent = data.content || '';
+                    textarea.disabled = false;
+                } else {
+                    textarea.value = '';
+                    textarea.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading note:', error);
+                textarea.value = '';
+                textarea.disabled = false;
+            });
+        }
+
+        // Save note to backend
+        function saveApplicationNote(applicationId, content) {
+            if (!applicationId) return;
+            
+            // Clear existing timeout
+            if (noteSaveTimeout) {
+                clearTimeout(noteSaveTimeout);
+            }
+            
+            // Debounce save - wait 500ms after user stops typing
+            noteSaveTimeout = setTimeout(() => {
+                const sanitizedContent = content.trim();
+                
+                // Don't save if content hasn't changed
+                if (sanitizedContent === lastSavedContent) {
+                    return;
+                }
+                
+                fetch(`/employer/applications/api/application/${String(applicationId)}/note`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ content: sanitizedContent })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Save response data:', data);
+                    if (data.success) {
+                        showNoteSaveSuccess();
+                        // Update the last saved content reference
+                        lastSavedContent = sanitizedContent;
+                    } else {
+                        console.error('Failed to save note:', data.message);
+                        showToast('Failed to save note: ' + data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving note:', error);
+                    showToast('Error saving note. Please try again.', 'error');
+                });
+            }, 500);
+        }
+
+        function showNoteSaveSuccess() {
+            const footer = document.querySelector('.notes-footer .last-saved');
+            const timeSpan = document.querySelector('.notes-footer .last-saved-time');
+            if (footer && timeSpan) {
+                const now = new Date();
+                timeSpan.textContent = now.toLocaleTimeString();
+                footer.style.display = 'flex';
+                setTimeout(() => {
+                    if (footer) footer.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.style.cssText = 'position: fixed; top: 20px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid ' + (type === 'success' ? '#85BB65' : '#dc3545') + '; z-index: 10000; max-width: 300px; animation: slideIn 0.3s ease;';
+            toast.innerHTML = `
+                <div style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 14px; color: #000000;">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 10px; color: #6b7280;">&times;</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // Handle Note button click
+        function handleNoteClick() {
+            // Prefer selected application in split view
+            const splitViewContainer = document.getElementById('split-view-container');
+            const isSplitActive = splitViewContainer && splitViewContainer.style.display === 'grid';
+            let applicationId = null;
+            
+            if (isSplitActive) {
+                applicationId = window.selectedApplicationId || null;
+                if (!applicationId) {
+                    const activeCard = document.querySelector('.split-job-card.active');
+                    if (activeCard) applicationId = activeCard.dataset.applicationId;
+                }
+            }
+            
+            // Fallback to checked checkbox
+            if (!applicationId) {
+                const single = Array.from(document.querySelectorAll('.job-checkbox')).filter(cb => cb.checked);
+                if (single.length === 1) applicationId = single[0].dataset.applicationId;
+            }
+            
+            if (applicationId) {
+                openNotesPanel(applicationId);
+            } else {
+                showToast('Please select an application first', 'error');
+            }
+        }
+
+        // Initialize notes functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const notesTextarea = document.getElementById('notes-textarea');
+            const detailNoteBtn = document.getElementById('detail-note-btn');
+            
+            // Auto-save on textarea input
+            if (notesTextarea) {
+                notesTextarea.addEventListener('input', function() {
+                    const applicationId = document.getElementById('notes-panel')?.dataset.applicationId;
+                    if (applicationId) {
+                        saveApplicationNote(applicationId, this.value);
+                    }
+                });
+            }
+            
+            // Handle detail-note-btn click (button in application details panel)
+            document.addEventListener('click', function(e) {
+                const detailNoteBtn = e.target.closest('#detail-note-btn');
+                if (detailNoteBtn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    // Get the selected application ID
+                    let applicationId = window.selectedApplicationId || null;
+                    
+                    // If not found, try to find from active split job card
+                    if (!applicationId) {
+                        const activeCard = document.querySelector('.split-job-card.active');
+                        if (activeCard) {
+                            applicationId = activeCard.getAttribute('data-application-id');
+                        }
+                    }
+                    
+                    // If still not found, try to find from checked checkbox
+                    if (!applicationId) {
+                        const checkedCheckbox = document.querySelector('.job-checkbox:checked');
+                        if (checkedCheckbox) {
+                            applicationId = checkedCheckbox.getAttribute('data-application-id');
+                        }
+                    }
+                    
+                    if (applicationId) {
+                        // Open notes panel
+                        if (typeof window.openNotesPanel === 'function') {
+                            window.openNotesPanel(applicationId);
+                        } else {
+                            openNotesPanel(applicationId);
+                        }
+                    } else {
+                        if (typeof showToast === 'function') {
+                            showToast('Please select an application first', 'warning');
+                        } else {
+                            alert('Please select an application first');
+                        }
+                    }
+                    return;
+                }
+            });
+        });
+
+        // Make functions globally accessible
+        window.openNotesPanel = openNotesPanel;
+        window.closeNotesPanel = closeNotesPanel;
+        window.handleNoteClick = handleNoteClick;
+    </script>
+    <!-- Styles for Calendly Modal -->
+    <style>
+        .duration-chip-mini {
+            padding: 4px 12px;
+            border: 1px solid #e1e4e8;
+            background: #fff;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .duration-chip-mini:hover {
+            border-color: #006bff;
+            color: #006bff;
+        }
+        .duration-chip-mini.active {
+            background: #e6f0ff;
+            border-color: #006bff;
+            color: #006bff;
+            font-weight: 600;
+        }
+        
+        .time-slot-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .time-slot-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #85BB65; /* Color from Logo */
+            background: #fff;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #85BB65;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .time-slot-btn:hover {
+            background: #85BB65;
+            color: #fff;
+            border-color: #85BB65;
+        }
+        .time-slot-btn.active-slot {
+            background: #666; /* Neutral grey for "selected" state before confirm */
+            color: #fff;
+            border-color: #666;
+            width: 45%; /* Shrink to make room for Next button */
+            flex: 0 0 auto;
+        }
+
+        .next-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #006bff;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .flatpickr-calendar.inline {
+            width: 100% !important;
+            max-width: 320px;
+            box-shadow: none !important;
+            margin: 0 auto;
+        }
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected:focus, .flatpickr-day.selected:hover {
+            background: #006bff !important;
+            border-color: #006bff !important;
+        }
+    </style>
+
+    <script>
+    // Functions for Calendly-style Modal
+    let selectedDateStr = null;
+    let selectedTimeStr = null;
+    let selectedFullDateTime = null;
+
+    function setMeetingDuration(btn, minutes) {
+        document.getElementById('meeting_duration').value = minutes;
+        
+        document.querySelectorAll('.duration-chip-mini').forEach(chip => chip.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.getElementById('duration-text').textContent = minutes + ' min';
+        
+        if (selectedDateStr) {
+            generateTimeSlots(selectedDateStr);
+        }
+    }
+    
+    function generateTimeSlots(dateStr) {
+        selectedDateStr = dateStr;
+        const container = document.getElementById('time-slots-container');
+        container.innerHTML = '';
+        
+        const dateObj = new Date(dateStr);
+        const optionsDate = { weekday: 'long', month: 'long', day: 'numeric' };
+        document.getElementById('selected-date-header').textContent = dateObj.toLocaleDateString('en-US', optionsDate);
+        
+        // Generate slots from 9 AM to 5 PM
+        const startHour = 9;
+        const endHour = 17;
+        
+        for (let h = startHour; h < endHour; h++) {
+            ['00', '30'].forEach(min => {
+                const timeLabel = formatTimeDisplay(h, min);
+                const fullDateTime = `${dateStr} ${h.toString().padStart(2, '0')}:${min}`;
+                
+                // Row container
+                const row = document.createElement('div');
+                row.className = 'time-slot-row';
+                
+                // Time Button
+                const slotBtn = document.createElement('button');
+                slotBtn.type = 'button';
+                slotBtn.className = 'time-slot-btn';
+                slotBtn.textContent = timeLabel;
+                
+                // Next Button
+                const nextBtn = document.createElement('button');
+                nextBtn.type = 'button';
+                nextBtn.className = 'next-btn';
+                nextBtn.textContent = 'Next';
+                nextBtn.onclick = () => confirmTimeSlot(fullDateTime, timeLabel);
+                
+                // Handle Click on Slot
+                slotBtn.onclick = () => {
+                   // Reset all
+                   document.querySelectorAll('.time-slot-btn').forEach(b => {
+                       b.classList.remove('active-slot');
+                       b.style.width = '100%';
+                       b.style.display = 'flex'; // Ensure visible
+                   });
+                   document.querySelectorAll('.next-btn').forEach(b => b.style.display = 'none');
+                   
+                   // Activate this one
+                   slotBtn.classList.add('active-slot');
+                   nextBtn.style.display = 'flex';
+                };
+                
+                row.appendChild(slotBtn);
+                row.appendChild(nextBtn);
+                container.appendChild(row);
+            });
+        }
+    }
+    
+    function formatTimeDisplay(hour, min) {
+        const ampm = hour >= 12 ? 'pm' : 'am';
+        const h12 = hour % 12 || 12;
+        return `${h12}:${min}${ampm}`;
+    }
+    
+    function confirmTimeSlot(fullDateTime, timeLabel) {
+        selectedFullDateTime = fullDateTime;
+        selectedTimeStr = timeLabel;
+        
+        // Set hidden input
+        document.getElementById('meeting_date').value = fullDateTime;
+        
+        // Switch to details view
+        document.getElementById('view-time-slots').style.display = 'none';
+        document.getElementById('view-details').style.display = 'flex';
+        
+        // Update details header
+        const dateObj = new Date(selectedDateStr);
+        const optionsDate = { weekday: 'long', month: 'long', day: 'numeric' };
+        const duration = document.getElementById('meeting_duration').value;
+        const niceDate = dateObj.toLocaleDateString('en-US', optionsDate);
+        
+        document.getElementById('confirm-time-display').innerHTML = `
+            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${selectedTimeStr} - ${addMinutes(selectedTimeStr, duration)}</div>
+            <div>${niceDate}</div>
+            <div style="font-size: 12px; color: #888; margin-top: 4px;">${document.getElementById('local-timezone')?.textContent || ''}</div>
+        `;
+    }
+    
+    function addMinutes(timeStr, minutes) {
+        var match = timeStr.match(/(\d+):(\d+)(am|pm)/i);
+        if (!match) return timeStr;
+        
+        var h = parseInt(match[1]);
+        var m = parseInt(match[2]);
+        var amp = match[3].toLowerCase();
+        
+        if (amp === 'pm' && h < 12) h += 12;
+        if (amp === 'am' && h === 12) h = 0;
+        
+        var totalMinutes = h * 60 + m + parseInt(minutes);
+        var newH = Math.floor(totalMinutes / 60) % 24;
+        var newM = totalMinutes % 60;
+        
+        var newAmp = newH >= 12 ? 'pm' : 'am';
+        var showH = newH % 12 || 12;
+        var showM = newM.toString().padStart(2, '0');
+        
+        return showH + ':' + showM + newAmp;
+    }
+    
+    function showTimeSlots() {
+        document.getElementById('view-details').style.display = 'none';
+        document.getElementById('view-time-slots').style.display = 'flex';
+    }
+
+    // Set timezone
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const el = document.getElementById('local-timezone');
+            if(el) el.textContent = tz;
+        } catch(e){}
+    });
+    </script>
+
+    <script>
+    // Initialize Calendly Modal Logic for index.html.twig
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalId = 'scheduleInterviewModal';
+        var modalEl = document.getElementById(modalId);
+        
+        if (modalEl) {
+            // Function to initialize Flatpickr when modal is shown
+            var onShow = function(event) {
+                // Initialize Flatpickr if not already initialized
+                if (!modalEl.dataset.flatpickrInitialized) {
+                    if (typeof flatpickr === 'function') {
+                        flatpickr('#inline-flatpickr', {
+                            enableTime: false,
+                            dateFormat: "Y-m-d",
+                            inline: true,
+                            minDate: "today",
+                            disableMobile: true,
+                            onChange: function(selectedDates, dateStr, instance) {
+                                if (typeof generateTimeSlots === 'function') {
+                                    generateTimeSlots(dateStr);
+                                }
+                            }
+                        });
+                        modalEl.dataset.flatpickrInitialized = 'true';
+                    }
+                }
+                
+                // Get the button that triggered the modal
+                var button = event.relatedTarget; 
+                
+                var appId = null;
+                if (button) {
+                    // Try standard attribute first, then variations
+                    appId = button.getAttribute('data-application-id') || 
+                            button.getAttribute('data-application_id') ||
+                            (button.dataset ? button.dataset.applicationId : null);
+                }
+                
+                // Fallback to global selectedApplicationId
+                if (!appId && typeof selectedApplicationId !== 'undefined') {
+                    appId = selectedApplicationId;
+                }
+
+                 // Fallback to finding it in the DOM if we are in the details view
+                if (!appId) {
+                     const scheduleBtn = document.getElementById('action-schedule-interview-btn');
+                     if (scheduleBtn) appId = scheduleBtn.getAttribute('data-application_id');
+                }
+
+                // CRITICAL FIX: If triggered manually (e.g. from handleEmployerTodoIconClick), 
+                // the input might already have the ID set. Use it if we haven't found one yet.
+                if (!appId) {
+                    var existingInput = document.getElementById('scheduleInterviewApplicationId');
+                    if (existingInput && existingInput.value) {
+                        appId = existingInput.value;
+                    }
+                }
+                
+                if (appId) {
+                    // Set hidden input
+                    document.getElementById('scheduleInterviewApplicationId').value = appId;
+                    
+                    // Set form action
+                    var form = document.getElementById('scheduleInterviewForm');
+                    // Route: /employer/applications/{id}/schedule-interview
+                    var actionUrl = '/employer/applications/' + appId + '/schedule-interview';
+                    form.action = actionUrl;
+                    
+                    console.log('Schedule Interview initialized for App ID:', appId, 'Action:', actionUrl);
+                } else {
+                    console.error('Could not determine Application ID for interview scheduling');
+                }
+            };
+
+            // Attach event listener
+            if (typeof $ !== 'undefined' && $(modalEl).on) {
+                $(modalEl).on('shown.bs.modal', onShow);
+            } else {
+                modalEl.addEventListener('shown.bs.modal', onShow);
+            }
+        }
+    });
+
+    // Close button fix
+    function closeModal(modalId) {
+        if (typeof $ !== 'undefined' && $('#' + modalId).length) {
+            $('#' + modalId).modal('hide');
+        } else if (window.bootstrap && window.bootstrap.Modal) {
+            const el = document.getElementById(modalId);
+            const modal = bootstrap.Modal.getInstance(el);
+            if (modal) modal.hide();
+        }
+    }
     </script>
 {% endblock %}

@@ -153,10 +153,36 @@
 .status-workflow-card.completed .status-workflow-card-label {
     color: #000;
 }
+
+/* Active status highlighting - light blue */
+.status-workflow-card.active {
+    background: #87ceeb !important;
+    color: #87ceeb !important;
+}
+
+.status-workflow-card.active .status-workflow-card-number,
+.status-workflow-card.active .status-workflow-card-label {
+    color: #000 !important;
+}
+
+/* Update chevron color for active card */
+.status-workflow-card.active:not(.last)::after {
+    border-left-color: #87ceeb !important;
+}
+
+.status-workflow-card.active:not(.last)::before {
+    border-left-color: #87ceeb !important;
+}
+
+/* Ensure chevron from previous card points to active card */
+.status-workflow-card.active ~ .status-workflow-card:not(.last)::before {
+    border-left-color: #87ceeb !important;
+}
 </style>
 
 <div class="status-workflow mb-4">
-    <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}" class="status-workflow-card all first">
+    {% set currentStatus = app.request.get('status')|default('') %}
+    <a href="{{ path('app_employer_job_applications', {'id': job.id}) }}" class="status-workflow-card all first{% if currentStatus == '' or currentStatus is empty %} active{% endif %}">
         <div class="status-workflow-card-label">All</div>
     </a>
     {% for status in allStatuses %}
@@ -177,7 +203,8 @@
             {% endif %}
         {% endfor %}
         {% set isLast = loop.last %}
-        <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}" class="status-workflow-card {{ status }}{% if isLast %} last{% endif %}">
+        {% set isActive = currentStatus == status %}
+        <a href="{{ path('app_employer_job_applications', {'id': job.id, 'status': status}) }}" class="status-workflow-card {{ status }}{% if isLast %} last{% endif %}{% if isActive %} active{% endif %}">
             <div class="status-workflow-card-number">{{ count }}</div>
             <div class="status-workflow-card-label">
                 {{ status | title }}

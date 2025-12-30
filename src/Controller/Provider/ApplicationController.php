@@ -15,6 +15,7 @@ use Symfony\Component\Uid\Uuid;
 
 use App\Entity\Bookmark;
 use App\Entity\Document;
+use App\Entity\ToDo;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -999,8 +1000,9 @@ class ApplicationController extends AbstractController
     #[Route('/{id}/notify-hire', name: 'app_provider_application_notify_hire', methods: ['POST'])]
     public function notifyHire(
         Application $application,
-        EntityManagerInterface $em
-    ): JsonResponse {
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
         $user = $this->getUser();
         $provider = $user?->getProvider();
 
@@ -1014,7 +1016,12 @@ class ApplicationController extends AbstractController
             $em->flush();
         }
 
-        return $this->json(['success' => true, 'message' => 'Employer notified of acceptance.']);
+        if ($request->isXmlHttpRequest()) {
+            return $this->json(['success' => true, 'message' => 'Employer notified of acceptance.']);
+        }
+
+        $this->addFlash('success', 'Employer notified of acceptance.');
+        return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
     }
 
     #[Route('/{id}/upload-signed-contract', name: 'app_provider_application_upload_signed_contract', methods: ['POST'])]
@@ -1025,7 +1032,7 @@ class ApplicationController extends AbstractController
         SluggerInterface $slugger,
         EventDispatcherInterface $dispatcher,
         #[Autowire('%kernel.project_dir%/public/uploads')] string $uploadDirectory
-    ): JsonResponse {
+    ): Response {
         $user = $this->getUser();
         $provider = $user?->getProvider();
 
@@ -1079,14 +1086,43 @@ class ApplicationController extends AbstractController
         $application->setStatus(Application::STATUS_ACCEPTED);
 
         $em->persist($application);
+
+        // 1. Mark Provider's "Sign Contract" ToDo as completed
+        $providerToDo = $em->getRepository(ToDo::class)->findOneBy([
+            'provider' => $provider,
+            'job' => $application->getJob(),
+            'type' => 'contract',
+            'isCompleted' => false
+        ]);
+
+        if ($providerToDo) {
+            $providerToDo->setIsCompleted(true);
+            $em->persist($providerToDo);
+        }
+
+        // 2. Create "Verify Signed Contract" ToDo for Employer
+        $employerToDo = new ToDo();
+        $employerToDo->setEmployer($application->getEmployer());
+        $employerToDo->setProvider($provider);
+        $employerToDo->setJob($application->getJob());
+        $employerToDo->setTitle('Verify Signed Contract');
+        $employerToDo->setDescription($provider->getUser()->getName() . ' has uploaded a signed contract. Please review and verify it.');
+        $employerToDo->setType('verify_contract');
+        $em->persist($employerToDo);
+
         $em->flush();
 
         // Dispatch event if needed
         // $dispatcher->dispatch(new ApplicationEvent($application), ...);
 
-        return $this->json([
-            'success' => true,
-            'message' => 'Signed contract uploaded and accepted.'
-        ]);
+        if ($request->isXmlHttpRequest()) {
+            return $this->json([
+                'success' => true,
+                'message' => 'Signed contract uploaded and accepted.'
+            ]);
+        }
+
+        $this->addFlash('success', 'Signed contract uploaded and accepted.');
+        return $this->redirectToRoute('app_provider_jobs_application_detail', ['id' => $application->getId()]);
     }
 }

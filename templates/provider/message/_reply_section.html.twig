@@ -1,0 +1,105 @@
+{# Reply Section Component - Professional Reply Button #}
+<div class="reply-action-section" style="margin: 24px 0; padding: 0;">
+    <button type="button" class="reply-button-professional" onclick="openReplyComposeModal()" style="
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 28px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    ">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: #ffffff; transition: transform 0.3s ease;">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Reply</span>
+    </button>
+</div>
+
+<style>
+.reply-button-professional:hover {
+    background: linear-gradient(135deg, #85BB65 0%, #6fa050 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(133, 187, 101, 0.4) !important;
+}
+
+.reply-button-professional:hover svg {
+    transform: translateX(2px);
+}
+
+.reply-button-professional:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.reply-button-professional::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.reply-button-professional:active::before {
+    width: 300px;
+    height: 300px;
+}
+</style>
+
+<script>
+function openReplyComposeModal() {
+    // Get the recipient - if current user is sender, reply to receiver, and vice versa
+    const currentUserId = {{ app.user.id }};
+    const messageSenderId = {{ message.sender.id }};
+    const messageReceiverId = {{ message.receiver ? message.receiver.id : 'null' }};
+    
+    // Determine recipient
+    let recipientId = null;
+    if (currentUserId === messageSenderId && messageReceiverId) {
+        recipientId = messageReceiverId;
+    } else if (currentUserId === messageReceiverId && messageSenderId) {
+        recipientId = messageSenderId;
+    }
+    
+    // Open compose modal
+    if (typeof openComposeModal === 'function') {
+        openComposeModal();
+        
+        // Pre-fill recipient after a short delay to ensure modal is open
+        setTimeout(function() {
+            const receiverSelect = document.getElementById('compose-receiver');
+            if (receiverSelect && recipientId) {
+                receiverSelect.value = recipientId;
+            }
+            
+            // Pre-fill subject with "Re:"
+            const subjectInput = document.getElementById('compose-subject');
+            if (subjectInput) {
+                const originalSubject = '{{ message.subject|default("")|e("js") }}';
+                if (originalSubject && !originalSubject.startsWith('Re:')) {
+                    subjectInput.value = 'Re: ' + originalSubject;
+                } else if (originalSubject) {
+                    subjectInput.value = originalSubject;
+                }
+            }
+        }, 100);
+    } else {
+        console.error('openComposeModal function not found');
+    }
+}
+</script>
+

@@ -8,6 +8,7 @@ use App\Entity\Interview;
 use App\Entity\Job;
 use App\Entity\Review;
 use App\Entity\ToDo;
+
 use App\Event\ApplicationEvent;
 use App\Event\ReviewEvent;
 use App\Repository\ApplicationRepository;
@@ -31,6 +32,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use App\Entity\Document;
 use App\Entity\Provider;
+use App\Service\ApplicationNoteService;
 
 #[Route('/employer/applications')]
 class ApplicationController extends AbstractController
@@ -447,7 +449,7 @@ class ApplicationController extends AbstractController
         return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
     }
 
-    #[Route('/{id}/shcudule-interview', name: 'app_employer_application_scheduleinterview', methods: ['POST'])]
+    #[Route('/{id}/schedule-interview', name: 'app_employer_application_scheduleinterview', methods: ['POST'])]
 
     public function scheduleInterview(Application $application, Request $request, EntityManagerInterface $em, EventDispatcherInterface $dispatcher, MailerInterface $mailer): Response
     {
@@ -988,6 +990,17 @@ class ApplicationController extends AbstractController
 
             $dispatcher->dispatch(new ApplicationEvent($application), ApplicationEvent::APPLICATION_CONTRACT_SENT);
 
+            // Create ToDo for Provider to sign contract
+            $todo = new ToDo();
+            $todo->setProvider($application->getProvider());
+            $todo->setEmployer($application->getEmployer());
+            $todo->setJob($application->getJob());
+            $todo->setTitle('Sign Contract');
+            $todo->setDescription('Please sign and upload the contract sent by ' . ($currentEmployer->getCompanyName() ?? $currentEmployer->getName()));
+            $todo->setType('contract');
+            $em->persist($todo);
+            $em->flush();
+
             $this->addFlash('success', 'Contract sent to provider successfully.');
             return $this->redirect($referer ?? $this->generateUrl('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]));
         }
@@ -1001,7 +1014,7 @@ class ApplicationController extends AbstractController
         Application $application,
         Request $request,
         EntityManagerInterface $em,
-        EventDispatcherInterface $dispatcher,
+        EventDispatcherInterface $dispatcher
     ): Response {
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
@@ -1081,7 +1094,15 @@ class ApplicationController extends AbstractController
 
                 $dispatcher->dispatch(new ReviewEvent($review), ReviewEvent::PROVIDER_REVIEWED);
 
-                $this->addFlash('success', 'Review added for provider successfully.');
+                if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return new JsonResponse([
+                        'success' => true,
+                        'message' => 'Review added for provider successfully.',
+                        // Can return updated average if needed for UI update
+                        'averagePoint' => $provider->getAveragePoint()
+                    ]);
+                }
+
                 $this->addFlash('success', 'Review added for provider successfully.');
 
                 // Automatic switch to Completed when review is added (if not already)
@@ -1093,6 +1114,12 @@ class ApplicationController extends AbstractController
 
                 return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
             } else {
+                if ($request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return new JsonResponse([
+                        'success' => false,
+                        'message' => 'Unable to create review. Please fill in all required fields.'
+                    ], 400);
+                }
                 $this->addFlash('error', 'Unable to create review. Please fill in all required fields.');
                 return $this->redirectToRoute('app_employer_job_applications', ['id' => $application->getJob()->getId(), 'applicationId' => $application->getId()]);
             }
@@ -1537,6 +1564,153 @@ class ApplicationController extends AbstractController
             'success' => true,
             'message' => 'Status updated successfully',
             'status' => $newStatus
+        ]);
+    }
+
+    #[Route('/api/application/{id}/note', name: 'api_application_note', methods: ['GET', 'POST', 'DELETE'])]
+    public function handleApplicationNote(
+        Application $application,
+        Request $request,
+        ApplicationNoteService $applicationNoteService,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $user = $this->getUser();
+
+        if (!$user) {
+            error_log("❌ APPLICATION NOTE: No authenticated user");
+            return $this->json([
+                'success' => false,
+                'message' => 'Authentication required'
+            ], 401);
+        }
+
+        // Verify the application belongs to the employer
+        $employer = $user->getEmployer();
+        if ($application->getEmployer() !== $employer) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        // Debug logging
+        error_log("=== APPLICATION NOTE REQUEST ===");
+        error_log("Method: " . $request->getMethod());
+        error_log("User ID: " . $user->getId());
+        error_log("Application ID: " . $application->getId());
+
+        try {
+            switch ($request->getMethod()) {
+                case 'GET':
+                    error_log("📥 GET NOTE REQUEST");
+                    return $this->handleGetNote($user, $application, $applicationNoteService, $em);
+
+                case 'POST':
+                    error_log("💾 SAVE NOTE REQUEST");
+                    return $this->handleSaveNote($user, $application, $request, $applicationNoteService, $em);
+
+                case 'DELETE':
+                    error_log("🗑️ DELETE NOTE REQUEST");
+                    return $this->handleDeleteNote($user, $application, $applicationNoteService);
+
+                default:
+                    error_log("❌ UNSUPPORTED METHOD: " . $request->getMethod());
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'Method not allowed'
+                    ], 405);
+            }
+        } catch (\Exception $e) {
+            error_log('❌ APPLICATION NOTE ERROR: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            return $this->json([
+                'success' => false,
+                'message' => 'Operation failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function handleGetNote($user, Application $application, ApplicationNoteService $applicationNoteService, EntityManagerInterface $em): JsonResponse
+    {
+        error_log("=== GET APPLICATION NOTE DEBUG ===");
+        error_log("User ID: " . $user->getId() . " (string: " . $user->getId()->toString() . ")");
+        error_log("Application ID: " . $application->getId() . " (string: " . $application->getId()->toString() . ")");
+
+        $userIdString = $user->getId()->toString();
+        $applicationIdString = $application->getId()->toString();
+
+        $content = $applicationNoteService->getNoteContent($user, $application);
+
+        error_log("=== END GET DEBUG ===");
+
+        return $this->json([
+            'success' => true,
+            'content' => $content ?? '',
+            'debug' => [
+                'user_id' => $userIdString,
+                'application_id' => $applicationIdString,
+                'service_result' => $content ? 'exists' : 'null'
+            ]
+        ]);
+    }
+
+    private function handleSaveNote($user, Application $application, Request $request, ApplicationNoteService $applicationNoteService, EntityManagerInterface $em): JsonResponse
+    {
+        // Get and validate content
+        $data = json_decode($request->getContent(), true);
+        $content = $data['content'] ?? '';
+
+        error_log("=== SAVE APPLICATION NOTE DEBUG ===");
+        error_log("User ID: " . $user->getId());
+        error_log("Application ID: " . $application->getId());
+        error_log("Content received: '" . $content . "'");
+        error_log("Content length: " . strlen($content));
+
+        // Trim and validate content
+        $content = trim($content);
+
+        if ($content === '') {
+            error_log("ℹ️ Empty content - attempting to delete note");
+            $deleted = $applicationNoteService->deleteNote($user, $application);
+            error_log("Delete result: " . ($deleted ? 'SUCCESS' : 'FAILED'));
+            error_log("=== END SAVE DEBUG (DELETE) ===");
+
+            return $this->json([
+                'success' => true,
+                'message' => $deleted ? 'Note deleted' : 'No note to save',
+                'note' => null
+            ]);
+        }
+
+        error_log("ℹ️ Attempting to save note via service");
+
+        $note = $applicationNoteService->saveNote($user, $application, $content);
+
+        error_log("✅ Save successful - Note ID: " . $note->getId());
+        error_log("Saved content: '" . $note->getContent() . "'");
+        error_log("=== END SAVE DEBUG ===");
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Note saved successfully',
+            'note' => [
+                'id' => $note->getId(),
+                'content' => $note->getContent(),
+                'updatedAt' => $note->getUpdatedAt()->format('Y-m-d H:i:s')
+            ]
+        ]);
+    }
+
+    private function handleDeleteNote($user, Application $application, ApplicationNoteService $applicationNoteService): JsonResponse
+    {
+        error_log("=== DELETE APPLICATION NOTE DEBUG ===");
+        $deleted = $applicationNoteService->deleteNote($user, $application);
+        error_log("Delete result: " . ($deleted ? 'SUCCESS' : 'FAILED - Note not found'));
+        error_log("=== END DELETE DEBUG ===");
+
+        return $this->json([
+            'success' => $deleted,
+            'message' => $deleted ? 'Note deleted successfully' : 'Note not found'
         ]);
     }
 }
